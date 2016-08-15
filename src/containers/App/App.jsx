@@ -47,15 +47,21 @@ class App extends PureComponent {
       <div>
         <Helmet {...config.app.head} />
         <div className="nav">
-          <ul className="list-inline">
-            <li><Link to="/">Home</Link></li>
-            <li><Link to="/location">Location</Link></li>
-          </ul>
+          <div className="container">
+            <ul className="list-inline">
+              <li><Link to="/">Home</Link></li>
+              <li><Link to="/location">Location</Link></li>
+            </ul>
+          </div>
         </div>
-        <div>
+        <div className="container">
           {this.props.children}
         </div>
-        <JsonDump fetchJson={this.handleFetchInfo} json={info} />
+        <div className="container" style={{ marginTop: 100 }}>
+          <div className="well">
+            <JsonDump fetchJson={this.handleFetchInfo} json={info} />
+          </div>
+        </div>
       </div>
     );
   }

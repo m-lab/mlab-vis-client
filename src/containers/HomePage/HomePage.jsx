@@ -13,9 +13,9 @@ function mapStateToProps(/* state */) {
 class HomePage extends PureComponent {
   render() {
     return (
-      <div className="home">
+      <div className="home-page">
         <Helmet title="Home" />
-        <div><Link to="/location">Location</Link></div>
+        <h1>Home</h1>
         <div>This is the home page.</div>
       </div>
     );
