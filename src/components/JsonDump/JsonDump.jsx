@@ -1,8 +1,8 @@
-import React, { Component, PropTypes } from 'react';
+import React, { PureComponent, PropTypes } from 'react';
 
 import './JsonDump.scss';
 
-export default class InfoBar extends Component {
+export default class JsonDump extends PureComponent {
   static propTypes = {
     json: PropTypes.object,
     fetchJson: PropTypes.func,

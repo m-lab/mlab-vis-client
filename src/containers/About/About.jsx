@@ -1,4 +1,4 @@
-import React, { Component } from 'react';
+import React, { PureComponent } from 'react';
 import { connect } from 'react-redux';
 import { Link } from 'react-router';
 import Helmet from 'react-helmet';
@@ -9,7 +9,7 @@ function mapStateToProps(/* state */) {
   };
 }
 
-class About extends Component {
+class About extends PureComponent {
   render() {
     return (
       <div className="container">

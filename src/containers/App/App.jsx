@@ -1,4 +1,4 @@
-import React, { Component, PropTypes } from 'react';
+import React, { PureComponent, PropTypes } from 'react';
 import { connect } from 'react-redux';
 import Helmet from 'react-helmet';
 import { fetchInfoIfNeeded, fetchInfo } from 'redux/modules/info';
@@ -12,7 +12,7 @@ function mapStateToProps(state) {
   };
 }
 
-class App extends Component {
+class App extends PureComponent {
   static propTypes = {
     dispatch: React.PropTypes.func,
     children: PropTypes.object.isRequired,
