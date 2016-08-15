@@ -3,6 +3,9 @@ import d3 from 'd3';
 
 import './LineChart.scss';
 
+/**
+ * A line chart that uses d3 to draw
+ */
 export default class LineChart extends PureComponent {
   static propTypes = {
     data: PropTypes.array,
@@ -10,14 +13,23 @@ export default class LineChart extends PureComponent {
     height: React.PropTypes.number,
   }
 
+  /**
+   * When the react component mounts, setup the d3 vis
+   */
   componentDidMount() {
     this.setup();
   }
 
+  /**
+   * When the react component updates, update the d3 vis
+   */
   componentDidUpdate() {
     this.update();
   }
 
+  /**
+   * When new props are received, regenerate vis components if necessary
+   */
   componentWillReceiveProps(nextProps) {
     const { data, width, height } = this.props;
 
@@ -71,7 +83,7 @@ export default class LineChart extends PureComponent {
   }
 
   /**
-   * Initialize the d3 chart
+   * Initialize the d3 chart - this is run once on mount
    */
   setup() {
     this.visComponents = this.makeVisComponents(this.props);
@@ -81,14 +93,30 @@ export default class LineChart extends PureComponent {
       .append('g')
       .attr('transform', `translate(${innerMargin.left} ${innerMargin.top})`);
 
+    this.lines = this.g.append('g').classed('lines-group', true);
     this.circles = this.g.append('g').classed('circles-group', true);
     this.update();
   }
 
   /**
-   * Update the d3 chart
+   * Render the lines in the chart
    */
-  update() {
+  renderLines() {
+    const { data, line } = this.visComponents;
+
+    const binding = this.lines.selectAll('path').data([data]);
+
+    binding.enter()
+      .append('path')
+      .attr('d', line)
+      .style('stroke', '#a00')
+      .style('fill', 'none');
+  }
+
+  /**
+   * Render some circles in the chart
+   */
+  renderCircles() {
     const { data, xScale, yScale } = this.visComponents;
 
     const binding = this.circles.selectAll('circle').data(data);
@@ -98,7 +126,7 @@ export default class LineChart extends PureComponent {
 
     binding
       .merge(entering)
-      .attr('r', 10)
+      .attr('r', 4)
       .attr('cx', d => xScale(d.x))
       .attr('cy', d => yScale(d.y));
 
@@ -106,6 +134,18 @@ export default class LineChart extends PureComponent {
       .remove();
   }
 
+  /**
+   * Update the d3 chart - this is the main drawing function
+   */
+  update() {
+    this.renderCircles();
+    this.renderLines();
+  }
+
+  /**
+   * The main render method. Defers chart rendering to d3 in `update` and `setup`
+   * @return {React.Component} The rendered container
+   */
   render() {
     const { width, height } = this.props;
 
