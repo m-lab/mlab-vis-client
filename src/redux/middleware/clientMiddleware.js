@@ -25,7 +25,10 @@ export default function clientMiddleware(api) {
       const actionPromise = promise(api);
       actionPromise.then(
         (result) => next({ ...rest, result, type: SUCCESS }),
-        (error) => next({ ...rest, error, type: FAILURE })
+        (error) => {
+          console.warn('Error in promise', error);
+          return next({ ...rest, error, type: FAILURE });
+        }
       ).catch(error => {
         console.error('MIDDLEWARE ERROR:', error);
         next({ ...rest, error, type: FAILURE });
