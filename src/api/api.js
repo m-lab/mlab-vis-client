@@ -1,12 +1,26 @@
 import superagent from 'superagent';
 import config from '../config';
 
+/**
+ * Formats a URL to go via the API server
+ *
+ * @param {String} path the relative path of the API call
+ */
 function formatUrl(path) {
   const adjustedPath = path[0] !== '/' ? `/${path}` : path;
   // Prepend API root
   return `${config.apiRoot}${adjustedPath}`;
 }
 
+/**
+ * Makes an AJAX get request
+ *
+ * @param {String} path The relative API URL to request from
+ * @param {Object} options The request options
+ * @param {Object} options.params The query parameters
+ * @param {Any} options.data The data to send with the request
+ * @return {Promise} The promise for the request
+ */
 function get(path, { params, data } = {}) {
   return new Promise((resolve, reject) => {
     const request = superagent.get(formatUrl(path));
