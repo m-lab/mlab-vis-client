@@ -11,6 +11,13 @@ export default class LineChart extends PureComponent {
     data: PropTypes.array,
     width: React.PropTypes.number,
     height: React.PropTypes.number,
+    xKey: React.PropTypes.string,
+    yKey: React.PropTypes.string,
+  }
+
+  static defaultProps = {
+    xKey: 'x',
+    yKey: 'y',
   }
 
   /**
@@ -46,7 +53,7 @@ export default class LineChart extends PureComponent {
    * based on the props of the component
    */
   makeVisComponents(props) {
-    const { width, height, data } = props;
+    const { data = [], height, width, xKey, yKey } = props;
 
     const innerMargin = { top: 20, right: 20, bottom: 35, left: 50 };
     const innerWidth = width - innerMargin.left - innerMargin.right;
@@ -57,17 +64,18 @@ export default class LineChart extends PureComponent {
     const yMin = innerHeight;
     const yMax = 0;
 
-    const xDomain = d3.extent(data, d => d.x);
-    const yDomain = d3.extent(data, d => d.y);
+    // NOTE: it is better for this transform of the data to take place via reselect.
+    const xDomain = d3.extent(data, d => new Date(d[xKey]));
+    const yDomain = d3.extent(data, d => d[yKey]);
 
-    const xScale = d3.scaleLinear().domain(xDomain).range([xMin, xMax]);
+    const xScale = d3.scaleTime().domain(xDomain).range([xMin, xMax]);
     const yScale = d3.scaleLinear().domain(yDomain).range([yMin, yMax]);
 
     // function to generate paths for each series
     const line = d3.line()
       .curve(d3.curveLinear)
-      .x((d) => xScale(d.x))
-      .y((d) => yScale(d.y));
+      .x((d) => xScale(new Date(d[xKey])))
+      .y((d) => yScale(d[yKey]));
 
     return {
       data,
@@ -78,7 +86,9 @@ export default class LineChart extends PureComponent {
       line,
       width,
       xScale,
+      xKey,
       yScale,
+      yKey,
     };
   }
 
@@ -103,33 +113,41 @@ export default class LineChart extends PureComponent {
    */
   renderLines() {
     const { data, line } = this.visComponents;
-
     const binding = this.lines.selectAll('path').data([data]);
 
-    binding.enter()
+    // ENTER
+    const entering = binding.enter()
       .append('path')
-      .attr('d', line)
-      .style('stroke', '#a00')
+      .style('stroke', '#00a')
       .style('fill', 'none');
+
+    // ENTER + UPDATE
+    binding
+      .merge(entering)
+      .attr('d', line);
   }
 
   /**
    * Render some circles in the chart
    */
   renderCircles() {
-    const { data, xScale, yScale } = this.visComponents;
+    const { data, xScale, xKey, yScale, yKey } = this.visComponents;
 
     const binding = this.circles.selectAll('circle').data(data);
+
+    // ENTER
     const entering = binding.enter()
       .append('circle')
-      .style('fill', '#c00');
+      .style('fill', '#00c');
 
+    // ENTER + UPDATE
     binding
       .merge(entering)
-      .attr('r', 4)
-      .attr('cx', d => xScale(d.x))
-      .attr('cy', d => yScale(d.y));
+      .attr('r', 3)
+      .attr('cx', d => xScale(new Date(d[xKey])))
+      .attr('cy', d => yScale(d[yKey]));
 
+    // EXIT
     binding.exit()
       .remove();
   }
@@ -138,6 +156,7 @@ export default class LineChart extends PureComponent {
    * Update the d3 chart - this is the main drawing function
    */
   update() {
+    console.log('updating with', this.visComponents);
     this.renderCircles();
     this.renderLines();
   }

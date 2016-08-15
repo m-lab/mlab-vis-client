@@ -1,16 +1,13 @@
 import React, { PureComponent, PropTypes } from 'react';
 import { connect } from 'react-redux';
 import Helmet from 'react-helmet';
-import { fetchInfoIfNeeded, fetchInfo } from 'redux/modules/info';
 import { Link } from 'react-router';
-import { JsonDump } from 'components';
 import config from '../../config';
 
 import './App.scss';
 
-function mapStateToProps(state) {
+function mapStateToProps() {
   return {
-    info: state.info.data,
   };
 }
 
@@ -25,24 +22,7 @@ class App extends PureComponent {
     store: PropTypes.object.isRequired,
   };
 
-  constructor(props) {
-    super(props);
-    this.handleFetchInfo = this.handleFetchInfo.bind(this);
-  }
-
-  componentDidMount() {
-    const { dispatch } = this.props;
-    dispatch(fetchInfoIfNeeded());
-  }
-
-  handleFetchInfo() {
-    const { dispatch } = this.props;
-    dispatch(fetchInfo());
-  }
-
   render() {
-    const { info } = this.props;
-
     return (
       <div>
         <Helmet {...config.app.head} />
@@ -56,11 +36,6 @@ class App extends PureComponent {
         </div>
         <div className="container">
           {this.props.children}
-        </div>
-        <div className="container" style={{ marginTop: 100 }}>
-          <div className="well">
-            <JsonDump fetchJson={this.handleFetchInfo} json={info} />
-          </div>
         </div>
       </div>
     );

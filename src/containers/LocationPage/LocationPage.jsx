@@ -1,15 +1,21 @@
 import React, { PureComponent } from 'react';
 import { connect } from 'react-redux';
 import Helmet from 'react-helmet';
+import { fetchLocationMetricsIfNeeded } from 'redux/modules/location';
 
 import { LineChart } from 'components';
 
-function mapStateToProps(/* state */) {
+function mapStateToProps(state) {
   return {
+    locationMetrics: state.location.data,
   };
 }
 
 class LocationPage extends PureComponent {
+  componentDidMount() {
+    const { dispatch } = this.props;
+    dispatch(fetchLocationMetricsIfNeeded());
+  }
 
   renderCityProviders() {
     return (
@@ -23,13 +29,17 @@ class LocationPage extends PureComponent {
   }
 
   renderCompareProviders() {
+    const { locationMetrics } = this.props;
+
     return (
       <div>
         <h3>Compare Providers</h3>
         <LineChart
-          width={500}
+          width={800}
           height={300}
-          data={[{ x: 10, y: 20 }, { x: 20, y: 12 }, { x: 30, y: 18 }]}
+          data={locationMetrics && locationMetrics.metrics}
+          xKey="date"
+          yKey="download_speed_mbps_median"
         />
       </div>
     );
