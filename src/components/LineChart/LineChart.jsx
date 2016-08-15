@@ -65,7 +65,7 @@ export default class LineChart extends PureComponent {
     const yMax = 0;
 
     // NOTE: it is better for this transform of the data to take place via reselect.
-    const xDomain = d3.extent(data, d => new Date(d[xKey]));
+    const xDomain = d3.extent(data, d => d[xKey]);
     const yDomain = d3.extent(data, d => d[yKey]);
 
     const xScale = d3.scaleTime().domain(xDomain).range([xMin, xMax]);
@@ -74,7 +74,7 @@ export default class LineChart extends PureComponent {
     // function to generate paths for each series
     const line = d3.line()
       .curve(d3.curveLinear)
-      .x((d) => xScale(new Date(d[xKey])))
+      .x((d) => xScale(d[xKey]))
       .y((d) => yScale(d[yKey]));
 
     return {
@@ -144,7 +144,7 @@ export default class LineChart extends PureComponent {
     binding
       .merge(entering)
       .attr('r', 3)
-      .attr('cx', d => xScale(new Date(d[xKey])))
+      .attr('cx', d => xScale(d[xKey]))
       .attr('cy', d => yScale(d[yKey]));
 
     // EXIT
@@ -156,7 +156,6 @@ export default class LineChart extends PureComponent {
    * Update the d3 chart - this is the main drawing function
    */
   update() {
-    console.log('updating with', this.visComponents);
     this.renderCircles();
     this.renderLines();
   }

@@ -1,7 +1,15 @@
+import { createSelector } from 'reselect';
+
+/**
+ * Actions
+ */
 const LOAD = 'location/LOAD';
 const LOAD_SUCCESS = 'location/LOAD_SUCCESS';
 const LOAD_FAIL = 'location/LOAD_FAIL';
 
+/**
+ * Reducer
+ */
 const initialState = {
   loaded: false,
 };
@@ -32,6 +40,9 @@ export default function location(state = initialState, action = {}) {
   }
 }
 
+/**
+ * Action Creators
+ */
 export function shouldFetchLocationMetrics(globalState) {
   return !(globalState.location && globalState.location.loaded);
 }
@@ -50,3 +61,33 @@ export function fetchLocationMetricsIfNeeded() {
     }
   };
 }
+
+/**
+ * Selectors
+ */
+
+/**
+ * Input selector for getting location metrics
+ */
+function getLocationMetrics(state) {
+  return state.location.data;
+}
+
+/**
+ * A selector to transform API data to be usable in a time series chart.
+ */
+export const getLocationMetricsTimeSeriesData = createSelector(
+  [getLocationMetrics],
+  (locationMetrics) => {
+    if (!locationMetrics || !locationMetrics.metrics) {
+      return undefined;
+    }
+
+    // make the date field an actual date
+    return locationMetrics.metrics.map(d =>
+      Object.assign({}, d, {
+        date: new Date(d.date),
+      })
+    );
+  }
+);

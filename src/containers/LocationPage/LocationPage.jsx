@@ -1,13 +1,16 @@
 import React, { PureComponent } from 'react';
 import { connect } from 'react-redux';
 import Helmet from 'react-helmet';
-import { fetchLocationMetricsIfNeeded } from 'redux/modules/location';
+import {
+  fetchLocationMetricsIfNeeded,
+  getLocationMetricsTimeSeriesData,
+} from 'redux/modules/location';
 
 import { LineChart } from 'components';
 
 function mapStateToProps(state) {
   return {
-    locationMetrics: state.location.data,
+    locationMetrics: getLocationMetricsTimeSeriesData(state),
   };
 }
 
@@ -37,7 +40,7 @@ class LocationPage extends PureComponent {
         <LineChart
           width={800}
           height={300}
-          data={locationMetrics && locationMetrics.metrics}
+          data={locationMetrics}
           xKey="date"
           yKey="download_speed_mbps_median"
         />
