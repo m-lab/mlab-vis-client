@@ -12,11 +12,11 @@ import { syncHistoryWithStore } from 'react-router-redux';
 import createHistory from 'react-router/lib/createMemoryHistory';
 import { Provider } from 'react-redux';
 
-import createStore from './redux/create';
-import * as api from './api/api';
-import Html from './helpers/Html';
-import getRoutes from './routes';
-import config from './config';
+import createStore from '../redux/create';
+import * as api from '../api/api';
+import Html from './Html';
+import getRoutes from '../routes';
+import config from '../config';
 
 
 // Create the Express server
@@ -25,8 +25,8 @@ const app = new Express();
 const server = new http.Server(app);
 
 app.use(compression());
-app.use(favicon(path.join(__dirname, '..', 'static', 'favicon.ico')));
-app.use(Express.static(path.join(__dirname, '..', 'static')));
+app.use(favicon(path.join(__dirname, '..', '..', 'static', 'favicon.ico')));
+app.use(Express.static(path.join(__dirname, '..', '..', 'static')));
 
 app.use((req, res) => {
   if (__DEVELOPMENT__) {
