@@ -24,6 +24,18 @@ export default class Html extends Component {
     const content = component ? ReactDOM.renderToString(component) : '';
     const head = Helmet.rewind();
 
+    // For development, include bootstrap and main APP css to limit the amount of style
+    // change on load. This is not an issue for production builds since CSS is linked.
+    let devStyle;
+    if (!Object.keys(assets.styles).length) {
+      const bootstrapStyle = assets.assets['./src/theme/bootstrap.config.js'];
+      const appStyle = assets.assets['./src/containers/App/App.scss']._style; // eslint-disable-line
+      const mergedStyles = `${bootstrapStyle}\n${appStyle}`;
+      devStyle = (
+        <style data-info="dev-preload-styles" dangerouslySetInnerHTML={{ __html: mergedStyles }} />
+      );
+    }
+
     return (
       <html lang="en-US">
         <head>
@@ -46,6 +58,7 @@ export default class Html extends Component {
               charSet="UTF-8"
             />
           )}
+         {devStyle}
         </head>
         <body>
           <div id="content" dangerouslySetInnerHTML={{ __html: content }} />

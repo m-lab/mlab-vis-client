@@ -5,6 +5,7 @@ import { fetchInfoIfNeeded, fetchInfo } from 'redux/modules/info';
 import { JsonDump } from 'components';
 import config from '../../config';
 
+import './App.scss';
 
 function mapStateToProps(state) {
   return {
