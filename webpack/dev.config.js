@@ -64,6 +64,10 @@ reactTransform[1].transforms.push({
   locals: ['module'],
 });
 
+// ensure PureComponent super class is there
+reactTransform[1].superClasses = ['React.Component', 'Component',
+  'React.PureComponent', 'PureComponent'];
+
 module.exports = {
   devtool: 'cheap-module-eval-source-map',
   context: path.resolve(__dirname, '..'),
