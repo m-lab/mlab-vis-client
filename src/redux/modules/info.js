@@ -39,8 +39,7 @@ export function shouldFetchInfo(globalState) {
 export function fetchInfo() {
   return {
     types: [LOAD, LOAD_SUCCESS, LOAD_FAIL],
-    promise: (client) => client.get('/locations/AF+EG+11+' +
-       'Garden%20City/time/month/clientisps/AS24863/metrics'),
+    promise: (api) => api.getLocationMetrics('month', 'NA+US+MA+Cambridge'),
   };
 }
 

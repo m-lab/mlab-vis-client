@@ -6,11 +6,11 @@ import DevTools from '../containers/DevTools/DevTools';
 import reducer from './modules/reducer';
 
 // create the Redux store
-export default function createStore(history, client, data) {
+export default function createStore(history, api, data) {
   // Sync dispatched route actions to the history
   const reduxRouterMiddleware = routerMiddleware(history);
 
-  const middleware = [createMiddleware(client), reduxRouterMiddleware];
+  const middleware = [createMiddleware(api), reduxRouterMiddleware];
 
   let finalCreateStore;
 

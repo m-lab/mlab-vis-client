@@ -9,14 +9,13 @@ import { Router, browserHistory } from 'react-router';
 import { syncHistoryWithStore } from 'react-router-redux';
 import useScroll from 'scroll-behavior/lib/useStandardScroll';
 import createStore from './redux/create';
-import ApiClient from './helpers/ApiClient';
+import * as api from './api/Api';
 import getRoutes from './routes';
 import DevTools from './containers/DevTools/DevTools';
 
-const client = new ApiClient();
 const browserHistoryWithScroll = useScroll(() => browserHistory)();
 const dest = document.getElementById('content');
-const store = createStore(browserHistoryWithScroll, client, window.__data); // eslint-disable-line no-underscore-dangle, max-len
+const store = createStore(browserHistoryWithScroll, api, window.__data); // eslint-disable-line no-underscore-dangle, max-len
 const history = syncHistoryWithStore(browserHistoryWithScroll, store);
 
 const component = (

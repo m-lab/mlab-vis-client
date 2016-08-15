@@ -1,7 +1,7 @@
 /**
  * Middleware to handle resolving actions with promises
  */
-export default function clientMiddleware(client) {
+export default function clientMiddleware(api) {
   return ({ dispatch, getState }) =>
     next => action => {
       // if the action passed in is a function, evaluate it now and return the result
@@ -22,7 +22,7 @@ export default function clientMiddleware(client) {
       next({ ...rest, type: REQUEST });
 
       // now make the request and dispatch the SUCCESS or FAILURE actions on completion
-      const actionPromise = promise(client);
+      const actionPromise = promise(api);
       actionPromise.then(
         (result) => next({ ...rest, result, type: SUCCESS }),
         (error) => next({ ...rest, error, type: FAILURE })

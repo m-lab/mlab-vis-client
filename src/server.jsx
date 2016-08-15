@@ -13,7 +13,7 @@ import createHistory from 'react-router/lib/createMemoryHistory';
 import { Provider } from 'react-redux';
 
 import createStore from './redux/create';
-import ApiClient from './helpers/ApiClient';
+import * as api from './api/api';
 import Html from './helpers/Html';
 import getRoutes from './routes';
 import config from './config';
@@ -35,13 +35,12 @@ app.use((req, res) => {
     webpackIsomorphicTools.refresh();
   }
 
-  const client = new ApiClient(req);
 
   // react-router history
   const memoryHistory = createHistory(req.originalUrl);
 
   // Redux store creation
-  const store = createStore(memoryHistory, client);
+  const store = createStore(memoryHistory, api);
 
   // react-router-redux setup
   const history = syncHistoryWithStore(memoryHistory, store);
