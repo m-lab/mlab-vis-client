@@ -6,3 +6,4 @@
  */
 
 export JsonDump from './JsonDump/JsonDump';
+export LineChart from './LineChart/LineChart';
