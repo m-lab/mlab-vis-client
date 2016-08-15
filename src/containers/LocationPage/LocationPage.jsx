@@ -52,7 +52,6 @@ class LocationPage extends PureComponent {
     return (
       <div>
         <h3>Compare Metrics</h3>
-        {this.renderProvidersByHour()}
       </div>
     );
   }
