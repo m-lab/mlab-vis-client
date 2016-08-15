@@ -65,7 +65,7 @@ reactTransform[1].transforms.push({
 });
 
 module.exports = {
-  devtool: 'inline-source-map',
+  devtool: 'cheap-module-eval-source-map',
   context: path.resolve(__dirname, '..'),
   entry: {
     main: [
@@ -101,11 +101,11 @@ module.exports = {
 
   progress: true,
   resolve: {
-    modulesDirectories: [
-      'src',
-      'node_modules',
+    root: [
+      path.resolve('./src'),
+      path.resolve('./node_modules'),
     ],
-    extensions: ['', '.json', '.js', '.jsx'],
+    extensions: ['', '.js', '.jsx'],
   },
   plugins: [
     // hot reload
