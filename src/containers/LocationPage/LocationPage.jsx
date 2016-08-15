@@ -9,16 +9,16 @@ function mapStateToProps(/* state */) {
   };
 }
 
-class About extends PureComponent {
+class LocationPage extends PureComponent {
   render() {
     return (
       <div className="container">
-        <Helmet title="About Us" />
+        <Helmet title="Location" />
         <div><Link to="/">Home</Link></div>
-        <div>This is the about page.</div>
+        <div>This is the location page.</div>
       </div>
     );
   }
 }
 
-export default connect(mapStateToProps)(About);
+export default connect(mapStateToProps)(LocationPage);

@@ -2,9 +2,9 @@ import React from 'react';
 import { IndexRoute, Route } from 'react-router';
 import {
     App,
-    Home,
-    About,
-    NotFound,
+    HomePage,
+    LocationPage,
+    NotFoundPage,
   } from 'containers';
 
 export default () => (
@@ -13,13 +13,13 @@ export default () => (
    */
   <Route path="/" component={App}>
     { /* Home (main) route */ }
-    <IndexRoute component={Home} />
+    <IndexRoute component={HomePage} />
 
     { /* Routes */ }
-    <Route path="about" component={About} />
+    <Route path="location" component={LocationPage} />
 
     { /* Catch all route */ }
-    <Route path="*" component={NotFound} status={404} />
+    <Route path="*" component={NotFoundPage} status={404} />
   </Route>
 );
 
