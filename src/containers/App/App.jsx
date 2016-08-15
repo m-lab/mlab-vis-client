@@ -2,6 +2,7 @@ import React, { PureComponent, PropTypes } from 'react';
 import { connect } from 'react-redux';
 import Helmet from 'react-helmet';
 import { fetchInfoIfNeeded, fetchInfo } from 'redux/modules/info';
+import { Link } from 'react-router';
 import { JsonDump } from 'components';
 import config from '../../config';
 
@@ -45,6 +46,12 @@ class App extends PureComponent {
     return (
       <div>
         <Helmet {...config.app.head} />
+        <div className="nav">
+          <ul className="list-inline">
+            <li><Link to="/">Home</Link></li>
+            <li><Link to="/location">Location</Link></li>
+          </ul>
+        </div>
         <div>
           {this.props.children}
         </div>
