@@ -15,6 +15,11 @@ function mapStateToProps(state) {
 }
 
 class LocationPage extends PureComponent {
+  static propTypes = {
+    dispatch: React.PropTypes.func,
+    locationMetrics: React.PropTypes.array,
+  }
+
   componentDidMount() {
     const { dispatch } = this.props;
     dispatch(fetchLocationMetricsIfNeeded());
