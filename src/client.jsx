@@ -18,6 +18,10 @@ const dest = document.getElementById('content');
 const store = createStore(browserHistoryWithScroll, api, window.__data); // eslint-disable-line no-underscore-dangle, max-len
 const history = syncHistoryWithStore(browserHistoryWithScroll, store);
 
+if (__DEVELOPMENT__) {
+  window.Perf = require('react-addons-perf'); // eslint-disable-line
+}
+
 const component = (
   <Router history={history}>
     {getRoutes(store)}
