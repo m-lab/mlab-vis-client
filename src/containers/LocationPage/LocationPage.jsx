@@ -7,21 +7,20 @@ import {
   getHourlyLocationMetricsTimeSeriesData,
 } from 'redux/modules/location';
 
-import { LineChart } from 'components';
-import { JsonDump } from 'components';
+import { LineChart, JsonDump } from 'components';
 
 function mapStateToProps(state) {
   return {
     locationMetrics: getLocationMetricsTimeSeriesData(state),
-    hourlyLocationMetrics: getHourlyLocationMetricsTimeSeriesData(state)
+    hourlyLocationMetrics: getHourlyLocationMetricsTimeSeriesData(state),
   };
 }
 
 class LocationPage extends PureComponent {
   static propTypes = {
     dispatch: React.PropTypes.func,
+    hourlyLocationMetrics: React.PropTypes.array,
     locationMetrics: React.PropTypes.array,
-    hourlyLocationMetrics: React.PropTypes.array
   }
 
   componentDidMount() {
