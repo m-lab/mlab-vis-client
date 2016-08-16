@@ -5,7 +5,7 @@ import './JsonDump.scss';
 export default class JsonDump extends PureComponent {
   static propTypes = {
     fetchJson: PropTypes.func,
-    json: PropTypes.object,
+    json: PropTypes.any,
   }
 
   renderJson() {
