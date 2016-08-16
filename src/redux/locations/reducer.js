@@ -53,6 +53,7 @@ function locationTime(state = initialLocationState.time, action = {}) {
         ...state,
         timeSeries: {
           data: state.timeSeries.data,
+          timeAggregation: action.timeAggregation,
           isFetching: true,
           isFetched: false,
         },
@@ -62,6 +63,7 @@ function locationTime(state = initialLocationState.time, action = {}) {
         ...state,
         timeSeries: {
           data: action.result,
+          timeAggregation: state.timeSeries.timeAggregation,
           isFetching: false,
           isFetched: true,
         },
@@ -80,6 +82,7 @@ function locationTime(state = initialLocationState.time, action = {}) {
         ...state,
         hourly: {
           data: state.hourly.data,
+          timeAggregation: action.timeAggregation,
           isFetching: true,
           isFetched: false,
         },
@@ -89,6 +92,7 @@ function locationTime(state = initialLocationState.time, action = {}) {
         ...state,
         hourly: {
           data: action.result,
+          timeAggregation: state.timeSeries.timeAggregation,
           isFetching: false,
           isFetched: true,
         },

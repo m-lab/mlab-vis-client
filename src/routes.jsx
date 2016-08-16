@@ -16,7 +16,7 @@ export default () => (
     <IndexRoute component={HomePage} />
 
     { /* Routes */ }
-    <Route path="location" component={LocationPage} />
+    <Route path="location/:locationId" component={LocationPage} />
 
     { /* Catch all route */ }
     <Route path="*" component={NotFoundPage} status={404} />

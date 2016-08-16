@@ -14,8 +14,8 @@ function mapStateToProps() {
 
 class App extends PureComponent {
   static propTypes = {
-    dispatch: React.PropTypes.func,
     children: PropTypes.object.isRequired,
+    dispatch: React.PropTypes.func,
     info: PropTypes.object,
   };
 
@@ -31,7 +31,8 @@ class App extends PureComponent {
           <div className="container">
             <ul className="list-inline">
               <li><Link to="/">Home</Link></li>
-              <li><Link to="/location">Location</Link></li>
+              <li><Link to="/location/NA+US+MA+Cambridge">Cambridge</Link></li>
+              <li><Link to="/location/NA+US+WA+Seattle">Seattle</Link></li>
             </ul>
           </div>
         </div>

@@ -11,50 +11,67 @@ export const FETCH_HOURLY_FAIL = 'location/FETCH_HOURLY_FAIL';
 /**
  * Action Creators
  */
-export function shouldFetchTimeSeries(/* state */) {
-  // TODO
-  return true;
+export function shouldFetchTimeSeries(state, timeAggregation, locationId) {
+  const locationState = state.locations[locationId];
+  if (!locationState) {
+    return true;
+  }
+
+  // if we don't have this time aggregation, we should fetch it
+  if (locationState.time.timeSeries.timeAggregation !== timeAggregation) {
+    return true;
+  }
+
+  // only fetch if it isn't fetching/already fetched
+  return !(locationState.time.timeSeries.isFetched || locationState.time.timeSeries.isFetching);
 }
 
-export function fetchTimeSeries() {
-  const timeAggregation = 'month';
-  const locationId = 'NA+US+MA+Cambridge';
-
+export function fetchTimeSeries(timeAggregation, locationId) {
   return {
     types: [FETCH_TIME_SERIES, FETCH_TIME_SERIES_SUCCESS, FETCH_TIME_SERIES_FAIL],
     promise: (api) => api.getLocationTimeSeries(timeAggregation, locationId),
     locationId,
+    timeAggregation,
   };
 }
 
-export function fetchTimeSeriesIfNeeded() {
+export function fetchTimeSeriesIfNeeded(timeAggregation, locationId) {
   return (dispatch, getState) => {
-    if (shouldFetchTimeSeries(getState())) {
-      dispatch(fetchTimeSeries());
+    if (shouldFetchTimeSeries(getState(), timeAggregation, locationId)) {
+      dispatch(fetchTimeSeries(timeAggregation, locationId));
     }
   };
 }
 
 
-export function shouldFetchHourly(/* state */) {
-  // TODO
-  return true;
+export function shouldFetchHourly(state, timeAggregation, locationId) {
+  const locationState = state.locations[locationId];
+  if (!locationState) {
+    return true;
+  }
+
+  // if we don't have this time aggregation, we should fetch it
+  if (locationState.time.hourly.timeAggregation !== timeAggregation) {
+    return true;
+  }
+
+  // only fetch if it isn't fetching/already fetched
+  return !(locationState.time.hourly.isFetched || locationState.time.hourly.isFetching);
 }
 
-export function fetchHourly() {
-  const timeAggregation = 'day';
-  const locationId = 'NA+US+MA+Cambridge';
+export function fetchHourly(timeAggregation, locationId) {
   return {
     types: [FETCH_HOURLY, FETCH_HOURLY_SUCCESS, FETCH_HOURLY_FAIL],
     promise: (api) => api.getLocationHourly(timeAggregation, locationId),
     locationId,
+    timeAggregation,
   };
 }
 
-export function fetchHourlyIfNeeded() {
+export function fetchHourlyIfNeeded(timeAggregation, locationId) {
   return (dispatch, getState) => {
-    if (shouldFetchHourly(getState())) {
-      dispatch(fetchHourly());
+    if (shouldFetchHourly(getState(), timeAggregation, locationId)) {
+      dispatch(fetchHourly(timeAggregation, locationId));
     }
   };
 }

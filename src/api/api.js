@@ -1,7 +1,7 @@
 import superagent from 'superagent';
+import { groupBy } from 'lodash';
 import config from '../config';
 import { parseDate } from '../utils/utils';
-import { groupBy } from 'lodash';
 /**
  * Formats a URL to go via the API server
  *
