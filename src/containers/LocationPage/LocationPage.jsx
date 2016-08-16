@@ -7,21 +7,22 @@ import { LineChart, JsonDump } from 'components';
 
 function mapStateToProps(state) {
   return {
-    locationMetrics: Locations.Selectors.getLocationMetricsTimeSeriesData(state),
-    hourlyLocationMetrics: Locations.Selectors.getHourlyLocationMetricsTimeSeriesData(state),
+    timeSeries: Locations.Selectors.getTimeSeries(state),
+    hourly: Locations.Selectors.getHourly(state),
   };
 }
 
 class LocationPage extends PureComponent {
   static propTypes = {
     dispatch: React.PropTypes.func,
-    hourlyLocationMetrics: React.PropTypes.array,
-    locationMetrics: React.PropTypes.array,
+    hourly: React.PropTypes.object,
+    timeSeries: React.PropTypes.array,
   }
 
   componentDidMount() {
     const { dispatch } = this.props;
-    dispatch(Locations.Actions.fetchLocationMetricsIfNeeded());
+    dispatch(Locations.Actions.fetchTimeSeriesIfNeeded());
+    dispatch(Locations.Actions.fetchHourlyIfNeeded());
   }
 
   renderCityProviders() {
@@ -36,7 +37,7 @@ class LocationPage extends PureComponent {
   }
 
   renderCompareProviders() {
-    const { locationMetrics } = this.props;
+    const { timeSeries } = this.props;
 
     return (
       <div>
@@ -44,7 +45,7 @@ class LocationPage extends PureComponent {
         <LineChart
           width={800}
           height={300}
-          data={locationMetrics}
+          data={timeSeries}
           xKey="date"
           yKey="download_speed_mbps_median"
         />
@@ -61,12 +62,12 @@ class LocationPage extends PureComponent {
   }
 
   renderProvidersByHour() {
-    const { hourlyLocationMetrics } = this.props;
+    const { hourly } = this.props;
 
     return (
       <div>
         <h3>By Hour, Median download speeds</h3>
-        <JsonDump json={hourlyLocationMetrics} />
+        <JsonDump json={hourly} />
       </div>
     );
   }

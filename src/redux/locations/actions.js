@@ -1,42 +1,61 @@
 /**
  * Actions
  */
-export const METRICS_LOAD = 'location/METRICS_LOAD';
-export const METRICS_LOAD_SUCCESS = 'location/METRICS_LOAD_SUCCESS';
-export const METRICS_LOAD_FAIL = 'location/METRICS_LOAD_FAIL';
-export const HOURLY_LOAD = 'location/HOURLY_LOAD';
-export const HOURLY_LOAD_SUCCESS = 'location/HOURLY_LOAD_SUCCESS';
-export const HOURLY_LOAD_FAIL = 'location/HOURLY_LOAD_FAIL';
+export const FETCH_TIME_SERIES = 'location/FETCH_TIME_SERIES';
+export const FETCH_TIME_SERIES_SUCCESS = 'location/FETCH_TIME_SERIES_SUCCESS';
+export const FETCH_TIME_SERIES_FAIL = 'location/FETCH_TIME_SERIES_FAIL';
+export const FETCH_HOURLY = 'location/FETCH_HOURLY';
+export const FETCH_HOURLY_SUCCESS = 'location/FETCH_HOURLY_SUCCESS';
+export const FETCH_HOURLY_FAIL = 'location/FETCH_HOURLY_FAIL';
 
 /**
  * Action Creators
  */
-export function shouldFetchLocationMetrics(state) {
-  return !(state.locations && state.locations.metricsLoaded &&
-    state.locations.hourlyLoaded);
+export function shouldFetchTimeSeries(/* state */) {
+  // TODO
+  return true;
 }
 
-export function fetchLocationMetrics() {
-  return {
-    types: [METRICS_LOAD, METRICS_LOAD_SUCCESS, METRICS_LOAD_FAIL],
-    promise: (api) => api.getLocationMetrics('month', 'NA+US+MA+Cambridge'),
-  };
-}
-
-export function fetchHourlyLocationMetrics() {
-  const timePeriod = 'day';
+export function fetchTimeSeries() {
+  const timeAggregation = 'month';
   const locationId = 'NA+US+MA+Cambridge';
+
   return {
-    types: [HOURLY_LOAD, HOURLY_LOAD_SUCCESS, HOURLY_LOAD_FAIL],
-    promise: (api) => api.getLocationMetrics(`${timePeriod}_hour`, locationId),
+    types: [FETCH_TIME_SERIES, FETCH_TIME_SERIES_SUCCESS, FETCH_TIME_SERIES_FAIL],
+    promise: (api) => api.getLocationTimeSeries(timeAggregation, locationId),
+    locationId,
   };
 }
 
-export function fetchLocationMetricsIfNeeded() {
+export function fetchTimeSeriesIfNeeded() {
   return (dispatch, getState) => {
-    if (shouldFetchLocationMetrics(getState())) {
-      dispatch(fetchLocationMetrics());
-      dispatch(fetchHourlyLocationMetrics());
+    if (shouldFetchTimeSeries(getState())) {
+      dispatch(fetchTimeSeries());
     }
   };
 }
+
+
+export function shouldFetchHourly(/* state */) {
+  // TODO
+  return true;
+}
+
+export function fetchHourly() {
+  const timeAggregation = 'day';
+  const locationId = 'NA+US+MA+Cambridge';
+  return {
+    types: [FETCH_HOURLY, FETCH_HOURLY_SUCCESS, FETCH_HOURLY_FAIL],
+    promise: (api) => api.getLocationHourly(timeAggregation, locationId),
+    locationId,
+  };
+}
+
+export function fetchHourlyIfNeeded() {
+  return (dispatch, getState) => {
+    if (shouldFetchHourly(getState())) {
+      dispatch(fetchHourly());
+    }
+  };
+}
+

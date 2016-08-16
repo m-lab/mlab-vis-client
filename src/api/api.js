@@ -1,6 +1,7 @@
 import superagent from 'superagent';
 import config from '../config';
-
+import { parseDate } from '../utils/utils';
+import { groupBy } from 'lodash';
 /**
  * Formats a URL to go via the API server
  *
@@ -49,16 +50,53 @@ function get(path, { params, data } = {}) {
 /**
  * API Calls
  */
-
+/* eslint-disable no-param-reassign */
 /**
- * Get data for a location in a given time aggregation
- * @param {String} timeAggregation The aggregation of the data (one of day, month,
- *    year, day_hour, month_hour, year_hour)
+ * Get data for a location in a given time aggregation.
+ *
+ * Converts date field to js Date object
+ *
+ * @param {String} timeAggregation The aggregation of the data (one of day, month, year)
  * @param {String} locationKey The location to query (e.g., NA+US+MA+Cambridge)
  * @return {Promise} A promise after the get request was made
  */
-export function getLocationMetrics(timeAggregation, locationKey) {
-  return get(`/locations/${locationKey}/time/${timeAggregation}/metrics`);
+export function getLocationTimeSeries(timeAggregation, locationKey) {
+  return get(`/locations/${locationKey}/time/${timeAggregation}/metrics`)
+    .then(body => {
+      // transform the data before sending it back to the app
+      // convert dates to Date objects
+      body.metrics.forEach(d => {
+        d.date = parseDate(d.date);
+      });
+
+      return body;
+    });
+}
+
+/**
+ * Get hourly data for a location in a given time aggregation.
+ *
+ * Converts date field to js Date object, hour to integer, and provides
+ * byHour field where the data is grouped by hour
+ *
+ * @param {String} timeAggregation The aggregation of the data (one of day, month, year)
+ * @param {String} locationKey The location to query (e.g., NA+US+MA+Cambridge)
+ * @return {Promise} A promise after the get request was made
+ */
+export function getLocationHourly(timeAggregation, locationKey) {
+  return get(`/locations/${locationKey}/time/${timeAggregation}_hour/metrics`)
+    .then(body => {
+      // transform the data before sending it back to the app
+      // convert dates to Date objects
+      body.metrics.forEach(d => {
+        d.date = parseDate(d.date);
+        d.hour = parseInt(d.hour, 10);
+      });
+
+      body.byHour = groupBy(body.metrics, 'hour');
+
+      return body;
+    });
 }
 
 /**
