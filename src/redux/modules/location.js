@@ -43,8 +43,8 @@ export default function location(state = initialState, action = {}) {
 /**
  * Action Creators
  */
-export function shouldFetchLocationMetrics(globalState) {
-  return !(globalState.location && globalState.location.loaded);
+export function shouldFetchLocationMetrics(state) {
+  return !(state.location && state.location.loaded);
 }
 
 export function fetchLocationMetrics() {

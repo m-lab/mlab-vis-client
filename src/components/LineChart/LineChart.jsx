@@ -41,11 +41,7 @@ export default class LineChart extends PureComponent {
     const { data, width, height } = this.props;
 
     // regenerate the vis components if the relevant props change
-    if (data !== nextProps.data ||
-      width !== nextProps.width ||
-      height !== nextProps.height) {
-      this.visComponents = this.makeVisComponents(nextProps);
-    }
+    this.visComponents = this.makeVisComponents(nextProps);
   }
 
   /**
