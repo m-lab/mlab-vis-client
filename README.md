@@ -15,6 +15,23 @@ npm install
 npm run dev
 ```
 
+### Using webpack-dashboard
+
+If you prefer to have webpack rendered in a dashboard, use two separate terminal windows.
+In one, run webpack with:
+
+```bash
+npm run webpack-dashboard
+```
+
+And in the other, run the web server with:
+
+```bash
+npm run start-dev
+```
+
+Note that the dashboard adds roughly 500ms to the webpack rebuild time.
+
 ## Testing
 
 ```bash

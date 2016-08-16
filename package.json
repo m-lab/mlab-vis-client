@@ -23,7 +23,8 @@
     "lint": "eslint -c .eslintrc src",
     "start-dev": "better-npm-run start-dev",
     "watch-client": "better-npm-run watch-client",
-    "dev": "echo \"run 'npm run start-dev' and 'npm run watch-client' in separate terminals\"",
+    "webpack-dashboard": "WEBPACK_DASHBOARD=true node webpack/webpack-dev-server.js",
+    "dev": "concurrently --kill-others \"npm run start-dev\" \"npm run watch-client\"",
     "test": "karma start"
   },
   "betterScripts": {
@@ -49,6 +50,15 @@
         "UV_THREADPOOL_SIZE": 100,
         "NODE_PATH": "./src",
         "PORT": 3000
+      }
+    },
+    "webpack-dashboard": {
+      "command": "node webpack/webpack-dev-server.js",
+      "env": {
+        "UV_THREADPOOL_SIZE": 100,
+        "NODE_PATH": "./src",
+        "PORT": 3000,
+        "WEBPACK_DASHBOARD": true
       }
     },
     "build": {
