@@ -1,0 +1,10 @@
+// Import our custom bootstrap version
+@import "variables";
+@import "bootstrap_custom";
+@import "./font-awesome/scss/font-awesome.scss";
+
+// Generic site-wide css here
+body {
+  font-weight: 300;
+  background: #eee;
+}

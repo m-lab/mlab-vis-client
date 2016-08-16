@@ -4,13 +4,19 @@ import d3 from 'd3';
 import './LineChart.scss';
 
 /**
- * A line chart that uses d3 to draw
+ * A line chart that uses d3 to draw. Assumes X is a time scale.
+ *
+ * @prop {Array} data The array of data points to render (e.g., [{x: Date, y: Number}, ...])
+ * @prop {Number} height The height in pixels of the SVG chart
+ * @prop {Number} width The width in pixels of the SVG chart
+ * @prop {String} xKey="x" The key to read the x value from in the data
+ * @prop {String} yKey="y" The key to read the y value from in the data
  */
 export default class LineChart extends PureComponent {
   static propTypes = {
     data: PropTypes.array,
-    width: React.PropTypes.number,
     height: React.PropTypes.number,
+    width: React.PropTypes.number,
     xKey: React.PropTypes.string,
     yKey: React.PropTypes.string,
   }
@@ -28,6 +34,14 @@ export default class LineChart extends PureComponent {
   }
 
   /**
+   * When new props are received, regenerate vis components if necessary
+   */
+  componentWillReceiveProps(nextProps) {
+    // regenerate the vis components if the relevant props change
+    this.visComponents = this.makeVisComponents(nextProps);
+  }
+
+  /**
    * When the react component updates, update the d3 vis
    */
   componentDidUpdate() {
@@ -35,13 +49,19 @@ export default class LineChart extends PureComponent {
   }
 
   /**
-   * When new props are received, regenerate vis components if necessary
+   * Initialize the d3 chart - this is run once on mount
    */
-  componentWillReceiveProps(nextProps) {
-    const { data, width, height } = this.props;
+  setup() {
+    this.visComponents = this.makeVisComponents(this.props);
+    const { innerMargin } = this.visComponents;
 
-    // regenerate the vis components if the relevant props change
-    this.visComponents = this.makeVisComponents(nextProps);
+    this.g = d3.select(this.svg)
+      .append('g')
+      .attr('transform', `translate(${innerMargin.left} ${innerMargin.top})`);
+
+    this.lines = this.g.append('g').classed('lines-group', true);
+    this.circles = this.g.append('g').classed('circles-group', true);
+    this.update();
   }
 
   /**
@@ -60,7 +80,6 @@ export default class LineChart extends PureComponent {
     const yMin = innerHeight;
     const yMax = 0;
 
-    // NOTE: it is better for this transform of the data to take place via reselect.
     const xDomain = d3.extent(data, d => d[xKey]);
     const yDomain = d3.extent(data, d => d[yKey]);
 
@@ -89,19 +108,37 @@ export default class LineChart extends PureComponent {
   }
 
   /**
-   * Initialize the d3 chart - this is run once on mount
+   * Update the d3 chart - this is the main drawing function
    */
-  setup() {
-    this.visComponents = this.makeVisComponents(this.props);
-    const { innerMargin } = this.visComponents;
+  update() {
+    this.renderCircles();
+    this.renderLines();
+  }
 
-    this.g = d3.select(this.svg)
-      .append('g')
-      .attr('transform', `translate(${innerMargin.left} ${innerMargin.top})`);
+  /**
+   * Render some circles in the chart
+   */
+  renderCircles() {
+    const { data, xScale, xKey, yScale, yKey } = this.visComponents;
 
-    this.lines = this.g.append('g').classed('lines-group', true);
-    this.circles = this.g.append('g').classed('circles-group', true);
-    this.update();
+    const binding = this.circles.selectAll('circle').data(data);
+
+    // ENTER
+    const entering = binding.enter()
+      .append('circle')
+      .style('fill', '#00c');
+
+
+    // ENTER + UPDATE
+    binding
+      .merge(entering)
+      .attr('r', 3)
+      .attr('cx', d => xScale(d[xKey]))
+      .attr('cy', d => yScale(d[yKey]));
+
+    // EXIT
+    binding.exit()
+      .remove();
   }
 
   /**
@@ -121,39 +158,6 @@ export default class LineChart extends PureComponent {
     binding
       .merge(entering)
       .attr('d', line);
-  }
-
-  /**
-   * Render some circles in the chart
-   */
-  renderCircles() {
-    const { data, xScale, xKey, yScale, yKey } = this.visComponents;
-
-    const binding = this.circles.selectAll('circle').data(data);
-
-    // ENTER
-    const entering = binding.enter()
-      .append('circle')
-      .style('fill', '#00c');
-
-    // ENTER + UPDATE
-    binding
-      .merge(entering)
-      .attr('r', 3)
-      .attr('cx', d => xScale(d[xKey]))
-      .attr('cy', d => yScale(d[yKey]));
-
-    // EXIT
-    binding.exit()
-      .remove();
-  }
-
-  /**
-   * Update the d3 chart - this is the main drawing function
-   */
-  update() {
-    this.renderCircles();
-    this.renderLines();
   }
 
   /**

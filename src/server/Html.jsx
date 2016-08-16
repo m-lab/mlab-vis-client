@@ -24,15 +24,13 @@ export default class Html extends Component {
     const content = component ? ReactDOM.renderToString(component) : '';
     const head = Helmet.rewind();
 
-    // For development, include bootstrap and main APP css to limit the amount of style
-    // change on load. This is not an issue for production builds since CSS is linked.
+    // For development, include base css to limit the amount of style change on load.
+    // This is not an issue for production builds since CSS is linked.
     let devStyle;
     if (!Object.keys(assets.styles).length) {
-      const bootstrapStyle = assets.assets['./src/theme/bootstrap.config.js'];
-      const appStyle = assets.assets['./src/containers/App/App.scss']._style; // eslint-disable-line
-      const mergedStyles = `${bootstrapStyle}\n${appStyle}`;
+      const baseStyle = assets.assets['./src/assets/base.scss']._style; // eslint-disable-line
       devStyle = (
-        <style data-info="dev-preload-styles" dangerouslySetInnerHTML={{ __html: mergedStyles }} />
+        <style data-info="dev-preload-styles" dangerouslySetInnerHTML={{ __html: baseStyle }} />
       );
     }
 

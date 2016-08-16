@@ -2,9 +2,10 @@ import React, { PureComponent, PropTypes } from 'react';
 import { connect } from 'react-redux';
 import Helmet from 'react-helmet';
 import { Link } from 'react-router';
+
 import config from '../../config';
 
-import './App.scss';
+import '../../assets/base.scss';
 
 function mapStateToProps() {
   return {

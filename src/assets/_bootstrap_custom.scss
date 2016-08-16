@@ -1,0 +1,57 @@
+/*!
+ * Bootstrap v3.3.6 (http://getbootstrap.com)
+ * Copyright 2011-2015 Twitter, Inc.
+ * Licensed under MIT (https://github.com/twbs/bootstrap/blob/master/LICENSE)
+ */
+
+// Core variables and mixins
+// @import "./_bootstrap_variables"; // included by generic variables file elsewhere
+@import "bootstrap3/stylesheets/bootstrap/mixins";
+
+// Reset and dependencies
+@import "bootstrap3/stylesheets/bootstrap/normalize";
+@import "bootstrap3/stylesheets/bootstrap/print";
+@import "bootstrap3/stylesheets/bootstrap/glyphicons";
+
+// Core CSS
+@import "bootstrap3/stylesheets/bootstrap/scaffolding";
+@import "bootstrap3/stylesheets/bootstrap/type";
+@import "bootstrap3/stylesheets/bootstrap/code";
+@import "bootstrap3/stylesheets/bootstrap/grid";
+@import "bootstrap3/stylesheets/bootstrap/tables";
+@import "bootstrap3/stylesheets/bootstrap/forms";
+@import "bootstrap3/stylesheets/bootstrap/buttons";
+
+// uncomment these as needed
+// Components
+// @import "bootstrap3/stylesheets/bootstrap/component-animations";
+@import "bootstrap3/stylesheets/bootstrap/dropdowns";
+@import "bootstrap3/stylesheets/bootstrap/button-groups";
+// @import "bootstrap3/stylesheets/bootstrap/input-groups";
+@import "bootstrap3/stylesheets/bootstrap/navs";
+@import "bootstrap3/stylesheets/bootstrap/navbar";
+// @import "bootstrap3/stylesheets/bootstrap/breadcrumbs";
+@import "bootstrap3/stylesheets/bootstrap/pagination";
+@import "bootstrap3/stylesheets/bootstrap/pager";
+// @import "bootstrap3/stylesheets/bootstrap/labels";
+// @import "bootstrap3/stylesheets/bootstrap/badges";
+// @import "bootstrap3/stylesheets/bootstrap/jumbotron";
+// @import "bootstrap3/stylesheets/bootstrap/thumbnails";
+// @import "bootstrap3/stylesheets/bootstrap/alerts";
+// @import "bootstrap3/stylesheets/bootstrap/progress-bars";
+// @import "bootstrap3/stylesheets/bootstrap/media";
+// @import "bootstrap3/stylesheets/bootstrap/list-group";
+// @import "bootstrap3/stylesheets/bootstrap/panels";
+// @import "bootstrap3/stylesheets/bootstrap/responsive-embed";
+// @import "bootstrap3/stylesheets/bootstrap/wells";
+// @import "bootstrap3/stylesheets/bootstrap/close";
+
+// Components w/ JavaScript
+// @import "bootstrap3/stylesheets/bootstrap/modals";
+// @import "bootstrap3/stylesheets/bootstrap/tooltip";
+// @import "bootstrap3/stylesheets/bootstrap/popovers";
+// @import "bootstrap3/stylesheets/bootstrap/carousel";
+
+// Utility classes
+@import "bootstrap3/stylesheets/bootstrap/utilities";
+@import "bootstrap3/stylesheets/bootstrap/responsive-utilities";
