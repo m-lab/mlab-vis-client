@@ -1,9 +1,9 @@
 import { createStore as _createStore, applyMiddleware, compose } from 'redux';
 import { routerMiddleware } from 'react-router-redux';
 import { persistState } from 'redux-devtools';
-import createMiddleware from './middleware/clientMiddleware';
+import createMiddleware from './clientMiddleware';
 import DevTools from '../containers/DevTools/DevTools';
-import reducer from './modules/reducer';
+import rootReducer from './rootReducer';
 
 // create the Redux store
 export default function createStore(history, api, data) {
@@ -27,12 +27,12 @@ export default function createStore(history, api, data) {
     finalCreateStore = applyMiddleware(...middleware)(_createStore);
   }
 
-  const store = finalCreateStore(reducer, data);
+  const store = finalCreateStore(rootReducer, data);
 
   // add in hook for hot reloading reducer
   if (__DEVELOPMENT__ && module.hot) {
-    module.hot.accept('./modules/reducer', () => {
-      store.replaceReducer(require('./modules/reducer').default); // eslint-disable-line
+    module.hot.accept('./rootReducer', () => {
+      store.replaceReducer(require('./rootReducer').default); // eslint-disable-line
     });
   }
 

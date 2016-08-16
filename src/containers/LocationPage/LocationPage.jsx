@@ -1,18 +1,14 @@
 import React, { PureComponent } from 'react';
 import { connect } from 'react-redux';
 import Helmet from 'react-helmet';
-import {
-  fetchLocationMetricsIfNeeded,
-  getLocationMetricsTimeSeriesData,
-  getHourlyLocationMetricsTimeSeriesData,
-} from 'redux/modules/location';
+import Locations from 'redux/locations';
 
 import { LineChart, JsonDump } from 'components';
 
 function mapStateToProps(state) {
   return {
-    locationMetrics: getLocationMetricsTimeSeriesData(state),
-    hourlyLocationMetrics: getHourlyLocationMetricsTimeSeriesData(state),
+    locationMetrics: Locations.Selectors.getLocationMetricsTimeSeriesData(state),
+    hourlyLocationMetrics: Locations.Selectors.getHourlyLocationMetricsTimeSeriesData(state),
   };
 }
 
@@ -25,7 +21,7 @@ class LocationPage extends PureComponent {
 
   componentDidMount() {
     const { dispatch } = this.props;
-    dispatch(fetchLocationMetricsIfNeeded());
+    dispatch(Locations.Actions.fetchLocationMetricsIfNeeded());
   }
 
   renderCityProviders() {
