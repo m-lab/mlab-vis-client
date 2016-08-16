@@ -4,8 +4,8 @@ import './JsonDump.scss';
 
 export default class JsonDump extends PureComponent {
   static propTypes = {
-    json: PropTypes.object,
     fetchJson: PropTypes.func,
+    json: PropTypes.object,
   }
 
   renderJson() {
@@ -30,7 +30,9 @@ export default class JsonDump extends PureComponent {
     return (
       <div className="json-dump">
         {this.renderJson()}
-        <button className="btn btn-primary" onClick={fetchJson}>Reload from server</button>
+        {fetchJson ?
+          <button className="btn btn-primary" onClick={fetchJson}>Reload from server</button> :
+          null}
       </div>
     );
   }
