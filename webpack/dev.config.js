@@ -74,8 +74,6 @@ module.exports = {
   entry: {
     main: [
       'webpack-hot-middleware/client?overlay=false&path=http://' + host + ':' + port + '/__webpack_hmr',
-      'bootstrap-sass!./src/theme/bootstrap.config.js',
-      'font-awesome-webpack!./src/theme/font-awesome.config.js',
       './src/client.jsx',
     ],
   },
@@ -91,6 +89,7 @@ module.exports = {
       { test: /\.json$/, loader: 'json-loader' },
       { test: /\.less$/, loader: 'style!css!postcss!less' },
       { test: /\.scss$/, loader: 'style!css!postcss!sass' },
+      { test: /\.css$/, loader: 'style!css!postcss' },
       { test: /\.(woff)(\?v=\d+\.\d+\.\d+)?$/, loader: 'url?limit=10000&mimetype=application/font-woff' },
       { test: /\.woff2(\?v=\d+\.\d+\.\d+)?$/, loader: 'url?limit=10000&mimetype=application/font-woff' },
       { test: /\.ttf(\?v=\d+\.\d+\.\d+)?$/, loader: 'url?limit=10000&mimetype=application/octet-stream' },
