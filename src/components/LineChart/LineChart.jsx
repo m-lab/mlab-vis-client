@@ -92,8 +92,11 @@ export default class LineChart extends PureComponent {
       .x((d) => xScale(d[xKey]))
       .y((d) => yScale(d[yKey]));
 
+    // filter out points with missing values
+    const filteredData = data.filter(d => d[xKey] != null && d[yKey] != null);
+
     return {
-      data,
+      data: filteredData,
       height,
       innerHeight,
       innerMargin,
