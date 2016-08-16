@@ -1,9 +1,3 @@
-import * as Actions from './actions';
-import reducer from './reducer';
-import * as Selectors from './selectors';
-
-export default {
-  Actions,
-  reducer,
-  Selectors,
-};
+export * as Actions from './actions';
+export reducer from './reducer';
+export * as Selectors from './selectors';
