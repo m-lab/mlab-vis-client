@@ -23,7 +23,7 @@
     "lint": "eslint -c .eslintrc src",
     "start-dev": "better-npm-run start-dev",
     "watch-client": "better-npm-run watch-client",
-    "dev": "concurrently --kill-others \"npm run watch-client\" \"npm run start-dev\"",
+    "dev": "echo \"run 'npm run start-dev' and 'npm run watch-client' in separate terminals\"",
     "test": "karma start"
   },
   "betterScripts": {
@@ -143,6 +143,7 @@
     "style-loader": "^0.13.0",
     "timekeeper": "0.0.5",
     "webpack": "^1.12.9",
+    "webpack-dashboard": "0.0.1",
     "webpack-dev-middleware": "^1.4.0",
     "webpack-hot-middleware": "^2.5.0"
   },

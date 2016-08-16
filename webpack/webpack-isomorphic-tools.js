@@ -11,6 +11,7 @@ module.exports = {
   // Sending SIGTERM to other processes..
   //
   // debug: true,
+  verbosity: 'no webpack stats',
 
   assets: {
     images: {
