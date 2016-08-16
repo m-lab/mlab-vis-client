@@ -5,25 +5,24 @@ import 'babel-polyfill';
 import React from 'react';
 import ReactDOM from 'react-dom';
 import { Provider } from 'react-redux';
-import { Router, browserHistory } from 'react-router';
+import { Router, browserHistory, applyRouterMiddleware } from 'react-router';
 import { syncHistoryWithStore } from 'react-router-redux';
-import useScroll from 'scroll-behavior/lib/useStandardScroll';
+import { useScroll } from 'react-router-scroll';
 import createStore from './redux/create';
 import * as api from './api/Api';
 import getRoutes from './routes';
 import DevTools from './containers/DevTools/DevTools';
 
-const browserHistoryWithScroll = useScroll(() => browserHistory)();
 const dest = document.getElementById('content');
-const store = createStore(browserHistoryWithScroll, api, window.__data); // eslint-disable-line no-underscore-dangle, max-len
-const history = syncHistoryWithStore(browserHistoryWithScroll, store);
+const store = createStore(browserHistory, api, window.__data); // eslint-disable-line no-underscore-dangle, max-len
+const history = syncHistoryWithStore(browserHistory, store);
 
 if (__DEVELOPMENT__) {
   window.Perf = require('react-addons-perf'); // eslint-disable-line
 }
 
 const component = (
-  <Router history={history}>
+  <Router history={history} render={applyRouterMiddleware(useScroll())}>
     {getRoutes(store)}
   </Router>
 );
