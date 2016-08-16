@@ -1,38 +1,65 @@
 import { createSelector } from 'reselect';
-
+import { parseDate } from '../../utils/utils';
 /**
  * Actions
  */
-const LOAD = 'location/LOAD';
-const LOAD_SUCCESS = 'location/LOAD_SUCCESS';
-const LOAD_FAIL = 'location/LOAD_FAIL';
+const METRICS_LOAD = 'location/METRICS_LOAD';
+const METRICS_LOAD_SUCCESS = 'location/METRICS_LOAD_SUCCESS';
+const METRICS_LOAD_FAIL = 'location/METRICS_LOAD_FAIL';
+const HOURLY_LOAD = 'location/HOURLY_LOAD';
+const HOURLY_LOAD_SUCCESS = 'location/HOURLY_LOAD_SUCCESS';
+const HOURLY_LOAD_FAIL = 'location/HOURLY_LOAD_FAIL';
 
 /**
  * Reducer
  */
 const initialState = {
-  loaded: false,
+  metricsLoaded: false,
+  hourlyLoaded: false
 };
 
+/**
+ * Location metrics actions
+ */
 export default function location(state = initialState, action = {}) {
   switch (action.type) {
-    case LOAD:
+    case METRICS_LOAD:
       return {
         ...state,
-        loading: true,
+        metricsLoading: true,
       };
-    case LOAD_SUCCESS:
+    case METRICS_LOAD_SUCCESS:
       return {
         ...state,
-        loading: false,
-        loaded: true,
-        data: action.result,
+        metricsLoading: false,
+        metricsLoaded: true,
+        metricsData: action.result,
       };
-    case LOAD_FAIL:
+    case METRICS_LOAD_FAIL:
       return {
         ...state,
-        loading: false,
-        loaded: false,
+        metricsLoading: false,
+        metricsLoaded: false,
+        error: action.error,
+      };
+
+    case HOURLY_LOAD:
+      return {
+        ...state,
+        hourlyLoading: true,
+      };
+    case HOURLY_LOAD_SUCCESS:
+      return {
+        ...state,
+        hourlyLoading: false,
+        hourlyLoaded: true,
+        hourlyData: action.result,
+      };
+    case HOURLY_LOAD_FAIL:
+      return {
+        ...state,
+        hourlyLoading: false,
+        hourlyLoaded: false,
         error: action.error,
       };
     default:
@@ -44,13 +71,24 @@ export default function location(state = initialState, action = {}) {
  * Action Creators
  */
 export function shouldFetchLocationMetrics(state) {
-  return !(state.location && state.location.loaded);
+  return !(state.location && state.location.metricsLoaded &&
+    state.location.hourlyLoaded);
 }
 
 export function fetchLocationMetrics() {
   return {
-    types: [LOAD, LOAD_SUCCESS, LOAD_FAIL],
+    types: [METRICS_LOAD, METRICS_LOAD_SUCCESS, METRICS_LOAD_FAIL],
     promise: (api) => api.getLocationMetrics('month', 'NA+US+MA+Cambridge'),
+  };
+}
+
+export function fetchHourlyLocationMetrics() {
+
+  var timePeriod = 'day';
+  var locationId = 'NA+US+MA+Cambridge';
+  return {
+    types : [HOURLY_LOAD, HOURLY_LOAD_SUCCESS, HOURLY_LOAD_FAIL],
+    promise: (api) => api.getLocationMetrics(timePeriod + '_hour', locationId)
   };
 }
 
@@ -58,6 +96,7 @@ export function fetchLocationMetricsIfNeeded() {
   return (dispatch, getState) => {
     if (shouldFetchLocationMetrics(getState())) {
       dispatch(fetchLocationMetrics());
+      dispatch(fetchHourlyLocationMetrics());
     }
   };
 }
@@ -70,7 +109,11 @@ export function fetchLocationMetricsIfNeeded() {
  * Input selector for getting location metrics
  */
 function getLocationMetrics(state) {
-  return state.location.data;
+  return state.location.metricsData;
+}
+
+function getHourlyLocationMetrics(state) {
+  return state.location.hourlyData;
 }
 
 /**
@@ -89,5 +132,33 @@ export const getLocationMetricsTimeSeriesData = createSelector(
         date: new Date(d.date),
       })
     );
+  }
+);
+
+/**
+ * A selector to transform the hourly API into an array grouped by hour.
+ * @param  {function} [getHourlyLocationLetrics] input selector for data property
+ * @param  {function} hourlyLocationMetrics  selector for hourly location metrics
+ * @return {Array}  Array of grouped hourly data
+ */
+export const getHourlyLocationMetricsTimeSeriesData = createSelector(
+  [getHourlyLocationMetrics],
+  (hourlyLocationMetrics) => {
+    if (!hourlyLocationMetrics || !hourlyLocationMetrics.metrics) {
+      return undefined;
+    }
+
+    // group by hour
+    let hourly = new Array(24);
+    hourlyLocationMetrics.metrics.map(d => {
+      let hour = parseInt(d.hour, 10);
+      if (typeof(hourly[hour]) === "undefined") {
+        hourly[hour] = [];
+      }
+      hourly[hour].push(Object.assign({}, d, {
+        date_parsed : parseDate(d.date)
+      }))
+    });
+    return hourly;
   }
 );
