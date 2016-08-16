@@ -25,7 +25,7 @@ export default class JsonDump extends PureComponent {
 
   render() {
     const { json, fetchJson } = this.props;
-    console.log('json = ', json);
+    console.log('json =', json);
 
     return (
       <div className="json-dump">
