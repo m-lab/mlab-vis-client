@@ -32,7 +32,7 @@ export default function createStore(history, api, data) {
   // add in hook for hot reloading reducer
   if (__DEVELOPMENT__ && module.hot) {
     module.hot.accept('./modules/reducer', () => {
-      store.replaceReducer(require('./modules/reducer')); // eslint-disable-line global-require
+      store.replaceReducer(require('./modules/reducer').default); // eslint-disable-line
     });
   }
 
