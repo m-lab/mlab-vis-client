@@ -8,8 +8,7 @@
  * @return {Date} parsed date
  */
 export function parseDate(dateString) {
-
-  var parts = dateString.split('-');
+  const parts = dateString.split('-');
   parts[1] -= 1; // Note: months are 0-based
 
   return new Date(...parts);
