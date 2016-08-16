@@ -4,13 +4,16 @@ import Helmet from 'react-helmet';
 import {
   fetchLocationMetricsIfNeeded,
   getLocationMetricsTimeSeriesData,
+  getHourlyLocationMetricsTimeSeriesData,
 } from 'redux/modules/location';
 
 import { LineChart } from 'components';
+import { JsonDump } from 'components';
 
 function mapStateToProps(state) {
   return {
     locationMetrics: getLocationMetricsTimeSeriesData(state),
+    hourlyLocationMetrics: getHourlyLocationMetricsTimeSeriesData(state)
   };
 }
 
@@ -18,6 +21,7 @@ class LocationPage extends PureComponent {
   static propTypes = {
     dispatch: React.PropTypes.func,
     locationMetrics: React.PropTypes.array,
+    hourlyLocationMetrics: React.PropTypes.array
   }
 
   componentDidMount() {
@@ -62,9 +66,12 @@ class LocationPage extends PureComponent {
   }
 
   renderProvidersByHour() {
+    const { hourlyLocationMetrics } = this.props;
+
     return (
       <div>
         <h3>By Hour, Median download speeds</h3>
+        <JsonDump json={hourlyLocationMetrics} />
       </div>
     );
   }
