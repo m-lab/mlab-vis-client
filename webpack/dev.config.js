@@ -69,7 +69,7 @@ reactTransform[1].superClasses = ['React.Component', 'Component',
   'React.PureComponent', 'PureComponent'];
 
 module.exports = {
-  devtool: 'cheap-module-eval-source-map',
+  devtool: 'cheap-module-source-map',
   context: path.resolve(__dirname, '..'),
   entry: {
     main: [

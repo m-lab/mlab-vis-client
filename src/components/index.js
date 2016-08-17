@@ -8,3 +8,4 @@
 export Icon from './Icon/Icon';
 export JsonDump from './JsonDump/JsonDump';
 export LineChart from './LineChart/LineChart';
+export HourChart from './HourChart/HourChart';

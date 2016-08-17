@@ -4,7 +4,7 @@ import Helmet from 'react-helmet';
 import * as ReduxLocations from 'redux/locations';
 import * as ReduxLocationPage from 'redux/locationPage';
 
-import { LineChart, JsonDump } from 'components';
+import { LineChart, JsonDump, HourChart } from 'components';
 
 function mapStateToProps(state, props) {
   return {
@@ -85,7 +85,13 @@ class LocationPage extends PureComponent {
     return (
       <div>
         <h3>By Hour, Median download speeds</h3>
-        <JsonDump json={hourly} />
+        <HourChart
+          width={800}
+          height={300}
+          data={hourly}
+          xKey="hour"
+          yKey="download_speed_mbps_median"
+        />
       </div>
     );
   }
