@@ -1,8 +1,10 @@
+/**
+ * Reducer for locationPage
+ */
 import * as Actions from './actions';
 
 /**
 locationPage:
-  locationId
   viewMetric (download, upload, RTT, retransmission rate)
 
   selectedClientIsps
@@ -29,7 +31,6 @@ locationPage:
  */
 
 const initialState = {
-  locationId: undefined,
   viewMetric: 'download',
 
   selectedClientIsps: [],
@@ -56,14 +57,15 @@ const initialState = {
 // the location page reducer
 function locationPage(state = initialState, action = {}) {
   switch (action.type) {
-    case Actions.CHANGE_LOCATION:
+    case Actions.RESET_SELECTED_LOCATIONS:
       return {
         ...state,
-        locationId: action.locationId,
-
-        // reset client ISPs and locations
-        selectedClientIsps: initialState.selectedClientIsps,
         selectedLocations: initialState.selectedLocations,
+      };
+    case Actions.RESET_SELECTED_CLIENT_ISPS:
+      return {
+        ...state,
+        selectedClientIsps: initialState.selectedClientIsps,
       };
     default:
       return state;

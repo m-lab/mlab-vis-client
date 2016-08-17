@@ -21,8 +21,13 @@ if (__DEVELOPMENT__) {
   window.Perf = require('react-addons-perf'); // eslint-disable-line
 }
 
+// do not scroll unless the pathname changes.
+const scrollMiddleware = useScroll((prevRouterProps, { location }) => (
+  prevRouterProps && location.pathname !== prevRouterProps.location.pathname
+));
+
 const component = (
-  <Router history={history} render={applyRouterMiddleware(useScroll())}>
+  <Router history={history} render={applyRouterMiddleware(scrollMiddleware)} >
     {getRoutes(store)}
   </Router>
 );
