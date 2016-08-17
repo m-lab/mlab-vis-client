@@ -18,14 +18,20 @@ const urlHandler = new UrlHandler(urlQueryConfig);
 
 
 function mapStateToProps(state, props) {
-  return {
+  // combine props with those read from URL to provide to Redux selectors
+  const propsWithUrl = {
+    ...props,
     locationId: props.params.locationId,
+
     // adds in: showBaselines, showRegionalValues
     ...urlHandler.decodeQuery(props.location.query),
+  };
 
-    hourly: LocationPageSelectors.getActiveLocationHourly(state, props),
-    timeAggregation: LocationPageSelectors.getTimeAggregation(state, props),
-    timeSeries: LocationPageSelectors.getActiveLocationTimeSeries(state, props),
+  return {
+    ...propsWithUrl,
+    hourly: LocationPageSelectors.getActiveLocationHourly(state, propsWithUrl),
+    timeAggregation: LocationPageSelectors.getTimeAggregation(state, propsWithUrl),
+    timeSeries: LocationPageSelectors.getActiveLocationTimeSeries(state, propsWithUrl),
   };
 }
 
