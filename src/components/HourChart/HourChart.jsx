@@ -62,7 +62,6 @@ export default class HourChart extends PureComponent {
   makeVisComponents(props) {
     const { data = [], height, width, xKey, yKey } = props;
 
-    console.log(data);
     const innerMargin = { top: 20, right: 20, bottom: 35, left: 50 };
     const innerWidth = width - innerMargin.left - innerMargin.right;
     const innerHeight = height - innerMargin.top - innerMargin.bottom;
