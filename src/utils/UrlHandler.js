@@ -20,7 +20,7 @@ export default class UrlHandler {
    * @return {Object} the decoded values `{ key: decodedValue, ... }`
    */
   decodeQuery(query) {
-    Object.keys(this.config).reduce((decoded, key) => {
+    return Object.keys(this.config).reduce((decoded, key) => {
       const keyConfig = this.config[key];
       decoded[key] = decode(keyConfig.type, query[key], keyConfig.defaultValue)
       return decoded;

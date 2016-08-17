@@ -1,8 +1,10 @@
-import React, { PureComponent } from 'react';
+import React, { PureComponent, PropTypes } from 'react';
 import { connect } from 'react-redux';
 import Helmet from 'react-helmet';
 import { withRouter } from 'react-router';
+import classNames from 'classnames';
 
+import { timeAggregations } from '../../constants';
 import * as LocationPageSelectors from 'redux/locationPage/selectors';
 import * as LocationPageActions from 'redux/locationPage/actions';
 import * as LocationsActions from 'redux/locations/actions';
@@ -11,8 +13,14 @@ import { LineChart, JsonDump } from 'components';
 import UrlHandler from 'utils/UrlHandler';
 
 const urlQueryConfig = {
+  // chart options
   showBaselines: { type: 'boolean', defaultValue: false },
   showRegionalValues: { type: 'boolean', defaultValue: false },
+
+  // selected time
+  startDate: { type: 'date' },
+  endDate: { type: 'date' },
+  timeAggregation: { type: 'string', defaultValue: 'day' },
 };
 const urlHandler = new UrlHandler(urlQueryConfig);
 
@@ -30,22 +38,23 @@ function mapStateToProps(state, props) {
   return {
     ...propsWithUrl,
     hourly: LocationPageSelectors.getActiveLocationHourly(state, propsWithUrl),
-    timeAggregation: LocationPageSelectors.getTimeAggregation(state, propsWithUrl),
     timeSeries: LocationPageSelectors.getActiveLocationTimeSeries(state, propsWithUrl),
   };
 }
 
 class LocationPage extends PureComponent {
   static propTypes = {
-    dispatch: React.PropTypes.func,
-    hourly: React.PropTypes.object,
-    location: React.PropTypes.object, // route location
-    locationId: React.PropTypes.string,
-    router: React.PropTypes.object,
-    showBaselines: React.PropTypes.bool,
-    showRegionalValues: React.PropTypes.bool,
-    timeAggregation: React.PropTypes.string,
-    timeSeries: React.PropTypes.array,
+    dispatch: PropTypes.func,
+    endDate: PropTypes.object, // date
+    hourly: PropTypes.object,
+    location: PropTypes.object, // route location
+    locationId: PropTypes.string,
+    router: PropTypes.object,
+    showBaselines: PropTypes.bool,
+    showRegionalValues: PropTypes.bool,
+    startDate: PropTypes.object, // date
+    timeAggregation: PropTypes.string,
+    timeSeries: PropTypes.array,
   }
 
   constructor(props) {
@@ -82,6 +91,11 @@ class LocationPage extends PureComponent {
     urlHandler.replaceInQuery(location, key, checked, router);
   }
 
+  handleTimeAggregationChange(value) {
+    const { location, router } = this.props;
+    urlHandler.replaceInQuery(location, 'timeAggregation', value, router);
+  }
+
   renderCityProviders() {
     return (
       <div>
@@ -94,7 +108,7 @@ class LocationPage extends PureComponent {
   }
 
   renderCompareProviders() {
-    const { timeSeries, showBaselines, showRegionalValues } = this.props;
+    const { timeSeries } = this.props;
 
     return (
       <div>
@@ -106,26 +120,62 @@ class LocationPage extends PureComponent {
           xKey="date"
           yKey="download_speed_mbps_median"
         />
-        <div>
-          <label htmlFor="show-baselines">
-            <input
-              type="checkbox"
-              checked={showBaselines}
-              id="show-baselines"
-              onChange={this.handleShowBaselinesChange}
-            />
-            Show Baselines
-          </label>
-          <label htmlFor="show-regional-values">
-            <input
-              type="checkbox"
-              checked={showRegionalValues}
-              id="show-regional-values"
-              onChange={this.handleShowRegionalValuesChange}
-            />
-            Show Regional Values
-          </label>
-        </div>
+        {this.renderChartOptions()}
+        {this.renderTimeAggregationSelector()}
+      </div>
+    );
+  }
+
+  renderTimeAggregationSelector() {
+    const { timeAggregation } = this.props;
+
+    return (
+      <div className="time-aggregation">
+        <ul className="list-unstyled">
+          {timeAggregations.map(aggr => (
+            <li key={aggr.value}>
+              <button
+                className={classNames('btn btn-default',
+                  { active: timeAggregation === aggr.value })}
+                onClick={() => this.handleTimeAggregationChange(aggr.value)}
+              >
+                {aggr.label}
+              </button>
+            </li>
+          ))}
+        </ul>
+      </div>
+    );
+  }
+
+  renderChartOptions() {
+    const { showBaselines, showRegionalValues } = this.props;
+    return (
+      <div>
+        <ul className="list-inline">
+          <li>
+            <label htmlFor="show-baselines">
+              <input
+                type="checkbox"
+                checked={showBaselines}
+                id="show-baselines"
+                onChange={this.handleShowBaselinesChange}
+              />
+              {' Show Baselines'}
+            </label>
+          </li>
+          <li>
+            <label htmlFor="show-regional-values">
+              <input
+                type="checkbox"
+                checked={showRegionalValues}
+                id="show-regional-values"
+                onChange={this.handleShowRegionalValuesChange}
+              />
+              {' Show Regional Values'}
+            </label>
+          </li>
+        </ul>
       </div>
     );
   }

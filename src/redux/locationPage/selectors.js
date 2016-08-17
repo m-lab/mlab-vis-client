@@ -10,8 +10,8 @@ import { initialLocationState } from '../locations/reducer';
 // ----------------------
 
 export function getActiveLocation(state, props) {
-  // read in locationId from the URL
-  const { locationId } = props.params;
+  // read in locationId from props
+  const { locationId } = props;
 
   if (locationId == null || !state.locations[locationId]) {
     return initialLocationState;
@@ -30,9 +30,6 @@ export function getActiveLocationTimeSeries(state, props) {
   return location.time.timeSeries.data && location.time.timeSeries.data.metrics;
 }
 
-export function getTimeAggregation(state) {
-  return state.locationPage.selectedTime.timeAggregation;
-}
 
 // ----------------------
 // Selectors
