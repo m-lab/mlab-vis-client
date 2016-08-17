@@ -1,8 +1,8 @@
 import React, { PureComponent, PropTypes } from 'react';
 import { connect } from 'react-redux';
 import Helmet from 'react-helmet';
-import { withRouter } from 'react-router';
 import classNames from 'classnames';
+import { browserHistory } from 'react-router';
 
 import { timeAggregations } from '../../constants';
 import * as LocationPageSelectors from '../../redux/locationPage/selectors';
@@ -21,7 +21,7 @@ const urlQueryConfig = {
   endDate: { type: 'date' },
   timeAggregation: { type: 'string', defaultValue: 'day' },
 };
-const urlHandler = new UrlHandler(urlQueryConfig);
+const urlHandler = new UrlHandler(urlQueryConfig, browserHistory);
 
 function mapStateToProps(state, props) {
   // combine props with those read from URL to provide to Redux selectors
@@ -47,7 +47,6 @@ class LocationPage extends PureComponent {
     hourly: PropTypes.object,
     location: PropTypes.object, // route location
     locationId: PropTypes.string,
-    router: PropTypes.object,
     showBaselines: PropTypes.bool,
     showRegionalValues: PropTypes.bool,
     startDate: PropTypes.object, // date
@@ -76,14 +75,15 @@ class LocationPage extends PureComponent {
 
   // update the URL on checkbox change
   handleCheckboxChange(key, evt) {
-    const { location, router } = this.props;
+    const { location } = this.props;
     const { checked } = evt.target;
-    urlHandler.replaceInQuery(location, key, checked, router);
+    urlHandler.replaceInQuery(location, key, checked);
   }
 
+  // update the URL on time aggregation change
   handleTimeAggregationChange(value) {
-    const { location, router } = this.props;
-    urlHandler.replaceInQuery(location, 'timeAggregation', value, router);
+    const { location } = this.props;
+    urlHandler.replaceInQuery(location, 'timeAggregation', value);
   }
 
   renderCityProviders() {
@@ -243,4 +243,4 @@ class LocationPage extends PureComponent {
   }
 }
 
-export default connect(mapStateToProps)(withRouter(LocationPage));
+export default connect(mapStateToProps)(LocationPage);

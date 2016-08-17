@@ -8,9 +8,12 @@ export default class UrlHandler {
   /**
    * Constructor
    * @param {Object} urlQueryConfig Should take the form `{ key: { type, defaultValue }, ... }`.
+   * @param {Object} browserHistory An object to control the URL in the browser (e.g.
+    browserHistory from react-router). Needs the `replace` and `push` functions.
    */
-  constructor(urlQueryConfig, router) {
+  constructor(urlQueryConfig, browserHistory) {
     this.config = urlQueryConfig;
+    this.browserHistory = browserHistory;
   }
 
   /**
@@ -22,7 +25,7 @@ export default class UrlHandler {
   decodeQuery(query) {
     return Object.keys(this.config).reduce((decoded, key) => {
       const keyConfig = this.config[key];
-      decoded[key] = decode(keyConfig.type, query[key], keyConfig.defaultValue)
+      decoded[key] = decode(keyConfig.type, query[key], keyConfig.defaultValue); // eslint-disable-line
       return decoded;
     }, {});
   }
@@ -35,9 +38,9 @@ export default class UrlHandler {
    * @param {Object} location react-router's location object (props.location)
    * @param {String} key the key to replace, should be in this.config
    * @param {Any} value The value to encode in the query for the key
-   * @param {Object} [router] The react-router router.
+   * @param {Boolean} [updateUrl=true] Whether to update the URL via browser history or not
    */
-  replaceInQuery(location, key, value, router) {
+  replaceInQuery(location, key, value, updateUrl = true) {
     const keyConfig = this.config[key];
 
     // create the new location object
@@ -47,7 +50,7 @@ export default class UrlHandler {
         ...location.query,
         [key]: encode(keyConfig.type, value),
       },
-    }
+    };
 
     // remove if it is the default value
     if (value === keyConfig.defaultValue) {
@@ -55,8 +58,8 @@ export default class UrlHandler {
     }
 
     // if router is available, replace the URL
-    if (router) {
-      router.replace(newLocation);
+    if (updateUrl && this.browserHistory) {
+      this.browserHistory.replace(newLocation);
     }
 
     return newLocation;
