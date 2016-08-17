@@ -27,8 +27,8 @@ var serverOptions = {
   },
 };
 
-const useDashboard = !!process.env.WEBPACK_DASHBOARD;
-let hotOptions;
+var useDashboard = !!process.env.WEBPACK_DASHBOARD;
+var hotOptions;
 
 if (useDashboard) {
   var Dashboard = require('webpack-dashboard');
@@ -36,7 +36,7 @@ if (useDashboard) {
   var dashboard = new Dashboard();
   compiler.apply(new DashboardPlugin(dashboard.setData));
   hotOptions = {
-    log: () => {},
+    log: function noop() {},
   };
   serverOptions.quiet = true;
   serverOptions.noInfo = true;
