@@ -52,6 +52,8 @@ export default class HourChart extends PureComponent {
 
     this.lines = this.g.append('g').classed('lines-group', true);
     this.circles = this.g.append('g').classed('circles-group', true);
+    this.xAxis = this.g.append('g');
+    this.yAxis = this.g.append('g');
     this.update();
   }
 
@@ -123,6 +125,22 @@ export default class HourChart extends PureComponent {
    */
   update() {
     this.renderCircles();
+    this.renderAxis();
+  }
+
+  /**
+   * Render the x and y axis components
+   */
+  renderAxis() {
+    const { xScale, yScale, innerHeight, binWidth } = this.visComponents;
+    const xAxis = d3.axisBottom(xScale);
+    const yAxis = d3.axisLeft(yScale);
+
+    this.yAxis.call(yAxis);
+
+    this.xAxis
+      .attr('transform', `translate(${binWidth / 2} ${innerHeight + 3})`)
+      .call(xAxis);
   }
 
   /**
