@@ -5,12 +5,11 @@ import { withRouter } from 'react-router';
 import classNames from 'classnames';
 
 import { timeAggregations } from '../../constants';
-import * as LocationPageSelectors from 'redux/locationPage/selectors';
-import * as LocationPageActions from 'redux/locationPage/actions';
-import * as LocationsActions from 'redux/locations/actions';
+import * as LocationPageSelectors from '../../redux/locationPage/selectors';
+import * as LocationsActions from '../../redux/locations/actions';
 
-import { LineChart, JsonDump } from 'components';
-import UrlHandler from 'utils/UrlHandler';
+import { LineChart, JsonDump } from '../../components';
+import UrlHandler from '../../utils/UrlHandler';
 
 const urlQueryConfig = {
   // chart options
