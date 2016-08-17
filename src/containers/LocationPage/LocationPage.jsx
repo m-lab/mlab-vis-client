@@ -65,21 +65,13 @@ class LocationPage extends PureComponent {
   }
 
   componentDidMount() {
-    this.changeLocation(this.props);
+    const { dispatch, locationId, timeAggregation } = this.props;
+    dispatch(LocationsActions.fetchTimeSeriesIfNeeded(timeAggregation, locationId));
+    dispatch(LocationsActions.fetchHourlyIfNeeded(timeAggregation, locationId));
   }
 
   componentWillReceiveProps(nextProps) {
-    const { locationId } = this.props;
-
-    if (locationId !== nextProps.locationId) {
-      this.changeLocation(nextProps);
-    }
-  }
-
-  changeLocation(props) {
-    const { dispatch, locationId, timeAggregation } = props;
-    dispatch(LocationPageActions.resetSelectedLocations());
-    dispatch(LocationPageActions.resetSelectedClientIsps());
+    const { dispatch, locationId, timeAggregation } = nextProps;
     dispatch(LocationsActions.fetchTimeSeriesIfNeeded(timeAggregation, locationId));
     dispatch(LocationsActions.fetchHourlyIfNeeded(timeAggregation, locationId));
   }
