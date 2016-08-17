@@ -1,3 +1,6 @@
+/**
+ * Reducer for locations
+ */
 import * as Actions from './actions';
 
 /**

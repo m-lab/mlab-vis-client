@@ -1,5 +1,5 @@
 /**
- * Actions
+ * Actions for locations
  */
 export const FETCH_TIME_SERIES = 'location/FETCH_TIME_SERIES';
 export const FETCH_TIME_SERIES_SUCCESS = 'location/FETCH_TIME_SERIES_SUCCESS';

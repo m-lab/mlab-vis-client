@@ -10,9 +10,11 @@ import * as array from 'd3-array';
 import * as scale from 'd3-scale';
 import * as selection from 'd3-selection';
 import * as shape from 'd3-shape';
+import * as timeFormat from 'd3-time-format';
 
 export default Object.assign({},
   array,
   scale,
   selection,
-  shape);
+  shape,
+  timeFormat);

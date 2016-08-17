@@ -1,3 +1,7 @@
+/**
+ * Selectors for locationPage
+ */
+
 // import { createSelector } from 'reselect';
 import { initialLocationState } from '../locations/reducer';
 
@@ -6,13 +10,8 @@ import { initialLocationState } from '../locations/reducer';
 // ----------------------
 
 export function getActiveLocation(state, props) {
-  // TODO- get proper location ID
-  let { locationId } = state.locationPage;
-
-  // if it isn't in the state, try the routing params
-  if (locationId == null) {
-    locationId = props.params.locationId;
-  }
+  // read in locationId from the URL
+  const { locationId } = props.params;
 
   if (locationId == null || !state.locations[locationId]) {
     return initialLocationState;

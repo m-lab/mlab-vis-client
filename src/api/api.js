@@ -1,7 +1,7 @@
 import superagent from 'superagent';
 import { groupBy } from 'lodash';
 import config from '../config';
-import { parseDate } from '../utils/utils';
+import { decodeDate } from '../utils/serialization';
 /**
  * Formats a URL to go via the API server
  *
@@ -66,7 +66,7 @@ export function getLocationTimeSeries(timeAggregation, locationKey) {
       // transform the data before sending it back to the app
       // convert dates to Date objects
       body.metrics.forEach(d => {
-        d.date = parseDate(d.date);
+        d.date = decodeDate(d.date);
       });
 
       return body;
@@ -89,7 +89,7 @@ export function getLocationHourly(timeAggregation, locationKey) {
       // transform the data before sending it back to the app
       // convert dates to Date objects
       body.metrics.forEach(d => {
-        d.date = parseDate(d.date);
+        d.date = decodeDate(d.date);
         d.hour = parseInt(d.hour, 10);
       });
 

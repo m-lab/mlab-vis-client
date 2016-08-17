@@ -1,17 +1,31 @@
 import React, { PureComponent } from 'react';
 import { connect } from 'react-redux';
 import Helmet from 'react-helmet';
-import * as ReduxLocations from 'redux/locations';
-import * as ReduxLocationPage from 'redux/locationPage';
+import { withRouter } from 'react-router';
+
+import * as LocationPageSelectors from 'redux/locationPage/selectors';
+import * as LocationPageActions from 'redux/locationPage/actions';
+import * as LocationsActions from 'redux/locations/actions';
 
 import { LineChart, JsonDump } from 'components';
+import UrlHandler from 'utils/UrlHandler';
+
+const urlQueryConfig = {
+  showBaselines: { type: 'boolean', defaultValue: false },
+  showRegionalValues: { type: 'boolean', defaultValue: false },
+};
+const urlHandler = new UrlHandler(urlQueryConfig);
+
 
 function mapStateToProps(state, props) {
   return {
     locationId: props.params.locationId,
-    timeAggregation: ReduxLocationPage.Selectors.getTimeAggregation(state, props),
-    timeSeries: ReduxLocationPage.Selectors.getActiveLocationTimeSeries(state, props),
-    hourly: ReduxLocationPage.Selectors.getActiveLocationHourly(state, props),
+    // adds in: showBaselines, showRegionalValues
+    ...urlHandler.decodeQuery(props.location.query),
+
+    hourly: LocationPageSelectors.getActiveLocationHourly(state, props),
+    timeAggregation: LocationPageSelectors.getTimeAggregation(state, props),
+    timeSeries: LocationPageSelectors.getActiveLocationTimeSeries(state, props),
   };
 }
 
@@ -19,9 +33,20 @@ class LocationPage extends PureComponent {
   static propTypes = {
     dispatch: React.PropTypes.func,
     hourly: React.PropTypes.object,
+    location: React.PropTypes.object, // route location
     locationId: React.PropTypes.string,
+    router: React.PropTypes.object,
+    showBaselines: React.PropTypes.bool,
+    showRegionalValues: React.PropTypes.bool,
     timeAggregation: React.PropTypes.string,
     timeSeries: React.PropTypes.array,
+  }
+
+  constructor(props) {
+    super(props);
+    this.handleShowBaselinesChange = this.handleCheckboxChange.bind(this, 'showBaselines');
+    this.handleShowRegionalValuesChange = this.handleCheckboxChange.bind(this,
+      'showRegionalValues');
   }
 
   componentDidMount() {
@@ -38,9 +63,17 @@ class LocationPage extends PureComponent {
 
   changeLocation(props) {
     const { dispatch, locationId, timeAggregation } = props;
-    dispatch(ReduxLocationPage.Actions.changeLocation(locationId));
-    dispatch(ReduxLocations.Actions.fetchTimeSeriesIfNeeded(timeAggregation, locationId));
-    dispatch(ReduxLocations.Actions.fetchHourlyIfNeeded(timeAggregation, locationId));
+    dispatch(LocationPageActions.resetSelectedLocations());
+    dispatch(LocationPageActions.resetSelectedClientIsps());
+    dispatch(LocationsActions.fetchTimeSeriesIfNeeded(timeAggregation, locationId));
+    dispatch(LocationsActions.fetchHourlyIfNeeded(timeAggregation, locationId));
+  }
+
+  // update the URL on checkbox change
+  handleCheckboxChange(key, evt) {
+    const { location, router } = this.props;
+    const { checked } = evt.target;
+    urlHandler.replaceInQuery(location, key, checked, router);
   }
 
   renderCityProviders() {
@@ -55,7 +88,7 @@ class LocationPage extends PureComponent {
   }
 
   renderCompareProviders() {
-    const { timeSeries } = this.props;
+    const { timeSeries, showBaselines, showRegionalValues } = this.props;
 
     return (
       <div>
@@ -67,6 +100,26 @@ class LocationPage extends PureComponent {
           xKey="date"
           yKey="download_speed_mbps_median"
         />
+        <div>
+          <label htmlFor="show-baselines">
+            <input
+              type="checkbox"
+              checked={showBaselines}
+              id="show-baselines"
+              onChange={this.handleShowBaselinesChange}
+            />
+            Show Baselines
+          </label>
+          <label htmlFor="show-regional-values">
+            <input
+              type="checkbox"
+              checked={showRegionalValues}
+              id="show-regional-values"
+              onChange={this.handleShowRegionalValuesChange}
+            />
+            Show Regional Values
+          </label>
+        </div>
       </div>
     );
   }
@@ -138,4 +191,4 @@ class LocationPage extends PureComponent {
   }
 }
 
-export default connect(mapStateToProps)(LocationPage);
+export default connect(mapStateToProps)(withRouter(LocationPage));
