@@ -4,7 +4,7 @@ import Helmet from 'react-helmet';
 import classNames from 'classnames';
 import { browserHistory } from 'react-router';
 import { Row, Col } from 'react-bootstrap';
-
+import { saveSvgAsPng } from 'save-svg-as-png';
 import { timeAggregations, metrics } from '../../constants';
 import * as LocationPageSelectors from '../../redux/locationPage/selectors';
 import * as LocationPageActions from '../../redux/locationPage/actions';
@@ -66,6 +66,7 @@ class LocationPage extends PureComponent {
     super(props);
 
     // bind handlers
+    this.handleSavePng = this.handleSavePng.bind(this);
     this.handleHighlightHourly = this.handleHighlightHourly.bind(this);
     this.handleShowBaselinesChange = this.handleCheckboxChange.bind(this, 'showBaselines');
     this.handleShowRegionalValuesChange = this.handleCheckboxChange.bind(this,
@@ -82,6 +83,29 @@ class LocationPage extends PureComponent {
     const { dispatch, locationId, timeAggregation } = nextProps;
     dispatch(LocationsActions.fetchTimeSeriesIfNeeded(timeAggregation, locationId));
     dispatch(LocationsActions.fetchHourlyIfNeeded(timeAggregation, locationId));
+  }
+
+  /**
+   * Helper to get the extent key based on the metric
+   *
+   * Combines upload and download as 'throughput'
+   *
+   * @param {Object} viewMetric the metric object for the active view
+   * @return {String} the key to read from the extents objects in the data
+   */
+  getExtentKey(viewMetric) {
+    let extentKey = viewMetric.dataKey;
+    if (viewMetric.value === 'download' || viewMetric.value === 'upload') {
+      extentKey = 'throughput';
+    }
+
+    return extentKey;
+  }
+
+  handleSavePng() {
+    const svg = document.querySelector('.hour-chart svg');
+    console.log('save png!');
+    saveSvgAsPng(svg, 'test.png');
   }
 
   // update the URL on checkbox change
@@ -111,23 +135,6 @@ class LocationPage extends PureComponent {
   handleHighlightHourly(d) {
     const { dispatch } = this.props;
     dispatch(LocationPageActions.highlightHourly(d));
-  }
-
-  /**
-   * Helper to get the extent key based on the metric
-   *
-   * Combines upload and download as 'throughput'
-   *
-   * @param {Object} viewMetric the metric object for the active view
-   * @return {String} the key to read from the extents objects in the data
-   */
-  getExtentKey(viewMetric) {
-    let extentKey = viewMetric.dataKey;
-    if (viewMetric.value === 'download' || viewMetric.value === 'upload') {
-      extentKey = 'throughput';
-    }
-
-    return extentKey;
   }
 
   renderCityProviders() {
@@ -241,6 +248,7 @@ class LocationPage extends PureComponent {
           yExtent={timeSeries && timeSeries.results.extents[extentKey]}
           yKey={viewMetric.dataKey}
         />
+        <button className="btn btn-default" onClick={this.handleSavePng}>PNG</button>
         {this.renderChartOptions()}
       </div>
     );

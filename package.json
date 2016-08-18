@@ -113,6 +113,7 @@
     "redux-devtools-log-monitor": "^1.0.0-beta-3",
     "redux-thunk": "^2.1.0",
     "reselect": "^2.5.3",
+    "save-svg-as-png": "^1.0.3",
     "serialize-javascript": "^1.1.2",
     "serve-favicon": "^2.3.0",
     "superagent": "^2.2.0",
