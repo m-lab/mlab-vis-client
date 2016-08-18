@@ -77,10 +77,12 @@ export default class HourChart extends PureComponent {
       .append('g')
       .attr('transform', `translate(${innerMargin.left} ${innerMargin.top})`);
 
-    this.lines = this.g.append('g').classed('lines', true);
-    this.circles = this.g.append('g').classed('circles', true);
+    // add in axis groups
     this.xAxis = this.g.append('g').classed('x-axis', true);
     this.yAxis = this.g.append('g').classed('y-axis', true);
+
+    // add in groups for data
+    this.circles = this.g.append('g').classed('circles', true);
 
     // setup highlight group
     this.gHighlight = this.g.append('g').classed('highlight', true);
