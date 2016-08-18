@@ -195,7 +195,7 @@ export default class HourChart extends PureComponent {
    */
   update() {
     this.renderCircles();
-    this.renderAxis();
+    this.renderAxes();
     this.renderHighlight();
   }
 
@@ -228,7 +228,7 @@ export default class HourChart extends PureComponent {
   /**
    * Render the x and y axis components
    */
-  renderAxis() {
+  renderAxes() {
     const { xScale, yScale, innerHeight, binWidth } = this.visComponents;
     const xAxis = d3.axisBottom(xScale);
     const yAxis = d3.axisLeft(yScale);
