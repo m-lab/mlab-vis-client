@@ -7,22 +7,29 @@ import './LineChart.scss';
  * A line chart that uses d3 to draw. Assumes X is a time scale.
  *
  * @prop {Array} data The array of data points to render (e.g., [{x: Date, y: Number}, ...])
+ * @prop {Boolean} forceZeroMin=true Whether the min y value should always be 0.
  * @prop {Number} height The height in pixels of the SVG chart
  * @prop {Number} width The width in pixels of the SVG chart
+ * @prop {Array} xExtent The min and max value of the xKey in the chart
  * @prop {String} xKey="x" The key to read the x value from in the data
+ * @prop {Array} yExtent The min and max value of the yKey in the chart
  * @prop {String} yKey="y" The key to read the y value from in the data
  */
 export default class LineChart extends PureComponent {
   static propTypes = {
     data: PropTypes.array,
+    forceZeroMin: PropTypes.bool,
     height: React.PropTypes.number,
     width: React.PropTypes.number,
+    xExtent: PropTypes.array,
     xKey: React.PropTypes.string,
+    yExtent: PropTypes.array,
     yKey: React.PropTypes.string,
   }
 
   static defaultProps = {
     data: [],
+    forceZeroMin: true,
     xKey: 'x',
     yKey: 'y',
   }
@@ -83,7 +90,7 @@ export default class LineChart extends PureComponent {
    * based on the props of the component
    */
   makeVisComponents(props) {
-    const { height, width, xKey, yKey } = props;
+    const { forceZeroMin, height, width, xExtent, xKey, yExtent, yKey } = props;
 
     const filteredData = this.prepareData(props);
 
@@ -96,8 +103,14 @@ export default class LineChart extends PureComponent {
     const yMin = innerHeight;
     const yMax = 0;
 
-    const xDomain = d3.extent(filteredData, d => d[xKey]);
-    const yDomain = d3.extent(filteredData, d => d[yKey]);
+    // set up the domains based on extent. Use the prop if provided, otherwise calculate
+    const xDomain = xExtent || d3.extent(filteredData, d => d[xKey]);
+    let yDomain = yExtent || d3.extent(filteredData, d => d[yKey]);
+
+    // force 0 as the min in the yDomain if specified
+    if (forceZeroMin) {
+      yDomain = [0, yDomain[1]];
+    }
 
     const xScale = d3.scaleTime().domain(xDomain).range([xMin, xMax]);
     const yScale = d3.scaleLinear().domain(yDomain).range([yMin, yMax]);

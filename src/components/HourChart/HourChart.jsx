@@ -9,30 +9,28 @@ import './HourChart.scss';
  *
  * @prop {Array} data The array of data points indexed by hour. Should be
  *   an array of length 24 of form [{ hour:Number(0..23), points: [{ yKey:Number }, ...]}, ...]
- * @prop {Array} extent The min and max value of the yKey in the chart
  * @prop {Boolean} forceZeroMin=true Whether the min y value should always be 0.
  * @prop {Number} height The height of the chart
  * @prop {Object} highlightPoint The point being highlighted in the chart
  * @prop {Function} onHighlightPoint Callback for when a point is hovered on
  * @prop {Number} width The width of the chart
+ * @prop {Array} yExtent The min and max value of the yKey in the chart
  * @prop {String} yKey="y" The key in the data points to read the y value from
  */
 export default class HourChart extends PureComponent {
   static propTypes = {
     data: PropTypes.array,
-    dataByDate: PropTypes.array,
-    extent: PropTypes.array,
     forceZeroMin: PropTypes.bool,
     height: PropTypes.number,
     highlightPoint: PropTypes.object,
     onHighlightPoint: PropTypes.func,
     width: PropTypes.number,
+    yExtent: PropTypes.array,
     yKey: PropTypes.string,
   }
 
   static defaultProps = {
     data: [],
-    extent: [0, 10],
     forceZeroMin: true,
     yKey: 'y',
   }
@@ -142,7 +140,9 @@ export default class HourChart extends PureComponent {
    * based on the props of the component
    */
   makeVisComponents(props) {
-    const { extent = [], forceZeroMin, height, width, yKey } = props;
+    const { forceZeroMin, height, width, yExtent, yKey } = props;
+
+    const preparedData = this.prepareData(props);
 
     const innerMargin = { top: 20, right: 20, bottom: 35, left: 50 };
     const innerWidth = width - innerMargin.left - innerMargin.right;
@@ -153,8 +153,14 @@ export default class HourChart extends PureComponent {
     const yMin = innerHeight;
     const yMax = 0;
 
+    // set up the domains based on extent. Use the prop if provided, otherwise calculate
     const xDomain = [0, 23];
-    const yDomain = [forceZeroMin ? 0 : extent[0], extent[1]];
+    let yDomain = yExtent || d3.extent(preparedData.filteredData, d => d[yKey]);
+
+    // force 0 as the min in the yDomain if specified
+    if (forceZeroMin) {
+      yDomain = [0, yDomain[1]];
+    }
 
     const xScale = d3.scaleLinear().domain(xDomain).range([xMin, xMax]);
     const yScale = d3.scaleLinear().domain(yDomain).range([yMin, yMax]);
@@ -168,7 +174,7 @@ export default class HourChart extends PureComponent {
       .y((d) => yScale(d[yKey]));
 
     return {
-      ...this.prepareData(props),
+      ...preparedData,
       height,
       innerHeight,
       innerMargin,

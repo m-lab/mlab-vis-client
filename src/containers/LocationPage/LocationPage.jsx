@@ -3,8 +3,9 @@ import { connect } from 'react-redux';
 import Helmet from 'react-helmet';
 import classNames from 'classnames';
 import { browserHistory } from 'react-router';
+import { Row, Col } from 'react-bootstrap';
 
-import { timeAggregations } from '../../constants';
+import { timeAggregations, metrics } from '../../constants';
 import * as LocationPageSelectors from '../../redux/locationPage/selectors';
 import * as LocationPageActions from '../../redux/locationPage/actions';
 import * as LocationsActions from '../../redux/locations/actions';
@@ -13,6 +14,8 @@ import { LineChart, HourChart } from '../../components';
 import UrlHandler from '../../utils/UrlHandler';
 
 const urlQueryConfig = {
+  viewMetric: { type: 'string', defaultValue: 'download' },
+
   // chart options
   showBaselines: { type: 'boolean', defaultValue: false },
   showRegionalValues: { type: 'boolean', defaultValue: false },
@@ -36,6 +39,7 @@ function mapStateToProps(state, props) {
 
   return {
     ...propsWithUrl,
+    viewMetric: LocationPageSelectors.getViewMetric(state, propsWithUrl),
     hourly: LocationPageSelectors.getActiveLocationHourly(state, propsWithUrl),
     timeSeries: LocationPageSelectors.getActiveLocationTimeSeries(state, propsWithUrl),
     highlightHourly: LocationPageSelectors.getHighlightHourly(state, propsWithUrl),
@@ -55,6 +59,7 @@ class LocationPage extends PureComponent {
     startDate: PropTypes.object, // date
     timeAggregation: PropTypes.string,
     timeSeries: PropTypes.object,
+    viewMetric: PropTypes.object,
   }
 
   constructor(props) {
@@ -93,6 +98,14 @@ class LocationPage extends PureComponent {
   }
 
   /**
+   * Callback for when viewMetric changes - updates URL
+   */
+  handleViewMetricChange(value) {
+    const { location } = this.props;
+    urlHandler.replaceInQuery(location, 'viewMetric', value);
+  }
+
+  /**
    * Callback for when a point is highlighted in hourly
    */
   handleHighlightHourly(d) {
@@ -104,27 +117,17 @@ class LocationPage extends PureComponent {
     return (
       <div>
         <h2>City {this.props.locationId}</h2>
+        <Row>
+          <Col md={6}>
+            {this.renderMetricSelector()}
+          </Col>
+          <Col md={6}>
+            {this.renderTimeAggregationSelector()}
+          </Col>
+        </Row>
         {this.renderCompareProviders()}
         {this.renderCompareMetrics()}
         {this.renderProvidersByHour()}
-      </div>
-    );
-  }
-
-  renderCompareProviders() {
-    const { timeSeries } = this.props;
-    return (
-      <div>
-        <h3>Compare Providers</h3>
-        <LineChart
-          width={800}
-          height={300}
-          data={timeSeries && timeSeries.results.points}
-          xKey="date"
-          yKey="download_speed_mbps_median"
-        />
-        {this.renderChartOptions()}
-        {this.renderTimeAggregationSelector()}
       </div>
     );
   }
@@ -143,6 +146,28 @@ class LocationPage extends PureComponent {
                 onClick={() => this.handleTimeAggregationChange(aggr.value)}
               >
                 {aggr.label}
+              </button>
+            </li>
+          ))}
+        </ul>
+      </div>
+    );
+  }
+
+  renderMetricSelector() {
+    const { viewMetric } = this.props;
+
+    return (
+      <div className="metric-selector">
+        <ul className="list-unstyled">
+          {metrics.map(metric => (
+            <li key={metric.value}>
+              <button
+                className={classNames('btn btn-default',
+                  { active: viewMetric.value === metric.value })}
+                onClick={() => this.handleViewMetricChange(metric.value)}
+              >
+                {metric.label}
               </button>
             </li>
           ))}
@@ -183,6 +208,25 @@ class LocationPage extends PureComponent {
     );
   }
 
+  renderCompareProviders() {
+    const { timeSeries, viewMetric } = this.props;
+    return (
+      <div>
+        <h3>Compare Providers</h3>
+        <LineChart
+          data={timeSeries && timeSeries.results.points}
+          height={300}
+          width={800}
+          yExtent={timeSeries && timeSeries.results.extents.date}
+          xKey="date"
+          yExtent={timeSeries && timeSeries.results.extents[viewMetric.dataKey]}
+          yKey={viewMetric.dataKey}
+        />
+        {this.renderChartOptions()}
+      </div>
+    );
+  }
+
   renderCompareMetrics() {
     return (
       <div>
@@ -192,19 +236,18 @@ class LocationPage extends PureComponent {
   }
 
   renderProvidersByHour() {
-    const { hourly, highlightHourly } = this.props;
-    const viewMetric = { dataKey: 'download_speed_mbps_median' };
-    console.log('highlightHourly=', highlightHourly);
+    const { hourly, highlightHourly, viewMetric } = this.props;
+
     return (
       <div>
         <h3>By Hour, Median download speeds</h3>
         <HourChart
           data={hourly && hourly.results.points}
-          extent={hourly && hourly.results.extents[viewMetric.dataKey]}
           height={300}
           highlightPoint={highlightHourly}
           onHighlightPoint={this.handleHighlightHourly}
           width={800}
+          yExtent={hourly && hourly.results.extents[viewMetric.dataKey]}
           yKey={viewMetric.dataKey}
         />
       </div>
