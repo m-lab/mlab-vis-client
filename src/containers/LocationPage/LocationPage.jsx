@@ -14,16 +14,16 @@ import { LineChart, HourChart } from '../../components';
 import UrlHandler from '../../utils/UrlHandler';
 
 const urlQueryConfig = {
-  viewMetric: { type: 'string', defaultValue: 'download' },
+  viewMetric: { type: 'string', defaultValue: 'download', urlKey: 'metric' },
 
   // chart options
-  showBaselines: { type: 'boolean', defaultValue: false },
-  showRegionalValues: { type: 'boolean', defaultValue: false },
+  showBaselines: { type: 'boolean', defaultValue: false, urlKey: 'baselines' },
+  showRegionalValues: { type: 'boolean', defaultValue: false, urlKey: 'regional' },
 
   // selected time
-  startDate: { type: 'date' },
-  endDate: { type: 'date' },
-  timeAggregation: { type: 'string', defaultValue: 'day' },
+  startDate: { type: 'date', urlKey: 'start' },
+  endDate: { type: 'date', urlKey: 'end' },
+  timeAggregation: { type: 'string', defaultValue: 'day', urlKey: 'aggr' },
 };
 const urlHandler = new UrlHandler(urlQueryConfig, browserHistory);
 

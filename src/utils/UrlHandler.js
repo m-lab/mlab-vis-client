@@ -25,7 +25,9 @@ export default class UrlHandler {
   decodeQuery(query) {
     return Object.keys(this.config).reduce((decoded, key) => {
       const keyConfig = this.config[key];
-      decoded[key] = decode(keyConfig.type, query[key], keyConfig.defaultValue); // eslint-disable-line
+      // read from the URL key if provided, otherwise use the key
+      const { urlKey = key } = keyConfig;
+      decoded[key] = decode(keyConfig.type, query[urlKey], keyConfig.defaultValue); // eslint-disable-line
       return decoded;
     }, {});
   }
@@ -42,19 +44,21 @@ export default class UrlHandler {
    */
   replaceInQuery(location, key, value, updateUrl = true) {
     const keyConfig = this.config[key];
+    // write to the URL key if provided, otherwise use the key
+    const { urlKey = key } = keyConfig;
 
     // create the new location object
     const newLocation = {
       ...location,
       query: {
         ...location.query,
-        [key]: encode(keyConfig.type, value),
+        [urlKey]: encode(keyConfig.type, value),
       },
     };
 
     // remove if it is the default value
     if (value === keyConfig.defaultValue) {
-      delete newLocation.query[key];
+      delete newLocation.query[urlKey];
     }
 
     // if router is available, replace the URL
