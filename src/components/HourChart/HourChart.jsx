@@ -101,10 +101,7 @@ export default class HourChart extends PureComponent {
     const { data, yKey } = props;
 
     // filter so all data has a value for yKey
-    const filteredData = (data || []).map(d => ({
-      ...d,
-      points: d.points ? d.points.filter(point => point[yKey] != null) : [],
-    }));
+    const filteredData = (data || []).filter(d => d[yKey] != null);
 
     // produce the byHour array
     const groupedByHour = groupBy(filteredData, 'hour');
