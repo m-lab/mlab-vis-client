@@ -36,5 +36,11 @@ export default function createStore(history, api, data) {
     });
   }
 
+  // make available in window for development
+  if (__DEVELOPMENT__ && __CLIENT__) {
+    console.log('[dev] reduxStore = ', store);
+    window.reduxStore = store;
+  }
+
   return store;
 }

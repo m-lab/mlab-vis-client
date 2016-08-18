@@ -12,7 +12,7 @@ import { syncHistoryWithStore } from 'react-router-redux';
 import createHistory from 'react-router/lib/createMemoryHistory';
 import { Provider } from 'react-redux';
 
-import createStore from '../redux/create';
+import createStore from '../redux/createStore';
 import * as api from '../api/api';
 import Html from './Html';
 import getRoutes from '../routes';
