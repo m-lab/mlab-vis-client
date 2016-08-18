@@ -62,7 +62,7 @@ function get(path, { params } = {}) {
     }
 
     request.end((err, { body } = {}) => {
-      // reject is there was an error or there is an error key in the body
+      // reject if there was an error or there is an error key in the body
       if (err || (body && body.error)) {
         reject(body || err);
       }
