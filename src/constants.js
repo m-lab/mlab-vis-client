@@ -27,6 +27,6 @@ export const metrics = [
   {
     value: 'retransmission',
     label: 'Retransmission Rate',
-    dataKey: 'packet_retransmit_rate_avg',
+    dataKey: 'retransmit_avg',
   },
 ];
