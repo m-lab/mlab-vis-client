@@ -13,6 +13,10 @@ module.exports = Object.assign({
   host: process.env.HOST || 'localhost',
   port: process.env.PORT,
   apiRoot: process.env.APIROOT || 'http://mlab-api-dot-mlab-oti.appspot.com',
+
+  // How many API calls the client caches in the LRU cache
+  apiCacheLimit: 25,
+
   app: {
     title: 'MLab Vis',
     description: 'Measurement Lab Visualizations - Analyzing internet speeds worldwide.',

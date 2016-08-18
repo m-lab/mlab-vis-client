@@ -3,6 +3,13 @@ import d3 from 'd3';
 import config from '../config';
 import { decodeDate } from '../utils/serialization';
 import { metrics } from '../constants';
+import LRUCache from './LRUCache';
+
+const apiCache = new LRUCache(config.apiCacheLimit);
+if (__DEVELOPMENT__ && __CLIENT__) {
+  console.log('[dev] apiCache = ', apiCache);
+  window.apiCache = apiCache;
+}
 
 /**
  * Formats a URL to go via the API server
@@ -16,6 +23,17 @@ function formatUrl(path) {
 }
 
 /**
+ * Create a caching key based on the URL
+ *
+ * @param {String} path the URL path
+ * @param {Object} params the query parameters
+ * @return {String} the cache key
+ */
+function urlCacheKey(path, params) {
+  return JSON.stringify({ path, params });
+}
+
+/**
  * Makes an AJAX get request
  *
  * @param {String} path The relative API URL to request from
@@ -25,6 +43,17 @@ function formatUrl(path) {
  */
 function get(path, { params } = {}) {
   return new Promise((resolve, reject) => {
+    // check for a cached response
+    const cacheKey = urlCacheKey(path, params);
+    const cached = apiCache.get(cacheKey);
+
+    // found in cache
+    if (cached) {
+      resolve(cached);
+      return;
+    }
+
+    // wasn't cached, so make a request
     const request = superagent.get(formatUrl(path));
 
     // add in query parameters
@@ -38,6 +67,8 @@ function get(path, { params } = {}) {
         reject(body || err);
       }
 
+      // wasn't an error, so cache the result
+      apiCache.put(cacheKey, body);
       resolve(body);
     });
   });
@@ -89,7 +120,12 @@ function computeDataExtents(points) {
  * @return {Object} The transformed response body
  */
 function transformTimeSeries(body) {
-  if (body.results) {
+  // NOTE: modifying body directly means it modifies what is stored in the API cache
+  if (body.results && !body.transformed) {
+    // set the transformed flag to true so we do not do this more than once
+    // (this helps in the case of cached data)
+    body.transformed = true;
+
     const points = body.results;
     points.forEach(d => {
       // convert date from string to Date object
@@ -118,7 +154,12 @@ function transformTimeSeries(body) {
  * @return {Object} The transformed response body
  */
 function transformHourly(body) {
-  if (body.results) {
+  // NOTE: modifying body directly means it modifies what is stored in the API cache
+  if (body.results && !body.transformed) {
+    // set the transformed flag to true so we do not do this more than once
+    // (this helps in the case of cached data)
+    body.transformed = true;
+
     const points = body.results;
 
     // convert date from string to Date object and hour to number
