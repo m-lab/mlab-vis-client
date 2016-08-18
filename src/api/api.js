@@ -73,6 +73,15 @@ function computeDataExtents(points) {
     return extents;
   }, {});
 
+  const downloadKey = metrics.find(d => d.value === 'download').dataKey;
+  const uploadKey = metrics.find(d => d.value === 'upload').dataKey;
+
+  // compute the combined throughput extent
+  extents.throughput = [
+    Math.min(extents[downloadKey][0] || 0, extents[uploadKey][0] || 0),
+    Math.max(extents[downloadKey][1] || 0, extents[uploadKey][1] || 0),
+  ];
+
   return extents;
 }
 

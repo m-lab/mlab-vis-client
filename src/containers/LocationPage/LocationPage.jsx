@@ -113,6 +113,23 @@ class LocationPage extends PureComponent {
     dispatch(LocationPageActions.highlightHourly(d));
   }
 
+  /**
+   * Helper to get the extent key based on the metric
+   *
+   * Combines upload and download as 'throughput'
+   *
+   * @param {Object} viewMetric the metric object for the active view
+   * @return {String} the key to read from the extents objects in the data
+   */
+  getExtentKey(viewMetric) {
+    let extentKey = viewMetric.dataKey;
+    if (viewMetric.value === 'download' || viewMetric.value === 'upload') {
+      extentKey = 'throughput';
+    }
+
+    return extentKey;
+  }
+
   renderCityProviders() {
     return (
       <div>
@@ -210,6 +227,8 @@ class LocationPage extends PureComponent {
 
   renderCompareProviders() {
     const { timeSeries, viewMetric } = this.props;
+    const extentKey = this.getExtentKey(viewMetric);
+
     return (
       <div>
         <h3>Compare Providers</h3>
@@ -219,7 +238,7 @@ class LocationPage extends PureComponent {
           width={800}
           yExtent={timeSeries && timeSeries.results.extents.date}
           xKey="date"
-          yExtent={timeSeries && timeSeries.results.extents[viewMetric.dataKey]}
+          yExtent={timeSeries && timeSeries.results.extents[extentKey]}
           yKey={viewMetric.dataKey}
         />
         {this.renderChartOptions()}
@@ -237,6 +256,7 @@ class LocationPage extends PureComponent {
 
   renderProvidersByHour() {
     const { hourly, highlightHourly, viewMetric } = this.props;
+    const extentKey = this.getExtentKey(viewMetric);
 
     return (
       <div>
@@ -247,7 +267,7 @@ class LocationPage extends PureComponent {
           highlightPoint={highlightHourly}
           onHighlightPoint={this.handleHighlightHourly}
           width={800}
-          yExtent={hourly && hourly.results.extents[viewMetric.dataKey]}
+          yExtent={hourly && hourly.results.extents[extentKey]}
           yKey={viewMetric.dataKey}
         />
       </div>
