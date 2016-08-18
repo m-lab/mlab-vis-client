@@ -111,9 +111,6 @@ function transformTimeSeries(body) {
  * - Converts date field to js Date object
  * - Converts hour to integers
  * - Adds in the extent for each of the metrics and the date
- * - Provides the data grouped by hour as `byHour`, a 24 length array
- * - Provides the data grouped by date as `byDate`, an array with entry for
- *   each unique date in the data.
  *
  * @param {Object} body The response body
  * @return {Object} The transformed response body
@@ -128,34 +125,9 @@ function transformHourly(body) {
       d.hour = parseInt(d.hour, 10);
     });
 
-    // produce the byHour array
-    const groupedByHour = groupBy(body.results, 'hour');
-    // use d3.range(24) instead of Object.keys to ensure we get an entry for each hour
-    const byHour = d3.range(24).map(hour => {
-      const hourPoints = groupedByHour[hour];
-      return {
-        hour,
-        points: hourPoints,
-        // TODO - additional stats about this hour of data
-      };
-    });
-
-    // produce the byDate array
-    const groupedByDate = groupBy(body.results, 'date');
-    const byDate = Object.keys(groupedByDate).map(date => {
-      const datePoints = groupedByDate[date];
-      return {
-        date,
-        points: datePoints,
-        // TODO - additional stats about this date of data
-      };
-    });
-
     // overwrite the results with the transformed data
     body.results = {
       points,
-      byHour,
-      byDate,
       extents: computeDataExtents(points),
     };
   }

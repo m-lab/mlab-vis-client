@@ -1,5 +1,9 @@
 .hour-chart {
-  circle {
+  .circles {
     opacity: 0.2;
+  }
+
+  .highlight-line {
+    pointer-events: none;
   }
 }

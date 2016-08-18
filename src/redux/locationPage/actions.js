@@ -1,24 +1,14 @@
 /**
  * Actions for locationPage
  */
-export const RESET_SELECTED_LOCATIONS = 'locationPage/RESET_SELECTED_LOCATIONS';
-export const RESET_SELECTED_CLIENT_ISPS = 'locationPage/RESET_SELECTED_CLIENT_ISPS';
+export const HIGHLIGHT_HOURLY = 'locationPage/HIGHLIGHT_HOURLY';
 
 /**
- * Action for resetting selected locations
+ * Action for highlighting the hourly chart
  */
-export function resetSelectedLocations() {
+export function highlightHourly(highlightPoint) {
   return {
-    type: RESET_SELECTED_LOCATIONS,
+    type: HIGHLIGHT_HOURLY,
+    highlightPoint,
   };
 }
-
-/**
- * Action for resetting selected client ISPs
- */
-export function resetSelectedClientIsps() {
-  return {
-    type: RESET_SELECTED_CLIENT_ISPS,
-  };
-}
-

@@ -22,6 +22,7 @@ export default class LineChart extends PureComponent {
   }
 
   static defaultProps = {
+    data: [],
     xKey: 'x',
     yKey: 'y',
   }
@@ -65,11 +66,26 @@ export default class LineChart extends PureComponent {
   }
 
   /**
+   * Filter the data
+   * @param {Object} props the component props
+   * @return {Array} the prepared data
+   */
+  prepareData(props) {
+    const { data, xKey, yKey } = props;
+    // filter out points with missing values
+    const filteredData = (data || []).filter(d => d[xKey] != null && d[yKey] != null);
+
+    return filteredData;
+  }
+
+  /**
    * Figure out what is needed to render the chart
    * based on the props of the component
    */
   makeVisComponents(props) {
-    const { data = [], height, width, xKey, yKey } = props;
+    const { height, width, xKey, yKey } = props;
+
+    const filteredData = this.prepareData(props);
 
     const innerMargin = { top: 20, right: 20, bottom: 35, left: 50 };
     const innerWidth = width - innerMargin.left - innerMargin.right;
@@ -80,8 +96,8 @@ export default class LineChart extends PureComponent {
     const yMin = innerHeight;
     const yMax = 0;
 
-    const xDomain = d3.extent(data, d => d[xKey]);
-    const yDomain = d3.extent(data, d => d[yKey]);
+    const xDomain = d3.extent(filteredData, d => d[xKey]);
+    const yDomain = d3.extent(filteredData, d => d[yKey]);
 
     const xScale = d3.scaleTime().domain(xDomain).range([xMin, xMax]);
     const yScale = d3.scaleLinear().domain(yDomain).range([yMin, yMax]);
@@ -91,9 +107,6 @@ export default class LineChart extends PureComponent {
       .curve(d3.curveLinear)
       .x((d) => xScale(d[xKey]))
       .y((d) => yScale(d[yKey]));
-
-    // filter out points with missing values
-    const filteredData = data.filter(d => d[xKey] != null && d[yKey] != null);
 
     return {
       data: filteredData,

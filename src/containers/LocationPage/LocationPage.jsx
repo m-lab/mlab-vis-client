@@ -6,6 +6,7 @@ import { browserHistory } from 'react-router';
 
 import { timeAggregations } from '../../constants';
 import * as LocationPageSelectors from '../../redux/locationPage/selectors';
+import * as LocationPageActions from '../../redux/locationPage/actions';
 import * as LocationsActions from '../../redux/locations/actions';
 
 import { LineChart, HourChart } from '../../components';
@@ -37,6 +38,7 @@ function mapStateToProps(state, props) {
     ...propsWithUrl,
     hourly: LocationPageSelectors.getActiveLocationHourly(state, propsWithUrl),
     timeSeries: LocationPageSelectors.getActiveLocationTimeSeries(state, propsWithUrl),
+    highlightHourly: LocationPageSelectors.getHighlightHourly(state, propsWithUrl),
   };
 }
 
@@ -44,6 +46,7 @@ class LocationPage extends PureComponent {
   static propTypes = {
     dispatch: PropTypes.func,
     endDate: PropTypes.object, // date
+    highlightHourly: PropTypes.object,
     hourly: PropTypes.object,
     location: PropTypes.object, // route location
     locationId: PropTypes.string,
@@ -56,6 +59,9 @@ class LocationPage extends PureComponent {
 
   constructor(props) {
     super(props);
+
+    // bind handlers
+    this.handleHighlightHourly = this.handleHighlightHourly.bind(this);
     this.handleShowBaselinesChange = this.handleCheckboxChange.bind(this, 'showBaselines');
     this.handleShowRegionalValuesChange = this.handleCheckboxChange.bind(this,
       'showRegionalValues');
@@ -84,6 +90,14 @@ class LocationPage extends PureComponent {
   handleTimeAggregationChange(value) {
     const { location } = this.props;
     urlHandler.replaceInQuery(location, 'timeAggregation', value);
+  }
+
+  /**
+   * Callback for when a point is highlighted in hourly
+   */
+  handleHighlightHourly(d) {
+    const { dispatch } = this.props;
+    dispatch(LocationPageActions.highlightHourly(d));
   }
 
   renderCityProviders() {
@@ -178,18 +192,20 @@ class LocationPage extends PureComponent {
   }
 
   renderProvidersByHour() {
-    const { hourly } = this.props;
-    const viewMetric = 'download_speed_mbps_median';
-
+    const { hourly, highlightHourly } = this.props;
+    const viewMetric = { dataKey: 'download_speed_mbps_median' };
+    console.log('highlightHourly=', highlightHourly);
     return (
       <div>
         <h3>By Hour, Median download speeds</h3>
         <HourChart
-          width={800}
+          data={hourly && hourly.results.points}
+          extent={hourly && hourly.results.extents[viewMetric.dataKey]}
           height={300}
-          data={hourly && hourly.results.byHour}
-          extent={hourly && hourly.results.extents[viewMetric]}
-          yKey={viewMetric}
+          highlightPoint={highlightHourly}
+          onHighlightPoint={this.handleHighlightHourly}
+          width={800}
+          yKey={viewMetric.dataKey}
         />
       </div>
     );

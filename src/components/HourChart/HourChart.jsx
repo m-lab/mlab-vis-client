@@ -1,4 +1,5 @@
 import React, { PureComponent, PropTypes } from 'react';
+import { groupBy } from 'lodash';
 import d3 from 'd3';
 
 import './HourChart.scss';
@@ -11,15 +12,20 @@ import './HourChart.scss';
  * @prop {Array} extent The min and max value of the yKey in the chart
  * @prop {Boolean} forceZeroMin=true Whether the min y value should always be 0.
  * @prop {Number} height The height of the chart
+ * @prop {Object} highlightPoint The point being highlighted in the chart
+ * @prop {Function} onHighlightPoint Callback for when a point is hovered on
  * @prop {Number} width The width of the chart
  * @prop {String} yKey="y" The key in the data points to read the y value from
  */
 export default class HourChart extends PureComponent {
   static propTypes = {
     data: PropTypes.array,
+    dataByDate: PropTypes.array,
     extent: PropTypes.array,
     forceZeroMin: PropTypes.bool,
     height: PropTypes.number,
+    highlightPoint: PropTypes.object,
+    onHighlightPoint: PropTypes.func,
     width: PropTypes.number,
     yKey: PropTypes.string,
   }
@@ -29,6 +35,15 @@ export default class HourChart extends PureComponent {
     extent: [0, 10],
     forceZeroMin: true,
     yKey: 'y',
+  }
+
+  /**
+   * Main constructor. Bind handlers here.
+   */
+  constructor(props) {
+    super(props);
+    this.handleCircleMouseEnter = this.handleCircleMouseEnter.bind(this);
+    this.handleCircleMouseLeave = this.handleCircleMouseLeave.bind(this);
   }
 
   /**
@@ -64,19 +79,70 @@ export default class HourChart extends PureComponent {
       .append('g')
       .attr('transform', `translate(${innerMargin.left} ${innerMargin.top})`);
 
-    this.lines = this.g.append('g').classed('lines-group', true);
-    this.circles = this.g.append('g').classed('circles-group', true);
-    this.xAxis = this.g.append('g');
-    this.yAxis = this.g.append('g');
+    this.lines = this.g.append('g').classed('lines', true);
+    this.circles = this.g.append('g').classed('circles', true);
+    this.xAxis = this.g.append('g').classed('x-axis', true);
+    this.yAxis = this.g.append('g').classed('y-axis', true);
+
+    // setup highlight group
+    this.gHighlight = this.g.append('g').classed('highlight', true);
+    this.gHighlight.append('g').classed('highlight-line', true);
+
     this.update();
   }
+
+
+  /**
+   * Filter the data and group it by hour and by date
+   * @param {Object} props the component props
+   * @return {Object} the prepared data { filteredData, dataByHour, dataByDate }
+   */
+  prepareData(props) {
+    const { data, yKey } = props;
+
+    // filter so all data has a value for yKey
+    const filteredData = (data || []).map(d => ({
+      ...d,
+      points: d.points ? d.points.filter(point => point[yKey] != null) : [],
+    }));
+
+    // produce the byHour array
+    const groupedByHour = groupBy(filteredData, 'hour');
+    // use d3.range(24) instead of Object.keys to ensure we get an entry for each hour
+    const dataByHour = d3.range(24).map(hour => {
+      const hourPoints = groupedByHour[hour];
+      return {
+        hour,
+        points: hourPoints || [],
+      };
+    });
+
+    // produce the byDate array
+    const groupedByDate = groupBy(filteredData, 'date');
+    const dataByDate = Object.keys(groupedByDate).reduce((byDate, date) => {
+      const datePoints = groupedByDate[date];
+      byDate[date] = {
+        date,
+        points: datePoints || [],
+      };
+
+      return byDate;
+    }, {});
+
+    return {
+      filteredData,
+      dataByHour,
+      dataByDate,
+    };
+  }
+
 
    /**
    * Figure out what is needed to render the chart
    * based on the props of the component
    */
   makeVisComponents(props) {
-    const { data = [], extent = [], forceZeroMin, height, width, yKey } = props;
+    const { extent = [], forceZeroMin, height, width, yKey } = props;
 
     const innerMargin = { top: 20, right: 20, bottom: 35, left: 50 };
     const innerWidth = width - innerMargin.left - innerMargin.right;
@@ -90,12 +156,6 @@ export default class HourChart extends PureComponent {
     const xDomain = [0, 23];
     const yDomain = [forceZeroMin ? 0 : extent[0], extent[1]];
 
-    // filter so only points with non-null values for yKey exist
-    const filteredData = data.map(d => ({
-      ...d,
-      points: d.points ? d.points.filter(point => point[yKey] != null) : [],
-    }));
-
     const xScale = d3.scaleLinear().domain(xDomain).range([xMin, xMax]);
     const yScale = d3.scaleLinear().domain(yDomain).range([yMin, yMax]);
 
@@ -104,11 +164,11 @@ export default class HourChart extends PureComponent {
     // function to generate paths for each series
     const line = d3.line()
       .curve(d3.curveLinear)
-      .x((d) => xScale(d.hour))
+      .x((d) => xScale(d.hour) + (binWidth / 2))
       .y((d) => yScale(d[yKey]));
 
     return {
-      data: filteredData,
+      ...this.prepareData(props),
       height,
       innerHeight,
       innerMargin,
@@ -124,10 +184,39 @@ export default class HourChart extends PureComponent {
 
   /**
    * Update the d3 chart - this is the main drawing function
+   *
+   * @return {void}
    */
   update() {
     this.renderCircles();
     this.renderAxis();
+    this.renderHighlight();
+  }
+
+  /**
+   * Callback for when the mouse hovers over a circle
+   *
+   * @param {Object} d The hovered over data point
+   * @return {void}
+   */
+  handleCircleMouseEnter(d) {
+    const { onHighlightPoint } = this.props;
+    if (onHighlightPoint) {
+      onHighlightPoint(d);
+    }
+  }
+
+  /**
+   * Callback for when the mouse leaves a circle
+   *
+   * @param {Object} d The previously hovered over data point
+   * @return {void}
+   */
+  handleCircleMouseLeave() {
+    const { onHighlightPoint } = this.props;
+    if (onHighlightPoint) {
+      onHighlightPoint(null);
+    }
   }
 
   /**
@@ -149,15 +238,17 @@ export default class HourChart extends PureComponent {
    * Render some circles in the chart
    */
   renderCircles() {
-    const { data, xScale, yScale, yKey, binWidth } = this.visComponents;
+    const { dataByHour, xScale, yScale, yKey, binWidth } = this.visComponents;
+
     const binding = this.circles
       .selectAll('g')
-      .data(data);
+      .data(dataByHour);
 
     const entering = binding.enter()
       .append('g')
       .classed('hour-container', true);
 
+    const that = this;
     binding.merge(entering)
       .each(function createCircles(hourData) {
         const { hour, points } = hourData;
@@ -179,7 +270,9 @@ export default class HourChart extends PureComponent {
           .merge(entering)
           .attr('r', 3)
           .attr('cx', () => binWidth / 2)
-          .attr('cy', d => yScale(d[yKey]));
+          .attr('cy', d => yScale(d[yKey]))
+          .on('mouseenter', that.handleCircleMouseEnter)
+          .on('mouseleave', that.handleCircleMouseLeave);
 
         // EXIT
         hourBinding.exit()
@@ -187,6 +280,67 @@ export default class HourChart extends PureComponent {
       });
 
     binding.exit().remove();
+  }
+
+  /**
+   * Renders the highlighted points
+   */
+  renderHighlight() {
+    const { binWidth, dataByDate, xScale, yKey, yScale } = this.visComponents;
+    const { highlightPoint } = this.props;
+
+    // if no highlight, remove all children
+    if (!highlightPoint) {
+      this.gHighlight.select('.highlight-line').selectAll('*').remove();
+      return;
+    }
+
+    // otherwise, we have a highlighted point, show a line and highlight the points
+    const dateKey = highlightPoint.date.toString();
+    const dateData = dataByDate[dateKey] ? dataByDate[dateKey].points : [];
+
+    const g = this.gHighlight.select('.highlight-line');
+
+    // render a line
+    this.renderLine(dateData, g);
+
+    // also render some brighter circles
+    const circlesBinding = g.selectAll('circle').data(dateData, d => d.hour);
+
+    // ENTER
+    const circlesEntering = circlesBinding.enter()
+      .append('circle');
+
+    // ENTER + UPDATE
+    circlesBinding.merge(circlesEntering)
+      .attr('r', 4)
+      .attr('cx', d => xScale(d.hour) + (binWidth / 2))
+      .attr('cy', d => yScale(d[yKey]))
+      .style('fill', '#c0c');
+
+    // EXIT
+    circlesBinding.exit()
+      .remove();
+  }
+
+  /**
+   * Render a line
+   */
+  renderLine(dateData, parent) {
+    const { line } = this.visComponents;
+
+    // draw the line
+    const lineBinding = parent.selectAll('path').data([dateData]);
+
+    const lineEntering = lineBinding.enter()
+      .append('path')
+      .style('fill', 'none');
+
+    lineBinding.merge(lineEntering)
+      .style('stroke', '#c0c')
+      .attr('d', line);
+
+    lineBinding.exit().remove();
   }
 
 
