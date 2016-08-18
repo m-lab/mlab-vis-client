@@ -1,5 +1,4 @@
 import superagent from 'superagent';
-import { groupBy } from 'lodash';
 import d3 from 'd3';
 import config from '../config';
 import { decodeDate } from '../utils/serialization';
@@ -22,21 +21,15 @@ function formatUrl(path) {
  * @param {String} path The relative API URL to request from
  * @param {Object} options The request options
  * @param {Object} options.params The query parameters
- * @param {Any} options.data The data to send with the request
  * @return {Promise} The promise for the request
  */
-function get(path, { params, data } = {}) {
+function get(path, { params } = {}) {
   return new Promise((resolve, reject) => {
     const request = superagent.get(formatUrl(path));
 
     // add in query parameters
     if (params) {
       request.query(params);
-    }
-
-    // add in data
-    if (data) {
-      request.send(data);
     }
 
     request.end((err, { body } = {}) => {
