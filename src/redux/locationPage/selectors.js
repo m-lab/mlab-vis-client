@@ -22,12 +22,12 @@ export function getActiveLocation(state, props) {
 
 export function getActiveLocationHourly(state, props) {
   const location = getActiveLocation(state, props);
-  return location.time.hourly.data && location.time.hourly.data.byHour;
+  return location.time.hourly.data;
 }
 
 export function getActiveLocationTimeSeries(state, props) {
   const location = getActiveLocation(state, props);
-  return location.time.timeSeries.data && location.time.timeSeries.data.metrics;
+  return location.time.timeSeries.data;
 }
 
 

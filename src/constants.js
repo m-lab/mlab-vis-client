@@ -9,8 +9,24 @@ export const timeAggregations = [
 ];
 
 export const metrics = [
-  { value: 'download', label: 'Download Speed' },
-  { value: 'upload', label: 'Upload Speed' },
-  { value: 'rtt', label: 'Round-trip Time' },
-  { value: 'retransmission', label: 'Retransmission Rate' },
+  {
+    value: 'download',
+    label: 'Download Speed',
+    dataKey: 'download_speed_mbps_median',
+  },
+  {
+    value: 'upload',
+    label: 'Upload Speed',
+    dataKey: 'upload_speed_mbps_median',
+  },
+  {
+    value: 'rtt',
+    label: 'Round-trip Time',
+    dataKey: 'rtt_avg',
+  },
+  {
+    value: 'retransmission',
+    label: 'Retransmission Rate',
+    dataKey: 'packet_retransmit_rate_avg',
+  },
 ];

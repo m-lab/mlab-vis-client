@@ -30,6 +30,10 @@ export default function clientMiddleware(api) {
           return next({ ...rest, error, type: FAILURE });
         }
       ).catch(error => {
+        if (__DEVELOPMENT__) {
+          throw error;
+        }
+
         console.error('MIDDLEWARE ERROR:', error);
         next({ ...rest, error, type: FAILURE });
       });

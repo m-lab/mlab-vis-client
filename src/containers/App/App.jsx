@@ -31,8 +31,8 @@ class App extends PureComponent {
           <div className="container">
             <ul className="list-inline">
               <li><Link to="/">Home</Link></li>
-              <li><Link to="/location/NA+US+MA+Cambridge">Cambridge</Link></li>
-              <li><Link to="/location/NA+US+WA+Seattle">Seattle</Link></li>
+              <li><Link to="/location/nausmacambridge">Cambridge</Link></li>
+              <li><Link to="/location/nauswaseattle">Seattle</Link></li>
             </ul>
           </div>
         </div>

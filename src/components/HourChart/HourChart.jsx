@@ -3,17 +3,31 @@ import d3 from 'd3';
 
 import './HourChart.scss';
 
+/**
+ * Chart for showing data by hour
+ *
+ * @prop {Array} data The array of data points indexed by hour. Should be
+ *   an array of length 24 of form [{ hour:Number(0..23), points: [{ yKey:Number }, ...]}, ...]
+ * @prop {Array} extent The min and max value of the yKey in the chart
+ * @prop {Boolean} forceZeroMin=true Whether the min y value should always be 0.
+ * @prop {Number} height The height of the chart
+ * @prop {Number} width The width of the chart
+ * @prop {String} yKey="y" The key in the data points to read the y value from
+ */
 export default class HourChart extends PureComponent {
   static propTypes = {
-    data: PropTypes.object,
-    height: React.PropTypes.number,
-    width: React.PropTypes.number,
-    xKey: React.PropTypes.string,
-    yKey: React.PropTypes.string,
+    data: PropTypes.array,
+    extent: PropTypes.array,
+    forceZeroMin: PropTypes.bool,
+    height: PropTypes.number,
+    width: PropTypes.number,
+    yKey: PropTypes.string,
   }
 
   static defaultProps = {
-    xKey: 'x',
+    data: [],
+    extent: [0, 10],
+    forceZeroMin: true,
     yKey: 'y',
   }
 
@@ -62,7 +76,7 @@ export default class HourChart extends PureComponent {
    * based on the props of the component
    */
   makeVisComponents(props) {
-    const { data = [], height, width, xKey, yKey } = props;
+    const { data = [], extent = [], forceZeroMin, height, width, yKey } = props;
 
     const innerMargin = { top: 20, right: 20, bottom: 35, left: 50 };
     const innerWidth = width - innerMargin.left - innerMargin.right;
@@ -73,25 +87,14 @@ export default class HourChart extends PureComponent {
     const yMin = innerHeight;
     const yMax = 0;
 
-    const hours = d3.range(0, 24, 1);
-    const hourData = new Array(24);
-
-    const yDomain = [Infinity, 0];
-
-    hours.forEach((hour) => {
-      // filter out points with missing values
-      hourData[hour] = [];
-      if (data[hour] && data[hour].length) {
-        hourData[hour] = data[hour].filter(d =>
-          d[xKey] != null && d[yKey] != null);
-
-        const ext = d3.extent(hourData[hour], d => d[yKey]);
-        yDomain[0] = Math.min(yDomain[0], ext[0]);
-        yDomain[1] = Math.max(yDomain[1], ext[1]);
-      }
-    });
-
     const xDomain = [0, 23];
+    const yDomain = [forceZeroMin ? 0 : extent[0], extent[1]];
+
+    // filter so only points with non-null values for yKey exist
+    const filteredData = data.map(d => ({
+      ...d,
+      points: d.points ? d.points.filter(point => point[yKey] != null) : [],
+    }));
 
     const xScale = d3.scaleLinear().domain(xDomain).range([xMin, xMax]);
     const yScale = d3.scaleLinear().domain(yDomain).range([yMin, yMax]);
@@ -101,11 +104,11 @@ export default class HourChart extends PureComponent {
     // function to generate paths for each series
     const line = d3.line()
       .curve(d3.curveLinear)
-      .x((d) => xScale(d[xKey]))
+      .x((d) => xScale(d.hour))
       .y((d) => yScale(d[yKey]));
 
     return {
-      data: hourData,
+      data: filteredData,
       height,
       innerHeight,
       innerMargin,
@@ -113,7 +116,6 @@ export default class HourChart extends PureComponent {
       line,
       width,
       xScale,
-      xKey,
       yScale,
       yKey,
       binWidth,
@@ -148,24 +150,24 @@ export default class HourChart extends PureComponent {
    */
   renderCircles() {
     const { data, xScale, yScale, yKey, binWidth } = this.visComponents;
-
     const binding = this.circles
       .selectAll('g')
-      .data(data, (d, i) => `${i}-${d.length}`);
+      .data(data);
 
     const entering = binding.enter()
       .append('g')
       .classed('hour-container', true);
 
     binding.merge(entering)
-      .each(function createCircles(hourData, idx) {
+      .each(function createCircles(hourData) {
+        const { hour, points } = hourData;
         const selection = d3.select(this);
 
         // move selection over to the correct column.
-        selection.attr('transform', `translate(${xScale(idx)} 0)`);
+        selection.attr('transform', `translate(${xScale(hour)} 0)`);
 
         const hourBinding = selection.selectAll('circle')
-          .data(hourData);
+          .data(points);
 
         // ENTER
         const entering = hourBinding.enter()

@@ -51,7 +51,7 @@ class LocationPage extends PureComponent {
     showRegionalValues: PropTypes.bool,
     startDate: PropTypes.object, // date
     timeAggregation: PropTypes.string,
-    timeSeries: PropTypes.array,
+    timeSeries: PropTypes.object,
   }
 
   constructor(props) {
@@ -99,14 +99,13 @@ class LocationPage extends PureComponent {
 
   renderCompareProviders() {
     const { timeSeries } = this.props;
-
     return (
       <div>
         <h3>Compare Providers</h3>
         <LineChart
           width={800}
           height={300}
-          data={timeSeries}
+          data={timeSeries && timeSeries.results.points}
           xKey="date"
           yKey="download_speed_mbps_median"
         />
@@ -180,6 +179,7 @@ class LocationPage extends PureComponent {
 
   renderProvidersByHour() {
     const { hourly } = this.props;
+    const viewMetric = 'download_speed_mbps_median';
 
     return (
       <div>
@@ -187,9 +187,9 @@ class LocationPage extends PureComponent {
         <HourChart
           width={800}
           height={300}
-          data={hourly}
-          xKey="hour"
-          yKey="download_speed_mbps_median"
+          data={hourly && hourly.results.byHour}
+          extent={hourly && hourly.results.extents[viewMetric]}
+          yKey={viewMetric}
         />
       </div>
     );

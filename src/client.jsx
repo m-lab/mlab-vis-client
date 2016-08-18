@@ -19,6 +19,8 @@ const history = syncHistoryWithStore(browserHistory, store);
 
 if (__DEVELOPMENT__) {
   window.Perf = require('react-addons-perf'); // eslint-disable-line
+  // for debug convenience
+  window.d3 = require('d3').default; // eslint-disable-line
 }
 
 // do not scroll unless the pathname changes.

@@ -1,7 +1,10 @@
 import superagent from 'superagent';
 import { groupBy } from 'lodash';
+import d3 from 'd3';
 import config from '../config';
 import { decodeDate } from '../utils/serialization';
+import { metrics } from '../constants';
+
 /**
  * Formats a URL to go via the API server
  *
@@ -47,14 +50,127 @@ function get(path, { params, data } = {}) {
   });
 }
 
-/**
- * API Calls
- */
+// ----------------
+// Data Transforms
+// ----------------
+
 /* eslint-disable no-param-reassign */
+/**
+ * Compute the extent for each of the metrics and for the date
+ *
+ * @param {Array} points the data points to iterate over
+ */
+function computeDataExtents(points) {
+  // make a key array for all the metrics plus date
+  const extentKeys = metrics.reduce((keys, metric) => {
+    keys.push(metric.dataKey);
+    return keys;
+  }, ['date']);
+
+  // for each of the keys, generate an extent
+  const extents = extentKeys.reduce((extents, key) => {
+    extents[key] = d3.extent(points, d => d[key]);
+    return extents;
+  }, {});
+
+  return extents;
+}
+
+/**
+ * Transforms the response from time series data before passing it into
+ * the application.
+ *
+ * - Converts date field to js Date object
+ * - Adds in the extent for each of the metrics and the date
+ *
+ * @param {Object} body The response body
+ * @return {Object} The transformed response body
+ */
+function transformTimeSeries(body) {
+  if (body.results) {
+    const points = body.results;
+    points.forEach(d => {
+      // convert date from string to Date object
+      d.date = decodeDate(d.date);
+    });
+
+    // overwrite the results with the transformed data
+    body.results = {
+      points,
+      extents: computeDataExtents(points),
+    };
+  }
+
+  return body;
+}
+
+/**
+ * Transforms the response from hourly data before passing it into
+ * the application.
+ *
+ * - Converts date field to js Date object
+ * - Converts hour to integers
+ * - Adds in the extent for each of the metrics and the date
+ * - Provides the data grouped by hour as `byHour`, a 24 length array
+ * - Provides the data grouped by date as `byDate`, an array with entry for
+ *   each unique date in the data.
+ *
+ * @param {Object} body The response body
+ * @return {Object} The transformed response body
+ */
+function transformHourly(body) {
+  if (body.results) {
+    const points = body.results;
+
+    // convert date from string to Date object and hour to number
+    points.forEach(d => {
+      d.date = decodeDate(d.date);
+      d.hour = parseInt(d.hour, 10);
+    });
+
+    // produce the byHour array
+    const groupedByHour = groupBy(body.results, 'hour');
+    // use d3.range(24) instead of Object.keys to ensure we get an entry for each hour
+    const byHour = d3.range(24).map(hour => {
+      const hourPoints = groupedByHour[hour];
+      return {
+        hour,
+        points: hourPoints,
+        // TODO - additional stats about this hour of data
+      };
+    });
+
+    // produce the byDate array
+    const groupedByDate = groupBy(body.results, 'date');
+    const byDate = Object.keys(groupedByDate).map(date => {
+      const datePoints = groupedByDate[date];
+      return {
+        date,
+        points: datePoints,
+        // TODO - additional stats about this date of data
+      };
+    });
+
+    // overwrite the results with the transformed data
+    body.results = {
+      points,
+      byHour,
+      byDate,
+      extents: computeDataExtents(points),
+    };
+  }
+
+  return body;
+}
+
+
+// -------------
+// API Calls
+// -------------
+
 /**
  * Get data for a location in a given time aggregation.
  *
- * Converts date field to js Date object
  *
  * @param {String} timeAggregation The aggregation of the data (one of day, month, year)
  * @param {String} locationKey The location to query (e.g., NA+US+MA+Cambridge)
@@ -62,15 +178,7 @@ function get(path, { params, data } = {}) {
  */
 export function getLocationTimeSeries(timeAggregation, locationKey) {
   return get(`/locations/${locationKey}/time/${timeAggregation}/metrics`)
-    .then(body => {
-      // transform the data before sending it back to the app
-      // convert dates to Date objects
-      body.metrics.forEach(d => {
-        d.date = decodeDate(d.date);
-      });
-
-      return body;
-    });
+    .then(transformTimeSeries);
 }
 
 /**
@@ -85,18 +193,7 @@ export function getLocationTimeSeries(timeAggregation, locationKey) {
  */
 export function getLocationHourly(timeAggregation, locationKey) {
   return get(`/locations/${locationKey}/time/${timeAggregation}_hour/metrics`)
-    .then(body => {
-      // transform the data before sending it back to the app
-      // convert dates to Date objects
-      body.metrics.forEach(d => {
-        d.date = decodeDate(d.date);
-        d.hour = parseInt(d.hour, 10);
-      });
-
-      body.byHour = groupBy(body.metrics, 'hour');
-
-      return body;
-    });
+    .then(transformHourly);
 }
 
 /**
