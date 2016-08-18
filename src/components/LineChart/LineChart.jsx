@@ -67,8 +67,14 @@ export default class LineChart extends PureComponent {
       .append('g')
       .attr('transform', `translate(${innerMargin.left} ${innerMargin.top})`);
 
+    // add in axis groups
+    this.xAxis = this.g.append('g').classed('x-axis', true);
+    this.yAxis = this.g.append('g').classed('y-axis', true);
+
+    // add in groups for data
     this.lines = this.g.append('g').classed('lines-group', true);
     this.circles = this.g.append('g').classed('circles-group', true);
+
     this.update();
   }
 
@@ -140,8 +146,23 @@ export default class LineChart extends PureComponent {
    * Update the d3 chart - this is the main drawing function
    */
   update() {
+    this.renderAxes();
     this.renderCircles();
     this.renderLines();
+  }
+  /**
+   * Render the x and y axis components
+   */
+  renderAxes() {
+    const { xScale, yScale, innerHeight } = this.visComponents;
+    const xAxis = d3.axisBottom(xScale);
+    const yAxis = d3.axisLeft(yScale);
+
+    this.yAxis.call(yAxis);
+
+    this.xAxis
+      .attr('transform', `translate(0 ${innerHeight + 3})`)
+      .call(xAxis);
   }
 
   /**
