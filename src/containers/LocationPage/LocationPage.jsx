@@ -29,13 +29,13 @@ const urlQueryConfig = {
 const urlHandler = new UrlHandler(urlQueryConfig, browserHistory);
 
 
-function mapStateToProps(state, props) {
+function mapStateToProps(state, propsWithUrl) {
   return {
-    ...props,
-    viewMetric: LocationPageSelectors.getViewMetric(state, props),
-    hourly: LocationPageSelectors.getActiveLocationHourly(state, props),
-    timeSeries: LocationPageSelectors.getActiveLocationTimeSeries(state, props),
-    highlightHourly: LocationPageSelectors.getHighlightHourly(state, props),
+    ...propsWithUrl,
+    viewMetric: LocationPageSelectors.getViewMetric(state, propsWithUrl),
+    hourly: LocationPageSelectors.getActiveLocationHourly(state, propsWithUrl),
+    timeSeries: LocationPageSelectors.getActiveLocationTimeSeries(state, propsWithUrl),
+    highlightHourly: LocationPageSelectors.getHighlightHourly(state, propsWithUrl),
   };
 }
 
