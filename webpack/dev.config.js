@@ -8,6 +8,8 @@ var autoprefixer = require('autoprefixer');
 var assetsPath = path.resolve(__dirname, '../static/dist');
 var host = (process.env.HOST || 'localhost');
 var port = (+process.env.PORT + 1) || 3001;
+var HardSourceWebpackPlugin = require('hard-source-webpack-plugin');
+
 
 // https://github.com/halt-hammerzeit/webpack-isomorphic-tools
 var WebpackIsomorphicToolsPlugin = require('webpack-isomorphic-tools/plugin');
@@ -110,7 +112,13 @@ module.exports = {
     ],
     extensions: ['', '.js', '.jsx'],
   },
+  // Can be constructed with __dirname and path.join.
+  recordsPath: path.join(__dirname, 'webpack-records.json'),
   plugins: [
+    new HardSourceWebpackPlugin({
+      // Either an absolute path or relative to output.path.
+      cacheDirectory: path.join(__dirname, 'cache'),
+    }),
     // hot reload
     new webpack.HotModuleReplacementPlugin(),
     new webpack.IgnorePlugin(/webpack-stats\.json$/),

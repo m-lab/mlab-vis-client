@@ -4,4 +4,6 @@ dist/
 *.iml
 webpack-assets.json
 webpack-stats.json
+webpack-records.json
+webpack/cache
 npm-debug.log

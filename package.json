@@ -19,13 +19,14 @@
     "start": "concurrently --kill-others \"npm run start-prod\"",
     "start-prod": "better-npm-run start-prod",
     "build": "better-npm-run build",
-    "postinstall": "npm run build",
+    "postinstall": "concurrently --kill-others \"npm run build\" \"npm clean-webpack-cache\"",
     "lint": "eslint -c .eslintrc src",
     "start-dev": "better-npm-run start-dev",
     "watch-client": "better-npm-run watch-client",
     "webpack-dashboard": "WEBPACK_DASHBOARD=true node webpack/webpack-dev-server.js",
     "dev": "concurrently --kill-others \"npm run start-dev\" \"npm run watch-client\"",
-    "test": "karma start"
+    "test": "karma start",
+    "clean-webpack-cache": "rm -rf webpack/webpack-records.json webpack/cache"
   },
   "betterScripts": {
     "start-prod": {
@@ -136,6 +137,7 @@
     "eslint-plugin-jsx-a11y": "^2.0.1",
     "eslint-plugin-react": "^6.1.0",
     "extract-text-webpack-plugin": "^0.9.1",
+    "hard-source-webpack-plugin": "^0.0.13",
     "json-loader": "^0.5.4",
     "karma": "^0.13.10",
     "karma-cli": "^0.1.1",
