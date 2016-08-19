@@ -4,13 +4,12 @@ import Helmet from 'react-helmet';
 import classNames from 'classnames';
 import { browserHistory } from 'react-router';
 import { Row, Col } from 'react-bootstrap';
-import { saveSvgAsPng } from 'save-svg-as-png';
 import { timeAggregations, metrics } from '../../constants';
 import * as LocationPageSelectors from '../../redux/locationPage/selectors';
 import * as LocationPageActions from '../../redux/locationPage/actions';
 import * as LocationsActions from '../../redux/locations/actions';
 
-import { LineChart, HourChart } from '../../components';
+import { ChartExportControls, LineChart, HourChart } from '../../components';
 import UrlHandler from '../../utils/UrlHandler';
 
 const urlQueryConfig = {
@@ -66,7 +65,6 @@ class LocationPage extends PureComponent {
     super(props);
 
     // bind handlers
-    this.handleSavePng = this.handleSavePng.bind(this);
     this.handleHighlightHourly = this.handleHighlightHourly.bind(this);
     this.handleShowBaselinesChange = this.handleCheckboxChange.bind(this, 'showBaselines');
     this.handleShowRegionalValuesChange = this.handleCheckboxChange.bind(this,
@@ -100,12 +98,6 @@ class LocationPage extends PureComponent {
     }
 
     return extentKey;
-  }
-
-  handleSavePng() {
-    const svg = document.querySelector('.hour-chart svg');
-    console.log('save png!');
-    saveSvgAsPng(svg, 'test.png');
   }
 
   // update the URL on checkbox change
@@ -233,14 +225,17 @@ class LocationPage extends PureComponent {
   }
 
   renderCompareProviders() {
-    const { timeSeries, viewMetric } = this.props;
+    const { locationId, timeSeries, viewMetric } = this.props;
     const extentKey = this.getExtentKey(viewMetric);
+    const chartId = 'providers-time-series';
+    const chartData = timeSeries && timeSeries.results.points;
 
     return (
       <div>
         <h3>Compare Providers</h3>
         <LineChart
-          data={timeSeries && timeSeries.results.points}
+          id={chartId}
+          data={chartData}
           height={300}
           width={800}
           yExtent={timeSeries && timeSeries.results.extents.date}
@@ -248,7 +243,11 @@ class LocationPage extends PureComponent {
           yExtent={timeSeries && timeSeries.results.extents[extentKey]}
           yKey={viewMetric.dataKey}
         />
-        <button className="btn btn-default" onClick={this.handleSavePng}>PNG</button>
+        <ChartExportControls
+          chartId={chartId}
+          data={chartData}
+          filename={`${locationId}_${viewMetric.value}_${chartId}`}
+        />
         {this.renderChartOptions()}
       </div>
     );
@@ -263,8 +262,10 @@ class LocationPage extends PureComponent {
   }
 
   renderProvidersByHour() {
-    const { hourly, highlightHourly, viewMetric } = this.props;
+    const { hourly, highlightHourly, locationId, viewMetric } = this.props;
     const extentKey = this.getExtentKey(viewMetric);
+    const chartId = 'providers-hourly';
+    const chartData = hourly && hourly.results.points;
 
     return (
       <div>
@@ -273,10 +274,16 @@ class LocationPage extends PureComponent {
           data={hourly && hourly.results.points}
           height={300}
           highlightPoint={highlightHourly}
+          id={chartId}
           onHighlightPoint={this.handleHighlightHourly}
           width={800}
           yExtent={hourly && hourly.results.extents[extentKey]}
           yKey={viewMetric.dataKey}
+        />
+        <ChartExportControls
+          chartId={chartId}
+          data={chartData}
+          filename={`${locationId}_${viewMetric.value}_${chartId}`}
         />
       </div>
     );

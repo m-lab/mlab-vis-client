@@ -9,6 +9,7 @@ import './LineChart.scss';
  * @prop {Array} data The array of data points to render (e.g., [{x: Date, y: Number}, ...])
  * @prop {Boolean} forceZeroMin=true Whether the min y value should always be 0.
  * @prop {Number} height The height in pixels of the SVG chart
+ * @prop {String} id The ID of the SVG chart (needed for PNG export)
  * @prop {Number} width The width in pixels of the SVG chart
  * @prop {Array} xExtent The min and max value of the xKey in the chart
  * @prop {String} xKey="x" The key to read the x value from in the data
@@ -20,6 +21,7 @@ export default class LineChart extends PureComponent {
     data: PropTypes.array,
     forceZeroMin: PropTypes.bool,
     height: React.PropTypes.number,
+    id: React.PropTypes.string,
     width: React.PropTypes.number,
     xExtent: PropTypes.array,
     xKey: React.PropTypes.string,
@@ -61,7 +63,16 @@ export default class LineChart extends PureComponent {
    */
   setup() {
     this.visComponents = this.makeVisComponents(this.props);
-    const { innerMargin } = this.visComponents;
+    const { height, innerMargin, width } = this.visComponents;
+
+    // add in white background for saving as PNG
+    d3.select(this.svg).append('rect')
+      .classed('chart-background', true)
+      .attr('width', width)
+      .attr('height', height)
+      .attr('x', 0)
+      .attr('y', 0)
+      .attr('fill', '#fff');
 
     this.g = d3.select(this.svg)
       .append('g')
@@ -215,11 +226,17 @@ export default class LineChart extends PureComponent {
    * @return {React.Component} The rendered container
    */
   render() {
-    const { width, height } = this.props;
+    const { height, id, width } = this.props;
 
     return (
-      <div className="line-chart">
-        <svg ref={svg => { this.svg = svg; }} width={width} height={height} />
+      <div>
+        <svg
+          id={id}
+          className="line-chart chart"
+          height={height}
+          ref={svg => { this.svg = svg; }}
+          width={width}
+        />
       </div>
     );
   }

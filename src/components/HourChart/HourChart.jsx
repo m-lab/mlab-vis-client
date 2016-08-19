@@ -71,7 +71,16 @@ export default class HourChart extends PureComponent {
    */
   setup() {
     this.visComponents = this.makeVisComponents(this.props);
-    const { innerMargin } = this.visComponents;
+    const { height, innerMargin, width } = this.visComponents;
+
+    // add in white background for saving as PNG
+    d3.select(this.svg).append('rect')
+      .classed('chart-background', true)
+      .attr('width', width)
+      .attr('height', height)
+      .attr('x', 0)
+      .attr('y', 0)
+      .attr('fill', '#fff');
 
     this.g = d3.select(this.svg)
       .append('g')
@@ -143,7 +152,7 @@ export default class HourChart extends PureComponent {
 
     const preparedData = this.prepareData(props);
 
-    const innerMargin = { top: 20, right: 20, bottom: 35, left: 50 };
+    const innerMargin = { top: 20, right: 40, bottom: 35, left: 50 };
     const innerWidth = width - innerMargin.left - innerMargin.right;
     const innerHeight = height - innerMargin.top - innerMargin.bottom;
 
@@ -357,8 +366,8 @@ export default class HourChart extends PureComponent {
     const { width, height } = this.props;
 
     return (
-      <div className="hour-chart">
-        <svg ref={svg => { this.svg = svg; }} width={width} height={height} />
+      <div className="hour-chart-container">
+        <svg className="hour-chart chart" ref={svg => { this.svg = svg; }} width={width} height={height} />
       </div>
     );
   }
