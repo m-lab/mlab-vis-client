@@ -2,7 +2,7 @@
  * Functions for working with URL parameters via react-router
  */
 
-import { decode, encode } from './serialization';
+import { decode, encode } from '../utils/serialization';
 
 export default class UrlHandler {
   /**
