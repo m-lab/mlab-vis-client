@@ -38,6 +38,10 @@ export default function urlConnect(urlHandler, mapStateToProps, mapDispatchToPro
     return mapStateToProps ? mapStateToProps(state, propsWithUrl) : propsWithUrl;
   }
 
+  /**
+   * Function to actually do the wrapping. do it this way instead of making WrappedComponent
+   * an argument of urlConnect so you don't need to supply all of `connect`'s  arguments.
+   */
   function wrapComponentWithUrlConnect(WrappedComponent) {
     const componentDisplayName = WrappedComponent.displayName ||
       WrappedComponent.name || 'Component';
@@ -74,6 +78,10 @@ export default function urlConnect(urlHandler, mapStateToProps, mapDispatchToPro
         }
       }
 
+      /**
+       * Overwrites the `dispatch` prop with `this.urlConnectDispatch` and retains
+       * the original value as `reduxDispatch` in props.
+       */
       render() {
         return (
           <WrappedComponent
