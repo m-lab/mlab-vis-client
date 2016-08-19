@@ -32,7 +32,7 @@ function mapStateToProps(state, props) {
     ...props,
     locationId: props.params.locationId,
 
-    // adds in: showBaselines, showRegionalValues
+    // adds in: showBaselines, showRegionalValues, ... etc
     ...urlHandler.decodeQuery(props.location.query),
   };
 
