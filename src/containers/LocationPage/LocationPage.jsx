@@ -1,5 +1,4 @@
 import React, { PureComponent, PropTypes } from 'react';
-import { connect } from 'react-redux';
 import Helmet from 'react-helmet';
 import classNames from 'classnames';
 import { browserHistory } from 'react-router';
@@ -10,8 +9,11 @@ import * as LocationPageActions from '../../redux/locationPage/actions';
 import * as LocationsActions from '../../redux/locations/actions';
 
 import { ChartExportControls, LineChart, HourChart } from '../../components';
-import UrlHandler from '../../utils/UrlHandler';
+import UrlHandler from '../../url/UrlHandler';
+import urlConnect from '../../url/urlConnect';
 
+
+// Define how to read/write state to URL query parameters
 const urlQueryConfig = {
   viewMetric: { type: 'string', defaultValue: 'download', urlKey: 'metric' },
 
@@ -26,16 +28,8 @@ const urlQueryConfig = {
 };
 const urlHandler = new UrlHandler(urlQueryConfig, browserHistory);
 
-function mapStateToProps(state, props) {
-  // combine props with those read from URL to provide to Redux selectors
-  const propsWithUrl = {
-    ...props,
-    locationId: props.params.locationId,
 
-    // adds in: showBaselines, showRegionalValues, ... etc
-    ...urlHandler.decodeQuery(props.location.query),
-  };
-
+function mapStateToProps(state, propsWithUrl) {
   return {
     ...propsWithUrl,
     viewMetric: LocationPageSelectors.getViewMetric(state, propsWithUrl),
@@ -66,9 +60,8 @@ class LocationPage extends PureComponent {
 
     // bind handlers
     this.handleHighlightHourly = this.handleHighlightHourly.bind(this);
-    this.handleShowBaselinesChange = this.handleCheckboxChange.bind(this, 'showBaselines');
-    this.handleShowRegionalValuesChange = this.handleCheckboxChange.bind(this,
-      'showRegionalValues');
+    this.handleShowBaselinesChange = this.handleShowBaselinesChange.bind(this);
+    this.handleShowRegionalValuesChange = this.handleShowRegionalValuesChange.bind(this);
   }
 
   componentDidMount() {
@@ -100,25 +93,38 @@ class LocationPage extends PureComponent {
     return extentKey;
   }
 
-  // update the URL on checkbox change
-  handleCheckboxChange(key, evt) {
-    const { location } = this.props;
+  /**
+   * Callback for show baselines checkbox
+   */
+  handleShowBaselinesChange(evt) {
+    const { dispatch } = this.props;
     const { checked } = evt.target;
-    urlHandler.replaceInQuery(location, key, checked);
+    dispatch(LocationPageActions.changeShowBaselines(checked));
   }
 
-  // update the URL on time aggregation change
+  /**
+   * Callback for show regional values checkbox
+   */
+  handleShowRegionalValuesChange(evt) {
+    const { dispatch } = this.props;
+    const { checked } = evt.target;
+    dispatch(LocationPageActions.changeShowRegionalValues(checked));
+  }
+
+  /**
+   * Callback for time aggregation checkbox
+   */
   handleTimeAggregationChange(value) {
-    const { location } = this.props;
-    urlHandler.replaceInQuery(location, 'timeAggregation', value);
+    const { dispatch } = this.props;
+    dispatch(LocationPageActions.changeTimeAggregation(value));
   }
 
   /**
    * Callback for when viewMetric changes - updates URL
    */
   handleViewMetricChange(value) {
-    const { location } = this.props;
-    urlHandler.replaceInQuery(location, 'viewMetric', value);
+    const { dispatch } = this.props;
+    dispatch(LocationPageActions.changeViewMetric(value));
   }
 
   /**
@@ -337,4 +343,4 @@ class LocationPage extends PureComponent {
   }
 }
 
-export default connect(mapStateToProps)(LocationPage);
+export default urlConnect(urlHandler, mapStateToProps)(LocationPage);
