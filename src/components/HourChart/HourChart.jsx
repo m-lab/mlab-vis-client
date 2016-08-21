@@ -22,6 +22,7 @@ export default class HourChart extends PureComponent {
     data: PropTypes.array,
     forceZeroMin: PropTypes.bool,
     height: PropTypes.number,
+    id: React.PropTypes.string,
     highlightPoint: PropTypes.object,
     onHighlightPoint: PropTypes.func,
     width: PropTypes.number,
@@ -363,11 +364,17 @@ export default class HourChart extends PureComponent {
    * @return {React.Component} The rendered container
    */
   render() {
-    const { width, height } = this.props;
+    const { width, id, height } = this.props;
 
     return (
       <div className="hour-chart-container">
-        <svg className="hour-chart chart" ref={svg => { this.svg = svg; }} width={width} height={height} />
+        <svg
+          id={id}
+          className="hour-chart chart"
+          ref={svg => { this.svg = svg; }}
+          width={width}
+          height={height}
+        />
       </div>
     );
   }
