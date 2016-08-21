@@ -4,6 +4,8 @@ import d3 from 'd3';
 
 import './HourChart.scss';
 
+import { BarChart } from '../../components';
+
 /**
  * Chart for showing data by hour
  *
@@ -25,6 +27,7 @@ export default class HourChart extends PureComponent {
     id: React.PropTypes.string,
     highlightPoint: PropTypes.object,
     onHighlightPoint: PropTypes.func,
+    threshold: PropTypes.number,
     width: PropTypes.number,
     yExtent: PropTypes.array,
     yKey: PropTypes.string,
@@ -33,6 +36,7 @@ export default class HourChart extends PureComponent {
   static defaultProps = {
     data: [],
     forceZeroMin: true,
+    threshold: 30,
     yKey: 'y',
   }
 
@@ -121,6 +125,7 @@ export default class HourChart extends PureComponent {
       return {
         hour,
         points: hourPoints || [],
+        count: hourPoints ? hourPoints.length : 0,
       };
     });
 
@@ -131,6 +136,7 @@ export default class HourChart extends PureComponent {
       byDate[date] = {
         date,
         points: datePoints || [],
+        count: datePoints ? datePoints.length : 0,
       };
 
       return byDate;
@@ -364,7 +370,13 @@ export default class HourChart extends PureComponent {
    * @return {React.Component} The rendered container
    */
   render() {
-    const { width, id, height } = this.props;
+    const { dataByHour } = this.prepareData(this.props);
+    const { width, id, height, threshold } = this.props;
+    let { yExtent } = this.props;
+
+    if (!yExtent) {
+      yExtent = [0, threshold];
+    }
 
     return (
       <div className="hour-chart-container">
@@ -374,6 +386,18 @@ export default class HourChart extends PureComponent {
           ref={svg => { this.svg = svg; }}
           width={width}
           height={height}
+        />
+
+        <BarChart
+          id={`${id}-bar-chart`}
+          data={dataByHour}
+          xKey="hour"
+          xExtent={[0, 24]}
+          width={width}
+          yKey="count"
+          yExtent={yExtent || [0, 0]}
+          height={height / 3}
+          threshold={30}
         />
       </div>
     );
