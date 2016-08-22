@@ -1,32 +1,43 @@
 import React, { PureComponent, PropTypes } from 'react';
 import d3 from 'd3';
 
-import './BarChart.scss';
+import './CountChart.scss';
 
-export default class BarChart extends PureComponent {
+/**
+ * This chart is intended to be used paired with another chart. It
+ * shares the same x-axis, width, margin left and margin right as the
+ * other chart.
+ */
+export default class CountChart extends PureComponent {
 
   static propTypes = {
     data: PropTypes.array,
-    id: React.PropTypes.string,
-    forceZeroMin: PropTypes.bool,
     height: PropTypes.number,
+    innerMarginLeft: PropTypes.number,
+    innerMarginRight: PropTypes.number,
+    numBins: PropTypes.number,
     width: PropTypes.number,
     xExtent: PropTypes.array,
     xKey: React.PropTypes.string,
+    xScale: React.PropTypes.func,
     yExtent: PropTypes.array,
     yKey: React.PropTypes.string,
-    threshold: React.PropTypes.number,
   };
 
   static defaultProps = {
     data: [],
-    forceZeroMin: true,
     xKey: 'x',
-    yKey: 'y',
-    threshold: 30,
+    yKey: 'count',
   };
 
-   /**
+  /**
+   * Initiailize the vis components when the component is about to mount
+   */
+  componentWillMount() {
+    this.visComponents = this.makeVisComponents(this.props);
+  }
+
+  /**
    * When the react component mounts, setup the d3 vis
    */
   componentDidMount() {
@@ -48,15 +59,14 @@ export default class BarChart extends PureComponent {
     this.update();
   }
 
-   /**
+  /**
    * Initialize the d3 chart - this is run once on mount
    */
   setup() {
-    this.visComponents = this.makeVisComponents(this.props);
-    const { height, innerMargin, width } = this.visComponents;
+    const { width, height, innerMargin, binWidth, innerHeight, innerWidth } = this.visComponents;
 
     // add in white background for saving as PNG
-    d3.select(this.svg).append('rect')
+    d3.select(this.root).append('rect')
       .classed('chart-background', true)
       .attr('width', width)
       .attr('height', height)
@@ -64,12 +74,20 @@ export default class BarChart extends PureComponent {
       .attr('y', 0)
       .attr('fill', '#fff');
 
-    this.g = d3.select(this.svg)
+    this.g = d3.select(this.root)
       .append('g')
       .attr('transform', `translate(${innerMargin.left} ${innerMargin.top})`);
 
     // add in axis groups
     this.yAxis = this.g.append('g').classed('y-axis', true);
+
+    // render a line for the x-axis (no ticks)
+    this.xAxis = this.g.append('g').classed('x-axis', true)
+      .attr('transform', `translate(${binWidth / 2} ${innerHeight})`);
+
+    this.xAxis.append('line')
+      .attr('x1', 0)
+      .attr('x2', innerWidth);
 
     // add in groups for data
     this.bars = this.g.append('g').classed('bars-group', true);
@@ -77,30 +95,18 @@ export default class BarChart extends PureComponent {
     this.update();
   }
 
-   /**
-   * Prepare the data by setting a flag if it does not
-   * pass the threshold.
-   * @param {Object} props the component props
-   * @return {Array} the prepared data
-   */
-  prepareData(props) {
-    const { data, yKey, threshold } = props;
-
-    data.forEach(d => {
-      if (d[yKey] < threshold) {
-        d.tooFew = true;
-      }
-    });
-
-    return data;
-  }
-
   makeVisComponents(props) {
-    const { forceZeroMin, height, width, xExtent, xKey, yExtent, yKey, data } = props;
+    const { height, innerMarginLeft = 50, innerMarginRight = 20, width, xKey,
+      xExtent, yExtent, yKey, data, numBins } = props;
+    let { xScale } = props;
 
-    const filteredData = this.prepareData(props);
+    const innerMargin = {
+      top: 20,
+      right: innerMarginRight,
+      bottom: 35,
+      left: innerMarginLeft,
+    };
 
-    const innerMargin = { top: 20, right: 20, bottom: 35, left: 50 };
     const innerWidth = width - innerMargin.left - innerMargin.right;
     const innerHeight = height - innerMargin.top - innerMargin.bottom;
 
@@ -110,21 +116,25 @@ export default class BarChart extends PureComponent {
     const yMax = 0;
 
     // set up the domains based on extent. Use the prop if provided, otherwise calculate
-    const xDomain = xExtent || d3.extent(filteredData, d => d[xKey]);
-    let yDomain = yExtent || d3.extent(filteredData, d => d[yKey]);
+    const xDomain = xExtent || d3.extent(data, d => d[xKey]);
+    let yDomain = yExtent || d3.extent(data, d => d[yKey]);
 
-    // force 0 as the min in the yDomain if specified
-    if (forceZeroMin) {
-      yDomain = [0, yDomain[1]];
+    // use the props xScale if provided, otherwise compute it
+    if (!xScale) {
+      xScale = d3.scaleLinear().domain(xDomain).range([xMin, xMax]);
     }
 
-    const xScale = d3.scaleTime().domain(xDomain).range([xMin, xMax]);
+    // ensure a minimum y-domain size to prevent full sized rects at 0 value
+    if (yDomain[0] === yDomain[1]) {
+      yDomain = [yDomain[0], yDomain[0] + 1];
+    }
+
     const yScale = d3.scaleLinear().domain(yDomain).range([yMin, yMax]);
-    const binWidth = (xMax - xMin) / data.length;
+    const binWidth = (xMax - xMin) / (numBins || data.length);
 
     return {
       binWidth,
-      data: filteredData,
+      data,
       height,
       innerHeight,
       innerMargin,
@@ -165,8 +175,8 @@ export default class BarChart extends PureComponent {
       xScale,
       yKey,
       yScale,
-      innerHeight,
       binWidth,
+      innerHeight,
     } = this.visComponents;
 
     const binding = this.bars.selectAll('rect').data(data);
@@ -181,9 +191,11 @@ export default class BarChart extends PureComponent {
     // ENTER + UPDATE
     binding.merge(entering)
       .attr('x', d => xScale(d[xKey]))
-      .attr('y', d => innerHeight - yScale(d[yKey]))
+      .attr('y', d => yScale(d[yKey]))
       .attr('width', binWidth)
-      .attr('height', d => yScale(d[yKey]));
+      .attr('height', d => innerHeight - yScale(d[yKey]))
+      .style('fill', d => (d.belowThreshold ? '#fff' : '#eee'))
+      .style('stroke', d => (d.belowThreshold ? '#ddd' : '#ccc'));
 
     // EXIT
     binding.exit()
@@ -195,18 +207,8 @@ export default class BarChart extends PureComponent {
    * @return {React.Component} The rendered container
    */
   render() {
-    const { width, id, height } = this.props;
-
     return (
-      <div className="bar-chart-container">
-        <svg
-          id={id}
-          className="bar-chart chart"
-          ref={svg => { this.svg = svg; }}
-          width={width}
-          height={height}
-        />
-      </div>
+      <g className="count-chart chart" ref={node => { this.root = node; }} />
     );
   }
 }
