@@ -170,12 +170,13 @@ export default class BarChart extends PureComponent {
     } = this.visComponents;
 
     const binding = this.bars.selectAll('rect').data(data);
-    const yMax = yScale.range()[1];
 
     // ENTER
     const entering = binding.enter()
       .append('rect')
-      .style('fill', '#00c');
+      .style('shape-rendering', 'crispEdges')
+      .style('fill', '#eee')
+      .style('stroke', '#ccc');
 
     // ENTER + UPDATE
     binding.merge(entering)
