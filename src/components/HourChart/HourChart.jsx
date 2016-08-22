@@ -105,6 +105,8 @@ export default class HourChart extends PureComponent {
     this.xAxis = this.g.append('g').classed('x-axis', true);
     this.yAxis = this.g.append('g').classed('y-axis', true);
 
+    this.gOverallLine = this.g.append('g').attr('class', 'overall');
+
     // add in groups for data
     this.circles = this.g.append('g').classed('circles', true);
 
@@ -121,7 +123,8 @@ export default class HourChart extends PureComponent {
    */
   makeVisComponents(props) {
     const { dataByHour, dataByDate, data, forceZeroMin, height,
-      innerMarginLeft = 50, innerMarginRight = 20, width, yExtent, yKey } = props;
+      innerMarginLeft = 50, innerMarginRight = 20, overallData,
+      width, yExtent, yKey } = props;
     let { xScale } = props;
 
     const innerMargin = {
@@ -163,6 +166,7 @@ export default class HourChart extends PureComponent {
       .y((d) => yScale(d[yKey]));
 
     return {
+      binWidth,
       dataByHour,
       dataByDate,
       data,
@@ -171,11 +175,11 @@ export default class HourChart extends PureComponent {
       innerMargin,
       innerWidth,
       line,
+      overallData,
       width,
       xScale,
       yScale,
       yKey,
-      binWidth,
     };
   }
 
@@ -186,6 +190,7 @@ export default class HourChart extends PureComponent {
    */
   update() {
     this.renderCircles();
+    this.renderOverallLine();
     this.renderAxes();
     this.renderHighlight();
   }
@@ -260,12 +265,12 @@ export default class HourChart extends PureComponent {
         // ENTER
         const entering = hourBinding.enter()
           .append('circle')
-          .style('fill', '#00c');
+          .style('fill', 'rgb(163, 163, 237)');
 
         // ENTER + UPDATE
         hourBinding
           .merge(entering)
-          .attr('r', 3)
+          .attr('r', 3.5)
           .attr('cx', () => binWidth / 2)
           .attr('cy', d => yScale(d[yKey]))
           .on('mouseenter', that.handleCircleMouseEnter)
@@ -277,6 +282,11 @@ export default class HourChart extends PureComponent {
       });
 
     binding.exit().remove();
+  }
+
+  renderOverallLine() {
+    const { overallData } = this.visComponents;
+    this.renderLine(overallData, this.gOverallLine, { stroke: 'rgb(204, 204, 245)' });
   }
 
   /**
@@ -299,7 +309,8 @@ export default class HourChart extends PureComponent {
     const g = this.gHighlight.select('.highlight-line');
 
     // render a line
-    this.renderLine(dateData, g);
+    const highlightColor = 'rgb(245, 46, 113)';
+    this.renderLine(dateData, g, { stroke: highlightColor });
 
     // also render some brighter circles
     const circlesBinding = g.selectAll('circle').data(dateData, d => d.hour);
@@ -310,10 +321,10 @@ export default class HourChart extends PureComponent {
 
     // ENTER + UPDATE
     circlesBinding.merge(circlesEntering)
-      .attr('r', 4)
+      .attr('r', 3.5)
       .attr('cx', d => xScale(d.hour) + (binWidth / 2))
       .attr('cy', d => yScale(d[yKey]))
-      .style('fill', '#c0c');
+      .style('fill', highlightColor);
 
     // EXIT
     circlesBinding.exit()
@@ -323,7 +334,7 @@ export default class HourChart extends PureComponent {
   /**
    * Render a line
    */
-  renderLine(dateData, parent) {
+  renderLine(dateData, parent, options = {}) {
     const { line } = this.visComponents;
 
     // draw the line
@@ -334,7 +345,7 @@ export default class HourChart extends PureComponent {
       .style('fill', 'none');
 
     lineBinding.merge(lineEntering)
-      .style('stroke', '#c0c')
+      .style('stroke', options.stroke || '#c0c')
       .attr('d', line);
 
     lineBinding.exit().remove();

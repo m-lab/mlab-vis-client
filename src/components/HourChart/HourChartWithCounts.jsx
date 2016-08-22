@@ -3,7 +3,7 @@ import { groupBy } from 'lodash';
 import d3 from 'd3';
 
 import { HourChart, CountChart } from '../../components';
-import { sum } from '../../utils/math';
+import { sum, weightedAverage } from '../../utils/math';
 
 /**
  * Chart for showing data by hour and with test counts
@@ -74,6 +74,7 @@ export default class HourChartWithCounts extends PureComponent {
         points: hourPoints || [],
         count,
         belowThreshold: count < threshold,
+        overall: weightedAverage(hourPoints, yKey, 'count'),
       };
     });
 
@@ -93,10 +94,17 @@ export default class HourChartWithCounts extends PureComponent {
       return byDate;
     }, {});
 
+    // compute the overall data for an average line
+    const overallData = dataByHour.map(d => ({
+      [yKey]: d.overall,
+      hour: d.hour,
+    })).filter(d => d[yKey] != null);
+
     return {
       filteredData,
       dataByHour,
       dataByDate,
+      overallData,
     };
   }
 
@@ -134,7 +142,7 @@ export default class HourChartWithCounts extends PureComponent {
    */
   render() {
     const { height, id, width } = this.props;
-    const { dataByHour, dataByDate, filteredData, innerMargin,
+    const { dataByHour, dataByDate, filteredData, innerMargin, overallData,
       xScale } = this.visComponents;
 
     const hourHeight = height * 0.75;
@@ -156,6 +164,7 @@ export default class HourChartWithCounts extends PureComponent {
               data={filteredData}
               dataByHour={dataByHour}
               dataByDate={dataByDate}
+              overallData={overallData}
               id={undefined}
               inSvg
               height={hourHeight}
