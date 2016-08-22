@@ -5,6 +5,7 @@ import d3 from 'd3';
 import './HourChart.scss';
 
 import { BarChart } from '../../components';
+import { sum } from '../../utils/math';
 
 /**
  * Chart for showing data by hour
@@ -125,7 +126,7 @@ export default class HourChart extends PureComponent {
       return {
         hour,
         points: hourPoints || [],
-        count: hourPoints ? hourPoints.length : 0,
+        count: sum(hourPoints, 'count') || 0,
       };
     });
 
@@ -136,7 +137,7 @@ export default class HourChart extends PureComponent {
       byDate[date] = {
         date,
         points: datePoints || [],
-        count: datePoints ? datePoints.length : 0,
+        count: sum(datePoints, 'count') || 0,
       };
 
       return byDate;
