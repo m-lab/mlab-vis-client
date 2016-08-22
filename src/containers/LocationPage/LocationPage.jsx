@@ -7,6 +7,7 @@ import { timeAggregations, metrics } from '../../constants';
 import * as LocationPageSelectors from '../../redux/locationPage/selectors';
 import * as LocationPageActions from '../../redux/locationPage/actions';
 import * as LocationsActions from '../../redux/locations/actions';
+import * as ClientIspsActions from '../../redux/clientIsps/actions';
 
 import { ChartExportControls, LineChartWithCounts, HourChartWithCounts } from '../../components';
 import UrlHandler from '../../url/UrlHandler';
@@ -33,9 +34,10 @@ function mapStateToProps(state, propsWithUrl) {
   return {
     ...propsWithUrl,
     viewMetric: LocationPageSelectors.getViewMetric(state, propsWithUrl),
-    clientIsps: LocationPageSelectors.getActiveClientIsps(state, propsWithUrl),
-    hourly: LocationPageSelectors.getActiveLocationHourly(state, propsWithUrl),
-    timeSeries: LocationPageSelectors.getActiveLocationTimeSeries(state, propsWithUrl),
+    clientIsps: LocationPageSelectors.getLocationClientIsps(state, propsWithUrl),
+    hourly: LocationPageSelectors.getLocationHourly(state, propsWithUrl),
+    timeSeries: LocationPageSelectors.getLocationTimeSeries(state, propsWithUrl),
+    clientIspTimeSeries: LocationPageSelectors.getLocationClientIspTimeSeries(state, propsWithUrl),
     highlightHourly: LocationPageSelectors.getHighlightHourly(state, propsWithUrl),
   };
 }
@@ -43,6 +45,7 @@ function mapStateToProps(state, propsWithUrl) {
 class LocationPage extends PureComponent {
   static propTypes = {
     clientIsps: PropTypes.array,
+    clientIspTimeSeries: PropTypes.array,
     dispatch: PropTypes.func,
     endDate: PropTypes.object, // date
     highlightHourly: PropTypes.object,
@@ -78,10 +81,19 @@ class LocationPage extends PureComponent {
    * Fetch the data for the page if needed
    */
   fetchData(props) {
-    const { dispatch, locationId, timeAggregation } = props;
+    const { dispatch, locationId, timeAggregation, clientIsps } = props;
     dispatch(LocationsActions.fetchTimeSeriesIfNeeded(timeAggregation, locationId));
     dispatch(LocationsActions.fetchHourlyIfNeeded(timeAggregation, locationId));
     dispatch(LocationsActions.fetchClientIspsIfNeeded(locationId));
+
+    // fetch data for selected Client ISPs
+    if (clientIsps) {
+      clientIsps.forEach(clientIsp => {
+        const clientIspId = clientIsp.meta.client_asn_number;
+        dispatch(ClientIspsActions.fetchLocationTimeSeriesIfNeeded(timeAggregation,
+          locationId, clientIspId));
+      });
+    }
   }
 
   /**
@@ -169,7 +181,7 @@ class LocationPage extends PureComponent {
     return (
       <div className="client-isp-selector">
         <ul className="list-unstyled">
-          {clientIsps.slice(0, 3).map(clientIsp => (
+          {clientIsps.map(clientIsp => (
             <li key={clientIsp.meta.client_asn_number}>
               {clientIsp.meta.client_asn_name}
             </li>
@@ -256,13 +268,12 @@ class LocationPage extends PureComponent {
   }
 
   renderCompareProviders() {
-    const { locationId, timeSeries, viewMetric, clientIsps } = this.props;
+    const { locationId, timeSeries, viewMetric, clientIspTimeSeries } = this.props;
     const extentKey = this.extentKey(viewMetric);
     const chartId = 'providers-time-series';
     const chartData = timeSeries && timeSeries.results.points;
 
-    console.log('got clientIsps=', clientIsps);
-
+    console.log('CITS', clientIspTimeSeries);
     return (
       <div>
         <h3>Compare Providers</h3>

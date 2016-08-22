@@ -218,7 +218,7 @@ export function getLocationHourly(timeAggregation, locationId) {
  * @param {String} clientIspId The AS number of the ISP (e.g., AS7922)
  * @return {Promise} A promise after the get request was made
  */
-export function getLocationClientIspMetrics(timeAggregation, locationId, clientIspId) {
+export function getLocationClientIspTimeSeries(timeAggregation, locationId, clientIspId) {
   return get(`/locations/${locationId}/time/${timeAggregation}/clientisps/${clientIspId}/metrics`)
     .then(transformTimeSeries);
 }

@@ -45,11 +45,6 @@ export const initialLocationState = {
     },
   },
 
-  fixed: {
-    isFetching: false,
-    isFetched: false,
-  },
-
   clientIsps: {
     isFetching: false,
     isFetched: false,
@@ -150,7 +145,13 @@ function locationClientIsps(state = initialLocationState.clientIsps, action = {}
 }
 
 // reducer for each location
-function location(state = initialLocationState, action = {}) {
+function location(state, action = {}) {
+  if (!state) {
+    state = Object.assign({
+      locationId: action.locationId,
+    }, initialLocationState);
+  }
+
   switch (action.type) {
     case Actions.FETCH_TIME_SERIES:
     case Actions.FETCH_TIME_SERIES_SUCCESS:
