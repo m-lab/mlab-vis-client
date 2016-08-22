@@ -8,7 +8,7 @@ import * as LocationPageSelectors from '../../redux/locationPage/selectors';
 import * as LocationPageActions from '../../redux/locationPage/actions';
 import * as LocationsActions from '../../redux/locations/actions';
 
-import { ChartExportControls, LineChart, HourChart } from '../../components';
+import { ChartExportControls, LineChart, HourChartWithCounts } from '../../components';
 import UrlHandler from '../../url/UrlHandler';
 import urlConnect from '../../url/urlConnect';
 
@@ -276,12 +276,13 @@ class LocationPage extends PureComponent {
     return (
       <div>
         <h3>By Hour, Median download speeds</h3>
-        <HourChart
+        <HourChartWithCounts
           data={hourly && hourly.results.points}
-          height={300}
+          height={400}
           highlightPoint={highlightHourly}
           id={chartId}
           onHighlightPoint={this.handleHighlightHourly}
+          threshold={30}
           width={800}
           yExtent={hourly && hourly.results.extents[extentKey]}
           yKey={viewMetric.dataKey}

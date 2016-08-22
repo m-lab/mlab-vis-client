@@ -20,12 +20,19 @@ import './HourChart.scss';
 export default class HourChart extends PureComponent {
   static propTypes = {
     data: PropTypes.array,
+    dataByDate: PropTypes.object,
+    dataByHour: PropTypes.array,
     forceZeroMin: PropTypes.bool,
     height: PropTypes.number,
-    id: React.PropTypes.string,
     highlightPoint: PropTypes.object,
+    id: React.PropTypes.string,
+    inSvg: React.PropTypes.bool,
+    innerMarginLeft: PropTypes.number,
+    innerMarginRight: PropTypes.number,
     onHighlightPoint: PropTypes.func,
+    threshold: PropTypes.number,
     width: PropTypes.number,
+    xScale: React.PropTypes.func,
     yExtent: PropTypes.array,
     yKey: PropTypes.string,
   }
@@ -33,6 +40,7 @@ export default class HourChart extends PureComponent {
   static defaultProps = {
     data: [],
     forceZeroMin: true,
+    threshold: 30,
     yKey: 'y',
   }
 
@@ -43,6 +51,13 @@ export default class HourChart extends PureComponent {
     super(props);
     this.handleCircleMouseEnter = this.handleCircleMouseEnter.bind(this);
     this.handleCircleMouseLeave = this.handleCircleMouseLeave.bind(this);
+  }
+
+  /**
+   * Initiailize the vis components when the component is about to mount
+   */
+  componentWillMount() {
+    this.visComponents = this.makeVisComponents(this.props);
   }
 
   /**
@@ -71,11 +86,10 @@ export default class HourChart extends PureComponent {
    * Initialize the d3 chart - this is run once on mount
    */
   setup() {
-    this.visComponents = this.makeVisComponents(this.props);
     const { height, innerMargin, width } = this.visComponents;
 
     // add in white background for saving as PNG
-    d3.select(this.svg).append('rect')
+    d3.select(this.root).append('rect')
       .classed('chart-background', true)
       .attr('width', width)
       .attr('height', height)
@@ -83,7 +97,7 @@ export default class HourChart extends PureComponent {
       .attr('y', 0)
       .attr('fill', '#fff');
 
-    this.g = d3.select(this.svg)
+    this.g = d3.select(this.root)
       .append('g')
       .attr('transform', `translate(${innerMargin.left} ${innerMargin.top})`);
 
@@ -101,59 +115,22 @@ export default class HourChart extends PureComponent {
     this.update();
   }
 
-
   /**
-   * Filter the data and group it by hour and by date
-   * @param {Object} props the component props
-   * @return {Object} the prepared data { filteredData, dataByHour, dataByDate }
-   */
-  prepareData(props) {
-    const { data, yKey } = props;
-
-    // filter so all data has a value for yKey
-    const filteredData = (data || []).filter(d => d[yKey] != null);
-
-    // produce the byHour array
-    const groupedByHour = groupBy(filteredData, 'hour');
-    // use d3.range(24) instead of Object.keys to ensure we get an entry for each hour
-    const dataByHour = d3.range(24).map(hour => {
-      const hourPoints = groupedByHour[hour];
-      return {
-        hour,
-        points: hourPoints || [],
-      };
-    });
-
-    // produce the byDate array
-    const groupedByDate = groupBy(filteredData, 'date');
-    const dataByDate = Object.keys(groupedByDate).reduce((byDate, date) => {
-      const datePoints = groupedByDate[date];
-      byDate[date] = {
-        date,
-        points: datePoints || [],
-      };
-
-      return byDate;
-    }, {});
-
-    return {
-      filteredData,
-      dataByHour,
-      dataByDate,
-    };
-  }
-
-
-   /**
    * Figure out what is needed to render the chart
    * based on the props of the component
    */
   makeVisComponents(props) {
-    const { forceZeroMin, height, width, yExtent, yKey } = props;
+    const { dataByHour, dataByDate, data, forceZeroMin, height,
+      innerMarginLeft = 50, innerMarginRight = 20, width, yExtent, yKey } = props;
+    let { xScale } = props;
 
-    const preparedData = this.prepareData(props);
+    const innerMargin = {
+      top: 20,
+      right: innerMarginRight,
+      bottom: 35,
+      left: innerMarginLeft,
+    };
 
-    const innerMargin = { top: 20, right: 40, bottom: 35, left: 50 };
     const innerWidth = width - innerMargin.left - innerMargin.right;
     const innerHeight = height - innerMargin.top - innerMargin.bottom;
 
@@ -164,14 +141,17 @@ export default class HourChart extends PureComponent {
 
     // set up the domains based on extent. Use the prop if provided, otherwise calculate
     const xDomain = [0, 23];
-    let yDomain = yExtent || d3.extent(preparedData.filteredData, d => d[yKey]);
+    let yDomain = yExtent || d3.extent(data, d => d[yKey]);
 
     // force 0 as the min in the yDomain if specified
     if (forceZeroMin) {
       yDomain = [0, yDomain[1]];
     }
 
-    const xScale = d3.scaleLinear().domain(xDomain).range([xMin, xMax]);
+    // use the props xScale if provided, otherwise compute it
+    if (!xScale) {
+      xScale = d3.scaleLinear().domain(xDomain).range([xMin, xMax]);
+    }
     const yScale = d3.scaleLinear().domain(yDomain).range([yMin, yMax]);
 
     const binWidth = (xMax - yMax) / 24;
@@ -183,7 +163,9 @@ export default class HourChart extends PureComponent {
       .y((d) => yScale(d[yKey]));
 
     return {
-      ...preparedData,
+      dataByHour,
+      dataByDate,
+      data,
       height,
       innerHeight,
       innerMargin,
@@ -364,18 +346,25 @@ export default class HourChart extends PureComponent {
    * @return {React.Component} The rendered container
    */
   render() {
-    const { width, id, height } = this.props;
+    const { inSvg, width, id, height } = this.props;
+
+    if (inSvg) {
+      return (
+        <g
+          className="hour-chart chart"
+          ref={node => { this.root = node; }}
+        />
+      );
+    }
 
     return (
-      <div className="hour-chart-container">
-        <svg
-          id={id}
-          className="hour-chart chart"
-          ref={svg => { this.svg = svg; }}
-          width={width}
-          height={height}
-        />
-      </div>
+      <svg
+        id={id}
+        className="hour-chart chart"
+        ref={node => { this.root = node; }}
+        width={width}
+        height={height}
+      />
     );
   }
 
