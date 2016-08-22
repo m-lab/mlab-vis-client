@@ -357,7 +357,7 @@ export default class HourChart extends PureComponent {
    * @return {React.Component} The rendered container
    */
   render() {
-    const { inSvg, width, id, height } = this.props;
+    const { height, inSvg, id, width } = this.props;
 
     if (inSvg) {
       return (

@@ -83,7 +83,7 @@ export default class CountChart extends PureComponent {
 
     // render a line for the x-axis (no ticks)
     this.xAxis = this.g.append('g').classed('x-axis', true)
-      .attr('transform', `translate(${binWidth / 2} ${innerHeight})`);
+      .attr('transform', `translate(0 ${innerHeight})`);
 
     this.xAxis.append('line')
       .attr('x1', 0)
