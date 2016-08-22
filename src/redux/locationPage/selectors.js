@@ -31,6 +31,11 @@ export function getActiveLocationTimeSeries(state, props) {
   return location.time.timeSeries.data;
 }
 
+export function getActiveClientIsps(state, props) {
+  const location = getActiveLocation(state, props);
+  return location.clientIsps.data;
+}
+
 export function getHighlightHourly(state) {
   return state.locationPage.highlightHourly;
 }
@@ -53,7 +58,6 @@ export function getViewMetric(state, props) {
 
   return metric;
 }
-
 
 // ----------------------
 // Selectors

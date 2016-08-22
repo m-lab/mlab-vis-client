@@ -33,6 +33,7 @@ function mapStateToProps(state, propsWithUrl) {
   return {
     ...propsWithUrl,
     viewMetric: LocationPageSelectors.getViewMetric(state, propsWithUrl),
+    clientIsps: LocationPageSelectors.getActiveClientIsps(state, propsWithUrl),
     hourly: LocationPageSelectors.getActiveLocationHourly(state, propsWithUrl),
     timeSeries: LocationPageSelectors.getActiveLocationTimeSeries(state, propsWithUrl),
     highlightHourly: LocationPageSelectors.getHighlightHourly(state, propsWithUrl),
@@ -41,6 +42,7 @@ function mapStateToProps(state, propsWithUrl) {
 
 class LocationPage extends PureComponent {
   static propTypes = {
+    clientIsps: PropTypes.array,
     dispatch: PropTypes.func,
     endDate: PropTypes.object, // date
     highlightHourly: PropTypes.object,
@@ -146,16 +148,33 @@ class LocationPage extends PureComponent {
       <div>
         <h2>City {this.props.locationId}</h2>
         <Row>
-          <Col md={6}>
+          <Col md={3}>
+            {this.renderClientIspSelector()}
             {this.renderMetricSelector()}
-          </Col>
-          <Col md={6}>
             {this.renderTimeAggregationSelector()}
           </Col>
+          <Col md={9}>
+            {this.renderCompareProviders()}
+            {this.renderCompareMetrics()}
+            {this.renderProvidersByHour()}
+          </Col>
         </Row>
-        {this.renderCompareProviders()}
-        {this.renderCompareMetrics()}
-        {this.renderProvidersByHour()}
+      </div>
+    );
+  }
+
+  renderClientIspSelector() {
+    const { clientIsps = [] } = this.props;
+
+    return (
+      <div className="client-isp-selector">
+        <ul className="list-unstyled">
+          {clientIsps.slice(0, 3).map(clientIsp => (
+            <li key={clientIsp.meta.client_asn_number}>
+              {clientIsp.meta.client_asn_name}
+            </li>
+          ))}
+        </ul>
       </div>
     );
   }
@@ -237,10 +256,12 @@ class LocationPage extends PureComponent {
   }
 
   renderCompareProviders() {
-    const { locationId, timeSeries, viewMetric } = this.props;
+    const { locationId, timeSeries, viewMetric, clientIsps } = this.props;
     const extentKey = this.extentKey(viewMetric);
     const chartId = 'providers-time-series';
     const chartData = timeSeries && timeSeries.results.points;
+
+    console.log('got clientIsps=', clientIsps);
 
     return (
       <div>

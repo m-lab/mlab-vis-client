@@ -134,7 +134,7 @@ function locationClientIsps(state = initialLocationState.clientIsps, action = {}
       };
     case Actions.FETCH_CLIENT_ISPS_SUCCESS:
       return {
-        data: action.result,
+        data: action.result.results,
         isFetching: false,
         isFetched: true,
       };
