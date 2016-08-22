@@ -128,10 +128,12 @@ export default class HourChartWithCounts extends PureComponent {
 
     const xDomain = [0, 23];
     const xScale = d3.scaleLinear().domain(xDomain).range([xMin, xMax]);
+    const numBins = 24; // one for each hour
 
     return {
       ...preparedData,
       innerMargin,
+      numBins,
       xScale,
     };
   }
@@ -143,7 +145,7 @@ export default class HourChartWithCounts extends PureComponent {
   render() {
     const { height, id, width } = this.props;
     const { dataByHour, dataByDate, filteredData, innerMargin, overallData,
-      xScale } = this.visComponents;
+      xScale, numBins } = this.visComponents;
 
     const hourHeight = height * 0.75;
     const countHeight = height - hourHeight;
@@ -153,7 +155,6 @@ export default class HourChartWithCounts extends PureComponent {
         <svg
           id={id}
           className="hour-chart-with-counts chart"
-          ref={node => { this.root = node; }}
           width={width}
           height={height}
         >
@@ -179,7 +180,7 @@ export default class HourChartWithCounts extends PureComponent {
               height={countHeight}
               innerMarginLeft={innerMargin.left}
               innerMarginRight={innerMargin.right}
-              numBins={24}
+              numBins={numBins}
               width={width}
               xKey="hour"
               xScale={xScale}
