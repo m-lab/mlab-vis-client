@@ -10,6 +10,7 @@ import './LineChart.scss';
  * @prop {Boolean} forceZeroMin=true Whether the min y value should always be 0.
  * @prop {Number} height The height in pixels of the SVG chart
  * @prop {String} id The ID of the SVG chart (needed for PNG export)
+ * @prop {Boolean} inSvg Whether this is being nested inside an SVG, if true renders a <g>
  * @prop {Number} width The width in pixels of the SVG chart
  * @prop {Array} xExtent The min and max value of the xKey in the chart
  * @prop {String} xKey="x" The key to read the x value from in the data
@@ -22,6 +23,7 @@ export default class LineChart extends PureComponent {
     forceZeroMin: PropTypes.bool,
     height: React.PropTypes.number,
     id: React.PropTypes.string,
+    inSvg: React.PropTypes.bool,
     width: React.PropTypes.number,
     xExtent: PropTypes.array,
     xKey: React.PropTypes.string,
@@ -66,7 +68,7 @@ export default class LineChart extends PureComponent {
     const { height, innerMargin, width } = this.visComponents;
 
     // add in white background for saving as PNG
-    d3.select(this.svg).append('rect')
+    d3.select(this.root).append('rect')
       .classed('chart-background', true)
       .attr('width', width)
       .attr('height', height)
@@ -74,7 +76,7 @@ export default class LineChart extends PureComponent {
       .attr('y', 0)
       .attr('fill', '#fff');
 
-    this.g = d3.select(this.svg)
+    this.g = d3.select(this.root)
       .append('g')
       .attr('transform', `translate(${innerMargin.left} ${innerMargin.top})`);
 
@@ -90,28 +92,21 @@ export default class LineChart extends PureComponent {
   }
 
   /**
-   * Filter the data
-   * @param {Object} props the component props
-   * @return {Array} the prepared data
-   */
-  prepareData(props) {
-    const { data, xKey, yKey } = props;
-    // filter out points with missing values
-    const filteredData = (data || []).filter(d => d[xKey] != null && d[yKey] != null);
-
-    return filteredData;
-  }
-
-  /**
    * Figure out what is needed to render the chart
    * based on the props of the component
    */
   makeVisComponents(props) {
-    const { forceZeroMin, height, width, xExtent, xKey, yExtent, yKey } = props;
+    const { data, forceZeroMin, height, innerMarginLeft = 50, innerMarginRight = 20,
+      width, xExtent, xKey, yExtent, yKey } = props;
+    let { xScale } = props;
 
-    const filteredData = this.prepareData(props);
+    const innerMargin = {
+      top: 20,
+      right: innerMarginRight,
+      bottom: 35,
+      left: innerMarginLeft,
+    };
 
-    const innerMargin = { top: 20, right: 20, bottom: 35, left: 50 };
     const innerWidth = width - innerMargin.left - innerMargin.right;
     const innerHeight = height - innerMargin.top - innerMargin.bottom;
 
@@ -121,15 +116,18 @@ export default class LineChart extends PureComponent {
     const yMax = 0;
 
     // set up the domains based on extent. Use the prop if provided, otherwise calculate
-    const xDomain = xExtent || d3.extent(filteredData, d => d[xKey]);
-    let yDomain = yExtent || d3.extent(filteredData, d => d[yKey]);
+    const xDomain = xExtent || d3.extent(data, d => d[xKey]);
+    let yDomain = yExtent || d3.extent(data, d => d[yKey]);
 
     // force 0 as the min in the yDomain if specified
     if (forceZeroMin) {
       yDomain = [0, yDomain[1]];
     }
 
-    const xScale = d3.scaleTime().domain(xDomain).range([xMin, xMax]);
+    // use the props xScale if provided, otherwise compute it
+    if (!xScale) {
+      xScale = d3.scaleLinear().domain(xDomain).range([xMin, xMax]);
+    }
     const yScale = d3.scaleLinear().domain(yDomain).range([yMin, yMax]);
 
     // function to generate paths for each series
@@ -139,7 +137,7 @@ export default class LineChart extends PureComponent {
       .y((d) => yScale(d[yKey]));
 
     return {
-      data: filteredData,
+      data,
       height,
       innerHeight,
       innerMargin,
@@ -226,7 +224,16 @@ export default class LineChart extends PureComponent {
    * @return {React.Component} The rendered container
    */
   render() {
-    const { height, id, width } = this.props;
+    const { height, id, inSvg, width } = this.props;
+
+    if (inSvg) {
+      return (
+        <g
+          className="line-chart chart"
+          ref={node => { this.root = node; }}
+        />
+      );
+    }
 
     return (
       <div>
@@ -234,7 +241,7 @@ export default class LineChart extends PureComponent {
           id={id}
           className="line-chart chart"
           height={height}
-          ref={svg => { this.svg = svg; }}
+          ref={node => { this.root = node; }}
           width={width}
         />
       </div>

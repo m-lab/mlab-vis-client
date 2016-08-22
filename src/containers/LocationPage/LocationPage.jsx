@@ -8,7 +8,7 @@ import * as LocationPageSelectors from '../../redux/locationPage/selectors';
 import * as LocationPageActions from '../../redux/locationPage/actions';
 import * as LocationsActions from '../../redux/locations/actions';
 
-import { ChartExportControls, LineChart, HourChartWithCounts } from '../../components';
+import { ChartExportControls, LineChartWithCounts, HourChartWithCounts } from '../../components';
 import UrlHandler from '../../url/UrlHandler';
 import urlConnect from '../../url/urlConnect';
 
@@ -239,10 +239,10 @@ class LocationPage extends PureComponent {
     return (
       <div>
         <h3>Compare Providers</h3>
-        <LineChart
+        <LineChartWithCounts
           id={chartId}
           data={chartData}
-          height={300}
+          height={400}
           width={800}
           yExtent={timeSeries && timeSeries.results.extents.date}
           xKey="date"
