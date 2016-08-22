@@ -22,6 +22,9 @@ locations:
       lastMonth
       lastYear
       distribution
+
+    clientIsps - array of client ISPs in the location
+
  */
 
 /**
@@ -43,6 +46,11 @@ export const initialLocationState = {
   },
 
   fixed: {
+    isFetching: false,
+    isFetched: false,
+  },
+
+  clientIsps: {
     isFetching: false,
     isFetched: false,
   },
@@ -115,6 +123,32 @@ function locationTime(state = initialLocationState.time, action = {}) {
 }
 
 
+// reducer for the clientIsps portion of a location
+function locationClientIsps(state = initialLocationState.clientIsps, action = {}) {
+  switch (action.type) {
+    case Actions.FETCH_CLIENT_ISPS:
+      return {
+        data: state.data,
+        isFetching: true,
+        isFetched: false,
+      };
+    case Actions.FETCH_CLIENT_ISPS_SUCCESS:
+      return {
+        data: action.result,
+        isFetching: false,
+        isFetched: true,
+      };
+    case Actions.FETCH_CLIENT_ISPS_FAIL:
+      return {
+        isFetching: false,
+        isFetched: false,
+        error: action.error,
+      };
+    default:
+      return state;
+  }
+}
+
 // reducer for each location
 function location(state = initialLocationState, action = {}) {
   switch (action.type) {
@@ -128,6 +162,13 @@ function location(state = initialLocationState, action = {}) {
         ...state,
         time: locationTime(state.time, action),
       };
+    case Actions.FETCH_CLIENT_ISPS:
+    case Actions.FETCH_CLIENT_ISPS_SUCCESS:
+    case Actions.FETCH_CLIENT_ISPS_FAIL:
+      return {
+        ...state,
+        clientIsps: locationClientIsps(state.clientIsps, action),
+      };
     default:
       return state;
   }
@@ -136,7 +177,6 @@ function location(state = initialLocationState, action = {}) {
 // The root reducer
 function locations(state = initialState, action = {}) {
   const { locationId } = action;
-
   switch (action.type) {
     case Actions.FETCH_TIME_SERIES:
     case Actions.FETCH_TIME_SERIES_SUCCESS:
@@ -144,6 +184,9 @@ function locations(state = initialState, action = {}) {
     case Actions.FETCH_HOURLY:
     case Actions.FETCH_HOURLY_SUCCESS:
     case Actions.FETCH_HOURLY_FAIL:
+    case Actions.FETCH_CLIENT_ISPS:
+    case Actions.FETCH_CLIENT_ISPS_SUCCESS:
+    case Actions.FETCH_CLIENT_ISPS_FAIL:
       return {
         ...state,
         [locationId]: location(state[locationId], action),

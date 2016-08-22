@@ -186,13 +186,12 @@ function transformHourly(body) {
 /**
  * Get data for a location in a given time aggregation.
  *
- *
  * @param {String} timeAggregation The aggregation of the data (one of day, month, year)
- * @param {String} locationKey The location to query (e.g., NA+US+MA+Cambridge)
+ * @param {String} locationId The location to query (e.g., nauswaseattle)
  * @return {Promise} A promise after the get request was made
  */
-export function getLocationTimeSeries(timeAggregation, locationKey) {
-  return get(`/locations/${locationKey}/time/${timeAggregation}/metrics`)
+export function getLocationTimeSeries(timeAggregation, locationId) {
+  return get(`/locations/${locationId}/time/${timeAggregation}/metrics`)
     .then(transformTimeSeries);
 }
 
@@ -203,22 +202,33 @@ export function getLocationTimeSeries(timeAggregation, locationKey) {
  * byHour field where the data is grouped by hour
  *
  * @param {String} timeAggregation The aggregation of the data (one of day, month, year)
- * @param {String} locationKey The location to query (e.g., NA+US+MA+Cambridge)
+ * @param {String} locationId The location to query (e.g., nauswaseattle)
  * @return {Promise} A promise after the get request was made
  */
-export function getLocationHourly(timeAggregation, locationKey) {
-  return get(`/locations/${locationKey}/time/${timeAggregation}_hour/metrics`)
+export function getLocationHourly(timeAggregation, locationId) {
+  return get(`/locations/${locationId}/time/${timeAggregation}_hour/metrics`)
     .then(transformHourly);
 }
 
 /**
  * Get data for a client ISP in a location in a given time aggregation
- * @param {String} locationKey The location to query (e.g., NA+US+MA+Cambridge)
+ * @param {String} locationId The location to query (e.g., nauswaseattle)
  * @param {String} timeAggregation The aggregation of the data (one of day, month,
  *    year, day_hour, month_hour, year_hour)
- * @param {String} clientISP The AS number of the ISP (e.g., AS7922)
+ * @param {String} clientIspId The AS number of the ISP (e.g., AS7922)
  * @return {Promise} A promise after the get request was made
  */
-export function getLocationClientISPMetrics(timeAggregation, locationKey, clientISP) {
-  return get(`/locations/${locationKey}/time/${timeAggregation}/clientisps/${clientISP}/metrics`);
+export function getLocationClientIspMetrics(timeAggregation, locationId, clientIspId) {
+  return get(`/locations/${locationId}/time/${timeAggregation}/clientisps/${clientIspId}/metrics`)
+    .then(transformTimeSeries);
+}
+
+/**
+ * Get the top N ISPs in a location
+ *
+ * @param {String} locationId The location to query (e.g., nauswaseattle)
+ * @return {Promise} A promise after the get request was made
+ */
+export function getLocationClientIsps(locationId) {
+  return get(`/locations/${locationId}/clientisps`);
 }

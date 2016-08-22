@@ -65,15 +65,21 @@ class LocationPage extends PureComponent {
   }
 
   componentDidMount() {
-    const { dispatch, locationId, timeAggregation } = this.props;
-    dispatch(LocationsActions.fetchTimeSeriesIfNeeded(timeAggregation, locationId));
-    dispatch(LocationsActions.fetchHourlyIfNeeded(timeAggregation, locationId));
+    this.fetchData(this.props);
   }
 
   componentWillReceiveProps(nextProps) {
-    const { dispatch, locationId, timeAggregation } = nextProps;
+    this.fetchData(nextProps);
+  }
+
+  /**
+   * Fetch the data for the page if needed
+   */
+  fetchData(props) {
+    const { dispatch, locationId, timeAggregation } = props;
     dispatch(LocationsActions.fetchTimeSeriesIfNeeded(timeAggregation, locationId));
     dispatch(LocationsActions.fetchHourlyIfNeeded(timeAggregation, locationId));
+    dispatch(LocationsActions.fetchClientIspsIfNeeded(locationId));
   }
 
   /**
@@ -84,7 +90,7 @@ class LocationPage extends PureComponent {
    * @param {Object} viewMetric the metric object for the active view
    * @return {String} the key to read from the extents objects in the data
    */
-  getExtentKey(viewMetric) {
+  extentKey(viewMetric) {
     let extentKey = viewMetric.dataKey;
     if (viewMetric.value === 'download' || viewMetric.value === 'upload') {
       extentKey = 'throughput';
@@ -232,7 +238,7 @@ class LocationPage extends PureComponent {
 
   renderCompareProviders() {
     const { locationId, timeSeries, viewMetric } = this.props;
-    const extentKey = this.getExtentKey(viewMetric);
+    const extentKey = this.extentKey(viewMetric);
     const chartId = 'providers-time-series';
     const chartData = timeSeries && timeSeries.results.points;
 
@@ -269,7 +275,7 @@ class LocationPage extends PureComponent {
 
   renderProvidersByHour() {
     const { hourly, highlightHourly, locationId, viewMetric } = this.props;
-    const extentKey = this.getExtentKey(viewMetric);
+    const extentKey = this.extentKey(viewMetric);
     const chartId = 'providers-hourly';
     const chartData = hourly && hourly.results.points;
 
