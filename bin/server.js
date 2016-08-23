@@ -7,6 +7,7 @@ var rootDir = path.resolve(__dirname, '..');
  */
 global.__CLIENT__ = false;
 global.__SERVER__ = true;
+// If you change this value, also change the value in wepback dev config (dev.config.js)
 global.__DISABLE_SSR__ = true;  // <----- DISABLES SERVER SIDE RENDERING FOR ERROR DEBUGGING
 global.__DEVELOPMENT__ = process.env.NODE_ENV !== 'production';
 
