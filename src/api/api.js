@@ -1,7 +1,6 @@
 import get from './get';
 import {
   transform,
-  mergeMetaWithResults,
   transformTimeSeries,
   transformHourly,
 } from './transforms';
@@ -19,7 +18,7 @@ import {
  */
 export function getLocationTimeSeries(timeAggregation, locationId) {
   return get(`/locations/${locationId}/time/${timeAggregation}/metrics`)
-    .then(transform(mergeMetaWithResults, transformTimeSeries));
+    .then(transform(transformTimeSeries));
 }
 
 /**
@@ -34,7 +33,7 @@ export function getLocationTimeSeries(timeAggregation, locationId) {
  */
 export function getLocationHourly(timeAggregation, locationId) {
   return get(`/locations/${locationId}/time/${timeAggregation}_hour/metrics`)
-    .then(transform(mergeMetaWithResults, transformHourly));
+    .then(transform(transformHourly));
 }
 
 /**
@@ -47,7 +46,7 @@ export function getLocationHourly(timeAggregation, locationId) {
  */
 export function getLocationClientIspTimeSeries(timeAggregation, locationId, clientIspId) {
   return get(`/locations/${locationId}/time/${timeAggregation}/clientisps/${clientIspId}/metrics`)
-    .then(transform(mergeMetaWithResults, transformTimeSeries));
+    .then(transform(transformTimeSeries));
 }
 
 /**

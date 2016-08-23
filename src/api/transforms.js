@@ -31,20 +31,6 @@ export function transform(...transformFuncs) {
 }
 
 /**
- * Add in a reference to the meta object to each entry in the results
- */
-export function mergeMetaWithResults(body) {
-  body.results.forEach(result => {
-    if (result.meta) {
-      console.warn('Skipping merging in meta - result already has meta', result, body);
-    } else {
-      result.meta = body.meta;
-    }
-  });
-  return body;
-}
-
-/**
  * Compute the extent for each of the metrics and for the date
  *
  * @param {Array} points the data points to iterate over
