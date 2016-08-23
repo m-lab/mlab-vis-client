@@ -94,11 +94,11 @@ export function transformTimeSeries(body) {
       d.date = decodeDate(d.date);
     });
 
-    // overwrite the results with the transformed data
-    body.results = {
-      points,
+    // add new entries to the body object
+    Object.assign(body, {
+      results: points,
       extents: computeDataExtents(points),
-    };
+    });
   }
 
   return body;
@@ -126,11 +126,11 @@ export function transformHourly(body) {
       d.hour = parseInt(d.hour, 10);
     });
 
-    // overwrite the results with the transformed data
-    body.results = {
-      points,
+    // add new entries to the body object
+    Object.assign(body, {
+      results: points,
       extents: computeDataExtents(points),
-    };
+    });
   }
 
   return body;

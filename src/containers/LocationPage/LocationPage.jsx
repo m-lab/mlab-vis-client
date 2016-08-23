@@ -271,7 +271,7 @@ class LocationPage extends PureComponent {
     const { locationId, timeSeries, viewMetric, clientIspTimeSeries } = this.props;
     const extentKey = this.extentKey(viewMetric);
     const chartId = 'providers-time-series';
-    const chartData = timeSeries && timeSeries.results.points;
+    const chartData = timeSeries && timeSeries.results;
 
     console.log('CITS', clientIspTimeSeries);
     return (
@@ -282,9 +282,9 @@ class LocationPage extends PureComponent {
           data={chartData}
           height={400}
           width={800}
-          yExtent={timeSeries && timeSeries.results.extents.date}
+          yExtent={timeSeries && timeSeries.extents.date}
           xKey="date"
-          yExtent={timeSeries && timeSeries.results.extents[extentKey]}
+          yExtent={timeSeries && timeSeries.extents[extentKey]}
           yKey={viewMetric.dataKey}
         />
         <ChartExportControls
@@ -309,20 +309,20 @@ class LocationPage extends PureComponent {
     const { hourly, highlightHourly, locationId, viewMetric } = this.props;
     const extentKey = this.extentKey(viewMetric);
     const chartId = 'providers-hourly';
-    const chartData = hourly && hourly.results.points;
+    const chartData = hourly && hourly.results;
 
     return (
       <div>
         <h3>By Hour, Median download speeds</h3>
         <HourChartWithCounts
-          data={hourly && hourly.results.points}
+          data={hourly && hourly.results}
           height={400}
           highlightPoint={highlightHourly}
           id={chartId}
           onHighlightPoint={this.handleHighlightHourly}
           threshold={30}
           width={800}
-          yExtent={hourly && hourly.results.extents[extentKey]}
+          yExtent={hourly && hourly.extents[extentKey]}
           yKey={viewMetric.dataKey}
         />
         <ChartExportControls
