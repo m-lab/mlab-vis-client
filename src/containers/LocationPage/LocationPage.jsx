@@ -36,7 +36,7 @@ function mapStateToProps(state, propsWithUrl) {
     viewMetric: LocationPageSelectors.getViewMetric(state, propsWithUrl),
     clientIsps: LocationPageSelectors.getLocationClientIsps(state, propsWithUrl),
     hourly: LocationPageSelectors.getLocationHourly(state, propsWithUrl),
-    timeSeries: LocationPageSelectors.getLocationTimeSeries(state, propsWithUrl),
+    locationTimeSeries: LocationPageSelectors.getLocationTimeSeries(state, propsWithUrl),
     clientIspTimeSeries: LocationPageSelectors.getLocationClientIspTimeSeries(state, propsWithUrl),
     highlightHourly: LocationPageSelectors.getHighlightHourly(state, propsWithUrl),
   };
@@ -44,8 +44,8 @@ function mapStateToProps(state, propsWithUrl) {
 
 class LocationPage extends PureComponent {
   static propTypes = {
-    clientIsps: PropTypes.array,
     clientIspTimeSeries: PropTypes.array,
+    clientIsps: PropTypes.array,
     dispatch: PropTypes.func,
     endDate: PropTypes.object, // date
     highlightHourly: PropTypes.object,
@@ -56,7 +56,7 @@ class LocationPage extends PureComponent {
     showRegionalValues: PropTypes.bool,
     startDate: PropTypes.object, // date
     timeAggregation: PropTypes.string,
-    timeSeries: PropTypes.object,
+    locationTimeSeries: PropTypes.object,
     viewMetric: PropTypes.object,
   }
 
@@ -268,23 +268,21 @@ class LocationPage extends PureComponent {
   }
 
   renderCompareProviders() {
-    const { locationId, timeSeries, viewMetric, clientIspTimeSeries } = this.props;
-    const extentKey = this.extentKey(viewMetric);
+    const { locationId, locationTimeSeries, viewMetric, clientIspTimeSeries } = this.props;
     const chartId = 'providers-time-series';
-    const chartData = timeSeries && timeSeries.results;
+    const chartData = locationTimeSeries && locationTimeSeries.results;
 
-    console.log('CITS', clientIspTimeSeries);
     return (
       <div>
         <h3>Compare Providers</h3>
         <LineChartWithCounts
           id={chartId}
           data={chartData}
+          series={clientIspTimeSeries}
+          annotationSeries={locationTimeSeries}
           height={400}
           width={800}
-          yExtent={timeSeries && timeSeries.extents.date}
           xKey="date"
-          yExtent={timeSeries && timeSeries.extents[extentKey]}
           yKey={viewMetric.dataKey}
         />
         <ChartExportControls
