@@ -7,6 +7,7 @@ import { timeAggregations, metrics } from '../../constants';
 import * as LocationPageSelectors from '../../redux/locationPage/selectors';
 import * as LocationPageActions from '../../redux/locationPage/actions';
 import * as LocationsActions from '../../redux/locations/actions';
+import * as ClientIspsActions from '../../redux/clientIsps/actions';
 
 import { ChartExportControls, LineChartWithCounts, HourChartWithCounts } from '../../components';
 import UrlHandler from '../../url/UrlHandler';
@@ -33,14 +34,18 @@ function mapStateToProps(state, propsWithUrl) {
   return {
     ...propsWithUrl,
     viewMetric: LocationPageSelectors.getViewMetric(state, propsWithUrl),
-    hourly: LocationPageSelectors.getActiveLocationHourly(state, propsWithUrl),
-    timeSeries: LocationPageSelectors.getActiveLocationTimeSeries(state, propsWithUrl),
+    clientIsps: LocationPageSelectors.getLocationClientIsps(state, propsWithUrl),
+    hourly: LocationPageSelectors.getLocationHourly(state, propsWithUrl),
+    locationTimeSeries: LocationPageSelectors.getLocationTimeSeries(state, propsWithUrl),
+    clientIspTimeSeries: LocationPageSelectors.getLocationClientIspTimeSeries(state, propsWithUrl),
     highlightHourly: LocationPageSelectors.getHighlightHourly(state, propsWithUrl),
   };
 }
 
 class LocationPage extends PureComponent {
   static propTypes = {
+    clientIspTimeSeries: PropTypes.array,
+    clientIsps: PropTypes.array,
     dispatch: PropTypes.func,
     endDate: PropTypes.object, // date
     highlightHourly: PropTypes.object,
@@ -51,7 +56,7 @@ class LocationPage extends PureComponent {
     showRegionalValues: PropTypes.bool,
     startDate: PropTypes.object, // date
     timeAggregation: PropTypes.string,
-    timeSeries: PropTypes.object,
+    locationTimeSeries: PropTypes.object,
     viewMetric: PropTypes.object,
   }
 
@@ -65,15 +70,30 @@ class LocationPage extends PureComponent {
   }
 
   componentDidMount() {
-    const { dispatch, locationId, timeAggregation } = this.props;
-    dispatch(LocationsActions.fetchTimeSeriesIfNeeded(timeAggregation, locationId));
-    dispatch(LocationsActions.fetchHourlyIfNeeded(timeAggregation, locationId));
+    this.fetchData(this.props);
   }
 
   componentWillReceiveProps(nextProps) {
-    const { dispatch, locationId, timeAggregation } = nextProps;
+    this.fetchData(nextProps);
+  }
+
+  /**
+   * Fetch the data for the page if needed
+   */
+  fetchData(props) {
+    const { dispatch, locationId, timeAggregation, clientIsps } = props;
     dispatch(LocationsActions.fetchTimeSeriesIfNeeded(timeAggregation, locationId));
     dispatch(LocationsActions.fetchHourlyIfNeeded(timeAggregation, locationId));
+    dispatch(LocationsActions.fetchClientIspsIfNeeded(locationId));
+
+    // fetch data for selected Client ISPs
+    if (clientIsps) {
+      clientIsps.forEach(clientIsp => {
+        const clientIspId = clientIsp.meta.client_asn_number;
+        dispatch(ClientIspsActions.fetchLocationTimeSeriesIfNeeded(timeAggregation,
+          locationId, clientIspId));
+      });
+    }
   }
 
   /**
@@ -84,7 +104,7 @@ class LocationPage extends PureComponent {
    * @param {Object} viewMetric the metric object for the active view
    * @return {String} the key to read from the extents objects in the data
    */
-  getExtentKey(viewMetric) {
+  extentKey(viewMetric) {
     let extentKey = viewMetric.dataKey;
     if (viewMetric.value === 'download' || viewMetric.value === 'upload') {
       extentKey = 'throughput';
@@ -140,16 +160,33 @@ class LocationPage extends PureComponent {
       <div>
         <h2>City {this.props.locationId}</h2>
         <Row>
-          <Col md={6}>
+          <Col md={3}>
+            {this.renderClientIspSelector()}
             {this.renderMetricSelector()}
-          </Col>
-          <Col md={6}>
             {this.renderTimeAggregationSelector()}
           </Col>
+          <Col md={9}>
+            {this.renderCompareProviders()}
+            {this.renderCompareMetrics()}
+            {this.renderProvidersByHour()}
+          </Col>
         </Row>
-        {this.renderCompareProviders()}
-        {this.renderCompareMetrics()}
-        {this.renderProvidersByHour()}
+      </div>
+    );
+  }
+
+  renderClientIspSelector() {
+    const { clientIsps = [] } = this.props;
+
+    return (
+      <div className="client-isp-selector">
+        <ul className="list-unstyled">
+          {clientIsps.map(clientIsp => (
+            <li key={clientIsp.meta.client_asn_number}>
+              {clientIsp.meta.client_asn_name}
+            </li>
+          ))}
+        </ul>
       </div>
     );
   }
@@ -231,10 +268,9 @@ class LocationPage extends PureComponent {
   }
 
   renderCompareProviders() {
-    const { locationId, timeSeries, viewMetric } = this.props;
-    const extentKey = this.getExtentKey(viewMetric);
+    const { locationId, locationTimeSeries, viewMetric, clientIspTimeSeries } = this.props;
     const chartId = 'providers-time-series';
-    const chartData = timeSeries && timeSeries.results.points;
+    const chartData = locationTimeSeries && locationTimeSeries.results;
 
     return (
       <div>
@@ -242,11 +278,11 @@ class LocationPage extends PureComponent {
         <LineChartWithCounts
           id={chartId}
           data={chartData}
+          series={clientIspTimeSeries}
+          annotationSeries={locationTimeSeries}
           height={400}
           width={800}
-          yExtent={timeSeries && timeSeries.results.extents.date}
           xKey="date"
-          yExtent={timeSeries && timeSeries.results.extents[extentKey]}
           yKey={viewMetric.dataKey}
         />
         <ChartExportControls
@@ -269,22 +305,22 @@ class LocationPage extends PureComponent {
 
   renderProvidersByHour() {
     const { hourly, highlightHourly, locationId, viewMetric } = this.props;
-    const extentKey = this.getExtentKey(viewMetric);
+    const extentKey = this.extentKey(viewMetric);
     const chartId = 'providers-hourly';
-    const chartData = hourly && hourly.results.points;
+    const chartData = hourly && hourly.results;
 
     return (
       <div>
         <h3>By Hour, Median download speeds</h3>
         <HourChartWithCounts
-          data={hourly && hourly.results.points}
+          data={hourly && hourly.results}
           height={400}
           highlightPoint={highlightHourly}
           id={chartId}
           onHighlightPoint={this.handleHighlightHourly}
           threshold={30}
           width={800}
-          yExtent={hourly && hourly.results.extents[extentKey]}
+          yExtent={hourly && hourly.extents[extentKey]}
           yKey={viewMetric.dataKey}
         />
         <ChartExportControls

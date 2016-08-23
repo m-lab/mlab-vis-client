@@ -1,17 +1,19 @@
 import React, { PureComponent, PropTypes } from 'react';
-import { groupBy } from 'lodash';
 import d3 from 'd3';
 
 import { LineChart, CountChart } from '../../components';
-import { sum, weightedAverage } from '../../utils/math';
+import { multiExtent } from '../../utils/array';
 
 /**
  * Chart for showing line and count together.
  *
+ * @prop {Array|Object} annotationSeries The array of series data not included in count (e.g., [{ meta, results }, ...])
+ *   or just a single object of series data.
  * @prop {Array} data The array of data points to render (e.g., [{x: Date, y: Number}, ...])
  * @prop {Boolean} forceZeroMin=true Whether the min y value should always be 0.
  * @prop {Number} height The height in pixels of the SVG chart
  * @prop {String} id The ID of the SVG chart (needed for PNG export)
+ * @prop {Array} series The array of series data (e.g., [{ meta, results }, ...])
  * @prop {Number} width The width in pixels of the SVG chart
  * @prop {Array} xExtent The min and max value of the xKey in the chart
  * @prop {String} xKey="x" The key to read the x value from in the data
@@ -20,10 +22,12 @@ import { sum, weightedAverage } from '../../utils/math';
  */
 export default class LineChartWithCounts extends PureComponent {
   static propTypes = {
+    annotationSeries: PropTypes.oneOfType([PropTypes.array, PropTypes.object]),
     data: PropTypes.array,
     forceZeroMin: PropTypes.bool,
     height: React.PropTypes.number,
     id: React.PropTypes.string,
+    series: PropTypes.array,
     width: React.PropTypes.number,
     xExtent: PropTypes.array,
     xKey: React.PropTypes.string,
@@ -56,11 +60,40 @@ export default class LineChartWithCounts extends PureComponent {
    * @return {Array} the prepared data
    */
   prepareData(props) {
-    const { data, xKey, yKey } = props;
-    // filter out points with missing values
-    const filteredData = (data || []).filter(d => d[xKey] != null && d[yKey] != null);
+    const { series, xKey, yKey } = props;
 
-    return filteredData;
+    if (!series) {
+      return {};
+    }
+
+    // filter the series data
+    const filteredSeries = series.map(oneSeries => ({
+      ...oneSeries,
+      results: oneSeries.results.filter(d => d[xKey] != null && d[yKey] != null),
+    }));
+
+    // create counts
+    const countsByDate = series.reduce((countsByDate, oneSeries) => {
+      oneSeries.results.forEach(d => {
+        const { count = 0, date } = d;
+        if (!countsByDate[date]) {
+          countsByDate[date] = {
+            count,
+            date,
+          };
+        } else {
+          countsByDate[date].count += count;
+        }
+      });
+
+      return countsByDate;
+    }, {});
+    const counts = Object.keys(countsByDate).map(key => countsByDate[key]);
+
+    return {
+      filteredSeries,
+      counts,
+    };
   }
 
 
@@ -70,7 +103,8 @@ export default class LineChartWithCounts extends PureComponent {
   makeSharedVisComponents(props) {
     const { width, xExtent, xKey } = props;
 
-    const filteredData = this.prepareData(props);
+    const preparedData = this.prepareData(props);
+    const { filteredSeries } = preparedData;
     const innerMargin = {
       right: 50,
       left: 50,
@@ -80,14 +114,23 @@ export default class LineChartWithCounts extends PureComponent {
     const xMin = 0;
     const xMax = innerWidth;
 
-    const xDomain = xExtent || d3.extent(filteredData, d => d[xKey]);
-    const xScale = d3.scaleTime().domain(xDomain).range([xMin, xMax]);
+    let xDomain = xExtent;
+    if (!xDomain && filteredSeries) {
+      xDomain = multiExtent(filteredSeries, d => d[xKey], oneSeries => oneSeries.results);
+    }
+
+    const xScale = d3.scaleTime().range([xMin, xMax]);
+    if (xDomain) {
+      xScale.domain(xDomain);
+    }
+
     // TODO - this is incorrect in the event that there is missing data.
     // e.g. Jan 1, Jan 2, Jan 4, Jan 5, Jan 6. = 5 bins, but should be 6.
-    const numBins = filteredData.length || 1;
+    // also currently only looks at the first series.
+    const numBins = filteredSeries && filteredSeries.length ? filteredSeries[0].length : 1;
 
     return {
-      filteredData,
+      ...preparedData,
       innerMargin,
       numBins,
       xScale,
@@ -99,8 +142,8 @@ export default class LineChartWithCounts extends PureComponent {
    * @return {React.Component} The rendered container
    */
   render() {
-    const { height, id, width, xKey } = this.props;
-    const { filteredData, innerMargin, xScale, numBins } = this.visComponents;
+    const { height, id, width, xKey, annotationSeries } = this.props;
+    const { filteredSeries, counts, innerMargin, xScale, numBins } = this.visComponents;
 
     const lineChartHeight = height * 0.75;
     const countHeight = height - lineChartHeight;
@@ -117,7 +160,8 @@ export default class LineChartWithCounts extends PureComponent {
           <g>
             <LineChart
               {...this.props}
-              data={filteredData}
+              series={filteredSeries}
+              annotationSeries={annotationSeries}
               id={undefined}
               inSvg
               height={lineChartHeight}
@@ -128,7 +172,7 @@ export default class LineChartWithCounts extends PureComponent {
           </g>
           <g transform={`translate(0 ${lineChartHeight})`}>
             <CountChart
-              data={filteredData}
+              data={counts} /* TODO figure out multi-series counts */
               height={countHeight}
               innerMarginLeft={innerMargin.left}
               innerMarginRight={innerMargin.right}

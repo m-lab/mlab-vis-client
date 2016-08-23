@@ -7,10 +7,17 @@ export const FETCH_TIME_SERIES_FAIL = 'location/FETCH_TIME_SERIES_FAIL';
 export const FETCH_HOURLY = 'location/FETCH_HOURLY';
 export const FETCH_HOURLY_SUCCESS = 'location/FETCH_HOURLY_SUCCESS';
 export const FETCH_HOURLY_FAIL = 'location/FETCH_HOURLY_FAIL';
+export const FETCH_CLIENT_ISPS = 'location/FETCH_CLIENT_ISPS';
+export const FETCH_CLIENT_ISPS_SUCCESS = 'location/FETCH_CLIENT_ISPS_SUCCESS';
+export const FETCH_CLIENT_ISPS_FAIL = 'location/FETCH_CLIENT_ISPS_FAIL';
 
 /**
  * Action Creators
  */
+
+// ---------------------
+// Fetch Time Series
+// ---------------------
 export function shouldFetchTimeSeries(state, timeAggregation, locationId) {
   const locationState = state.locations[locationId];
   if (!locationState) {
@@ -43,7 +50,9 @@ export function fetchTimeSeriesIfNeeded(timeAggregation, locationId) {
   };
 }
 
-
+// ---------------------
+// Fetch Hourly
+// ---------------------
 export function shouldFetchHourly(state, timeAggregation, locationId) {
   const locationState = state.locations[locationId];
   if (!locationState) {
@@ -76,3 +85,32 @@ export function fetchHourlyIfNeeded(timeAggregation, locationId) {
   };
 }
 
+
+// ---------------------
+// Fetch Client ISPs in location
+// ---------------------
+export function shouldFetchClientIsps(state, locationId) {
+  const locationState = state.locations[locationId];
+  if (!locationState) {
+    return true;
+  }
+
+  // only fetch if it isn't fetching/already fetched
+  return !(locationState.clientIsps.isFetched || locationState.clientIsps.isFetching);
+}
+
+export function fetchClientIsps(locationId) {
+  return {
+    types: [FETCH_CLIENT_ISPS, FETCH_CLIENT_ISPS_SUCCESS, FETCH_CLIENT_ISPS_FAIL],
+    promise: (api) => api.getLocationClientIsps(locationId),
+    locationId,
+  };
+}
+
+export function fetchClientIspsIfNeeded(locationId) {
+  return (dispatch, getState) => {
+    if (shouldFetchClientIsps(getState(), locationId)) {
+      dispatch(fetchClientIsps(locationId));
+    }
+  };
+}
