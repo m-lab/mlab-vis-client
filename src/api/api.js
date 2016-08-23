@@ -1,5 +1,7 @@
 import get from './get';
 import {
+  transform,
+  mergeMetaWithResults,
   transformTimeSeries,
   transformHourly,
 } from './transforms';
@@ -17,7 +19,7 @@ import {
  */
 export function getLocationTimeSeries(timeAggregation, locationId) {
   return get(`/locations/${locationId}/time/${timeAggregation}/metrics`)
-    .then(transformTimeSeries);
+    .then(transform(mergeMetaWithResults, transformTimeSeries));
 }
 
 /**
@@ -32,20 +34,20 @@ export function getLocationTimeSeries(timeAggregation, locationId) {
  */
 export function getLocationHourly(timeAggregation, locationId) {
   return get(`/locations/${locationId}/time/${timeAggregation}_hour/metrics`)
-    .then(transformHourly);
+    .then(transform(mergeMetaWithResults, transformHourly));
 }
 
 /**
  * Get data for a client ISP in a location in a given time aggregation
- * @param {String} locationId The location to query (e.g., nauswaseattle)
  * @param {String} timeAggregation The aggregation of the data (one of day, month,
  *    year, day_hour, month_hour, year_hour)
+ * @param {String} locationId The location to query (e.g., nauswaseattle)
  * @param {String} clientIspId The AS number of the ISP (e.g., AS7922)
  * @return {Promise} A promise after the get request was made
  */
 export function getLocationClientIspTimeSeries(timeAggregation, locationId, clientIspId) {
   return get(`/locations/${locationId}/time/${timeAggregation}/clientisps/${clientIspId}/metrics`)
-    .then(transformTimeSeries);
+    .then(transform(mergeMetaWithResults, transformTimeSeries));
 }
 
 /**

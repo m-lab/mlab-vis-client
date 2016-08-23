@@ -7,12 +7,49 @@ import { decodeDate } from '../utils/serialization';
 // ----------------
 
 /* eslint-disable no-param-reassign */
+
+/**
+ * Function to help run multiple transformations if `transformed` hasn't already been
+ * set on the body.
+ *
+ * @param {Function} ...transformFuncs Transform functions to call on the body
+ * @return {Function} `function (body)`  that runs the transforms on the body
+ */
+export function transform(...transformFuncs) {
+  return function transformApplier(body) {
+    if (body.transformed) {
+      return body;
+    }
+
+    // call each transform func with the output of the previous and return the end result
+    // note this assumes each transformFunc modifies body itself
+    transformFuncs.reduce((body, transformFunc) => transformFunc(body), body);
+    body.transformed = true;
+
+    return body;
+  };
+}
+
+/**
+ * Add in a reference to the meta object to each entry in the results
+ */
+export function mergeMetaWithResults(body) {
+  body.results.forEach(result => {
+    if (result.meta) {
+      console.warn('Skipping merging in meta - result already has meta', result, body);
+    } else {
+      result.meta = body.meta;
+    }
+  });
+  return body;
+}
+
 /**
  * Compute the extent for each of the metrics and for the date
  *
  * @param {Array} points the data points to iterate over
  */
-export function computeDataExtents(points) {
+function computeDataExtents(points) {
   // make a key array for all the metrics plus date
   const extentKeys = metrics.reduce((keys, metric) => {
     keys.push(metric.dataKey);
@@ -50,11 +87,7 @@ export function computeDataExtents(points) {
  */
 export function transformTimeSeries(body) {
   // NOTE: modifying body directly means it modifies what is stored in the API cache
-  if (body.results && !body.transformed) {
-    // set the transformed flag to true so we do not do this more than once
-    // (this helps in the case of cached data)
-    body.transformed = true;
-
+  if (body.results) {
     const points = body.results;
     points.forEach(d => {
       // convert date from string to Date object
@@ -84,11 +117,7 @@ export function transformTimeSeries(body) {
  */
 export function transformHourly(body) {
   // NOTE: modifying body directly means it modifies what is stored in the API cache
-  if (body.results && !body.transformed) {
-    // set the transformed flag to true so we do not do this more than once
-    // (this helps in the case of cached data)
-    body.transformed = true;
-
+  if (body.results) {
     const points = body.results;
 
     // convert date from string to Date object and hour to number
