@@ -24,7 +24,7 @@ describe('utils/math', () => {
       expect(result).to.equal(6);
     });
 
-    it('handle empty array', () => {
+    it('handles empty array', () => {
       const data = [];
       const result = sum(data, 'a');
       expect(result).to.be.undefined();
@@ -32,7 +32,6 @@ describe('utils/math', () => {
 
     it('handles a falsy array', () => {
       const result = sum(null, d => d);
-      expect(result).to.be.undefined();
       expect(result).to.be.undefined();
     });
   });
@@ -56,7 +55,7 @@ describe('utils/math', () => {
       expect(result).to.equal(2);
     });
 
-    it('handle empty array', () => {
+    it('handles empty array', () => {
       const data = [];
       const result = average(data, 'a');
       expect(result).to.be.undefined();
@@ -64,7 +63,6 @@ describe('utils/math', () => {
 
     it('handles a falsy array', () => {
       const result = average(null, d => d);
-      expect(result).to.be.undefined();
       expect(result).to.be.undefined();
     });
   });
@@ -88,7 +86,7 @@ describe('utils/math', () => {
       expect(result).to.equal(2);
     });
 
-    it('handle empty array', () => {
+    it('handles empty array', () => {
       const data = [];
       const result = weightedAverage(data, 'a', 'w');
       expect(result).to.be.undefined();
@@ -96,7 +94,6 @@ describe('utils/math', () => {
 
     it('handles a falsy array', () => {
       const result = weightedAverage(null, 'a', 'w');
-      expect(result).to.be.undefined();
       expect(result).to.be.undefined();
     });
   });
