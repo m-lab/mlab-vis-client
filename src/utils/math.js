@@ -22,7 +22,7 @@ function makeAccessor(stringOrFunc) {
  * @return {Number} the sum
 */
 export function sum(array, accessor) {
-  if (!array) {
+  if (!array || !array.length) {
     return undefined;
   }
 
@@ -42,15 +42,18 @@ export function sum(array, accessor) {
  * Compute the average of an array
  *
  * @param {Array} array The array of values
- * @param {Function|String} valueAccessor accessor function or string key
+ * @param {Function|String} accessor accessor function or string key
  * @return {Number} the average
 */
-export function average(array, valueAccessor) {
-  if (!array || array.length === 0) {
+export function average(array, accessor) {
+  if (!array || !array.length) {
     return undefined;
   }
 
-  return sum(array, valueAccessor) / array.length;
+  accessor = makeAccessor(accessor);
+  const filtered = array.filter(d => accessor(d) != null);
+
+  return sum(filtered, accessor) / filtered.length;
 }
 
 
@@ -63,11 +66,14 @@ export function average(array, valueAccessor) {
  * @return {Number} the sum
 */
 export function weightedAverage(array, valueAccessor, weightAccessor) {
-  if (!array) {
+  if (!array || !array.length) {
     return undefined;
   }
+
   weightAccessor = makeAccessor(weightAccessor);
   valueAccessor = makeAccessor(valueAccessor);
-  return sum(array, d => weightAccessor(d) * valueAccessor(d)) /
-         sum(array, weightAccessor);
+  const filtered = array.filter(d => weightAccessor(d) != null && valueAccessor(d) != null);
+
+  return sum(filtered, d => weightAccessor(d) * valueAccessor(d)) /
+         sum(filtered, weightAccessor);
 }
