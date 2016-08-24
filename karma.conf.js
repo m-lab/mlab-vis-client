@@ -4,18 +4,18 @@ module.exports = function (config) {
   config.set({
 
     browsers: ['PhantomJS'],
-
     singleRun: !!process.env.CI,
 
     frameworks: [ 'mocha' ],
 
     files: [
-      './node_modules/phantomjs-polyfill/bind-polyfill.js',
-      'tests.webpack.js'
+      'src/**/*-test.js',
+      'src/**/*-test.jsx'
     ],
 
     preprocessors: {
-      'tests.webpack.js': [ 'webpack', 'sourcemap' ]
+      'src/**/*-test.js': ['webpack', 'sourcemap'],
+      'src/**/*-test.jsx': ['webpack', 'sourcemap'],
     },
 
     reporters: [ 'mocha' ],
@@ -33,7 +33,14 @@ module.exports = function (config) {
       module: {
         loaders: [
           { test: /\.(jpe?g|png|gif|svg)$/, loader: 'url', query: {limit: 10240} },
-          { test: /\.(js|jsx)$/, exclude: /node_modules/, loaders: ['babel']},
+          {
+            test: /\.(js|jsx)$/,
+            exclude: /node_modules/,
+            loader: 'babel',
+            query: {
+              presets: ['react', 'es2015', 'stage-0']
+            }
+          },
           { test: /\.json$/, loader: 'json-loader' },
           { test: /\.less$/, loader: 'style!css!less' },
           { test: /\.scss$/, loader: 'style!css!sass' }
