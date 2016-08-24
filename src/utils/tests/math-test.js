@@ -1,8 +1,5 @@
-import chai, { expect } from 'chai';
-import dirtyChai from 'dirty-chai';
+import { expect } from 'chai';
 import { sum, average, weightedAverage } from '../math';
-
-chai.use(dirtyChai);
 
 describe('utils/math', () => {
   describe('sum', () => {
@@ -27,12 +24,12 @@ describe('utils/math', () => {
     it('handles empty array', () => {
       const data = [];
       const result = sum(data, 'a');
-      expect(result).to.be.undefined();
+      expect(result).to.be.undefined;
     });
 
     it('handles a falsy array', () => {
       const result = sum(null, d => d);
-      expect(result).to.be.undefined();
+      expect(result).to.be.undefined;
     });
   });
 
@@ -58,12 +55,12 @@ describe('utils/math', () => {
     it('handles empty array', () => {
       const data = [];
       const result = average(data, 'a');
-      expect(result).to.be.undefined();
+      expect(result).to.be.undefined;
     });
 
     it('handles a falsy array', () => {
       const result = average(null, d => d);
-      expect(result).to.be.undefined();
+      expect(result).to.be.undefined;
     });
   });
 
@@ -89,12 +86,12 @@ describe('utils/math', () => {
     it('handles empty array', () => {
       const data = [];
       const result = weightedAverage(data, 'a', 'w');
-      expect(result).to.be.undefined();
+      expect(result).to.be.undefined;
     });
 
     it('handles a falsy array', () => {
       const result = weightedAverage(null, 'a', 'w');
-      expect(result).to.be.undefined();
+      expect(result).to.be.undefined;
     });
   });
 });

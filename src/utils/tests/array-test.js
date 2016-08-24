@@ -1,8 +1,5 @@
-import chai, { expect } from 'chai';
-import dirtyChai from 'dirty-chai';
+import { expect } from 'chai';
 import { multiExtent } from '../array';
-
-chai.use(dirtyChai);
 
 describe('utils/array', () => {
   describe('multiExtent', () => {
@@ -29,12 +26,12 @@ describe('utils/array', () => {
     it('handles empty array', () => {
       const data = [];
       const result = multiExtent(data);
-      expect(result).to.be.undefined();
+      expect(result).to.be.undefined;
     });
 
     it('handles a falsy array', () => {
       const result = multiExtent(null);
-      expect(result).to.be.undefined();
+      expect(result).to.be.undefined;
     });
   });
 });
