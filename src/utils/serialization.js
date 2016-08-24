@@ -42,7 +42,7 @@ export function decodeDate(dateString) {
  * @return {String} the encoded boolean
  */
 export function encodeBoolean(bool) {
-  return bool ? 1 : 0;
+  return bool ? '1' : '0';
 }
 
 /**
