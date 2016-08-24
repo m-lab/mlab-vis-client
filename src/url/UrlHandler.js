@@ -41,6 +41,7 @@ export default class UrlHandler {
    * @param {String} key the key to replace, should be in this.config
    * @param {Any} value The value to encode in the query for the key
    * @param {Boolean} [updateUrl=true] Whether to update the URL via browser history or not
+   * @return {Object} A new `location` object with the updated query
    */
   replaceInQuery(location, key, value, updateUrl = true) {
     const keyConfig = this.config[key];
