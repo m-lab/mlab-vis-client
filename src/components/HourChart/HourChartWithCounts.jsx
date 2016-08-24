@@ -3,7 +3,7 @@ import { groupBy } from 'lodash';
 import d3 from 'd3';
 
 import { HourChart, CountChart } from '../../components';
-import { sum, weightedAverage } from '../../utils/math';
+import { sum, average } from '../../utils/math';
 
 /**
  * Chart for showing data by hour and with test counts
@@ -74,7 +74,7 @@ export default class HourChartWithCounts extends PureComponent {
         points: hourPoints || [],
         count,
         belowThreshold: count < threshold,
-        overall: weightedAverage(hourPoints, yKey, 'count'),
+        overall: average(hourPoints, yKey),
       };
     });
 

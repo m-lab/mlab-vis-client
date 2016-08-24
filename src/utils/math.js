@@ -38,6 +38,21 @@ export function sum(array, accessor) {
   }, 0);
 }
 
+/**
+ * Compute the average of an array
+ *
+ * @param {Array} array The array of values
+ * @param {Function|String} valueAccessor accessor function or string key
+ * @return {Number} the average
+*/
+export function average(array, valueAccessor) {
+  if (!array || array.length === 0) {
+    return undefined;
+  }
+
+  return sum(array, valueAccessor) / array.length;
+}
+
 
 /**
  * Compute the weighted average of an array: sum(weight * value) / sum(weight)
