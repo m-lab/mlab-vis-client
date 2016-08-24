@@ -55,7 +55,13 @@ module.exports = function (config) {
           __DEVELOPMENT__: true,
           __DEVTOOLS__: false  // <-------- DISABLE redux-devtools HERE
         })
-      ]
+      ],
+      externals: {
+        'cheerio': 'window',
+        'react/addons': true,
+        'react/lib/ExecutionEnvironment': true,
+        'react/lib/ReactContext': true
+      },
     },
 
     webpackServer: {
