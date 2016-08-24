@@ -40,6 +40,10 @@ export function download(dataString, mimeType, filename) {
  * Create CSV from an array of objects.
  */
 export function createCsv(data) {
+  if (!data || !data.length) {
+    return '';
+  }
+
   // discover all columns
   const columnsDiscover = {};
 
@@ -68,5 +72,5 @@ export function createCsv(data) {
   );
 
   // join all lines with new line character to make one big string and return it
-  return [columns.join(','), ...lines].join('\n');
+  return `${[columns.join(','), ...lines].join('\n')}\n`;
 }
