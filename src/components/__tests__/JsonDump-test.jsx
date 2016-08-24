@@ -17,7 +17,7 @@ describe('JsonDump', () => {
     expect(wrapper.find('pre')).to.have.length(1);
   });
 
-  it('should render with correct value', () => {
+  it('renders with correct value', () => {
     const wrapper = shallow(<JsonDump json={testInfo} />);
     expect(wrapper.find('pre')).to.have.text(JSON.stringify(testInfo));
   });
