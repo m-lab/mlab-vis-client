@@ -49,8 +49,8 @@ export default class HourChart extends PureComponent {
    */
   constructor(props) {
     super(props);
-    this.handleCircleMouseEnter = this.handleCircleMouseEnter.bind(this);
-    this.handleCircleMouseLeave = this.handleCircleMouseLeave.bind(this);
+    this.onCircleMouseEnter = this.onCircleMouseEnter.bind(this);
+    this.onCircleMouseLeave = this.onCircleMouseLeave.bind(this);
   }
 
   /**
@@ -201,7 +201,7 @@ export default class HourChart extends PureComponent {
    * @param {Object} d The hovered over data point
    * @return {void}
    */
-  handleCircleMouseEnter(d) {
+  onCircleMouseEnter(d) {
     const { onHighlightPoint } = this.props;
     if (onHighlightPoint) {
       onHighlightPoint(d);
@@ -214,7 +214,7 @@ export default class HourChart extends PureComponent {
    * @param {Object} d The previously hovered over data point
    * @return {void}
    */
-  handleCircleMouseLeave() {
+  onCircleMouseLeave() {
     const { onHighlightPoint } = this.props;
     if (onHighlightPoint) {
       onHighlightPoint(null);
@@ -273,8 +273,8 @@ export default class HourChart extends PureComponent {
           .attr('r', 3.5)
           .attr('cx', () => binWidth / 2)
           .attr('cy', d => yScale(d[yKey]))
-          .on('mouseenter', that.handleCircleMouseEnter)
-          .on('mouseleave', that.handleCircleMouseLeave);
+          .on('mouseenter', that.onCircleMouseEnter)
+          .on('mouseleave', that.onCircleMouseLeave);
 
         // EXIT
         hourBinding.exit()

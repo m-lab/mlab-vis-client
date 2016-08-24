@@ -16,38 +16,38 @@ export default class ChartExportControls extends PureComponent {
     super(props);
 
     // bind handlers
-    this.handleSavePng = this.handleSavePng.bind(this);
-    this.handleSaveSvg = this.handleSaveSvg.bind(this);
-    this.handleSaveJson = this.handleSaveJson.bind(this);
-    this.handleSaveCsv = this.handleSaveCsv.bind(this);
+    this.onSavePng = this.onSavePng.bind(this);
+    this.onSaveSvg = this.onSaveSvg.bind(this);
+    this.onSaveJson = this.onSaveJson.bind(this);
+    this.onSaveCsv = this.onSaveCsv.bind(this);
 
     this.outputs = [
-      { label: 'PNG', handler: this.handleSavePng },
-      { label: 'SVG', handler: this.handleSaveSvg },
-      { label: 'JSON', handler: this.handleSaveJson },
-      { label: 'CSV', handler: this.handleSaveCsv },
+      { label: 'PNG', handler: this.onSavePng },
+      { label: 'SVG', handler: this.onSaveSvg },
+      { label: 'JSON', handler: this.onSaveJson },
+      { label: 'CSV', handler: this.onSaveCsv },
     ];
   }
 
-  handleSavePng() {
+  onSavePng() {
     const { chartId, filename } = this.props;
     const svg = document.getElementById(chartId);
     saveSvgAsPng(svg, `${filename}.png`);
   }
 
-  handleSaveSvg() {
+  onSaveSvg() {
     const { chartId, filename } = this.props;
     const svg = document.getElementById(chartId);
     saveSvg(svg, `${filename}.svg`);
   }
 
-  handleSaveJson() {
+  onSaveJson() {
     const { data, filename } = this.props;
     const jsonDataString = JSON.stringify(data);
     download(jsonDataString, 'application/json', `${filename}.json`);
   }
 
-  handleSaveCsv() {
+  onSaveCsv() {
     const { data, filename } = this.props;
     const csvDataString = createCsv(data);
     download(csvDataString, 'application/csv', `${filename}.csv`);

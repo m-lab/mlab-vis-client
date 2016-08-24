@@ -20,7 +20,19 @@
     "import/no-named-as-default": 2,
     "indent": [2, 2, {"SwitchCase": 1}],
     "no-console": 0,
-    "no-alert": 0
+    "no-alert": 0,
+    "react/sort-comp": ["error", {
+      "order": [
+        "static-methods",
+        "lifecycle",
+        "/^fetch.+$/",
+        "/^on.+$/",
+        "/^(get|set)(?!(InitialState$|DefaultProps$|ChildContext$)).+$/",
+        "everything-else",
+        "/^render.+$/",
+        "render"
+      ],
+    }],
   },
   "plugins": [
     "react", "import"

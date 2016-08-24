@@ -52,11 +52,11 @@ class LocationPage extends PureComponent {
     hourly: PropTypes.object,
     location: PropTypes.object, // route location
     locationId: PropTypes.string,
+    locationTimeSeries: PropTypes.object,
     showBaselines: PropTypes.bool,
     showRegionalValues: PropTypes.bool,
     startDate: PropTypes.object, // date
     timeAggregation: PropTypes.string,
-    locationTimeSeries: PropTypes.object,
     viewMetric: PropTypes.object,
   }
 
@@ -64,9 +64,9 @@ class LocationPage extends PureComponent {
     super(props);
 
     // bind handlers
-    this.handleHighlightHourly = this.handleHighlightHourly.bind(this);
-    this.handleShowBaselinesChange = this.handleShowBaselinesChange.bind(this);
-    this.handleShowRegionalValuesChange = this.handleShowRegionalValuesChange.bind(this);
+    this.onHighlightHourly = this.onHighlightHourly.bind(this);
+    this.onShowBaselinesChange = this.onShowBaselinesChange.bind(this);
+    this.onShowRegionalValuesChange = this.onShowRegionalValuesChange.bind(this);
   }
 
   componentDidMount() {
@@ -97,6 +97,48 @@ class LocationPage extends PureComponent {
   }
 
   /**
+   * Callback for show baselines checkbox
+   */
+  onShowBaselinesChange(evt) {
+    const { dispatch } = this.props;
+    const { checked } = evt.target;
+    dispatch(LocationPageActions.changeShowBaselines(checked));
+  }
+
+  /**
+   * Callback for show regional values checkbox
+   */
+  onShowRegionalValuesChange(evt) {
+    const { dispatch } = this.props;
+    const { checked } = evt.target;
+    dispatch(LocationPageActions.changeShowRegionalValues(checked));
+  }
+
+  /**
+   * Callback for time aggregation checkbox
+   */
+  onTimeAggregationChange(value) {
+    const { dispatch } = this.props;
+    dispatch(LocationPageActions.changeTimeAggregation(value));
+  }
+
+  /**
+   * Callback for when viewMetric changes - updates URL
+   */
+  onViewMetricChange(value) {
+    const { dispatch } = this.props;
+    dispatch(LocationPageActions.changeViewMetric(value));
+  }
+
+  /**
+   * Callback for when a point is highlighted in hourly
+   */
+  onHighlightHourly(d) {
+    const { dispatch } = this.props;
+    dispatch(LocationPageActions.highlightHourly(d));
+  }
+
+  /**
    * Helper to get the extent key based on the metric
    *
    * Combines upload and download as 'throughput'
@@ -111,48 +153,6 @@ class LocationPage extends PureComponent {
     }
 
     return extentKey;
-  }
-
-  /**
-   * Callback for show baselines checkbox
-   */
-  handleShowBaselinesChange(evt) {
-    const { dispatch } = this.props;
-    const { checked } = evt.target;
-    dispatch(LocationPageActions.changeShowBaselines(checked));
-  }
-
-  /**
-   * Callback for show regional values checkbox
-   */
-  handleShowRegionalValuesChange(evt) {
-    const { dispatch } = this.props;
-    const { checked } = evt.target;
-    dispatch(LocationPageActions.changeShowRegionalValues(checked));
-  }
-
-  /**
-   * Callback for time aggregation checkbox
-   */
-  handleTimeAggregationChange(value) {
-    const { dispatch } = this.props;
-    dispatch(LocationPageActions.changeTimeAggregation(value));
-  }
-
-  /**
-   * Callback for when viewMetric changes - updates URL
-   */
-  handleViewMetricChange(value) {
-    const { dispatch } = this.props;
-    dispatch(LocationPageActions.changeViewMetric(value));
-  }
-
-  /**
-   * Callback for when a point is highlighted in hourly
-   */
-  handleHighlightHourly(d) {
-    const { dispatch } = this.props;
-    dispatch(LocationPageActions.highlightHourly(d));
   }
 
   renderCityProviders() {
@@ -202,7 +202,7 @@ class LocationPage extends PureComponent {
               <button
                 className={classNames('btn btn-default',
                   { active: timeAggregation === aggr.value })}
-                onClick={() => this.handleTimeAggregationChange(aggr.value)}
+                onClick={() => this.onTimeAggregationChange(aggr.value)}
               >
                 {aggr.label}
               </button>
@@ -224,7 +224,7 @@ class LocationPage extends PureComponent {
               <button
                 className={classNames('btn btn-default',
                   { active: viewMetric.value === metric.value })}
-                onClick={() => this.handleViewMetricChange(metric.value)}
+                onClick={() => this.onViewMetricChange(metric.value)}
               >
                 {metric.label}
               </button>
@@ -246,7 +246,7 @@ class LocationPage extends PureComponent {
                 type="checkbox"
                 checked={showBaselines}
                 id="show-baselines"
-                onChange={this.handleShowBaselinesChange}
+                onChange={this.onShowBaselinesChange}
               />
               {' Show Baselines'}
             </label>
@@ -257,7 +257,7 @@ class LocationPage extends PureComponent {
                 type="checkbox"
                 checked={showRegionalValues}
                 id="show-regional-values"
-                onChange={this.handleShowRegionalValuesChange}
+                onChange={this.onShowRegionalValuesChange}
               />
               {' Show Regional Values'}
             </label>
@@ -317,7 +317,7 @@ class LocationPage extends PureComponent {
           height={400}
           highlightPoint={highlightHourly}
           id={chartId}
-          onHighlightPoint={this.handleHighlightHourly}
+          onHighlightPoint={this.onHighlightHourly}
           threshold={30}
           width={800}
           yExtent={hourly && hourly.extents[extentKey]}
