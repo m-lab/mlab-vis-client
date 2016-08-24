@@ -124,6 +124,9 @@ export default class CountChart extends PureComponent {
       xScale = d3.scaleLinear().domain(xDomain).range([xMin, xMax]);
     }
 
+    // force a zero minimum
+    yDomain = [0, yDomain[1]];
+
     // ensure a minimum y-domain size to prevent full sized rects at 0 value
     if (yDomain[0] === yDomain[1]) {
       yDomain = [yDomain[0], yDomain[0] + 1];
