@@ -10,13 +10,12 @@ clientIsps:
     clientIspId
     name
 
-    locationTime:
-      locationId:
-        startDate
-        endDate
-        timeAggregation
-        timeSeries
-        hourly
+    time:
+      startDate
+      endDate
+      timeAggregation
+      timeSeries
+      hourly
 
     fixed:
       lastWeek
@@ -29,24 +28,23 @@ const initialState = {
 };
 
 export const initialClientIspState = {
-  locationTime: {},
-};
-
-export const initialLocationTimeState = {
-  timeSeries: {
-    isFetching: false,
-    isFetched: false,
-  },
-  hourly: {
-    isFetching: false,
-    isFetched: false,
+  time: {
+    timeSeries: {
+      isFetching: false,
+      isFetched: false,
+    },
+    hourly: {
+      isFetching: false,
+      isFetched: false,
+    },
   },
 };
 
-// reducer for the time portion of a location+client ISP pairing
-function locationTime(state = initialLocationTimeState, action = {}) {
+
+// reducer for the time portion of client ISP data
+function time(state = initialClientIspState.time, action = {}) {
   switch (action.type) {
-    case Actions.FETCH_LOCATION_TIME_SERIES:
+    case Actions.FETCH_TIME_SERIES:
       return {
         ...state,
         timeSeries: {
@@ -56,7 +54,7 @@ function locationTime(state = initialLocationTimeState, action = {}) {
           isFetched: false,
         },
       };
-    case Actions.FETCH_LOCATION_TIME_SERIES_SUCCESS:
+    case Actions.FETCH_TIME_SERIES_SUCCESS:
       return {
         ...state,
         timeSeries: {
@@ -66,7 +64,7 @@ function locationTime(state = initialLocationTimeState, action = {}) {
           isFetched: true,
         },
       };
-    case Actions.FETCH_LOCATION_TIME_SERIES_FAIL:
+    case Actions.FETCH_TIME_SERIES_FAIL:
       return {
         ...state,
         timeSeries: {
@@ -83,17 +81,15 @@ function locationTime(state = initialLocationTimeState, action = {}) {
 
 // reducer for each clientIsp
 function clientIsp(state = initialClientIspState, action = {}) {
-  const { locationId } = action;
+  const { clientIspId } = action;
   switch (action.type) {
-    case Actions.FETCH_LOCATION_TIME_SERIES:
-    case Actions.FETCH_LOCATION_TIME_SERIES_SUCCESS:
-    case Actions.FETCH_LOCATION_TIME_SERIES_FAIL:
+    case Actions.FETCH_TIME_SERIES:
+    case Actions.FETCH_TIME_SERIES_SUCCESS:
+    case Actions.FETCH_TIME_SERIES_FAIL:
       return {
         ...state,
-        locationTime: {
-          ...state.locationTime,
-          [locationId]: locationTime(state.locationTime[locationId], action),
-        },
+        clientIspId,
+        time: time(state.time, action),
       };
     default:
       return state;
@@ -104,9 +100,9 @@ function clientIsp(state = initialClientIspState, action = {}) {
 function clientIsps(state = initialState, action = {}) {
   const { clientIspId } = action;
   switch (action.type) {
-    case Actions.FETCH_LOCATION_TIME_SERIES:
-    case Actions.FETCH_LOCATION_TIME_SERIES_SUCCESS:
-    case Actions.FETCH_LOCATION_TIME_SERIES_FAIL:
+    case Actions.FETCH_TIME_SERIES:
+    case Actions.FETCH_TIME_SERIES_SUCCESS:
+    case Actions.FETCH_TIME_SERIES_FAIL:
       return {
         ...state,
         [clientIspId]: clientIsp(state[clientIspId], action),
