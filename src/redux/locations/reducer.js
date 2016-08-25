@@ -58,7 +58,7 @@ export const initialLocationState = {
   },
 };
 
-const initialClientIspTimeState = {
+export const initialClientIspTimeState = {
   timeSeries: {
     isFetching: false,
     isFetched: false,
