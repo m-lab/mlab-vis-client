@@ -6,7 +6,7 @@ module.exports = function (config) {
     browsers: ['PhantomJS'],
     singleRun: !!process.env.CI,
 
-    frameworks: [ 'mocha' ],
+    frameworks: [ 'mocha', 'sinon' ],
 
     files: [
       'src/**/*-test.js',
@@ -25,7 +25,8 @@ module.exports = function (config) {
       require("karma-mocha"),
       require("karma-mocha-reporter"),
       require("karma-phantomjs-launcher"),
-      require("karma-sourcemap-loader")
+      require("karma-sourcemap-loader"),
+      require("karma-sinon")
     ],
 
     webpack: {

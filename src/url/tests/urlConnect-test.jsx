@@ -1,11 +1,14 @@
-import React, { Component } from 'react';
-import { createStore } from 'redux'
-import { shallow } from 'enzyme';
+import React, { Component, PropTypes } from 'react';
+import { createStore } from 'redux';
+import { mount, shallow } from 'enzyme';
 import chai, { expect } from 'chai';
+import sinonChai from 'sinon-chai';
 import chaiEnzyme from 'chai-enzyme';
 import urlConnect from '../urlConnect';
 import UrlHandler from '../UrlHandler';
+import { URL_REPLACE } from '../actions';
 
+chai.use(sinonChai);
 chai.use(chaiEnzyme());
 
 describe('url', () => {
@@ -87,9 +90,95 @@ describe('url', () => {
     });
 
     describe('dispatch', () => {
-      // test that dispatch uses UrlHandler on URL_REPLACE
-      // test that dispatch passes through to Redux in general
-      // test that reduxDispatch is available on the component
+      it('dispatch uses UrlHandler on URL_REPLACE', () => {
+        const store = createStore(() => ({}));
+        store.dispatch = sinon.spy();
+
+        const spyHandler = {
+          replaceInQuery: sinon.spy(),
+          decodeQuery: sinon.spy(),
+        };
+
+        const action = { type: URL_REPLACE, key: 'myKey', value: 'myValue' };
+
+        class DispatchingComponent extends Component {
+          static propTypes = { dispatch: PropTypes.func };
+          componentDidMount() {
+            const { dispatch } = this.props;
+            dispatch(action);
+          }
+          render() {
+            return <div />;
+          }
+        }
+
+        const WrappedMyComponent = urlConnect(spyHandler)(DispatchingComponent);
+        mount(<WrappedMyComponent store={store} location={location} />);
+
+        expect(spyHandler.replaceInQuery).to.have.been.calledOnce;
+        expect(spyHandler.replaceInQuery).to.have.been.calledWith(location, 'myKey', 'myValue');
+        expect(store.dispatch).to.have.callCount(0);
+      });
+
+      it('dispatch uses redux dispatch for non-URL actions', () => {
+        const store = createStore(() => ({}));
+        store.dispatch = sinon.spy();
+
+        const spyHandler = {
+          replaceInQuery: sinon.spy(),
+          decodeQuery: sinon.spy(),
+        };
+
+        const action = { type: 'SOME_NON_URL_ACTION' };
+
+        class DispatchingComponent extends Component {
+          static propTypes = { dispatch: PropTypes.func };
+          componentDidMount() {
+            const { dispatch } = this.props;
+            dispatch(action);
+          }
+          render() {
+            return <div />;
+          }
+        }
+
+        const WrappedMyComponent = urlConnect(spyHandler)(DispatchingComponent);
+        mount(<WrappedMyComponent store={store} location={location} />);
+
+        expect(spyHandler.replaceInQuery).to.have.callCount(0);
+        expect(store.dispatch).to.have.been.calledOnce;
+        expect(store.dispatch).to.have.been.calledWith(action);
+      });
+
+      it('redux dispatch available as prop', () => {
+        const store = createStore(() => ({}));
+        store.dispatch = sinon.spy();
+
+        const spyHandler = {
+          replaceInQuery: sinon.spy(),
+          decodeQuery: sinon.spy(),
+        };
+
+        const action = { type: URL_REPLACE, key: 'myKey', value: 'myValue' };
+
+        class DispatchingComponent extends Component {
+          static propTypes = { reduxDispatch: PropTypes.func };
+          componentDidMount() {
+            const { reduxDispatch } = this.props;
+            reduxDispatch(action);
+          }
+          render() {
+            return <div />;
+          }
+        }
+
+        const WrappedMyComponent = urlConnect(spyHandler)(DispatchingComponent);
+        mount(<WrappedMyComponent store={store} location={location} />);
+
+        expect(spyHandler.replaceInQuery).to.have.callCount(0);
+        expect(store.dispatch).to.have.been.calledOnce;
+        expect(store.dispatch).to.have.been.calledWith(action);
+      });
     });
   });
 });
