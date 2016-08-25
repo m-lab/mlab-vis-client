@@ -10,7 +10,9 @@ export const FETCH_HOURLY_FAIL = 'location/FETCH_HOURLY_FAIL';
 export const FETCH_CLIENT_ISPS = 'location/FETCH_CLIENT_ISPS';
 export const FETCH_CLIENT_ISPS_SUCCESS = 'location/FETCH_CLIENT_ISPS_SUCCESS';
 export const FETCH_CLIENT_ISPS_FAIL = 'location/FETCH_CLIENT_ISPS_FAIL';
-
+export const FETCH_CLIENT_ISP_TIME_SERIES = 'location/FETCH_CLIENT_ISP_TIME_SERIES';
+export const FETCH_CLIENT_ISP_TIME_SERIES_SUCCESS = 'location/FETCH_CLIENT_ISP_TIME_SERIES_SUCCESS';
+export const FETCH_CLIENT_ISP_TIME_SERIES_FAIL = 'location/FETCH_CLIENT_ISP_TIME_SERIES_FAIL';
 /**
  * Action Creators
  */
@@ -111,6 +113,50 @@ export function fetchClientIspsIfNeeded(locationId) {
   return (dispatch, getState) => {
     if (shouldFetchClientIsps(getState(), locationId)) {
       dispatch(fetchClientIsps(locationId));
+    }
+  };
+}
+
+
+// ---------------------
+// Fetch Client ISP in Location Time Series
+// ---------------------
+export function shouldFetchClientIspLocationTimeSeries(state, timeAggregation, locationId, clientIspId) {
+  const locationState = state.locations[locationId];
+  if (!locationState) {
+    return true;
+  }
+
+  const clientIspTimeState = locationState.time.clientIsps[clientIspId];
+  if (!clientIspTimeState) {
+    return true;
+  }
+
+  // if we don't have this time aggregation, we should fetch it
+  if (clientIspTimeState.timeSeries.timeAggregation !== timeAggregation) {
+    return true;
+  }
+
+  // only fetch if it isn't fetching/already fetched
+  return !(clientIspTimeState.timeSeries.isFetched ||
+    clientIspTimeState.timeSeries.isFetching);
+}
+
+export function fetchClientIspLocationTimeSeries(timeAggregation, locationId, clientIspId) {
+  return {
+    types: [FETCH_CLIENT_ISP_TIME_SERIES, FETCH_CLIENT_ISP_TIME_SERIES_SUCCESS,
+      FETCH_CLIENT_ISP_TIME_SERIES_FAIL],
+    promise: (api) => api.getLocationClientIspTimeSeries(timeAggregation, locationId, clientIspId),
+    clientIspId,
+    locationId,
+    timeAggregation,
+  };
+}
+
+export function fetchClientIspLocationTimeSeriesIfNeeded(timeAggregation, locationId, clientIspId) {
+  return (dispatch, getState) => {
+    if (shouldFetchClientIspLocationTimeSeries(getState(), timeAggregation, locationId, clientIspId)) {
+      dispatch(fetchClientIspLocationTimeSeries(timeAggregation, locationId, clientIspId));
     }
   };
 }

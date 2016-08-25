@@ -60,35 +60,25 @@ export function getViewMetric(state, props) {
   return metric;
 }
 
-/**
- * Input selector to get the client ISP full objects from the
- * clientIsps branch of the store
- */
-export function getClientIsps(state, props) {
-  const locationClientIsps = getLocationClientIsps(state, props);
-  if (!locationClientIsps) {
-    return undefined;
-  }
-  return locationClientIsps.map(locationClientIsp =>
-    state.clientIsps[locationClientIsp.meta.client_asn_number]
-  ).filter(locationClientIsp => locationClientIsp != null);
-}
-
 // ----------------------
 // Selectors
 // ----------------------
 
-
+/**
+ * Selector to get the location+client ISP time series data
+ * for the selected client ISPs
+ */
 export const getLocationClientIspTimeSeries = createSelector(
-  getClientIsps, getLocation,
+  getLocationClientIsps, getLocation,
   (clientIsps, location) => {
     if (!clientIsps || !location) {
       return undefined;
     }
 
     const timeSeriesData = clientIsps.map(clientIsp => {
-      const locationTime = clientIsp.locationTime[location.locationId];
-      return locationTime && locationTime.timeSeries.data;
+      const clientIspId = clientIsp.meta.client_asn_number;
+      const locationClientIsp = location.time.clientIsps[clientIspId];
+      return locationClientIsp && locationClientIsp.timeSeries.data;
     }).filter(timeSeries => timeSeries != null);
 
     return timeSeriesData;

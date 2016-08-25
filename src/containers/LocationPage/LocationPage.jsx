@@ -7,7 +7,6 @@ import { timeAggregations, metrics } from '../../constants';
 import * as LocationPageSelectors from '../../redux/locationPage/selectors';
 import * as LocationPageActions from '../../redux/locationPage/actions';
 import * as LocationsActions from '../../redux/locations/actions';
-import * as ClientIspsActions from '../../redux/clientIsps/actions';
 
 import { ChartExportControls, LineChartWithCounts, HourChartWithCounts } from '../../components';
 import UrlHandler from '../../url/UrlHandler';
@@ -90,7 +89,7 @@ class LocationPage extends PureComponent {
     if (clientIsps) {
       clientIsps.forEach(clientIsp => {
         const clientIspId = clientIsp.meta.client_asn_number;
-        dispatch(ClientIspsActions.fetchLocationTimeSeriesIfNeeded(timeAggregation,
+        dispatch(LocationsActions.fetchClientIspLocationTimeSeriesIfNeeded(timeAggregation,
           locationId, clientIspId));
       });
     }
