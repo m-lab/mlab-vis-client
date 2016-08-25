@@ -29,9 +29,12 @@ export default function urlConnect(urlHandler, mapStateToProps, mapDispatchToPro
 
   // otherwise, add in query params to mapStateToProps
   function mapStateToPropsWithUrl(state, props) {
+    const urlQueryParams = (props.location && urlHandler.decodeQuery(props.location.query)) || {};
+    const urlParams = props.params || {};
+
     const propsWithUrl = {
-      ...urlHandler.decodeQuery(props.location.query),
-      ...props.params,
+      ...urlQueryParams,
+      ...urlParams,
       ...props,
     };
 
