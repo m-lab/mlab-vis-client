@@ -14,8 +14,6 @@ const initialState = {
 
 // the location page reducer
 function locationSearch(state = initialState.locationSearch, action = {}) {
-  console.log(action.type);
-  console.log(action.result);
   switch (action.type) {
     case Actions.FETCH_LOCATION_SEARCH:
       return {

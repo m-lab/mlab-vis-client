@@ -73,8 +73,6 @@ export default class OmniSearch extends PureComponent {
   * @param {String} suggestion The suggestion object selected
   */
   onSuggestionSelected(event, { suggestion }) {
-    console.log('selected: ');
-    console.log(suggestion);
     this.setState({ value: '' });
     const suggestionId = suggestion.id;
     const path = `location/${suggestionId}`;
