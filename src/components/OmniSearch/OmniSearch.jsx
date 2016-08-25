@@ -1,5 +1,5 @@
 import React, { PureComponent, PropTypes } from 'react';
-import { Autosuggest } from 'react-autosuggest';
+import Autosuggest from 'react-autosuggest';
 
 import './OmniSearch.scss';
 
@@ -11,7 +11,7 @@ import './OmniSearch.scss';
 export default class OmniSearch extends PureComponent {
 
   static propTypes = {
-    onChange: PropTypes.function,
+    onChange: PropTypes.func,
     searchResults: PropTypes.array,
   }
 
