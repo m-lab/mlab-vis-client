@@ -14,3 +14,9 @@ export function getLocationSearchResults(state) {
 
   return locationSearch.data;
 }
+
+export function getLocationSearchQuery(state) {
+  const locationSearch = getLocationSearch(state);
+
+  return locationSearch.query;
+}

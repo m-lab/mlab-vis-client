@@ -14,19 +14,22 @@ const initialState = {
 
 // the location page reducer
 function locationSearch(state = initialState.locationSearch, action = {}) {
+  console.log(action.type);
+  console.log(action.result);
   switch (action.type) {
     case Actions.FETCH_LOCATION_SEARCH:
       return {
         ...state,
-        data: state.locationSearch.data,
+        data: state.data,
+        query: action.searchQuery,
         isFetching: true,
         isFetched: false,
       };
     case Actions.FETCH_LOCATION_SEARCH_SUCCESS:
       return {
         ...state,
-        data: action.result,
-        query: action.query,
+        data: action.result.results,
+        query: action.searchQuery,
         isFetching: false,
         isFetched: true,
       };
@@ -50,7 +53,7 @@ function globalSearch(state = initialState, action = {}) {
     case Actions.FETCH_LOCATION_SEARCH_FAIL:
       return {
         ...state,
-        time: locationSearch(state.locationSearch, action),
+        locationSearch: locationSearch(state.locationSearch, action),
       };
     default:
       return state;

@@ -122,3 +122,39 @@ export function transformHourly(body) {
   return body;
 }
 
+
+/**
+ * Transforms the response from search before rest of application uses it.
+ *
+ * @param {Object} body The response body
+ * @return {Object} The transformed response body
+ */
+export function transformSearchResults(body) {
+  // NOTE: modifying body directly means it modifies what is stored in the API cache
+  if (body.results) {
+    const results = body.results;
+    results.forEach(d => {
+      // convert date from string to Date object
+      d.name = d.meta.location;
+      if (d.meta.type === 'city') {
+        if (d.meta.client_country === 'United States') {
+          d.name += `, ${d.meta.client_region}`;
+        } else {
+          d.name += `, ${d.meta.client_country}`;
+        }
+      }
+      d.id = d.meta.location_key;
+    });
+
+    // add new entries to the body object
+    Object.assign(body, {
+      results,
+    });
+  } else {
+    Object.assign(body, {
+      results: [],
+    });
+  }
+
+  return body;
+}

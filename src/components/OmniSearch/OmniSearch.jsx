@@ -1,34 +1,40 @@
 import React, { PureComponent, PropTypes } from 'react';
 import Autosuggest from 'react-autosuggest';
+import d3 from 'd3';
 
 import './OmniSearch.scss';
 
-
 /**
  * Omni Search component.
- * Allows for auto completing Cell Lines or Drugs
+ * Allows for auto completing Location Searches
  */
 export default class OmniSearch extends PureComponent {
 
   static propTypes = {
-    onChange: PropTypes.func,
+    onSearchChange: PropTypes.func,
+    searchQuery: PropTypes.string,
     searchResults: PropTypes.array,
+  }
+
+  static defaultProps = {
+    searchQuery: '',
+    searchResults: [],
   }
 
   static contextTypes = {
     router: PropTypes.object,
   }
+
   /**
    * constructor sets up search value.
    */
   constructor(props) {
     super(props);
 
-    // this.state = {
-    //   value: '',
-    //   combinedData: this.formatResults(props.searchResults),
-    //   suggestions: [],
-    // };
+    this.state = {
+      value: '',
+      suggestions: this.formatSuggestions(props.searchResults),
+    };
 
     this.onChange = this.onChange.bind(this);
     this.onSuggestionsUpdateRequested = this.onSuggestionsUpdateRequested.bind(this);
@@ -42,24 +48,13 @@ export default class OmniSearch extends PureComponent {
   /**
    * Lifecycle method. Updates state with the combined data.
    */
-  // componentWillReceiveProps(nextProps) {
-    // if (nextProps.cellLines && nextProps.drugs &&
-    //   (nextProps.cellLines !== this.props.cellLines || nextProps.drugs !== this.props.drugs)) {
-    //
-    //   this.setState({
-    //     combinedData: this.combineData(nextProps.cellLines, nextProps.drugs),
-    //     suggestions: this.getSuggestions('')
-    //   });
-    // }
-  // }
-
-
-  /**
-   * Lifecycle method for checking update
-   */
-  // shouldComponentUpdate(nextProps, nextState) {
-  //   return shallowCompare(this, nextProps, nextState);
-  // }
+  componentWillReceiveProps(nextProps) {
+    if (nextProps.searchResults) {
+      this.setState({
+        suggestions: this.formatSuggestions(nextProps.searchResults),
+      });
+    }
+  }
 
   /**
   * callback for modification of search input
@@ -67,9 +62,9 @@ export default class OmniSearch extends PureComponent {
   * @param {String} newValue
   */
   onChange(event, { newValue }) {
-    // this.setState({
-    //   value: newValue,
-    // });
+    this.setState({
+      value: newValue,
+    });
   }
 
   /**
@@ -77,12 +72,13 @@ export default class OmniSearch extends PureComponent {
   * @param {Object} event change event
   * @param {String} suggestion The suggestion object selected
   */
-  onSuggestionSelected(event, { suggestion, sectionIndex }) {
-    // this.setState({ value: '' });
-    // const suggestionId = suggestion.id;
-    // const suggestionType = this.state.combinedData[sectionIndex].id;
-    // const path = `/${suggestionType}/${suggestionId}`;
-    // this.context.router.push(path);
+  onSuggestionSelected(event, { suggestion }) {
+    console.log('selected: ');
+    console.log(suggestion);
+    this.setState({ value: '' });
+    const suggestionId = suggestion.id;
+    const path = `location/${suggestionId}`;
+    this.context.router.push(path);
   }
 
   /**
@@ -90,48 +86,18 @@ export default class OmniSearch extends PureComponent {
   * @param {String} value New search value
   */
   onSuggestionsUpdateRequested({ value }) {
-    // this.setState({
-    //   suggestions: this.getSuggestions(value),
-    // });
-  }
+    const { onSearchChange } = this.props;
 
-  /**
-  * Extracts search results from combined data
-  * @return {String} search term we are searching for
-  */
-  getSuggestions(search) {
-    search = search.trim();
+    // TODO: should this be in a different location?
+    const search = value.toLowerCase().replace(/ /g, '').trim();
 
-    if (search.length > 0) {
-      // return this.state.combinedData.map((data) => {
-      //   const filteredData = _.clone(data);
-      //   filteredData.values = filteredData.values.filter((value) => {
-      //     let found = false;
-      //
-      //     // create a function to access properties by path on the object `value`
-      //     const getAttrValue = _.propertyOf(value);
-      //
-      //     // check if any of the search attributes match
-      //     found = data.searchAttrs.some((attr) => {
-      //       const searchAttrValue = getAttrValue(attr);
-      //       let matches = false;
-      //
-      //       // handle array value of strings (e.g. synonyms, searchIndexOnlyNames)
-      //       if (_.isArray(searchAttrValue)) {
-      //         matches = searchAttrValue.some(val => normalize(val).includes(search));
-      //       } else if (normalize(searchAttrValue).includes(search)) {
-      //         matches = true;
-      //       }
-      //
-      //       return matches;
-      //     });
-      //     return found;
-      //   });
-      //
-      //   return filteredData;
+    if (search.length > 2) {
+      onSearchChange(search);
+    } else {
+      // this.setState({
+      //   suggestions: this.formatSuggestions([]),
       // });
     }
-    return [];
   }
 
   /**
@@ -149,27 +115,19 @@ export default class OmniSearch extends PureComponent {
   * @param {Object} suggestion Suggestion selected
   */
   getSuggestionValue(suggestion) {
-    let name = '';
-    if (suggestion.cellLine) {
-      name = suggestion.cellLine.label;
-    } else if (suggestion.name) {
-      name = suggestion.name.label;
-    } else {
-      name = suggestion.id;
-    }
-
-    return name;
+    return suggestion.name;
   }
-
 
   /**
-   * Merge cell line and drug data together for display and search.
-   */
-  formatResults(rawResults) {
-    console.log(rawResults);
-    return [];
+  * Extracts search results from combined data
+  * @return {String} search term we are searching for
+  */
+  formatSuggestions(results) {
+    const nest = d3.nest()
+      .key((d) => d.meta.type)
+      .entries(results);
+    return nest;
   }
-
 
   /**
   * render section header
@@ -177,7 +135,7 @@ export default class OmniSearch extends PureComponent {
   */
   renderSectionTitle(section) {
     return (
-      <strong>{section.label}</strong>
+      <strong>{section.key}</strong>
     );
   }
 
@@ -185,27 +143,9 @@ export default class OmniSearch extends PureComponent {
   * render suggestion including synonyms and search only names (if matched)
   * @param {Object} suggestion Suggestion object to display
   */
-  renderSuggestion(suggestion, { value: search }) {
-    let name = this.getSuggestionValue(suggestion);
-
-    const synonymsToUse = suggestion.synonyms ? [...suggestion.synonyms] : [];
-
-    // include searchIndexOnlyName if it matches
-    if (suggestion.searchIndexOnlyNames && suggestion.searchIndexOnlyNames.length) {
-      const match = suggestion.searchIndexOnlyNames.find(searchName => normalize(searchName).includes(normalize(search)));
-
-      if (match) {
-        synonymsToUse.push(match);
-      }
-    }
-
-    let synonyms;
-    if (synonymsToUse.length) {
-      synonyms = <span className="text-muted">{` (aka ${synonymsToUse.join(', ')})`}</span>;
-    }
-
+  renderSuggestion(suggestion) {
     return (
-      <span>{name}{synonyms}</span>
+      <span>{suggestion.name} <span className="text-muted">{suggestion.data.test_count}</span></span>
     );
   }
 
@@ -214,12 +154,12 @@ export default class OmniSearch extends PureComponent {
    * @return {ReactElement} JSX markup.
    */
   render() {
-    const value = 'hhh';
-    const suggestions = [];
+    // const { searchQuery, searchResults } = this.props;
+    const { value, suggestions } = this.state;
     // const { value, suggestions } = this.state;
     // const suggestions = this.getSuggestions(value);
     const inputProps = {
-      placeholder: 'Search for a location',
+      placeholder: 'Search for a Location',
       value,
       onChange: this.onChange,
     };
