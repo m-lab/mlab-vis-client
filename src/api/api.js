@@ -58,3 +58,14 @@ export function getLocationClientIspTimeSeries(timeAggregation, locationId, clie
 export function getLocationClientIsps(locationId) {
   return get(`/locations/${locationId}/clientisps`);
 }
+
+
+/**
+ * Get Search results for a location
+ *
+ * @param {String} searchQuery search to search for.
+ * @return {Promise} A promise after the get request was made
+ */
+export function getLocationSearch(searchQuery) {
+  return get(`/locations/search/${searchQuery}`);
+}
