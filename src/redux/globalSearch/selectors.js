@@ -2,9 +2,6 @@
  * Selectors for globalSearch
  */
 
-// import { createSelector } from 'reselect';
-// import { initialLocationState } from '../locations/reducer';
-
 export function getLocationSearch(state) {
   return state.globalSearch.locationSearch;
 }

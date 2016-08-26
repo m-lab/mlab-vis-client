@@ -17,7 +17,6 @@ function locationSearch(state = initialState.locationSearch, action = {}) {
   switch (action.type) {
     case Actions.FETCH_LOCATION_SEARCH:
       return {
-        ...state,
         data: state.data,
         query: action.searchQuery,
         isFetching: true,

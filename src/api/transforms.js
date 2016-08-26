@@ -134,7 +134,7 @@ export function transformSearchResults(body) {
   if (body.results) {
     const results = body.results;
     results.forEach(d => {
-      // convert date from string to Date object
+      // Create a display name for cities.
       d.name = d.meta.location;
       if (d.meta.type === 'city') {
         if (d.meta.client_country === 'United States') {
@@ -142,6 +142,8 @@ export function transformSearchResults(body) {
         } else {
           d.name += `, ${d.meta.client_country}`;
         }
+      } else if (d.meta.type === 'region') {
+        d.name += `, ${d.meta.client_country}`;
       }
       d.id = d.meta.location_key;
     });

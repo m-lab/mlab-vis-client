@@ -1,6 +1,9 @@
 import React, { PureComponent, PropTypes } from 'react';
+import { withRouter } from 'react-router';
 import Autosuggest from 'react-autosuggest';
 import d3 from 'd3';
+
+import { formatNumber, stringToKey } from '../../utils/format';
 
 import './OmniSearch.scss';
 
@@ -8,10 +11,11 @@ import './OmniSearch.scss';
  * Omni Search component.
  * Allows for auto completing Location Searches
  */
-export default class OmniSearch extends PureComponent {
+class OmniSearch extends PureComponent {
 
   static propTypes = {
     onSearchChange: PropTypes.func,
+    router: PropTypes.object,
     searchQuery: PropTypes.string,
     searchResults: PropTypes.array,
   }
@@ -19,10 +23,6 @@ export default class OmniSearch extends PureComponent {
   static defaultProps = {
     searchQuery: '',
     searchResults: [],
-  }
-
-  static contextTypes = {
-    router: PropTypes.object,
   }
 
   /**
@@ -73,10 +73,11 @@ export default class OmniSearch extends PureComponent {
   * @param {String} suggestion The suggestion object selected
   */
   onSuggestionSelected(event, { suggestion }) {
+    const { router } = this.props;
     this.setState({ value: '' });
     const suggestionId = suggestion.id;
     const path = `location/${suggestionId}`;
-    this.context.router.push(path);
+    router.push(path);
   }
 
   /**
@@ -87,7 +88,7 @@ export default class OmniSearch extends PureComponent {
     const { onSearchChange } = this.props;
 
     // TODO: should this be in a different location?
-    const search = value.toLowerCase().replace(/ /g, '').trim();
+    const search = stringToKey(value);
 
     if (search.length > 2) {
       onSearchChange(search);
@@ -143,7 +144,7 @@ export default class OmniSearch extends PureComponent {
   */
   renderSuggestion(suggestion) {
     return (
-      <span>{suggestion.name} <span className="text-muted">{suggestion.data.test_count}</span></span>
+      <span>{suggestion.name} <span className="text-muted">{formatNumber(suggestion.data.test_count)}</span></span>
     );
   }
 
@@ -178,3 +179,5 @@ export default class OmniSearch extends PureComponent {
     );
   }
 }
+
+export default withRouter(OmniSearch);
