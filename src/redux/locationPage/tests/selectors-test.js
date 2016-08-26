@@ -8,6 +8,7 @@ import {
   getLocationClientIsps,
   getHighlightHourly,
   getViewMetric,
+  getLocationClientIspTimeSeries,
 } from '../selectors';
 import { initialLocationState } from '../../locations/reducer';
 import { metrics } from '../../../constants';
@@ -115,13 +116,51 @@ describe('redux', () => {
       });
 
       it('getViewMetric', () => {
-        // for some reason Array.find is not available.
         const upload = metrics.find(m => m.value === 'upload');
         const download = metrics.find(m => m.value === 'download');
 
         expect(getViewMetric({}, { viewMetric: 'upload' })).to.equal(upload);
         expect(getViewMetric({}, {})).to.equal(download);
         expect(getViewMetric({}, { viewMetric: 'foo' })).to.equal(download);
+      });
+
+      // -------------------------------------------------------------------------------------
+      it('getLocationClientIspTimeSeries', () => {
+        const state = {
+          locations: {
+            myLocation: {
+              ...initialLocationState,
+              locationId: 'myLocation',
+              time: {
+                ...initialLocationState.time,
+                clientIsps: {
+                  AS100: {
+                    timeSeries: {
+                      data: 'as100-time!',
+                    },
+                  },
+                  AS200: {
+                    timeSeries: {
+                      data: 'as200-time!',
+                    },
+                  },
+                },
+              },
+
+              clientIsps: {
+                data: [
+                  { meta: { client_asn_number: 'AS100' } },
+                  { meta: { client_asn_number: 'AS200' } },
+                  { meta: { client_asn_number: 'AS300' } },
+                ],
+              },
+            },
+          },
+        };
+
+        // should get the data from 100 and 200, but not 300 since it isn't there yet.
+        const result = getLocationClientIspTimeSeries(state, { locationId: 'myLocation' });
+        expect(result).to.deep.equal(['as100-time!', 'as200-time!']);
       });
     }); // reducer
   });
