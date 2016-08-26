@@ -9,6 +9,7 @@ module.exports = function (config) {
     frameworks: [ 'mocha', 'sinon' ],
 
     files: [
+      'node_modules/babel-polyfill/dist/polyfill.js',
       'src/**/*-test.js',
       'src/**/*-test.jsx'
     ],

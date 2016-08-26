@@ -3,7 +3,7 @@
  */
 import * as Actions from './actions';
 
-const initialState = {
+export const initialState = {
   highlightHourly: undefined,
 };
 
