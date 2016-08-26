@@ -11,12 +11,14 @@ import './HomePage.scss';
 function mapStateToProps(state) {
   return {
     locationSearchResults: GlobalSearchSelectors.getLocationSearchResults(state),
+    locationSearchQuery: GlobalSearchSelectors.getLocationSearchQuery(state),
   };
 }
 
 class HomePage extends PureComponent {
   static propTypes = {
     dispatch: PropTypes.func,
+    locationSearchQuery: PropTypes.string,
     locationSearchResults: PropTypes.array,
   }
 
@@ -27,17 +29,10 @@ class HomePage extends PureComponent {
     this.onSearchQueryChange = this.onSearchQueryChange.bind(this);
   }
 
-  // componentDidMount() {
-  // }
-
-  // componentWillReceiveProps(nextProps) {
-  // }
-
   /**
    * Callback for when viewMetric changes - updates URL
    */
   onSearchQueryChange(query) {
-    query = query.toLowerCase().replace(/ /g, '');
     const { dispatch } = this.props;
     dispatch(GlobalSearchActions.fetchLocationSearchIfNeeded(query));
   }
@@ -47,7 +42,7 @@ class HomePage extends PureComponent {
     return (
       <OmniSearch
         searchResults={locationSearchResults}
-        onChange={this.onSearchQueryChange}
+        onSearchChange={this.onSearchQueryChange}
       />
     );
   }

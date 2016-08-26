@@ -3,6 +3,7 @@ import {
   transform,
   transformTimeSeries,
   transformHourly,
+  transformSearchResults,
 } from './transforms';
 
 // -------------
@@ -67,5 +68,6 @@ export function getLocationClientIsps(locationId) {
  * @return {Promise} A promise after the get request was made
  */
 export function getLocationSearch(searchQuery) {
-  return get(`/locations/search/${searchQuery}`);
+  return get(`/locations/search/${searchQuery}`)
+    .then(transform(transformSearchResults));
 }

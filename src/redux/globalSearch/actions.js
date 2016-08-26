@@ -10,7 +10,7 @@ export const FETCH_LOCATION_SEARCH_FAIL = 'globalSearch/FETCH_LOCATION_SEARCH_FA
  */
 
 // ---------------------
-// Fetch Time Series
+// Fetch Global Search
 // ---------------------
 function shouldFetchLocationSearch(state, searchQuery) {
   if (searchQuery.length > 0) {
