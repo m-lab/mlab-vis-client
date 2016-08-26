@@ -88,7 +88,7 @@ function clientIspTime(state = initialClientIspTimeState, action = {}) {
         ...state,
         timeSeries: {
           data: action.result,
-          timeAggregation: state.timeSeries.timeAggregation,
+          timeAggregation: action.timeAggregation,
           isFetching: false,
           isFetched: true,
         },
@@ -126,7 +126,7 @@ function locationTime(state = initialLocationState.time, action = {}) {
         ...state,
         timeSeries: {
           data: action.result,
-          timeAggregation: state.timeSeries.timeAggregation,
+          timeAggregation: action.timeAggregation,
           isFetching: false,
           isFetched: true,
         },
@@ -155,7 +155,7 @@ function locationTime(state = initialLocationState.time, action = {}) {
         ...state,
         hourly: {
           data: action.result,
-          timeAggregation: state.timeSeries.timeAggregation,
+          timeAggregation: action.timeAggregation,
           isFetching: false,
           isFetched: true,
         },
