@@ -1,3 +1,5 @@
+@import "../../assets/variables";
+
 .IspSelect {
   display: inline-block;
   margin-bottom: 10px;
@@ -11,7 +13,7 @@
   .selected-isp {
     display: inline-block;
     padding: 2px 0px 2px 8px;
-    background-color: black;
+    background-color: $brand-primary;
     color: #fff;
     margin: 0 4px 4px 0;
     border-radius: 4px;

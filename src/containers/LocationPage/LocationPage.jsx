@@ -1,17 +1,25 @@
 import React, { PureComponent, PropTypes } from 'react';
 import Helmet from 'react-helmet';
-import classNames from 'classnames';
-import { browserHistory } from 'react-router';
+import { Link, browserHistory } from 'react-router';
 import { Row, Col } from 'react-bootstrap';
-import { timeAggregations, metrics } from '../../constants';
 import * as LocationPageSelectors from '../../redux/locationPage/selectors';
 import * as LocationPageActions from '../../redux/locationPage/actions';
 import * as LocationsActions from '../../redux/locations/actions';
 
-import { ChartExportControls, LineChartWithCounts, HourChartWithCounts, IspSelect } from '../../components';
+import {
+  ChartExportControls,
+  LineChartWithCounts,
+  HourChartWithCounts,
+  MetricSelector,
+  TimeAggregationSelector,
+  StatusWrapper,
+  IspSelect,
+} from '../../components';
+
 import UrlHandler from '../../url/UrlHandler';
 import urlConnect from '../../url/urlConnect';
 
+import './LocationPage.scss';
 
 // Define how to read/write state to URL query parameters
 const urlQueryConfig = {
@@ -37,7 +45,9 @@ function mapStateToProps(state, propsWithUrl) {
     clientIsps: LocationPageSelectors.getLocationClientIsps(state, propsWithUrl),
     selectedClientIsps: LocationPageSelectors.getLocationClientIspsSelected(state, propsWithUrl),
     hourly: LocationPageSelectors.getLocationHourly(state, propsWithUrl),
+    hourlyStatus: LocationPageSelectors.getLocationHourlyStatus(state, propsWithUrl),
     locationTimeSeries: LocationPageSelectors.getLocationTimeSeries(state, propsWithUrl),
+    timeSeriesStatus: LocationPageSelectors.getTimeSeriesStatus(state, propsWithUrl),
     clientIspTimeSeries: LocationPageSelectors.getLocationClientIspTimeSeries(state, propsWithUrl),
     highlightHourly: LocationPageSelectors.getHighlightHourly(state, propsWithUrl),
   };
@@ -51,6 +61,7 @@ class LocationPage extends PureComponent {
     endDate: PropTypes.object, // date
     highlightHourly: PropTypes.object,
     hourly: PropTypes.object,
+    hourlyStatus: PropTypes.string,
     location: PropTypes.object, // route location
     locationId: PropTypes.string,
     locationTimeSeries: PropTypes.object,
@@ -60,6 +71,7 @@ class LocationPage extends PureComponent {
     showRegionalValues: PropTypes.bool,
     startDate: PropTypes.object, // date
     timeAggregation: PropTypes.string,
+    timeSeriesStatus: PropTypes.string,
     viewMetric: PropTypes.object,
   }
 
@@ -70,6 +82,8 @@ class LocationPage extends PureComponent {
     this.onHighlightHourly = this.onHighlightHourly.bind(this);
     this.onShowBaselinesChange = this.onShowBaselinesChange.bind(this);
     this.onShowRegionalValuesChange = this.onShowRegionalValuesChange.bind(this);
+    this.onViewMetricChange = this.onViewMetricChange.bind(this);
+    this.onTimeAggregationChange = this.onTimeAggregationChange.bind(this);
     this.onSelectedClientIspsChange = this.onSelectedClientIspsChange.bind(this);
   }
 
@@ -92,15 +106,12 @@ class LocationPage extends PureComponent {
 
     // fetch data for selected Client ISPs
     if (clientIsps) {
-      console.log(selectedClientIspIds)
       if (!selectedClientIspIds || selectedClientIspIds.length === 0) {
         const newSelectedIsps = [];
         clientIsps.slice(0, 3).forEach(clientIsp => {
           const clientIspId = clientIsp.meta.client_asn_number;
           newSelectedIsps.push(clientIspId);
         });
-        console.log('new selected isps')
-        console.log(newSelectedIsps)
         dispatch(LocationPageActions.changeSelectedClientIspIds(newSelectedIsps));
       }
     }
@@ -178,9 +189,16 @@ class LocationPage extends PureComponent {
   }
 
   renderCityProviders() {
+    const locationName = this.props.locationId;
     return (
-      <div>
-        <h2>City {this.props.locationId}</h2>
+      <div className="section">
+        <header>
+          <div className="pull-right">
+            {this.renderTimeRangeSelector()}
+          </div>
+          <h2>{locationName}</h2>
+
+        </header>
         <Row>
           <Col md={3}>
             {this.renderClientIspSelector()}
@@ -193,6 +211,14 @@ class LocationPage extends PureComponent {
             {this.renderProvidersByHour()}
           </Col>
         </Row>
+      </div>
+    );
+  }
+
+  renderTimeRangeSelector() {
+    return (
+      <div>
+        <input type="date" value="2015-10-01" onChange={() => {}} />
       </div>
     );
   }
@@ -216,21 +242,7 @@ class LocationPage extends PureComponent {
     const { timeAggregation } = this.props;
 
     return (
-      <div className="time-aggregation">
-        <ul className="list-unstyled">
-          {timeAggregations.map(aggr => (
-            <li key={aggr.value}>
-              <button
-                className={classNames('btn btn-default',
-                  { active: timeAggregation === aggr.value })}
-                onClick={() => this.onTimeAggregationChange(aggr.value)}
-              >
-                {aggr.label}
-              </button>
-            </li>
-          ))}
-        </ul>
-      </div>
+      <TimeAggregationSelector active={timeAggregation} onChange={this.onTimeAggregationChange} />
     );
   }
 
@@ -238,50 +250,40 @@ class LocationPage extends PureComponent {
     const { viewMetric } = this.props;
 
     return (
-      <div className="metric-selector">
-        <ul className="list-unstyled">
-          {metrics.map(metric => (
-            <li key={metric.value}>
-              <button
-                className={classNames('btn btn-default',
-                  { active: viewMetric.value === metric.value })}
-                onClick={() => this.onViewMetricChange(metric.value)}
-              >
-                {metric.label}
-              </button>
-            </li>
-          ))}
-        </ul>
-      </div>
+      <MetricSelector active={viewMetric.value} onChange={this.onViewMetricChange} />
     );
   }
 
   renderChartOptions() {
     const { showBaselines, showRegionalValues } = this.props;
     return (
-      <div>
+      <div className="chart-options">
         <ul className="list-inline">
           <li>
-            <label htmlFor="show-baselines">
-              <input
-                type="checkbox"
-                checked={showBaselines}
-                id="show-baselines"
-                onChange={this.onShowBaselinesChange}
-              />
-              {' Show Baselines'}
-            </label>
+            <div className="checkbox">
+              <label htmlFor="show-baselines">
+                <input
+                  type="checkbox"
+                  checked={showBaselines}
+                  id="show-baselines"
+                  onChange={this.onShowBaselinesChange}
+                />
+                {' Show Baselines'}
+              </label>
+            </div>
           </li>
           <li>
-            <label htmlFor="show-regional-values">
-              <input
-                type="checkbox"
-                checked={showRegionalValues}
-                id="show-regional-values"
-                onChange={this.onShowRegionalValuesChange}
-              />
-              {' Show Regional Values'}
-            </label>
+            <div className="checkbox">
+              <label htmlFor="show-regional-values">
+                <input
+                  type="checkbox"
+                  checked={showRegionalValues}
+                  id="show-regional-values"
+                  onChange={this.onShowRegionalValuesChange}
+                />
+                {' Show Regional Values'}
+              </label>
+            </div>
           </li>
         </ul>
       </div>
@@ -289,28 +291,32 @@ class LocationPage extends PureComponent {
   }
 
   renderCompareProviders() {
-    const { locationId, locationTimeSeries, viewMetric, clientIspTimeSeries } = this.props;
+    const { locationId, locationTimeSeries, timeSeriesStatus, viewMetric, clientIspTimeSeries } = this.props;
     const chartId = 'providers-time-series';
     const chartData = locationTimeSeries && locationTimeSeries.results;
 
     return (
-      <div>
-        <h3>Compare Providers</h3>
-        <LineChartWithCounts
-          id={chartId}
-          data={chartData}
-          series={clientIspTimeSeries}
-          annotationSeries={locationTimeSeries}
-          height={400}
-          width={800}
-          xKey="date"
-          yKey={viewMetric.dataKey}
-        />
-        <ChartExportControls
-          chartId={chartId}
-          data={chartData}
-          filename={`${locationId}_${viewMetric.value}_${chartId}`}
-        />
+      <div className="subsection">
+        <header>
+          <h3>Compare Providers</h3>
+        </header>
+        <StatusWrapper status={timeSeriesStatus}>
+          <LineChartWithCounts
+            id={chartId}
+            data={chartData}
+            series={clientIspTimeSeries}
+            annotationSeries={locationTimeSeries}
+            height={400}
+            width={800}
+            xKey="date"
+            yKey={viewMetric.dataKey}
+          />
+          <ChartExportControls
+            chartId={chartId}
+            data={chartData}
+            filename={`${locationId}_${viewMetric.value}_${chartId}`}
+          />
+        </StatusWrapper>
         {this.renderChartOptions()}
       </div>
     );
@@ -318,45 +324,53 @@ class LocationPage extends PureComponent {
 
   renderCompareMetrics() {
     return (
-      <div>
-        <h3>Compare Metrics</h3>
+      <div className="subsection">
+        <header>
+          <h3>Compare Metrics</h3>
+        </header>
       </div>
     );
   }
 
   renderProvidersByHour() {
-    const { hourly, highlightHourly, locationId, viewMetric } = this.props;
+    const { hourly, hourlyStatus, highlightHourly, locationId, viewMetric } = this.props;
     const extentKey = this.extentKey(viewMetric);
     const chartId = 'providers-hourly';
     const chartData = hourly && hourly.results;
 
     return (
-      <div>
-        <h3>By Hour, Median download speeds</h3>
-        <HourChartWithCounts
-          data={hourly && hourly.results}
-          height={400}
-          highlightPoint={highlightHourly}
-          id={chartId}
-          onHighlightPoint={this.onHighlightHourly}
-          threshold={30}
-          width={800}
-          yExtent={hourly && hourly.extents[extentKey]}
-          yKey={viewMetric.dataKey}
-        />
-        <ChartExportControls
-          chartId={chartId}
-          data={chartData}
-          filename={`${locationId}_${viewMetric.value}_${chartId}`}
-        />
+      <div className="subsection">
+        <header>
+          <h3>By Hour, Median download speeds</h3>
+        </header>
+        <StatusWrapper status={hourlyStatus}>
+          <HourChartWithCounts
+            data={hourly && hourly.results}
+            height={400}
+            highlightPoint={highlightHourly}
+            id={chartId}
+            onHighlightPoint={this.onHighlightHourly}
+            threshold={30}
+            width={800}
+            yExtent={hourly && hourly.extents[extentKey]}
+            yKey={viewMetric.dataKey}
+          />
+          <ChartExportControls
+            chartId={chartId}
+            data={chartData}
+            filename={`${locationId}_${viewMetric.value}_${chartId}`}
+          />
+        </StatusWrapper>
       </div>
     );
   }
 
   renderFixedTimeFrames() {
     return (
-      <div>
-        <h2>Compare Fixed Time Frame</h2>
+      <div className="section">
+        <header>
+          <h2>Compare Fixed Time Frame</h2>
+        </header>
         {this.renderFixedCompareMetrics()}
         {this.renderFixedDistributions()}
         {this.renderFixedSummaryData()}
@@ -366,34 +380,50 @@ class LocationPage extends PureComponent {
 
   renderFixedCompareMetrics() {
     return (
-      <div>
-        <h3>Compare Metrics</h3>
+      <div className="subsection">
+        <header>
+          <h3>Compare Metrics</h3>
+        </header>
       </div>
     );
   }
 
   renderFixedDistributions() {
     return (
-      <div>
-        <h3>Distributions of Metrics</h3>
+      <div className="subsection">
+        <header>
+          <h3>Distributions of Metrics</h3>
+        </header>
       </div>
     );
   }
 
   renderFixedSummaryData() {
     return (
-      <div>
-        <h3>Summary Data</h3>
+      <div className="subsection">
+        <header>
+          <h3>Summary Data</h3>
+        </header>
+      </div>
+    );
+  }
+
+  renderBreadCrumbs() {
+    return (
+      <div className="breadcrumbs">
+        {'Some / Bread / Crumbs / '}
+        <Link to={`/location/${this.props.locationId}`}>{this.props.locationId}</Link>
       </div>
     );
   }
 
   render() {
+    const locationName = this.props.locationId || 'Location';
+
     return (
-      <div>
-        <Helmet title="Location" />
-        <h1>Location</h1>
-        <div>This is the location page.</div>
+      <div className="location-page">
+        <Helmet title={locationName} />
+        {this.renderBreadCrumbs()}
         {this.renderCityProviders()}
         {this.renderFixedTimeFrames()}
       </div>

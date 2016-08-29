@@ -1,10 +1,10 @@
 
 import React, { PureComponent, PropTypes } from 'react';
 import Select from 'react-select';
-import 'react-select/dist/react-select.css';
 
 import { Icon } from '../../components';
 
+import './react-select.scss';
 import './IspSelect.scss';
 
 export default class IspSelect extends PureComponent {
