@@ -366,12 +366,19 @@ class LocationPage extends PureComponent {
     );
   }
 
+  renderBreadCrumbs() {
+    return (
+      <div>
+        {`Some / Bread / Crumbs / ${this.props.locationId}`}
+      </div>
+    );
+  }
+
   render() {
     return (
       <div>
         <Helmet title="Location" />
-        <h1>Location</h1>
-        <div>This is the location page.</div>
+        {this.renderBreadCrumbs()}
         {this.renderCityProviders()}
         {this.renderFixedTimeFrames()}
       </div>
