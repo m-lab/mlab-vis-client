@@ -43,8 +43,7 @@ export default class Html extends Component {
           {head.link.toComponent()}
           {head.script.toComponent()}
 
-          <link href="https://fonts.googleapis.com/css?family=Roboto:100,300,400,500" rel="stylesheet" />
-          <link href="https://fonts.googleapis.com/css?family=Source+Sans+Pro:100,300,400,600" rel="stylesheet" />
+          <link href="https://fonts.googleapis.com/css?family=Roboto:300,500" rel="stylesheet" />
 
           <link rel="shortcut icon" href="/favicon.ico" />
           <meta name="viewport" content="width=device-width, initial-scale=1" />
