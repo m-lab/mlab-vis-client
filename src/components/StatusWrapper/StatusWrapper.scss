@@ -1,7 +1,7 @@
 .status-wrapper {
   transition: opacity 200ms, background-color 200ms;
 
-  &.status-loading {
+  &.status-loading, &.status-unknown {
     opacity: 0.2;
   }
 
