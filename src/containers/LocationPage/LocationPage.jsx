@@ -271,7 +271,7 @@ class LocationPage extends PureComponent {
   }
 
   renderCompareProviders() {
-    const { locationTimeSeries, timeSeriesStatus, viewMetric, clientIspTimeSeries } = this.props;
+    const { locationId, locationTimeSeries, timeSeriesStatus, viewMetric, clientIspTimeSeries } = this.props;
     const chartId = 'providers-time-series';
     const chartData = locationTimeSeries && locationTimeSeries.results;
 
@@ -290,6 +290,11 @@ class LocationPage extends PureComponent {
             width={800}
             xKey="date"
             yKey={viewMetric.dataKey}
+          />
+          <ChartExportControls
+            chartId={chartId}
+            data={chartData}
+            filename={`${locationId}_${viewMetric.value}_${chartId}`}
           />
         </StatusWrapper>
         {this.renderChartOptions()}
