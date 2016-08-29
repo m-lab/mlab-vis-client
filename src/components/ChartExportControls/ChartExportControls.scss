@@ -1,0 +1,23 @@
+@import "../../assets/variables";
+
+.chart-export-controls {
+  float: right;
+  li {
+    margin-right: 0;
+    padding: 0 2px;
+
+    button {
+      color: #aaa;
+      border: 0;
+      font-size: 12px;
+      background-color: #eee;
+      border-radius: 4px;
+      padding: 1px 5px 0;
+
+      &:hover {
+        background-color: #f6f6f6;
+        color: $link-color;
+      }
+    }
+  }
+}

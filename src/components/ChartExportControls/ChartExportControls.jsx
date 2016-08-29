@@ -2,6 +2,8 @@ import React, { PureComponent, PropTypes } from 'react';
 import { saveSvg, saveSvgAsPng } from 'save-svg-as-png';
 import { createCsv, download } from '../../utils/exports';
 
+import './ChartExportControls.scss';
+
 /**
  * A component that exports charts in a variety of ways
  */
@@ -59,7 +61,7 @@ export default class ChartExportControls extends PureComponent {
         <ul className="list-inline">
           {this.outputs.map(output => (
             <li key={output.label}>
-              <button className="btn btn-xs btn-default" onClick={output.handler}>
+              <button onClick={output.handler}>
                 {output.label}
               </button>
             </li>
