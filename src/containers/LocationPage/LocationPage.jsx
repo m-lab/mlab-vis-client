@@ -1,14 +1,19 @@
 import React, { PureComponent, PropTypes } from 'react';
 import Helmet from 'react-helmet';
-import classNames from 'classnames';
 import { Link, browserHistory } from 'react-router';
 import { Row, Col } from 'react-bootstrap';
-import { timeAggregations, metrics } from '../../constants';
 import * as LocationPageSelectors from '../../redux/locationPage/selectors';
 import * as LocationPageActions from '../../redux/locationPage/actions';
 import * as LocationsActions from '../../redux/locations/actions';
 
-import { ChartExportControls, LineChartWithCounts, HourChartWithCounts } from '../../components';
+import {
+  ChartExportControls,
+  LineChartWithCounts,
+  HourChartWithCounts,
+  MetricSelector,
+  TimeAggregationSelector,
+} from '../../components';
+
 import UrlHandler from '../../url/UrlHandler';
 import urlConnect from '../../url/urlConnect';
 
@@ -67,6 +72,8 @@ class LocationPage extends PureComponent {
     this.onHighlightHourly = this.onHighlightHourly.bind(this);
     this.onShowBaselinesChange = this.onShowBaselinesChange.bind(this);
     this.onShowRegionalValuesChange = this.onShowRegionalValuesChange.bind(this);
+    this.onViewMetricChange = this.onViewMetricChange.bind(this);
+    this.onTimeAggregationChange = this.onTimeAggregationChange.bind(this);
   }
 
   componentDidMount() {
@@ -210,21 +217,7 @@ class LocationPage extends PureComponent {
     const { timeAggregation } = this.props;
 
     return (
-      <div className="time-aggregation">
-        <ul className="list-unstyled">
-          {timeAggregations.map(aggr => (
-            <li key={aggr.value}>
-              <button
-                className={classNames('btn btn-default',
-                  { active: timeAggregation === aggr.value })}
-                onClick={() => this.onTimeAggregationChange(aggr.value)}
-              >
-                {aggr.label}
-              </button>
-            </li>
-          ))}
-        </ul>
-      </div>
+      <TimeAggregationSelector active={timeAggregation} onChange={this.onTimeAggregationChange} />
     );
   }
 
@@ -232,50 +225,40 @@ class LocationPage extends PureComponent {
     const { viewMetric } = this.props;
 
     return (
-      <div className="metric-selector">
-        <ul className="list-unstyled">
-          {metrics.map(metric => (
-            <li key={metric.value}>
-              <button
-                className={classNames('btn btn-default',
-                  { active: viewMetric.value === metric.value })}
-                onClick={() => this.onViewMetricChange(metric.value)}
-              >
-                {metric.label}
-              </button>
-            </li>
-          ))}
-        </ul>
-      </div>
+      <MetricSelector active={viewMetric.value} onChange={this.onViewMetricChange} />
     );
   }
 
   renderChartOptions() {
     const { showBaselines, showRegionalValues } = this.props;
     return (
-      <div>
+      <div className="chart-options">
         <ul className="list-inline">
           <li>
-            <label htmlFor="show-baselines">
-              <input
-                type="checkbox"
-                checked={showBaselines}
-                id="show-baselines"
-                onChange={this.onShowBaselinesChange}
-              />
-              {' Show Baselines'}
-            </label>
+            <div className="checkbox">
+              <label htmlFor="show-baselines">
+                <input
+                  type="checkbox"
+                  checked={showBaselines}
+                  id="show-baselines"
+                  onChange={this.onShowBaselinesChange}
+                />
+                {' Show Baselines'}
+              </label>
+            </div>
           </li>
           <li>
-            <label htmlFor="show-regional-values">
-              <input
-                type="checkbox"
-                checked={showRegionalValues}
-                id="show-regional-values"
-                onChange={this.onShowRegionalValuesChange}
-              />
-              {' Show Regional Values'}
-            </label>
+            <div className="checkbox">
+              <label htmlFor="show-regional-values">
+                <input
+                  type="checkbox"
+                  checked={showRegionalValues}
+                  id="show-regional-values"
+                  onChange={this.onShowRegionalValuesChange}
+                />
+                {' Show Regional Values'}
+              </label>
+            </div>
           </li>
         </ul>
       </div>
@@ -355,7 +338,7 @@ class LocationPage extends PureComponent {
 
   renderFixedTimeFrames() {
     return (
-      <div>
+      <div className="section">
         <header>
           <h2>Compare Fixed Time Frame</h2>
         </header>
@@ -409,7 +392,7 @@ class LocationPage extends PureComponent {
     const locationName = this.props.locationId || 'Location';
 
     return (
-      <div>
+      <div className="location-page">
         <Helmet title={locationName} />
         {this.renderBreadCrumbs()}
         {this.renderCityProviders()}

@@ -1,0 +1,21 @@
+@import "../../assets/variables";
+
+.selectable-list {
+  button {
+    width: 100%;
+    text-align: left;
+    border: 0;
+    border-radius: 0;
+    font-size: 0.9em;
+    background: #eee;
+    padding: 6px 6px;
+    &:hover {
+      background: #ddd;
+    }
+
+    &.active {
+      background: $brand-primary;
+      color: #fff;
+    }
+  }
+}

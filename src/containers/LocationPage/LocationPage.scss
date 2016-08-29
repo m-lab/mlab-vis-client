@@ -1,3 +1,16 @@
 .breadcrumbs {
   padding-bottom: 17px;
 }
+
+.location-page {
+  .metric-selector,
+  .time-aggregation-selector,
+  .client-isp-selector {
+    margin-bottom: 30px;
+  }
+
+  .chart-options .checkbox {
+    margin: 0;
+    font-size: 0.9em;
+  }
+}
