@@ -12,6 +12,7 @@ import {
   HourChartWithCounts,
   MetricSelector,
   TimeAggregationSelector,
+  StatusWrapper,
 } from '../../components';
 
 import UrlHandler from '../../url/UrlHandler';
@@ -42,6 +43,7 @@ function mapStateToProps(state, propsWithUrl) {
     clientIsps: LocationPageSelectors.getLocationClientIsps(state, propsWithUrl),
     hourly: LocationPageSelectors.getLocationHourly(state, propsWithUrl),
     locationTimeSeries: LocationPageSelectors.getLocationTimeSeries(state, propsWithUrl),
+    timeSeriesStatus: LocationPageSelectors.getTimeSeriesStatus(state, propsWithUrl),
     clientIspTimeSeries: LocationPageSelectors.getLocationClientIspTimeSeries(state, propsWithUrl),
     highlightHourly: LocationPageSelectors.getHighlightHourly(state, propsWithUrl),
   };
@@ -62,6 +64,7 @@ class LocationPage extends PureComponent {
     showRegionalValues: PropTypes.bool,
     startDate: PropTypes.object, // date
     timeAggregation: PropTypes.string,
+    timeSeriesStatus: PropTypes.string,
     viewMetric: PropTypes.object,
   }
 
@@ -266,7 +269,7 @@ class LocationPage extends PureComponent {
   }
 
   renderCompareProviders() {
-    const { locationId, locationTimeSeries, viewMetric, clientIspTimeSeries } = this.props;
+    const { locationTimeSeries, timeSeriesStatus, viewMetric, clientIspTimeSeries } = this.props;
     const chartId = 'providers-time-series';
     const chartData = locationTimeSeries && locationTimeSeries.results;
 
@@ -275,21 +278,18 @@ class LocationPage extends PureComponent {
         <header>
           <h3>Compare Providers</h3>
         </header>
-        <LineChartWithCounts
-          id={chartId}
-          data={chartData}
-          series={clientIspTimeSeries}
-          annotationSeries={locationTimeSeries}
-          height={400}
-          width={800}
-          xKey="date"
-          yKey={viewMetric.dataKey}
-        />
-        <ChartExportControls
-          chartId={chartId}
-          data={chartData}
-          filename={`${locationId}_${viewMetric.value}_${chartId}`}
-        />
+        <StatusWrapper status={timeSeriesStatus}>
+          <LineChartWithCounts
+            id={chartId}
+            data={chartData}
+            series={clientIspTimeSeries}
+            annotationSeries={locationTimeSeries}
+            height={400}
+            width={800}
+            xKey="date"
+            yKey={viewMetric.dataKey}
+          />
+        </StatusWrapper>
         {this.renderChartOptions()}
       </div>
     );

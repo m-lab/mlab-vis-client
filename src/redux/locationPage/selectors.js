@@ -5,7 +5,7 @@
 import { createSelector } from 'reselect';
 import { initialLocationState } from '../locations/reducer';
 import { metrics } from '../../constants';
-
+import { mergeStatuses, status } from '../status';
 // ----------------------
 // Input Selectors
 // ----------------------
@@ -29,6 +29,11 @@ export function getLocationHourly(state, props) {
 export function getLocationTimeSeries(state, props) {
   const location = getLocation(state, props);
   return location.time.timeSeries.data;
+}
+
+export function getLocationTimeSeriesStatus(state, props) {
+  const location = getLocation(state, props);
+  return status(location.time.timeSeries);
 }
 
 export function getLocationClientIsps(state, props) {
@@ -84,3 +89,32 @@ export const getLocationClientIspTimeSeries = createSelector(
     return timeSeriesData;
   }
 );
+
+/**
+ * Selector to get the status of the location+client ISP time series data
+ * for the selected client ISPs
+ */
+export const getLocationClientIspTimeSeriesStatus = createSelector(
+  getLocationClientIsps, getLocation,
+  (clientIsps, location) => {
+    if (!clientIsps || !location) {
+      return undefined;
+    }
+
+    const timeSeriesObjects = clientIsps.map(clientIsp => {
+      const clientIspId = clientIsp.meta.client_asn_number;
+      const locationClientIsp = location.time.clientIsps[clientIspId];
+      return locationClientIsp && locationClientIsp.timeSeries;
+    });
+
+    return status(timeSeriesObjects);
+  }
+);
+
+/**
+ * Selector to get the status of all the active time series data (location and
+ * location+clientISP)
+ */
+export const getTimeSeriesStatus = createSelector(
+  getLocationClientIspTimeSeriesStatus, getLocationTimeSeriesStatus,
+  (ispStatus, locationStatus) => mergeStatuses(ispStatus, locationStatus));

@@ -1,0 +1,12 @@
+.status-wrapper {
+  transition: opacity 200ms, background-color 200ms;
+
+  &.status-loading {
+    opacity: 0.2;
+  }
+
+  &.status-error {
+    background-color: rgba(255, 0, 0, 0.1);
+    outline: 1px dashed rgba(255, 0, 0, 0.2);
+  }
+}
