@@ -8,6 +8,7 @@
 export ChartExportControls from './ChartExportControls/ChartExportControls';
 export SelectableList from './SelectableList/SelectableList';
 export MetricSelector from './MetricSelector/MetricSelector';
+export StatusWrapper from './StatusWrapper/StatusWrapper';
 export TimeAggregationSelector from './TimeAggregationSelector/TimeAggregationSelector';
 export Icon from './Icon/Icon';
 export JsonDump from './JsonDump/JsonDump';
