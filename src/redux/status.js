@@ -47,13 +47,9 @@ export function mergeStatuses(statuses) {
  * @return {String} The status ('loading', 'ready', 'error', 'unknown')
  */
 export function status(input) {
-  let statuses;
-
   if (Array.isArray(input)) {
-    statuses = input.map(objStatus);
-  } else {
-    statuses = [objStatus(input)];
+    return mergeStatuses(input.map(objStatus));
   }
 
-  return mergeStatuses(statuses);
+  return objStatus(input);
 }
