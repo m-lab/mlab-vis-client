@@ -32,7 +32,7 @@ class App extends PureComponent {
         <Navbar.Header>
           <Navbar.Brand>
             <IndexLink to="/">
-              <img alt="MLab" src="/img/mlab_logo_white.png" style={{ width: 80 }} />
+              <img alt="MLab" src="/img/mlab_logo_white.png" />
               <span>vis</span>
             </IndexLink>
           </Navbar.Brand>
