@@ -49,6 +49,10 @@ export function getLocationClientIsps(state, props) {
   return location.clientIsps.data;
 }
 
+/**
+ * Inflates clientIspIds into clientIsp values and returns
+ * selected clientIsps
+ */
 export function getLocationClientIspsSelected(state, props) {
   const clientIsps = getLocationClientIsps(state, props);
   const selectedIds = props.selectedClientIspIds;

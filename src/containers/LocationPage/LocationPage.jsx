@@ -104,9 +104,9 @@ class LocationPage extends PureComponent {
     dispatch(LocationsActions.fetchHourlyIfNeeded(timeAggregation, locationId));
     dispatch(LocationsActions.fetchClientIspsIfNeeded(locationId));
 
-    // fetch data for selected Client ISPs
+    // setup selected ISPs if needed
     if (clientIsps) {
-      if (!selectedClientIspIds || selectedClientIspIds.length === 0) {
+      if (!selectedClientIspIds) {
         const newSelectedIsps = [];
         clientIsps.slice(0, 3).forEach(clientIsp => {
           const clientIspId = clientIsp.meta.client_asn_number;
@@ -116,6 +116,7 @@ class LocationPage extends PureComponent {
       }
     }
 
+    // fetch data for selected Client ISPs
     if (selectedClientIspIds) {
       selectedClientIspIds.forEach(clientIspId => {
         dispatch(LocationsActions.fetchClientIspLocationTimeSeriesIfNeeded(timeAggregation,
@@ -166,9 +167,13 @@ class LocationPage extends PureComponent {
     dispatch(LocationPageActions.highlightHourly(d));
   }
 
-  onSelectedClientIspsChange(value) {
+  /**
+   * Callback for when The Selected Client ISPs change
+   * @param {Array} ispIds Ids of currently selected ISPs
+   */
+  onSelectedClientIspsChange(ispIds) {
     const { dispatch } = this.props;
-    dispatch(LocationPageActions.changeSelectedClientIspIds(value));
+    dispatch(LocationPageActions.changeSelectedClientIspIds(ispIds));
   }
 
   /**
@@ -233,7 +238,6 @@ class LocationPage extends PureComponent {
           selected={selectedClientIsps}
           onChange={this.onSelectedClientIspsChange}
         />
-
       </div>
     );
   }

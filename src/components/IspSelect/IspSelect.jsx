@@ -7,6 +7,9 @@ import { Icon } from '../../components';
 import './react-select.scss';
 import './IspSelect.scss';
 
+/**
+ * ISP Selection and display component
+ */
 export default class IspSelect extends PureComponent {
 
   static propTypes = {
@@ -29,16 +32,27 @@ export default class IspSelect extends PureComponent {
     this.onRemove = this.onRemove.bind(this);
   }
 
-  onAdd(newValue) {
+  /**
+   * Callback to add a specified option to the
+   * selected ISP list
+   * @param {Object} {value: label:} option object to Add
+   */
+  onAdd(addValue) {
     const { selected, onChange } = this.props;
     // convert to options first
     const values = this.getOptions(selected);
-    values.push(newValue);
+    // addValue is a option Object
+    values.push(addValue);
     if (onChange) {
       onChange(values.map(value => value.value));
     }
   }
 
+  /**
+   * Callback to remove a specified value from the
+   * selected ISP list
+   * @param {Object} ISP object to remove
+   */
   onRemove(removeValue) {
     const { selected, onChange } = this.props;
     const filtered = selected.filter((isp) => isp.meta.client_asn_number !== removeValue.meta.client_asn_number);
@@ -48,10 +62,19 @@ export default class IspSelect extends PureComponent {
     }
   }
 
+  /**
+   * convert array of ISPs to an array of options to display
+   * @param {Array} isps ISPs to convert
+   * @return {Array} array of {value: label:} objects
+   */
   getOptions(isps) {
     return isps.map(isp => ({ value: isp.meta.client_asn_number, label: isp.meta.client_asn_name }));
   }
 
+  /**
+   * Render individual isp name
+   * @return {React.Component} active isps
+   */
   renderIsp(isp) {
     return (
       <div key={isp.meta.client_asn_number} className="selected-isp">
@@ -65,6 +88,10 @@ export default class IspSelect extends PureComponent {
     );
   }
 
+  /**
+   * Render selected ISP pills
+   * @return {React.Component} active isps
+   */
   renderSelectedIsps(selectedIsps) {
     return (
       <div className="active-isps">
@@ -74,7 +101,6 @@ export default class IspSelect extends PureComponent {
       </div>
     );
   }
-
 
   /**
    * The main render method.
