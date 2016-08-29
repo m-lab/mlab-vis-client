@@ -1,0 +1,28 @@
+@import "variables";
+
+// override btn styling
+.btn-default {
+  border-bottom: 3px solid $btn-default-border;
+
+  &.active {
+    border-bottom: 3px solid darken($btn-default-bg, 10%);
+  }
+}
+.btn-primary {
+  border-bottom: 3px solid $btn-primary-border;
+
+  &.active {
+    border-bottom: 3px solid darken($btn-primary-bg, 10%);
+  }
+}
+
+.btn {
+  font-size: ceil($font-size-base * 0.9);
+}
+
+.btn-xs, .btn-sm {
+  font-size: $font-size-small;
+}
+.btn-lg {
+  font-size: $font-size-large;
+}

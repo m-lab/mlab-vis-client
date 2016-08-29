@@ -1,7 +1,7 @@
 import React, { PureComponent, PropTypes } from 'react';
 import Helmet from 'react-helmet';
 import classNames from 'classnames';
-import { browserHistory } from 'react-router';
+import { Link, browserHistory } from 'react-router';
 import { Row, Col } from 'react-bootstrap';
 import { timeAggregations, metrics } from '../../constants';
 import * as LocationPageSelectors from '../../redux/locationPage/selectors';
@@ -12,6 +12,7 @@ import { ChartExportControls, LineChartWithCounts, HourChartWithCounts } from '.
 import UrlHandler from '../../url/UrlHandler';
 import urlConnect from '../../url/urlConnect';
 
+import './LocationPage.scss';
 
 // Define how to read/write state to URL query parameters
 const urlQueryConfig = {
@@ -155,9 +156,16 @@ class LocationPage extends PureComponent {
   }
 
   renderCityProviders() {
+    const locationName = this.props.locationId;
     return (
-      <div>
-        <h2>City {this.props.locationId}</h2>
+      <div className="section">
+        <header>
+          <div className="pull-right">
+            {this.renderTimeRangeSelector()}
+          </div>
+          <h2>{locationName}</h2>
+
+        </header>
         <Row>
           <Col md={3}>
             {this.renderClientIspSelector()}
@@ -170,6 +178,14 @@ class LocationPage extends PureComponent {
             {this.renderProvidersByHour()}
           </Col>
         </Row>
+      </div>
+    );
+  }
+
+  renderTimeRangeSelector() {
+    return (
+      <div>
+        <input type="date" value="2015-10-01" onChange={() => {}} />
       </div>
     );
   }
@@ -272,8 +288,10 @@ class LocationPage extends PureComponent {
     const chartData = locationTimeSeries && locationTimeSeries.results;
 
     return (
-      <div>
-        <h3>Compare Providers</h3>
+      <div className="subsection">
+        <header>
+          <h3>Compare Providers</h3>
+        </header>
         <LineChartWithCounts
           id={chartId}
           data={chartData}
@@ -296,8 +314,10 @@ class LocationPage extends PureComponent {
 
   renderCompareMetrics() {
     return (
-      <div>
-        <h3>Compare Metrics</h3>
+      <div className="subsection">
+        <header>
+          <h3>Compare Metrics</h3>
+        </header>
       </div>
     );
   }
@@ -309,8 +329,10 @@ class LocationPage extends PureComponent {
     const chartData = hourly && hourly.results;
 
     return (
-      <div>
-        <h3>By Hour, Median download speeds</h3>
+      <div className="subsection">
+        <header>
+          <h3>By Hour, Median download speeds</h3>
+        </header>
         <HourChartWithCounts
           data={hourly && hourly.results}
           height={400}
@@ -334,7 +356,9 @@ class LocationPage extends PureComponent {
   renderFixedTimeFrames() {
     return (
       <div>
-        <h2>Compare Fixed Time Frame</h2>
+        <header>
+          <h2>Compare Fixed Time Frame</h2>
+        </header>
         {this.renderFixedCompareMetrics()}
         {this.renderFixedDistributions()}
         {this.renderFixedSummaryData()}
@@ -344,40 +368,49 @@ class LocationPage extends PureComponent {
 
   renderFixedCompareMetrics() {
     return (
-      <div>
-        <h3>Compare Metrics</h3>
+      <div className="subsection">
+        <header>
+          <h3>Compare Metrics</h3>
+        </header>
       </div>
     );
   }
 
   renderFixedDistributions() {
     return (
-      <div>
-        <h3>Distributions of Metrics</h3>
+      <div className="subsection">
+        <header>
+          <h3>Distributions of Metrics</h3>
+        </header>
       </div>
     );
   }
 
   renderFixedSummaryData() {
     return (
-      <div>
-        <h3>Summary Data</h3>
+      <div className="subsection">
+        <header>
+          <h3>Summary Data</h3>
+        </header>
       </div>
     );
   }
 
   renderBreadCrumbs() {
     return (
-      <div>
-        {`Some / Bread / Crumbs / ${this.props.locationId}`}
+      <div className="breadcrumbs">
+        {'Some / Bread / Crumbs / '}
+        <Link to={`/location/${this.props.locationId}`}>{this.props.locationId}</Link>
       </div>
     );
   }
 
   render() {
+    const locationName = this.props.locationId || 'Location';
+
     return (
       <div>
-        <Helmet title="Location" />
+        <Helmet title={locationName} />
         {this.renderBreadCrumbs()}
         {this.renderCityProviders()}
         {this.renderFixedTimeFrames()}
