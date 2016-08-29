@@ -1,3 +1,14 @@
-body {
-  background: #fff;
+.navbar-brand {
+  > img {
+    width: 81px;
+    height: 24px;
+    display: inline-block;
+    margin-top: -11px;
+  }
+  > span {
+    margin-left: 2px;
+    font-weight: 100;
+    font-size: 25px;
+    line-height: 1.1;
+  }
 }

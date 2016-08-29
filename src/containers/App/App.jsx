@@ -1,11 +1,14 @@
 import React, { PureComponent, PropTypes } from 'react';
+import { IndexLinkContainer, LinkContainer } from 'react-router-bootstrap';
+import { Navbar, Nav, NavItem } from 'react-bootstrap';
 import { connect } from 'react-redux';
 import Helmet from 'react-helmet';
-import { Link } from 'react-router';
+import { IndexLink } from 'react-router';
 
 import config from '../../config';
 
 import '../../assets/base.scss';
+import './App.scss';
 
 function mapStateToProps() {
   return {
@@ -23,19 +26,31 @@ class App extends PureComponent {
     store: PropTypes.object.isRequired,
   };
 
+  renderNav() {
+    return (
+      <Navbar>
+        <Navbar.Header>
+          <Navbar.Brand>
+            <IndexLink to="/">
+              <img alt="MLab" src="img/mlab_logo_white.png" style={{ width: 80 }} />
+              <span>vis</span>
+            </IndexLink>
+          </Navbar.Brand>
+        </Navbar.Header>
+        <Nav>
+          <IndexLinkContainer to="/"><NavItem eventKey={1}>Home</NavItem></IndexLinkContainer>
+          <LinkContainer to="/location/nausmacambridge"><NavItem eventKey={2}>Cambridge</NavItem></LinkContainer>
+          <LinkContainer to="/location/nauswaseattle"><NavItem eventKey={3}>Seattle</NavItem></LinkContainer>
+        </Nav>
+      </Navbar>
+    );
+  }
+
   render() {
     return (
       <div>
         <Helmet {...config.app.head} />
-        <div className="nav">
-          <div className="container">
-            <ul className="list-inline">
-              <li><Link to="/">Home</Link></li>
-              <li><Link to="/location/nausmacambridge">Cambridge</Link></li>
-              <li><Link to="/location/nauswaseattle">Seattle</Link></li>
-            </ul>
-          </div>
-        </div>
+        {this.renderNav()}
         <div className="container">
           {this.props.children}
         </div>
