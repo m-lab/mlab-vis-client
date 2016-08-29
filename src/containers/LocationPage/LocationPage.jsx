@@ -42,6 +42,7 @@ function mapStateToProps(state, propsWithUrl) {
     viewMetric: LocationPageSelectors.getViewMetric(state, propsWithUrl),
     clientIsps: LocationPageSelectors.getLocationClientIsps(state, propsWithUrl),
     hourly: LocationPageSelectors.getLocationHourly(state, propsWithUrl),
+    hourlyStatus: LocationPageSelectors.getLocationHourlyStatus(state, propsWithUrl),
     locationTimeSeries: LocationPageSelectors.getLocationTimeSeries(state, propsWithUrl),
     timeSeriesStatus: LocationPageSelectors.getTimeSeriesStatus(state, propsWithUrl),
     clientIspTimeSeries: LocationPageSelectors.getLocationClientIspTimeSeries(state, propsWithUrl),
@@ -57,6 +58,7 @@ class LocationPage extends PureComponent {
     endDate: PropTypes.object, // date
     highlightHourly: PropTypes.object,
     hourly: PropTypes.object,
+    hourlyStatus: PropTypes.string,
     location: PropTypes.object, // route location
     locationId: PropTypes.string,
     locationTimeSeries: PropTypes.object,
@@ -306,7 +308,7 @@ class LocationPage extends PureComponent {
   }
 
   renderProvidersByHour() {
-    const { hourly, highlightHourly, locationId, viewMetric } = this.props;
+    const { hourly, hourlyStatus, highlightHourly, locationId, viewMetric } = this.props;
     const extentKey = this.extentKey(viewMetric);
     const chartId = 'providers-hourly';
     const chartData = hourly && hourly.results;
@@ -316,22 +318,24 @@ class LocationPage extends PureComponent {
         <header>
           <h3>By Hour, Median download speeds</h3>
         </header>
-        <HourChartWithCounts
-          data={hourly && hourly.results}
-          height={400}
-          highlightPoint={highlightHourly}
-          id={chartId}
-          onHighlightPoint={this.onHighlightHourly}
-          threshold={30}
-          width={800}
-          yExtent={hourly && hourly.extents[extentKey]}
-          yKey={viewMetric.dataKey}
-        />
-        <ChartExportControls
-          chartId={chartId}
-          data={chartData}
-          filename={`${locationId}_${viewMetric.value}_${chartId}`}
-        />
+        <StatusWrapper status={hourlyStatus}>
+          <HourChartWithCounts
+            data={hourly && hourly.results}
+            height={400}
+            highlightPoint={highlightHourly}
+            id={chartId}
+            onHighlightPoint={this.onHighlightHourly}
+            threshold={30}
+            width={800}
+            yExtent={hourly && hourly.extents[extentKey]}
+            yKey={viewMetric.dataKey}
+          />
+          <ChartExportControls
+            chartId={chartId}
+            data={chartData}
+            filename={`${locationId}_${viewMetric.value}_${chartId}`}
+          />
+        </StatusWrapper>
       </div>
     );
   }

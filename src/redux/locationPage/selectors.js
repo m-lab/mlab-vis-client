@@ -26,6 +26,11 @@ export function getLocationHourly(state, props) {
   return location.time.hourly.data;
 }
 
+export function getLocationHourlyStatus(state, props) {
+  const location = getLocation(state, props);
+  return status(location.time.hourly);
+}
+
 export function getLocationTimeSeries(state, props) {
   const location = getLocation(state, props);
   return location.time.timeSeries.data;
