@@ -2,9 +2,12 @@
  * Selectors for locationPage
  */
 
+import _ from 'lodash';
+
 import { createSelector } from 'reselect';
 import { initialLocationState } from '../locations/reducer';
 import { metrics } from '../../constants';
+
 
 // ----------------------
 // Input Selectors
@@ -33,8 +36,20 @@ export function getLocationTimeSeries(state, props) {
 
 export function getLocationClientIsps(state, props) {
   const location = getLocation(state, props);
-  // TODO: this temporarily limits to top 3 ISPs
-  return location.clientIsps.data && location.clientIsps.data.slice(0, 3);
+  return location.clientIsps.data;
+}
+
+export function getLocationClientIspsSelected(state, props) {
+  const clientIsps = getLocationClientIsps(state, props);
+  const selectedIds = props.selectedClientIspIds;
+  if (clientIsps && selectedIds) {
+    const selected = _.filter(clientIsps, (isp) =>
+      _.includes(selectedIds, isp.meta.client_asn_number)
+    );
+
+    return selected;
+  }
+  return [];
 }
 
 export function getHighlightHourly(state) {
@@ -69,7 +84,7 @@ export function getViewMetric(state, props) {
  * for the selected client ISPs
  */
 export const getLocationClientIspTimeSeries = createSelector(
-  getLocationClientIsps, getLocation,
+  getLocationClientIspsSelected, getLocation,
   (clientIsps, location) => {
     if (!clientIsps || !location) {
       return undefined;

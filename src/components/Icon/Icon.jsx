@@ -6,14 +6,16 @@ import React, { PureComponent, PropTypes } from 'react';
  */
 export default class Icon extends PureComponent {
   static propTypes = {
+    className: PropTypes.string,
     name: PropTypes.string.isRequired,
+    onClick: PropTypes.func,
   }
 
   render() {
-    const { name } = this.props;
+    const { name, className, onClick } = this.props;
 
     return (
-      <i className={`fa fa-${name}`} />
+      <i className={`fa fa-${name} ${className}`} onClick={onClick} />
     );
   }
 }
