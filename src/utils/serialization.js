@@ -91,6 +91,34 @@ export function decodeJson(jsonStr) {
 }
 
 /**
+ * Encodes anything as a JSON string.
+ *
+ * @param {Any} any The thing to be encoded
+ * @return {String} The JSON string representation of any
+ */
+export function encodeArray(any, entrySeparator = '_') {
+  if (!any) {
+    return undefined;
+  }
+
+  return any.join(entrySeparator);
+}
+
+/**
+ * Decodes a JSON string into javascript
+ *
+ * @param {String} jsonStr The JSON string representation
+ * @return {Any} The javascript representation
+ */
+export function decodeArray(arrayStr, entrySeparator = '_') {
+  if (!arrayStr) {
+    return undefined;
+  }
+
+  return arrayStr.split(entrySeparator);
+}
+
+/**
  * Encode simple objects as readable strings. Currently works only for simple,
  * flat objects where values are numbers, booleans or strings.
  *
@@ -150,6 +178,10 @@ export const Decoders = {
     return decodeObject(d);
   },
 
+  array(d) {
+    return decodeArray(d);
+  },
+
   json(d) {
     return decodeJson(d);
   },
@@ -203,6 +235,10 @@ export const Encoders = {
 
   object(d) {
     return encodeObject(d);
+  },
+
+  array(d) {
+    return encodeArray(d);
   },
 
   json(d) {

@@ -6,6 +6,7 @@ import { createSelector } from 'reselect';
 import { initialLocationState } from '../locations/reducer';
 import { metrics } from '../../constants';
 import { mergeStatuses, status } from '../status';
+
 // ----------------------
 // Input Selectors
 // ----------------------
@@ -43,8 +44,22 @@ export function getLocationTimeSeriesStatus(state, props) {
 
 export function getLocationClientIsps(state, props) {
   const location = getLocation(state, props);
-  // TODO: this temporarily limits to top 3 ISPs
-  return location.clientIsps.data && location.clientIsps.data.slice(0, 3);
+  return location.clientIsps.data;
+}
+
+/**
+ * Inflates clientIspIds into clientIsp values and returns
+ * selected clientIsps
+ */
+export function getLocationClientIspsSelected(state, props) {
+  const clientIsps = getLocationClientIsps(state, props);
+  const selectedIds = props.selectedClientIspIds;
+  if (clientIsps && selectedIds) {
+    const selected = clientIsps.filter(isp => selectedIds.includes(isp.meta.client_asn_number));
+
+    return selected;
+  }
+  return [];
 }
 
 export function getHighlightHourly(state) {
@@ -79,7 +94,7 @@ export function getViewMetric(state, props) {
  * for the selected client ISPs
  */
 export const getLocationClientIspTimeSeries = createSelector(
-  getLocationClientIsps, getLocation,
+  getLocationClientIspsSelected, getLocation,
   (clientIsps, location) => {
     if (!clientIsps || !location) {
       return undefined;
