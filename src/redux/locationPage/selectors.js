@@ -89,33 +89,13 @@ export function getViewMetric(state, props) {
 // Selectors
 // ----------------------
 
+
 /**
- * Selector to get the location+client ISP time series data
+ * Selector to get the data objects for location+client ISP time series data
  * for the selected client ISPs
  */
-export const getLocationClientIspTimeSeries = createSelector(
+export const getLocationClientIspTimeSeriesObjects = createSelector(
   getLocationClientIspsSelected, getLocation,
-  (clientIsps, location) => {
-    if (!clientIsps || !location) {
-      return undefined;
-    }
-
-    const timeSeriesData = clientIsps.map(clientIsp => {
-      const clientIspId = clientIsp.meta.client_asn_number;
-      const locationClientIsp = location.time.clientIsps[clientIspId];
-      return locationClientIsp && locationClientIsp.timeSeries.data;
-    }).filter(timeSeries => timeSeries != null);
-
-    return timeSeriesData;
-  }
-);
-
-/**
- * Selector to get the status of the location+client ISP time series data
- * for the selected client ISPs
- */
-export const getLocationClientIspTimeSeriesStatus = createSelector(
-  getLocationClientIsps, getLocation,
   (clientIsps, location) => {
     if (!clientIsps || !location) {
       return undefined;
@@ -127,9 +107,34 @@ export const getLocationClientIspTimeSeriesStatus = createSelector(
       return locationClientIsp && locationClientIsp.timeSeries;
     });
 
-    return status(timeSeriesObjects);
+    return timeSeriesObjects;
   }
 );
+
+/**
+ * Selector to get the location+client ISP time series data
+ * for the selected client ISPs
+ */
+export const getLocationClientIspTimeSeries = createSelector(
+  getLocationClientIspTimeSeriesObjects,
+  (timeSeriesObjects) => {
+    if (!timeSeriesObjects) {
+      return undefined;
+    }
+
+    return timeSeriesObjects.map(timeSeries => timeSeries && timeSeries.data)
+      .filter(timeSeries => timeSeries != null);
+  }
+);
+
+/**
+ * Selector to get the status of the location+client ISP time series data
+ * for the selected client ISPs
+ */
+export const getLocationClientIspTimeSeriesStatus = createSelector(
+  getLocationClientIspTimeSeriesObjects,
+  (timeSeriesObjects) => status(timeSeriesObjects));
+
 
 /**
  * Selector to get the status of all the active time series data (location and
