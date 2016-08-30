@@ -2,8 +2,6 @@
  * Selectors for locationPage
  */
 
-import _ from 'lodash';
-
 import { createSelector } from 'reselect';
 import { initialLocationState } from '../locations/reducer';
 import { metrics } from '../../constants';
@@ -57,9 +55,7 @@ export function getLocationClientIspsSelected(state, props) {
   const clientIsps = getLocationClientIsps(state, props);
   const selectedIds = props.selectedClientIspIds;
   if (clientIsps && selectedIds) {
-    const selected = _.filter(clientIsps, (isp) =>
-      _.includes(selectedIds, isp.meta.client_asn_number)
-    );
+    const selected = clientIsps.filter(isp => selectedIds.includes(isp.meta.client_asn_number));
 
     return selected;
   }

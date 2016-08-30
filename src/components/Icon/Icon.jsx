@@ -12,10 +12,10 @@ export default class Icon extends PureComponent {
   }
 
   render() {
-    const { name, className, onClick } = this.props;
+    const { name, ...other } = this.props;
 
     return (
-      <i className={`fa fa-${name} ${className}`} onClick={onClick} />
+      <i {...other} className={`fa fa-${name} ${other.className || ''}`} />
     );
   }
 }

@@ -107,6 +107,8 @@ class LocationPage extends PureComponent {
     // setup selected ISPs if needed
     if (clientIsps) {
       if (!selectedClientIspIds) {
+        // once we have the client ISPs for the location, if we don't have selected client ISPs,
+        // set the selected client ISPs to the top 3 for the location.
         const newSelectedIsps = [];
         clientIsps.slice(0, 3).forEach(clientIsp => {
           const clientIspId = clientIsp.meta.client_asn_number;
