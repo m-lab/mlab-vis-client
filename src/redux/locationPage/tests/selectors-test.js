@@ -95,8 +95,7 @@ describe('redux', () => {
         };
         const result = getLocationClientIsps(state, { locationId: 'myLocation' });
 
-        // Currently limits to top 3 ISPs
-        expect(result).to.deep.equal(['one', 'two', 'three']);
+        expect(result).to.deep.equal(['one', 'two', 'three', 'four']);
 
         // location not found
         expect(getLocationClientIsps(state, { locationId: 'foo' })).to.equal(undefined);
@@ -159,7 +158,9 @@ describe('redux', () => {
         };
 
         // should get the data from 100 and 200, but not 300 since it isn't there yet.
-        const result = getLocationClientIspTimeSeries(state, { locationId: 'myLocation' });
+        // depends on selectedClientIspIds to determine starting point.
+        const props = { locationId: 'myLocation', selectedClientIspIds: ['AS100', 'AS200', 'AS300'] };
+        const result = getLocationClientIspTimeSeries(state, props);
         expect(result).to.deep.equal(['as100-time!', 'as200-time!']);
       });
     }); // reducer
