@@ -4,7 +4,7 @@ import Select from 'react-select';
 
 import { Icon } from '../../components';
 
-import './react-select.scss';
+import '../../assets/react-select.scss';
 import './IspSelect.scss';
 
 /**
