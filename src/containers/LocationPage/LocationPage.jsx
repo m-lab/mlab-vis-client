@@ -14,6 +14,7 @@ import {
   TimeAggregationSelector,
   StatusWrapper,
   IspSelect,
+  DateRangeSelector,
 } from '../../components';
 
 import UrlHandler from '../../url/UrlHandler';
@@ -200,10 +201,14 @@ class LocationPage extends PureComponent {
     return (
       <div className="section">
         <header>
-          <div className="pull-right">
-            {this.renderTimeRangeSelector()}
-          </div>
-          <h2>{locationName}</h2>
+          <Row>
+            <Col md={3}>
+              <h2>{locationName}</h2>
+            </Col>
+            <Col md={9}>
+              {this.renderTimeRangeSelector()}
+            </Col>
+          </Row>
 
         </header>
         <Row>
@@ -224,9 +229,7 @@ class LocationPage extends PureComponent {
 
   renderTimeRangeSelector() {
     return (
-      <div>
-        <input type="date" value="2015-10-01" onChange={() => {}} />
-      </div>
+      <DateRangeSelector />
     );
   }
 
