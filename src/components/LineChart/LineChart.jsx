@@ -149,17 +149,35 @@ export default class LineChart extends PureComponent {
       yScale.domain(yDomain);
     }
 
-    // function to generate paths for each series
-    const line = d3.line()
-      .curve(d3.curveLinear)
-      .x((d) => xScale(d[xKey]))
-      .y((d) => yScale(d[yKey]));
-
     // initialize a color scale
     const color = d3.scaleOrdinal(d3.schemeCategory10);
     if (series) {
       color.domain(d3.range(series.length));
     }
+
+    // function to generate paths for each series
+    const lineChunked = d3.lineChunked()
+      .x((d) => xScale(d[xKey]))
+      .y((d) => yScale(d[yKey]))
+      .curve(d3.curveLinear)
+      .defined(d => d[yKey] != null)
+      .accessData(d => d.results)
+      .lineStyles({
+        stroke: (d, i) => color(i),
+        'stroke-width': 1.5,
+      });
+
+    // function to generate paths for each annotation series
+    const annotationLineChunked = d3.lineChunked()
+      .x(lineChunked.x())
+      .y(lineChunked.y())
+      .curve(lineChunked.curve())
+      .defined(lineChunked.defined())
+      .accessData(lineChunked.accessData())
+      .lineStyles({
+        stroke: '#aaa',
+        'stroke-width': 1,
+      });
 
     // ensure annotation series is an array
     if (annotationSeries && !Array.isArray(annotationSeries)) {
@@ -167,13 +185,14 @@ export default class LineChart extends PureComponent {
     }
 
     return {
+      annotationLineChunked,
       annotationSeries,
       color,
       height,
       innerHeight,
       innerMargin,
       innerWidth,
-      line,
+      lineChunked,
       series,
       width,
       xScale,
@@ -210,25 +229,22 @@ export default class LineChart extends PureComponent {
    * Render the lines in the chart
    */
   renderLines() {
-    const { series, line, color } = this.visComponents;
+    const { series, lineChunked } = this.visComponents;
 
     if (!series) {
-      this.lines.selectAll('path').remove();
+      this.lines.selectAll('*').remove();
       return;
     }
 
-    const binding = this.lines.selectAll('path').data(series);
+    const binding = this.lines.selectAll('g').data(series);
 
     // ENTER
-    const entering = binding.enter()
-      .append('path')
-      .style('fill', 'none');
+    const entering = binding.enter().append('g');
 
     // ENTER + UPDATE
     binding.merge(entering)
-      .style('stroke', (d, i) => color(i))
-      .style('stroke-width', 1.5)
-      .attr('d', oneSeries => line(oneSeries.results));
+      .transition()
+      .call(lineChunked);
 
     // EXIT
     binding.exit().remove();
@@ -238,25 +254,22 @@ export default class LineChart extends PureComponent {
    * Render the annotation lines in the chart
    */
   renderAnnotationLines() {
-    const { annotationSeries, line } = this.visComponents;
+    const { annotationSeries, annotationLineChunked } = this.visComponents;
 
     if (!annotationSeries) {
-      this.annotationLines.selectAll('path').remove();
+      this.annotationLines.selectAll('*').remove();
       return;
     }
 
-    const binding = this.annotationLines.selectAll('path').data(annotationSeries);
+    const binding = this.annotationLines.selectAll('g').data(annotationSeries);
 
     // ENTER
-    const entering = binding.enter()
-      .append('path')
-      .style('fill', 'none');
+    const entering = binding.enter().append('g');
 
     // ENTER + UPDATE
     binding.merge(entering)
-      .style('stroke', '#aaa')
-      .style('stroke-width', 1)
-      .attr('d', oneSeries => line(oneSeries.results));
+      .transition()
+      .call(annotationLineChunked);
 
     // EXIT
     binding.exit().remove();
