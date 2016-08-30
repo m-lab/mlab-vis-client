@@ -16,6 +16,7 @@ try {
   developerSettings = JSON.parse(fs.readFileSync(path.join(__dirname,
     '..', 'developer-settings.json'), 'utf8')).webpack;
 } catch (e) { /* ignore if not there */ }
+developerSettings = developerSettings || {};
 
 // https://github.com/halt-hammerzeit/webpack-isomorphic-tools
 var WebpackIsomorphicToolsPlugin = require('webpack-isomorphic-tools/plugin');
