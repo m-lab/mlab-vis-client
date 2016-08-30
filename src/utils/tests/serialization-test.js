@@ -29,10 +29,15 @@ describe('utils', () => {
 
     describe('decodeDate', () => {
       it('produces the correct value', () => {
-        const date = new Date(2016, 2, 1);
-        const result = decodeDate('2016-03-01');
+        let result = decodeDate('2016-03-01');
         expect(result.getFullYear()).to.equal(2016);
         expect(result.getMonth()).to.equal(2);
+        expect(result.getDate()).to.equal(1);
+
+        // javascript likes to give us 2015-12-31 19:00, so test this doesn't.
+        result = decodeDate('2016');
+        expect(result.getFullYear()).to.equal(2016);
+        expect(result.getMonth()).to.equal(0);
         expect(result.getDate()).to.equal(1);
       });
 
