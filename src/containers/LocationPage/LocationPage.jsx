@@ -13,6 +13,7 @@ import {
   MetricSelector,
   TimeAggregationSelector,
   StatusWrapper,
+  IspSelect,
 } from '../../components';
 
 import UrlHandler from '../../url/UrlHandler';
@@ -32,6 +33,7 @@ const urlQueryConfig = {
   startDate: { type: 'date', urlKey: 'start' },
   endDate: { type: 'date', urlKey: 'end' },
   timeAggregation: { type: 'string', defaultValue: 'day', urlKey: 'aggr' },
+  selectedClientIspIds: { type: 'array', urlKey: 'isps' },
 };
 const urlHandler = new UrlHandler(urlQueryConfig, browserHistory);
 
@@ -41,6 +43,7 @@ function mapStateToProps(state, propsWithUrl) {
     ...propsWithUrl,
     viewMetric: LocationPageSelectors.getViewMetric(state, propsWithUrl),
     clientIsps: LocationPageSelectors.getLocationClientIsps(state, propsWithUrl),
+    selectedClientIsps: LocationPageSelectors.getLocationClientIspsSelected(state, propsWithUrl),
     hourly: LocationPageSelectors.getLocationHourly(state, propsWithUrl),
     hourlyStatus: LocationPageSelectors.getLocationHourlyStatus(state, propsWithUrl),
     locationTimeSeries: LocationPageSelectors.getLocationTimeSeries(state, propsWithUrl),
@@ -62,6 +65,8 @@ class LocationPage extends PureComponent {
     location: PropTypes.object, // route location
     locationId: PropTypes.string,
     locationTimeSeries: PropTypes.object,
+    selectedClientIspIds: PropTypes.array,
+    selectedClientIsps: PropTypes.array,
     showBaselines: PropTypes.bool,
     showRegionalValues: PropTypes.bool,
     startDate: PropTypes.object, // date
@@ -79,6 +84,7 @@ class LocationPage extends PureComponent {
     this.onShowRegionalValuesChange = this.onShowRegionalValuesChange.bind(this);
     this.onViewMetricChange = this.onViewMetricChange.bind(this);
     this.onTimeAggregationChange = this.onTimeAggregationChange.bind(this);
+    this.onSelectedClientIspsChange = this.onSelectedClientIspsChange.bind(this);
   }
 
   componentDidMount() {
@@ -93,15 +99,28 @@ class LocationPage extends PureComponent {
    * Fetch the data for the page if needed
    */
   fetchData(props) {
-    const { dispatch, locationId, timeAggregation, clientIsps } = props;
+    const { dispatch, locationId, timeAggregation, clientIsps, selectedClientIspIds } = props;
     dispatch(LocationsActions.fetchTimeSeriesIfNeeded(timeAggregation, locationId));
     dispatch(LocationsActions.fetchHourlyIfNeeded(timeAggregation, locationId));
     dispatch(LocationsActions.fetchClientIspsIfNeeded(locationId));
 
-    // fetch data for selected Client ISPs
+    // setup selected ISPs if needed
     if (clientIsps) {
-      clientIsps.forEach(clientIsp => {
-        const clientIspId = clientIsp.meta.client_asn_number;
+      if (!selectedClientIspIds) {
+        // once we have the client ISPs for the location, if we don't have selected client ISPs,
+        // set the selected client ISPs to the top 3 for the location.
+        const newSelectedIsps = [];
+        clientIsps.slice(0, 3).forEach(clientIsp => {
+          const clientIspId = clientIsp.meta.client_asn_number;
+          newSelectedIsps.push(clientIspId);
+        });
+        dispatch(LocationPageActions.changeSelectedClientIspIds(newSelectedIsps));
+      }
+    }
+
+    // fetch data for selected Client ISPs
+    if (selectedClientIspIds) {
+      selectedClientIspIds.forEach(clientIspId => {
         dispatch(LocationsActions.fetchClientIspLocationTimeSeriesIfNeeded(timeAggregation,
           locationId, clientIspId));
       });
@@ -148,6 +167,15 @@ class LocationPage extends PureComponent {
   onHighlightHourly(d) {
     const { dispatch } = this.props;
     dispatch(LocationPageActions.highlightHourly(d));
+  }
+
+  /**
+   * Callback for when The Selected Client ISPs change
+   * @param {Array} ispIds Ids of currently selected ISPs
+   */
+  onSelectedClientIspsChange(ispIds) {
+    const { dispatch } = this.props;
+    dispatch(LocationPageActions.changeSelectedClientIspIds(ispIds));
   }
 
   /**
@@ -203,17 +231,15 @@ class LocationPage extends PureComponent {
   }
 
   renderClientIspSelector() {
-    const { clientIsps = [] } = this.props;
+    const { clientIsps = [], selectedClientIsps } = this.props;
 
     return (
       <div className="client-isp-selector">
-        <ul className="list-unstyled">
-          {clientIsps.map(clientIsp => (
-            <li key={clientIsp.meta.client_asn_number}>
-              {clientIsp.meta.client_asn_name}
-            </li>
-          ))}
-        </ul>
+        <IspSelect
+          isps={clientIsps}
+          selected={selectedClientIsps}
+          onChange={this.onSelectedClientIspsChange}
+        />
       </div>
     );
   }

@@ -20,3 +20,5 @@ export const changeTimeAggregation = urlReplaceAction('timeAggregation');
 export const changeViewMetric = urlReplaceAction('viewMetric');
 export const changeShowBaselines = urlReplaceAction('showBaselines');
 export const changeShowRegionalValues = urlReplaceAction('showRegionalValues');
+
+export const changeSelectedClientIspIds = urlReplaceAction('selectedClientIspIds');

@@ -6,10 +6,12 @@ import {
   decodeBoolean,
   encodeJson,
   decodeJson,
+  encodeArray,
+  decodeArray,
   encodeObject,
   decodeObject,
   encode,
-  decode
+  decode,
 } from '../serialization';
 
 describe('utils', () => {
@@ -74,6 +76,22 @@ describe('utils', () => {
       });
     });
 
+    describe('encodeArray', () => {
+      it('produces the correct value', () => {
+        const input = ['a', 'b', 'c']
+        expect(encodeArray(input)).to.equal('a_b_c');
+      });
+    });
+
+    describe('decodeArray', () => {
+      it('produces the correct value', () => {
+        const output = decodeArray('a_b_c');
+        const expectedOutput = ['a', 'b', 'c'];
+
+        expect(output).to.deep.equal(expectedOutput);
+      });
+    });
+
     describe('encodeObject', () => {
       it('produces the correct value', () => {
         const input = { test: 'bar', foo: 94 };
@@ -84,11 +102,11 @@ describe('utils', () => {
 
     describe('decodeObject', () => {
       it('produces the correct value', () => {
-        const output = decodeObject('foo-bar_jim-grill_iros-91')
+        const output = decodeObject('foo-bar_jim-grill_iros-91');
         const expectedOutput = {
           foo: 'bar',
           jim: 'grill',
-          iros: '91'
+          iros: '91',
         };
         expect(output).to.deep.equal(expectedOutput);
       });
