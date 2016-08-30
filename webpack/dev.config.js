@@ -10,6 +10,12 @@ var host = (process.env.HOST || 'localhost');
 var port = (+process.env.PORT + 1) || 3001;
 var HardSourceWebpackPlugin = require('hard-source-webpack-plugin');
 
+// read in developer settings if available
+var developerSettings;
+try {
+  developerSettings = JSON.parse(fs.readFileSync(path.join(__dirname,
+    '..', 'developer-settings.json'), 'utf8')).webpack;
+} catch (e) { /* ignore if not there */ }
 
 // https://github.com/halt-hammerzeit/webpack-isomorphic-tools
 var WebpackIsomorphicToolsPlugin = require('webpack-isomorphic-tools/plugin');
@@ -71,7 +77,7 @@ reactTransform[1].superClasses = ['React.Component', 'Component',
   'React.PureComponent', 'PureComponent'];
 
 module.exports = {
-  devtool: 'cheap-module-source-map',
+  devtool: developerSettings.devtool || 'cheap-module-eval-source-map',
   context: path.resolve(__dirname, '..'),
   entry: {
     main: [

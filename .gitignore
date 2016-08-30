@@ -7,3 +7,4 @@ webpack-stats.json
 webpack-records.json
 webpack/cache
 npm-debug.log
+developer-settings.json
