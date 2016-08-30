@@ -7,12 +7,14 @@
  * Then we can use it as we expect: d3.scaleLinear, d3.line, etc.
  */
 import * as array from 'd3-array';
+import * as transition from 'd3-transition';
 import * as scale from 'd3-scale';
 import * as selection from 'd3-selection';
 import * as shape from 'd3-shape';
 import * as timeFormat from 'd3-time-format';
 import * as axis from 'd3-axis';
 import * as collection from 'd3-collection';
+import * as lineChunked from 'd3-line-chunked';
 
 export default Object.assign({},
   array,
@@ -21,4 +23,6 @@ export default Object.assign({},
   shape,
   timeFormat,
   axis,
+  lineChunked,
+  transition,
   collection);

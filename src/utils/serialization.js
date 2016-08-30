@@ -30,7 +30,14 @@ export function decodeDate(dateString) {
   }
 
   const parts = dateString.split('-');
-  parts[1] -= 1; // Note: months are 0-based
+  // may only be a year so won't even have a month
+  if (parts[1] != null) {
+    parts[1] -= 1; // Note: months are 0-based
+  } else {
+    // just a year, set the month and day to the first
+    parts[1] = 0;
+    parts[2] = 1;
+  }
 
   return new Date(...parts);
 }
