@@ -216,7 +216,7 @@ export function transformFixedData(body) {
   // NOTE: modifying body directly means it modifies what is stored in the API cache
   if (body.data) {
     const keyMapping = {
-      'last_year_': 'lastYear',
+      last_year_: 'lastYear',
     };
 
     const mappedKeys = Object.keys(keyMapping);
