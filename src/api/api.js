@@ -18,7 +18,7 @@ import {
  * @return {Promise} A promise after the get request was made
  */
 export function getLocationInfo(locationId) {
-  return get(`/locations/${locationId}`)
+  return get(`/locations/${locationId}/info`)
     .then(transform(transformLocationInfo));
 }
 
