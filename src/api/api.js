@@ -4,11 +4,23 @@ import {
   transformTimeSeries,
   transformHourly,
   transformSearchResults,
+  transformLocationInfo,
 } from './transforms';
 
 // -------------
 // API Calls
 // -------------
+
+/**
+ * Get information for a location
+ *
+ * @param {String} locationId The location to query (e.g., nauswaseattle)
+ * @return {Promise} A promise after the get request was made
+ */
+export function getLocationInfo(locationId) {
+  return get(`/locations/${locationId}/info`)
+    .then(transform(transformLocationInfo));
+}
 
 /**
  * Get data for a location in a given time aggregation.

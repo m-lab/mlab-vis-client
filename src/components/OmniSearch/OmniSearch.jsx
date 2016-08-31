@@ -37,7 +37,8 @@ class OmniSearch extends PureComponent {
     };
 
     this.onChange = this.onChange.bind(this);
-    this.onSuggestionsUpdateRequested = this.onSuggestionsUpdateRequested.bind(this);
+    this.onSuggestionsFetchRequested = this.onSuggestionsFetchRequested.bind(this);
+    this.onSuggestionsClearRequested = this.onSuggestionsClearRequested.bind(this);
     this.getSuggestionValue = this.getSuggestionValue.bind(this);
     this.renderSuggestion = this.renderSuggestion.bind(this);
     this.renderSectionTitle = this.renderSectionTitle.bind(this);
@@ -84,7 +85,7 @@ class OmniSearch extends PureComponent {
   * Callback when search input is changed.
   * @param {String} value New search value
   */
-  onSuggestionsUpdateRequested({ value }) {
+  onSuggestionsFetchRequested({ value }) {
     const { onSearchChange } = this.props;
 
     // TODO: should this be in a different location?
@@ -97,6 +98,15 @@ class OmniSearch extends PureComponent {
       //   suggestions: this.formatSuggestions([]),
       // });
     }
+  }
+
+  /**
+   * Callback when suggestions are to be cleared
+   */
+  onSuggestionsClearRequested() {
+    this.setState({
+      suggestions: [],
+    });
   }
 
   /**
@@ -166,7 +176,8 @@ class OmniSearch extends PureComponent {
     return (
       <Autosuggest
         suggestions={suggestions}
-        onSuggestionsUpdateRequested={this.onSuggestionsUpdateRequested}
+        onSuggestionsFetchRequested={this.onSuggestionsFetchRequested}
+        onSuggestionsClearRequested={this.onSuggestionsClearRequested}
         getSuggestionValue={this.getSuggestionValue}
         renderSuggestion={this.renderSuggestion}
         inputProps={inputProps}

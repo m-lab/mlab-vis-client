@@ -1,6 +1,6 @@
 import React, { PureComponent, PropTypes } from 'react';
 import Helmet from 'react-helmet';
-import { Link, browserHistory } from 'react-router';
+import { browserHistory } from 'react-router';
 import { Row, Col } from 'react-bootstrap';
 import * as LocationPageSelectors from '../../redux/locationPage/selectors';
 import * as LocationPageActions from '../../redux/locationPage/actions';
@@ -15,6 +15,7 @@ import {
   StatusWrapper,
   IspSelect,
   DateRangeSelector,
+  Breadcrumbs,
 } from '../../components';
 
 import UrlHandler from '../../url/UrlHandler';
@@ -42,6 +43,7 @@ const urlHandler = new UrlHandler(urlQueryConfig, browserHistory);
 function mapStateToProps(state, propsWithUrl) {
   return {
     ...propsWithUrl,
+    locationInfo: LocationPageSelectors.getLocationInfo(state, propsWithUrl),
     viewMetric: LocationPageSelectors.getViewMetric(state, propsWithUrl),
     clientIsps: LocationPageSelectors.getLocationClientIsps(state, propsWithUrl),
     selectedClientIsps: LocationPageSelectors.getLocationClientIspsSelected(state, propsWithUrl),
@@ -65,6 +67,7 @@ class LocationPage extends PureComponent {
     hourlyStatus: PropTypes.string,
     location: PropTypes.object, // route location
     locationId: PropTypes.string,
+    locationInfo: PropTypes.object,
     locationTimeSeries: PropTypes.object,
     selectedClientIspIds: PropTypes.array,
     selectedClientIsps: PropTypes.array,
@@ -101,6 +104,7 @@ class LocationPage extends PureComponent {
    */
   fetchData(props) {
     const { dispatch, locationId, timeAggregation, clientIsps, selectedClientIspIds } = props;
+    dispatch(LocationsActions.fetchInfoIfNeeded(locationId));
     dispatch(LocationsActions.fetchTimeSeriesIfNeeded(timeAggregation, locationId));
     dispatch(LocationsActions.fetchHourlyIfNeeded(timeAggregation, locationId));
     dispatch(LocationsActions.fetchClientIspsIfNeeded(locationId));
@@ -197,7 +201,8 @@ class LocationPage extends PureComponent {
   }
 
   renderCityProviders() {
-    const locationName = this.props.locationId;
+    const { locationInfo } = this.props;
+    const locationName = (locationInfo && locationInfo.name) || 'Loading...';
     return (
       <div className="section">
         <header>
@@ -418,16 +423,16 @@ class LocationPage extends PureComponent {
   }
 
   renderBreadCrumbs() {
+    const { locationInfo } = this.props;
+
     return (
-      <div className="breadcrumbs">
-        {'Some / Bread / Crumbs / '}
-        <Link to={`/location/${this.props.locationId}`}>{this.props.locationId}</Link>
-      </div>
+      <Breadcrumbs info={locationInfo} />
     );
   }
 
   render() {
-    const locationName = this.props.locationId || 'Location';
+    const { locationInfo } = this.props;
+    const locationName = (locationInfo && locationInfo.name) || 'Location';
 
     return (
       <div className="location-page">

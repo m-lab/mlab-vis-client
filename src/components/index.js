@@ -20,3 +20,4 @@ export CountChart from './CountChart/CountChart';
 export OmniSearch from './OmniSearch/OmniSearch';
 export IspSelect from './IspSelect/IspSelect';
 export DateRangeSelector from './DateRangeSelector/DateRangeSelector';
+export Breadcrumbs from './Breadcrumbs/Breadcrumbs';

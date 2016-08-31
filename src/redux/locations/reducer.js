@@ -7,8 +7,7 @@ import * as Actions from './actions';
 locations:
   locationId:
     locationId
-    name
-    parentLocations
+    info
 
     time:
       startDate
@@ -39,6 +38,11 @@ const initialState = {
 };
 
 export const initialLocationState = {
+  info: {
+    isFetching: false,
+    isFetched: false,
+  },
+
   time: {
     timeSeries: {
       isFetching: false,
@@ -211,6 +215,34 @@ function locationClientIsps(state = initialLocationState.clientIsps, action = {}
   }
 }
 
+// reducer for location info
+function locationInfo(state, action = {}) {
+  switch (action.type) {
+    case Actions.FETCH_INFO:
+      return {
+        data: state.data,
+        isFetching: true,
+        isFetched: false,
+      };
+    case Actions.FETCH_INFO_SUCCESS:
+      return {
+        // store the meta info directly
+        data: action.result.meta,
+        isFetching: false,
+        isFetched: true,
+      };
+    case Actions.FETCH_INFO_FAIL:
+      return {
+        isFetching: false,
+        isFetched: false,
+        error: action.error,
+      };
+    default:
+      return state;
+  }
+}
+
+
 // reducer for each location
 function location(state, action = {}) {
   if (!state) {
@@ -240,6 +272,13 @@ function location(state, action = {}) {
         ...state,
         clientIsps: locationClientIsps(state.clientIsps, action),
       };
+    case Actions.FETCH_INFO:
+    case Actions.FETCH_INFO_SUCCESS:
+    case Actions.FETCH_INFO_FAIL:
+      return {
+        ...state,
+        info: locationInfo(state.info, action),
+      };
     default:
       return state;
   }
@@ -261,6 +300,9 @@ function locations(state = initialState, action = {}) {
     case Actions.FETCH_CLIENT_ISPS:
     case Actions.FETCH_CLIENT_ISPS_SUCCESS:
     case Actions.FETCH_CLIENT_ISPS_FAIL:
+    case Actions.FETCH_INFO:
+    case Actions.FETCH_INFO_SUCCESS:
+    case Actions.FETCH_INFO_FAIL:
       return {
         ...state,
         [locationId]: location(state[locationId], action),

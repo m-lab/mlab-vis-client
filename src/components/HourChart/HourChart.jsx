@@ -1,5 +1,4 @@
 import React, { PureComponent, PropTypes } from 'react';
-import { groupBy } from 'lodash';
 import d3 from 'd3';
 
 import './HourChart.scss';
