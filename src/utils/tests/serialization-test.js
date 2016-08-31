@@ -1,4 +1,5 @@
 import { expect } from 'chai';
+import moment from 'moment';
 import {
   encodeDate,
   decodeDate,
@@ -27,20 +28,27 @@ describe('utils', () => {
         const result = encodeDate(null);
         expect(result).to.not.be.ok;
       });
+
+      it('handles moment objects', () => {
+        const date = moment('2015-11-15');
+        const result = encodeDate(date);
+        expect(result).to.equal('2015-11-15');
+      });
     });
 
     describe('decodeDate', () => {
       it('produces the correct value', () => {
         let result = decodeDate('2016-03-01');
-        expect(result.getFullYear()).to.equal(2016);
-        expect(result.getMonth()).to.equal(2);
-        expect(result.getDate()).to.equal(1);
+        // result is a moment object
+        expect(result.year()).to.equal(2016);
+        expect(result.month()).to.equal(2);
+        expect(result.date()).to.equal(1);
 
         // javascript likes to give us 2015-12-31 19:00, so test this doesn't.
         result = decodeDate('2016');
-        expect(result.getFullYear()).to.equal(2016);
-        expect(result.getMonth()).to.equal(0);
-        expect(result.getDate()).to.equal(1);
+        expect(result.year()).to.equal(2016);
+        expect(result.month()).to.equal(0);
+        expect(result.date()).to.equal(1);
       });
 
       it('handles null', () => {
@@ -72,10 +80,10 @@ describe('utils', () => {
 
     describe('decodeJson', () => {
       it('produces the correct value', () => {
-        const output = decodeJson('{"foo": "bar", "jim": ["grill"]}')
+        const output = decodeJson('{"foo": "bar", "jim": ["grill"]}');
         const expectedOutput = {
           foo: 'bar',
-          jim: ['grill']
+          jim: ['grill'],
         };
         expect(output).to.deep.equal(expectedOutput);
       });
@@ -83,7 +91,7 @@ describe('utils', () => {
 
     describe('encodeArray', () => {
       it('produces the correct value', () => {
-        const input = ['a', 'b', 'c']
+        const input = ['a', 'b', 'c'];
         expect(encodeArray(input)).to.equal('a_b_c');
       });
     });
@@ -100,7 +108,7 @@ describe('utils', () => {
     describe('encodeObject', () => {
       it('produces the correct value', () => {
         const input = { test: 'bar', foo: 94 };
-        const expectedOutput = "test-bar_foo-94"
+        const expectedOutput = 'test-bar_foo-94';
         expect(encodeObject(input, '-', '_')).to.equal(expectedOutput);
       });
     });
@@ -119,95 +127,93 @@ describe('utils', () => {
 
     describe('decode', () => {
       it('decodes by type', () => {
-        let input = '91';
+        const input = '91';
         expect(decode('number', input)).to.equal(91);
       });
 
       it('decodes using default value', () => {
-        let input = undefined;
+        const input = undefined;
         expect(decode('number', input, '94')).to.equal('94');
       });
 
       it('decodes using custom function', () => {
-        let input = '94';
+        const input = '94';
         expect(decode(d => parseInt(d + d, 10), input)).to.equal(9494);
       });
 
       it('handles no decoder found', () => {
-        let input = '94';
+        const input = '94';
         expect(decode('fancy', input)).to.equal(input);
       });
     });
 
     describe('encode', () => {
       it('encodes by type', () => {
-        let input = 91;
+        const input = 91;
         expect(encode('number', input)).to.equal('91');
       });
 
       it('encodes using custom function', () => {
-        let input = 94;
+        const input = 94;
         expect(encode(d => `${d}${d}`, input)).to.equal('9494');
       });
 
       it('handles no encoder found', () => {
-        let input = 94;
+        const input = 94;
         expect(encode('fancy', input)).to.equal(input);
       });
     });
 
     describe('decode+encode', () => {
       it('encode(decode(number)) === number', () => {
-        let input = '91';
+        const input = '91';
         expect(encode('number', decode('number', input))).to.equal(input);
       });
 
       it('decode(encode(number)) === number', () => {
-        let input = 91;
+        const input = 91;
         expect(decode('number', encode('number', input))).to.equal(input);
       });
 
       it('encode(decode(boolean)) === boolean', () => {
-        let input = '0';
+        const input = '0';
         expect(encode('boolean', decode('boolean', input))).to.equal(input);
       });
 
       it('decode(encode(boolean)) === boolean', () => {
-        let input = true;
+        const input = true;
         expect(decode('boolean', encode('boolean', input))).to.equal(input);
       });
 
       it('encode(decode(date)) === date', () => {
-        let input = '2016-03-01';
+        const input = '2016-03-01';
         expect(encode('date', decode('date', input))).to.equal(input);
       });
 
       it('decode(encode(date)) === date', () => {
-        let input = new Date(2016, 2, 1);
-        expect(decode('date', encode('date', input))).to.deep.equal(input);
+        const input = new Date(2016, 2, 1);
+        expect(decode('date', encode('date', input)).toDate()).to.deep.equal(input);
       });
 
       it('encode(decode(json)) === json', () => {
-        let input = '{"foo":"bar","baz":["jim"]}';
+        const input = '{"foo":"bar","baz":["jim"]}';
         expect(encode('json', decode('json', input))).to.equal(input);
       });
 
       it('decode(encode(json)) === json', () => {
-        let input = { foo: 'bar', 'baz': ['jim'] };
+        const input = { foo: 'bar', baz: ['jim'] };
         expect(decode('json', encode('json', input))).to.deep.equal(input);
       });
 
       it('encode(decode(object)) === object', () => {
-        let input = 'foo-bar_baz-jim';
+        const input = 'foo-bar_baz-jim';
         expect(encode('object', decode('object', input))).to.equal(input);
       });
 
       it('decode(encode(object)) === object', () => {
-        let input = { foo: 'bar', 'baz': 'jim' };
+        const input = { foo: 'bar', baz: 'jim' };
         expect(decode('object', encode('object', input))).to.deep.equal(input);
       });
-    })
-
-
+    });
   });
 });

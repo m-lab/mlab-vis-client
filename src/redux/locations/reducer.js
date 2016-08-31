@@ -83,6 +83,8 @@ function clientIspTime(state = initialClientIspTimeState, action = {}) {
         timeSeries: {
           data: state.timeSeries.data,
           timeAggregation: action.timeAggregation,
+          startDate: action.options.startDate,
+          endDate: action.options.endDate,
           isFetching: true,
           isFetched: false,
         },
@@ -93,6 +95,8 @@ function clientIspTime(state = initialClientIspTimeState, action = {}) {
         timeSeries: {
           data: action.result,
           timeAggregation: action.timeAggregation,
+          startDate: action.options.startDate,
+          endDate: action.options.endDate,
           isFetching: false,
           isFetched: true,
         },
@@ -121,6 +125,8 @@ function locationTime(state = initialLocationState.time, action = {}) {
         timeSeries: {
           data: state.timeSeries.data,
           timeAggregation: action.timeAggregation,
+          startDate: action.options.startDate,
+          endDate: action.options.endDate,
           isFetching: true,
           isFetched: false,
         },
@@ -131,6 +137,8 @@ function locationTime(state = initialLocationState.time, action = {}) {
         timeSeries: {
           data: action.result,
           timeAggregation: action.timeAggregation,
+          startDate: action.options.startDate,
+          endDate: action.options.endDate,
           isFetching: false,
           isFetched: true,
         },
@@ -150,6 +158,8 @@ function locationTime(state = initialLocationState.time, action = {}) {
         hourly: {
           data: state.hourly.data,
           timeAggregation: action.timeAggregation,
+          startDate: action.options.startDate,
+          endDate: action.options.endDate,
           isFetching: true,
           isFetched: false,
         },
@@ -160,6 +170,8 @@ function locationTime(state = initialLocationState.time, action = {}) {
         hourly: {
           data: action.result,
           timeAggregation: action.timeAggregation,
+          startDate: action.options.startDate,
+          endDate: action.options.endDate,
           isFetching: false,
           isFetched: true,
         },

@@ -4,6 +4,7 @@ import { mount, shallow } from 'enzyme';
 import chai, { expect } from 'chai';
 import sinonChai from 'sinon-chai';
 import chaiEnzyme from 'chai-enzyme';
+import moment from 'moment';
 import urlConnect from '../urlConnect';
 import UrlHandler from '../UrlHandler';
 import { URL_REPLACE } from '../actions';
@@ -45,7 +46,7 @@ describe('url', () => {
           expect(props).to.contain.keys('myStr', 'myBool', 'myDate');
           expect(props.myStr).to.equal('download');
           expect(props.myBool).to.equal(true);
-          expect(props.myDate).to.deep.equal(new Date(2015, 0, 1));
+          expect(props.myDate).to.deep.equal(moment(new Date(2015, 0, 1)));
 
           return props;
         }
