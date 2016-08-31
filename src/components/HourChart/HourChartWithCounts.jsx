@@ -79,7 +79,7 @@ export default class HourChartWithCounts extends PureComponent {
     });
 
     // produce the byDate array
-    const groupedByDate = groupBy(filteredData, 'date');
+    const groupedByDate = d3.nest().key(d => d.date).object(filteredData);
     const dataByDate = Object.keys(groupedByDate).reduce((byDate, date) => {
       const datePoints = groupedByDate[date];
       const count = sum(datePoints, 'count') || 0;
