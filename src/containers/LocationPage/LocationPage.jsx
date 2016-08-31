@@ -15,6 +15,7 @@ import {
   StatusWrapper,
   IspSelect,
   Breadcrumbs,
+  SummaryTable,
 } from '../../components';
 
 import UrlHandler from '../../url/UrlHandler';
@@ -52,6 +53,7 @@ function mapStateToProps(state, propsWithUrl) {
     timeSeriesStatus: LocationPageSelectors.getTimeSeriesStatus(state, propsWithUrl),
     clientIspTimeSeries: LocationPageSelectors.getLocationClientIspTimeSeries(state, propsWithUrl),
     highlightHourly: LocationPageSelectors.getHighlightHourly(state, propsWithUrl),
+    summary: LocationPageSelectors.getSummaryData(state, propsWithUrl),
   };
 }
 
@@ -73,6 +75,7 @@ class LocationPage extends PureComponent {
     showBaselines: PropTypes.bool,
     showRegionalValues: PropTypes.bool,
     startDate: PropTypes.object, // date
+    summary: PropTypes.object,
     timeAggregation: PropTypes.string,
     timeSeriesStatus: PropTypes.string,
     viewMetric: PropTypes.object,
@@ -410,11 +413,16 @@ class LocationPage extends PureComponent {
   }
 
   renderFixedSummaryData() {
+    const { summary = {} } = this.props;
+    const { lastYear } = summary;
+
     return (
       <div className="subsection">
         <header>
           <h3>Summary Data</h3>
         </header>
+        <h4>Last Year</h4>
+        <SummaryTable data={lastYear} />
       </div>
     );
   }

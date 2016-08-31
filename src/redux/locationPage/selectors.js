@@ -1,6 +1,7 @@
 /**
  * Selectors for locationPage
  */
+import d3 from 'd3';
 
 import { createSelector } from 'reselect';
 import { initialLocationState } from '../locations/reducer';
@@ -26,6 +27,11 @@ export function getLocation(state, props) {
 export function getLocationInfo(state, props) {
   const location = getLocation(state, props);
   return location.info.data;
+}
+
+export function getLocationFixed(state, props) {
+  const location = getLocation(state, props);
+  return location.fixed.data;
 }
 
 export function getLocationHourly(state, props) {
@@ -149,3 +155,40 @@ export const getLocationClientIspTimeSeriesStatus = createSelector(
 export const getTimeSeriesStatus = createSelector(
   getLocationClientIspTimeSeriesStatus, getLocationTimeSeriesStatus,
   (ispStatus, locationStatus) => mergeStatuses(ispStatus, locationStatus));
+
+
+/**
+ * Selector to get the summary data for the location and related ISPs
+ */
+export const getSummaryData = createSelector(
+  getLocationInfo, getLocationFixed, // getLocationClientIspFixed, (TODO add client ISP fixed data)
+  (locationInfo, locationFixed, locationClientIspFixed) => {
+    if (!locationFixed) {
+      return undefined;
+    }
+
+    if (!locationClientIspFixed) {
+      locationClientIspFixed = [];
+    }
+
+    // gropu all the `lastYear`, `lastweek`, etc together
+    const results = Object.keys(locationFixed).reduce((grouped, key) => {
+      const locationData = {
+        ...locationFixed[key],
+        label: locationInfo.name,
+      };
+
+      // add in the results for client ISPs here (TODO - add in proper names)
+      const clientIspsData = locationClientIspFixed.map((ispFixed, i) => ({
+        ...ispFixed[key],
+        label: `clientIsp${i}`,
+      }));
+
+      grouped[key] = [locationData, ...clientIspsData];
+
+      return grouped;
+    }, {});
+
+    return results;
+  }
+);
