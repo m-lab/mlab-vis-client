@@ -4,7 +4,7 @@ import { DateRangePicker } from 'react-dates';
 
 import moment from 'moment';
 
-import '../../assets/datepicker.scss';
+import '../../assets/datepicker.css';
 import './DateRangeSelector.scss';
 
 
