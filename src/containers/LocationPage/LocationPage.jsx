@@ -1,6 +1,6 @@
 import React, { PureComponent, PropTypes } from 'react';
 import Helmet from 'react-helmet';
-import { Link, browserHistory } from 'react-router';
+import { browserHistory } from 'react-router';
 import { Row, Col } from 'react-bootstrap';
 import * as LocationPageSelectors from '../../redux/locationPage/selectors';
 import * as LocationPageActions from '../../redux/locationPage/actions';
@@ -14,6 +14,7 @@ import {
   TimeAggregationSelector,
   StatusWrapper,
   IspSelect,
+  Breadcrumbs,
 } from '../../components';
 
 import UrlHandler from '../../url/UrlHandler';
@@ -419,18 +420,10 @@ class LocationPage extends PureComponent {
   }
 
   renderBreadCrumbs() {
-    const { locationInfo = {} } = this.props;
-    const { name = 'Loading...', parents = [] } = locationInfo;
+    const { locationInfo } = this.props;
 
     return (
-      <div className="breadcrumbs">
-        {parents.map(parent => (
-          <span key={parent.locationKey}>
-            <Link to={`/location/${parent.locationKey}`}>{parent.name}</Link>{' / '}
-          </span>
-        ))}
-        <Link to={`/location/${this.props.locationId}`}>{name}</Link>
-      </div>
+      <Breadcrumbs info={locationInfo} />
     );
   }
 

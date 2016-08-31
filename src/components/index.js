@@ -19,3 +19,4 @@ export HourChartWithCounts from './HourChart/HourChartWithCounts';
 export CountChart from './CountChart/CountChart';
 export OmniSearch from './OmniSearch/OmniSearch';
 export IspSelect from './IspSelect/IspSelect';
+export Breadcrumbs from './Breadcrumbs/Breadcrumbs';
