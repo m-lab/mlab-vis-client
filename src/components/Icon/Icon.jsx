@@ -2,7 +2,7 @@ import React, { PureComponent, PropTypes } from 'react';
 
 /**
  * Simple wrapper for Font Awesome icons. react-fa doesn't work with
- * serverside rendering. test
+ * serverside rendering.
  */
 export default class Icon extends PureComponent {
   static propTypes = {
