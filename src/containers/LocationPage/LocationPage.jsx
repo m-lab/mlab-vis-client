@@ -2,6 +2,7 @@ import React, { PureComponent, PropTypes } from 'react';
 import Helmet from 'react-helmet';
 import moment from 'moment';
 import { browserHistory } from 'react-router';
+import momentPropTypes from 'react-moment-proptypes';
 import { Row, Col } from 'react-bootstrap';
 import * as LocationPageSelectors from '../../redux/locationPage/selectors';
 import * as LocationPageActions from '../../redux/locationPage/actions';
@@ -34,8 +35,8 @@ const urlQueryConfig = {
 
   // selected time
   // TODO: change defaults to more recent time period when data is up-to-date
-  startDate: { type: 'date', urlKey: 'start', defaultValue: new Date(2015, 10, 1) },
-  endDate: { type: 'date', urlKey: 'end', defaultValue: new Date(2015, 11, 1) },
+  startDate: { type: 'date', urlKey: 'start', defaultValue: moment('2015-10-1') },
+  endDate: { type: 'date', urlKey: 'end', defaultValue: moment('2015-11-1') },
   timeAggregation: { type: 'string', defaultValue: 'day', urlKey: 'aggr' },
   selectedClientIspIds: { type: 'array', urlKey: 'isps' },
 };
@@ -63,7 +64,7 @@ class LocationPage extends PureComponent {
     clientIspTimeSeries: PropTypes.array,
     clientIsps: PropTypes.array,
     dispatch: PropTypes.func,
-    endDate: PropTypes.object, // date
+    endDate: momentPropTypes.momentObj,
     highlightHourly: PropTypes.object,
     hourly: PropTypes.object,
     hourlyStatus: PropTypes.string,
@@ -75,7 +76,7 @@ class LocationPage extends PureComponent {
     selectedClientIsps: PropTypes.array,
     showBaselines: PropTypes.bool,
     showRegionalValues: PropTypes.bool,
-    startDate: PropTypes.object, // date
+    startDate: momentPropTypes.momentObj,
     timeAggregation: PropTypes.string,
     timeSeriesStatus: PropTypes.string,
     viewMetric: PropTypes.object,
@@ -108,8 +109,8 @@ class LocationPage extends PureComponent {
   fetchData(props) {
     const { dispatch, locationId, timeAggregation, startDate, endDate, clientIsps, selectedClientIspIds } = props;
     const options = {
-      startDate: moment(startDate),
-      endDate: moment(endDate),
+      startDate,
+      endDate,
     };
     dispatch(LocationsActions.fetchInfoIfNeeded(locationId));
     dispatch(LocationsActions.fetchTimeSeriesIfNeeded(timeAggregation, locationId, options));
@@ -136,16 +137,15 @@ class LocationPage extends PureComponent {
   fetchSelectedClientIspData(props) {
     const { dispatch, locationId, timeAggregation, startDate, endDate, selectedClientIspIds } = props;
     const options = {
-      startDate: moment(startDate),
-      endDate: moment(endDate),
+      startDate,
+      endDate,
     };
     // fetch data for selected Client ISPs
     if (selectedClientIspIds) {
       selectedClientIspIds.forEach(clientIspId => {
-        dispatch(LocationsActions.fetchClientIspLocationTimeSeriesIfNeeded(timeAggregation,
-                                                                           locationId,
-                                                                           clientIspId,
-                                                                           options));
+        dispatch(
+          LocationsActions.fetchClientIspLocationTimeSeriesIfNeeded(timeAggregation, locationId, clientIspId, options)
+        );
       });
     }
   }
@@ -268,14 +268,10 @@ class LocationPage extends PureComponent {
   renderTimeRangeSelector() {
     const { startDate, endDate } = this.props;
 
-
-    const mStartDate = startDate ? moment(startDate) : null;
-    const mEndDate = endDate ? moment(endDate) : null;
-
     return (
       <DateRangeSelector
-        startDate={mStartDate}
-        endDate={mEndDate}
+        startDate={startDate}
+        endDate={endDate}
         onChange={this.onDateRangeChange}
       />
     );

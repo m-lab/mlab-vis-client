@@ -21,13 +21,15 @@ const DATE_FORMATS = {
  * @return {Array} array of parameters for start and end date
  */
 function getDateRangeParams(timeAggregation, options) {
-  const params = [];
+  const params = {};
   const dateFormat = DATE_FORMATS[timeAggregation];
   if (options.startDate) {
-    params.push(`startdate=${options.startDate.format(dateFormat)}`);
+    params.startdate = options.startDate.format(dateFormat);
+    // params.push(`startdate=${options.startDate.format(dateFormat)}`);
   }
   if (options.endDate) {
-    params.push(`enddate=${options.endDate.format(dateFormat)}`);
+    // params.push(`enddate=${options.endDate.format(dateFormat)}`);
+    params.enddate = options.endDate.format(dateFormat);
   }
 
   return params;
@@ -54,8 +56,7 @@ export function getLocationInfo(locationId) {
  */
 export function getLocationTimeSeries(timeAggregation, locationId, options = {}) {
   const params = getDateRangeParams(timeAggregation, options);
-  const paramString = params.length > 0 ? `?${params.join('&')}` : '';
-  return get(`/locations/${locationId}/time/${timeAggregation}/metrics${paramString}`)
+  return get(`/locations/${locationId}/time/${timeAggregation}/metrics`, { params })
     .then(transform(transformTimeSeries));
 }
 
@@ -72,8 +73,7 @@ export function getLocationTimeSeries(timeAggregation, locationId, options = {})
  */
 export function getLocationHourly(timeAggregation, locationId, options = {}) {
   const params = getDateRangeParams(timeAggregation, options);
-  const paramString = params.length > 0 ? `?${params.join('&')}` : '';
-  return get(`/locations/${locationId}/time/${timeAggregation}_hour/metrics${paramString}`)
+  return get(`/locations/${locationId}/time/${timeAggregation}_hour/metrics`, { params })
     .then(transform(transformHourly));
 }
 
@@ -88,9 +88,8 @@ export function getLocationHourly(timeAggregation, locationId, options = {}) {
  */
 export function getLocationClientIspTimeSeries(timeAggregation, locationId, clientIspId, options = {}) {
   const params = getDateRangeParams(timeAggregation, options);
-  const paramString = params.length > 0 ? `?${params.join('&')}` : '';
 
-  return get(`/locations/${locationId}/time/${timeAggregation}/clientisps/${clientIspId}/metrics${paramString}`)
+  return get(`/locations/${locationId}/time/${timeAggregation}/clientisps/${clientIspId}/metrics`, { params })
     .then(transform(transformTimeSeries));
 }
 

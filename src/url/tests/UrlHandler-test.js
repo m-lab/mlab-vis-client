@@ -1,4 +1,5 @@
 import { expect } from 'chai';
+import moment from 'moment';
 import UrlHandler from '../UrlHandler';
 
 describe('url', () => {
@@ -21,7 +22,7 @@ describe('url', () => {
         const expectedOutput = {
           myStr: 'download',
           myBool: true,
-          myDate: new Date(2015, 0, 1),
+          myDate: moment(new Date(2015, 0, 1)),
         };
 
         const result = urlHandler.decodeQuery(query);

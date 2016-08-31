@@ -4,7 +4,7 @@ import { DateRangePicker } from 'react-dates';
 
 import momentPropTypes from 'react-moment-proptypes';
 
-import '../../assets/datepicker.css';
+import '../../assets/datepicker.scss';
 import './DateRangeSelector.scss';
 
 

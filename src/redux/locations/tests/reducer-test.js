@@ -26,6 +26,7 @@ describe('redux', () => {
           type: FETCH_TIME_SERIES,
           locationId: 'myLocation',
           timeAggregation: 'day',
+          options: { startDate: '1', endDate: '2' },
         });
 
         const expectedOutput = {
@@ -39,6 +40,8 @@ describe('redux', () => {
                 timeAggregation: 'day',
                 isFetching: true,
                 isFetched: false,
+                startDate: '1',
+                endDate: '2',
               },
             },
           },
@@ -53,6 +56,7 @@ describe('redux', () => {
           result: 'data!',
           locationId: 'myLocation',
           timeAggregation: 'day',
+          options: { startDate: '1', endDate: '2' },
         });
 
         const expectedOutput = {
@@ -66,6 +70,8 @@ describe('redux', () => {
                 timeAggregation: 'day',
                 isFetching: false,
                 isFetched: true,
+                startDate: '1',
+                endDate: '2',
               },
             },
           },
@@ -107,6 +113,7 @@ describe('redux', () => {
           type: FETCH_HOURLY,
           locationId: 'myLocation',
           timeAggregation: 'day',
+          options: { startDate: '1', endDate: '2' },
         });
 
         const expectedOutput = {
@@ -120,6 +127,8 @@ describe('redux', () => {
                 timeAggregation: 'day',
                 isFetching: true,
                 isFetched: false,
+                startDate: '1',
+                endDate: '2',
               },
             },
           },
@@ -134,6 +143,7 @@ describe('redux', () => {
           result: 'data!',
           locationId: 'myLocation',
           timeAggregation: 'day',
+          options: { startDate: '1', endDate: '2' },
         });
 
         const expectedOutput = {
@@ -147,6 +157,8 @@ describe('redux', () => {
                 timeAggregation: 'day',
                 isFetching: false,
                 isFetched: true,
+                startDate: '1',
+                endDate: '2',
               },
             },
           },
@@ -189,6 +201,7 @@ describe('redux', () => {
           clientIspId: 'myClientIsp',
           locationId: 'myLocation',
           timeAggregation: 'day',
+          options: { startDate: '1', endDate: '2' },
         });
 
         const expectedOutput = {
@@ -205,6 +218,8 @@ describe('redux', () => {
                     timeAggregation: 'day',
                     isFetching: true,
                     isFetched: false,
+                    startDate: '1',
+                    endDate: '2',
                   },
                 },
               },
@@ -222,6 +237,7 @@ describe('redux', () => {
           clientIspId: 'myClientIsp',
           locationId: 'myLocation',
           timeAggregation: 'day',
+          options: { startDate: '1', endDate: '2' },
         });
 
         const expectedOutput = {
@@ -238,6 +254,8 @@ describe('redux', () => {
                     timeAggregation: 'day',
                     isFetching: false,
                     isFetched: true,
+                    startDate: '1',
+                    endDate: '2',
                   },
                 },
               },

@@ -1,16 +1,16 @@
 /**
  * Functions for encoding and decoding values as strings.
  */
-import d3 from 'd3';
+import moment from 'moment';
 
 /**
  * Encodes a date as a string in YYYY-MM-DD format.
  *
- * @param {Date} date
+ * @param {Date|Object} date or moment JS object
  * @return {String} the encoded date
  */
 export function encodeDate(date) {
-  return date == null ? date : d3.timeFormat('%Y-%m-%d')(date);
+  return date === null ? date : moment(date).format('YYYY-MM-DD');
 }
 
 /**
@@ -39,7 +39,7 @@ export function decodeDate(dateString) {
     parts[2] = 1;
   }
 
-  return new Date(...parts);
+  return moment(new Date(...parts));
 }
 
 /**
