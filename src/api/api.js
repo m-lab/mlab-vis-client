@@ -5,6 +5,7 @@ import {
   transformHourly,
   transformSearchResults,
   transformLocationInfo,
+  transformFixedData,
 } from './transforms';
 
 // -------------
@@ -19,7 +20,7 @@ import {
  */
 export function getLocationInfo(locationId) {
   return get(`/locations/${locationId}/info`)
-    .then(transform(transformLocationInfo));
+    .then(transform(transformLocationInfo, transformFixedData));
 }
 
 /**

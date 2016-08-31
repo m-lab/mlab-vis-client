@@ -60,6 +60,11 @@ export const initialLocationState = {
     isFetching: false,
     isFetched: false,
   },
+
+  fixed: {
+    isFetching: false,
+    isFetched: false,
+  },
 };
 
 export const initialClientIspTimeState = {
@@ -243,6 +248,34 @@ function locationInfo(state, action = {}) {
 }
 
 
+
+// reducer for fixed time data about a location (e.g. last year, last week)
+function locationFixed(state, action = {}) {
+  switch (action.type) {
+    case Actions.FETCH_INFO:
+      return {
+        data: state.data,
+        isFetching: true,
+        isFetched: false,
+      };
+    case Actions.FETCH_INFO_SUCCESS:
+      return {
+        // store the data directly
+        data: action.result.data,
+        isFetching: false,
+        isFetched: true,
+      };
+    case Actions.FETCH_INFO_FAIL:
+      return {
+        isFetching: false,
+        isFetched: false,
+        error: action.error,
+      };
+    default:
+      return state;
+  }
+}
+
 // reducer for each location
 function location(state, action = {}) {
   if (!state) {
@@ -278,6 +311,7 @@ function location(state, action = {}) {
       return {
         ...state,
         info: locationInfo(state.info, action),
+        fixed: locationFixed(state.fixed, action),
       };
     default:
       return state;
