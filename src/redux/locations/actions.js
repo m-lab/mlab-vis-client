@@ -61,7 +61,7 @@ const hourlyFetch = createFetchAction({
     return !(locationState.time.hourly.isFetched || locationState.time.hourly.isFetching);
   },
   promise(timeAggregation, locationId) {
-    return api => api.getLocationTimeSeries(timeAggregation, locationId);
+    return api => api.getLocationHourly(timeAggregation, locationId);
   },
 });
 export const FETCH_HOURLY = hourlyFetch.types.fetch;
