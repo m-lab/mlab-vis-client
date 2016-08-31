@@ -17,9 +17,13 @@ body {
   margin-bottom: 40px;
 
   header {
-    h2, h3 {
+    h2 {
+      margin-bottom: 20px;
+      margin-top: 5px;
+    }
+
+    h3 {
       margin-top: 0;
     }
   }
-
 }
