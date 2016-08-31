@@ -1,9 +1,8 @@
 /**
  * Actions for locations
  */
-export const FETCH_TIME_SERIES = 'location/FETCH_TIME_SERIES';
-export const FETCH_TIME_SERIES_SUCCESS = 'location/FETCH_TIME_SERIES_SUCCESS';
-export const FETCH_TIME_SERIES_FAIL = 'location/FETCH_TIME_SERIES_FAIL';
+import createFetchAction from '../createFetchAction';
+
 export const FETCH_HOURLY = 'location/FETCH_HOURLY';
 export const FETCH_HOURLY_SUCCESS = 'location/FETCH_HOURLY_SUCCESS';
 export const FETCH_HOURLY_FAIL = 'location/FETCH_HOURLY_FAIL';
@@ -20,37 +19,34 @@ export const FETCH_CLIENT_ISP_TIME_SERIES_FAIL = 'location/FETCH_CLIENT_ISP_TIME
 // ---------------------
 // Fetch Time Series
 // ---------------------
-export function shouldFetchTimeSeries(state, timeAggregation, locationId) {
-  const locationState = state.locations[locationId];
-  if (!locationState) {
-    return true;
-  }
-
-  // if we don't have this time aggregation, we should fetch it
-  if (locationState.time.timeSeries.timeAggregation !== timeAggregation) {
-    return true;
-  }
-
-  // only fetch if it isn't fetching/already fetched
-  return !(locationState.time.timeSeries.isFetched || locationState.time.timeSeries.isFetching);
-}
-
-export function fetchTimeSeries(timeAggregation, locationId) {
-  return {
-    types: [FETCH_TIME_SERIES, FETCH_TIME_SERIES_SUCCESS, FETCH_TIME_SERIES_FAIL],
-    promise: (api) => api.getLocationTimeSeries(timeAggregation, locationId),
-    locationId,
-    timeAggregation,
-  };
-}
-
-export function fetchTimeSeriesIfNeeded(timeAggregation, locationId) {
-  return (dispatch, getState) => {
-    if (shouldFetchTimeSeries(getState(), timeAggregation, locationId)) {
-      dispatch(fetchTimeSeries(timeAggregation, locationId));
+const timeSeriesFetch = createFetchAction({
+  typePrefix: 'location/',
+  key: 'TIME_SERIES',
+  args: ['timeAggregation', 'locationId'],
+  shouldFetch(state, timeAggregation, locationId) {
+    const locationState = state.locations[locationId];
+    if (!locationState) {
+      return true;
     }
-  };
-}
+
+    // if we don't have this time aggregation, we should fetch it
+    if (locationState.time.timeSeries.timeAggregation !== timeAggregation) {
+      return true;
+    }
+
+    // only fetch if it isn't fetching/already fetched
+    return !(locationState.time.timeSeries.isFetched || locationState.time.timeSeries.isFetching);
+  },
+  promise(timeAggregation, locationId) {
+    return api => api.getLocationTimeSeries(timeAggregation, locationId);
+  },
+});
+export const FETCH_TIME_SERIES = timeSeriesFetch.types.fetch;
+export const FETCH_TIME_SERIES_SUCCESS = timeSeriesFetch.types.success;
+export const FETCH_TIME_SERIES_FAIL = timeSeriesFetch.types.fail;
+export const shouldFetchTimeSeries = timeSeriesFetch.shouldFetch;
+export const fetchTimeSeries = timeSeriesFetch.fetch;
+export const fetchTimeSeriesIfNeeded = timeSeriesFetch.fetchIfNeeded;
 
 // ---------------------
 // Fetch Hourly
@@ -160,3 +156,33 @@ export function fetchClientIspLocationTimeSeriesIfNeeded(timeAggregation, locati
     }
   };
 }
+
+
+
+
+// ---------------------
+// Fetch Location Info
+// ---------------------
+const infoFetch = createFetchAction({
+  typePrefix: 'location/',
+  key: 'INFO',
+  args: ['locationId'],
+  shouldFetch(state, locationId) {
+    const locationState = state.locations[locationId];
+    if (!locationState) {
+      return true;
+    }
+
+    return !(locationState.info.isFetched || locationState.info.isFetching);
+  },
+  promise(locationId) {
+    return api => api.getLocationInfo(locationId);
+  },
+});
+export const FETCH_INFO = infoFetch.types.fetch;
+export const FETCH_INFO_SUCCESS = infoFetch.types.success;
+export const FETCH_INFO_FAIL = infoFetch.types.fail;
+export const shouldFetchInfo = infoFetch.shouldFetch;
+export const fetchInfo = infoFetch.fetch;
+export const fetchInfoIfNeeded = infoFetch.fetchIfNeeded;
+

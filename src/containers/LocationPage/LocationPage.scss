@@ -6,7 +6,13 @@
   .metric-selector,
   .time-aggregation-selector,
   .client-isp-selector {
-    margin-bottom: 30px;
+    margin-bottom: 40px;
+  }
+
+  .client-isp-selector {
+    .IspSelect {
+      margin-bottom: 0;
+    }
   }
 
   .chart-options .checkbox {

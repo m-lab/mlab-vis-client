@@ -22,6 +22,12 @@ export function getLocation(state, props) {
   return state.locations[locationId];
 }
 
+
+export function getLocationInfo(state, props) {
+  const location = getLocation(state, props);
+  return location.info.data;
+}
+
 export function getLocationHourly(state, props) {
   const location = getLocation(state, props);
   return location.time.hourly.data;

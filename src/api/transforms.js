@@ -160,3 +160,45 @@ export function transformSearchResults(body) {
 
   return body;
 }
+
+
+/**
+ * Transforms the response from location info before passing it into
+ * the application.
+ *
+ * - adds in a `name` property to meta
+ * - adds in a `locationKey` property to meta
+ * - adds in a `parents` array to meta where each is { name,  locationKey }
+ * - removes meta.parent_location_key
+ *
+ * @param {Object} body The response body
+ * @return {Object} The transformed response body
+ */
+export function transformLocationInfo(body) {
+  // NOTE: modifying body directly means it modifies what is stored in the API cache
+  if (body.meta) {
+    const { meta } = body;
+    delete meta.parent_location_key;
+
+    meta.name = meta.client_city || meta.client_region || meta.client_country || meta.client_continent;
+    meta.locationKey = meta.child_location_key;
+
+    const parentFields = ['client_continent', 'client_country', 'client_region'];
+    const parents = parentFields.filter(field => meta[field] != null).map(field => ({
+      name: meta[field],
+      code: meta[`${field}_code`],
+    }));
+
+    // build up location key
+    let lastCode = '';
+
+    parents.forEach(parent => {
+      lastCode += parent.code.toLowerCase();
+      parent.locationKey = lastCode;
+    });
+
+    meta.parents = parents;
+  }
+
+  return body;
+}
