@@ -22,23 +22,33 @@ export const FETCH_CLIENT_ISP_TIME_SERIES_FAIL = 'location/FETCH_CLIENT_ISP_TIME
 const timeSeriesFetch = createFetchAction({
   typePrefix: 'location/',
   key: 'TIME_SERIES',
-  args: ['timeAggregation', 'locationId'],
-  shouldFetch(state, timeAggregation, locationId) {
+  args: ['timeAggregation', 'locationId', 'options'],
+  shouldFetch(state, timeAggregation, locationId, options = {}) {
     const locationState = state.locations[locationId];
     if (!locationState) {
       return true;
     }
 
+    const timeSeriesState = locationState.time.timeSeries;
+
     // if we don't have this time aggregation, we should fetch it
-    if (locationState.time.timeSeries.timeAggregation !== timeAggregation) {
+    if (timeSeriesState.timeAggregation !== timeAggregation) {
+      return true;
+    }
+
+    if (options.startDate && !options.startDate.isSame(timeSeriesState.startDate, timeAggregation)) {
+      return true;
+    }
+
+    if (options.endDate && !options.endDate.isSame(timeSeriesState.endDate, timeAggregation)) {
       return true;
     }
 
     // only fetch if it isn't fetching/already fetched
-    return !(locationState.time.timeSeries.isFetched || locationState.time.timeSeries.isFetching);
+    return !(timeSeriesState.isFetched || timeSeriesState.isFetching);
   },
-  promise(timeAggregation, locationId) {
-    return api => api.getLocationTimeSeries(timeAggregation, locationId);
+  promise(timeAggregation, locationId, options) {
+    return api => api.getLocationTimeSeries(timeAggregation, locationId, options);
   },
 });
 export const FETCH_TIME_SERIES = timeSeriesFetch.types.fetch;
@@ -51,14 +61,25 @@ export const fetchTimeSeriesIfNeeded = timeSeriesFetch.fetchIfNeeded;
 // ---------------------
 // Fetch Hourly
 // ---------------------
-export function shouldFetchHourly(state, timeAggregation, locationId) {
+export function shouldFetchHourly(state, timeAggregation, locationId, options = {}) {
   const locationState = state.locations[locationId];
   if (!locationState) {
     return true;
   }
 
+  const locationHourState = locationState.time.hourly;
+
   // if we don't have this time aggregation, we should fetch it
-  if (locationState.time.hourly.timeAggregation !== timeAggregation) {
+  if (locationHourState.timeAggregation !== timeAggregation) {
+    return true;
+  }
+
+
+  if (options.startDate && !options.startDate.isSame(locationHourState.startDate, timeAggregation)) {
+    return true;
+  }
+
+  if (options.endDate && !options.endDate.isSame(locationHourState.endDate, timeAggregation)) {
     return true;
   }
 
@@ -66,19 +87,20 @@ export function shouldFetchHourly(state, timeAggregation, locationId) {
   return !(locationState.time.hourly.isFetched || locationState.time.hourly.isFetching);
 }
 
-export function fetchHourly(timeAggregation, locationId) {
+export function fetchHourly(timeAggregation, locationId, options = {}) {
   return {
     types: [FETCH_HOURLY, FETCH_HOURLY_SUCCESS, FETCH_HOURLY_FAIL],
     promise: (api) => api.getLocationHourly(timeAggregation, locationId),
     locationId,
     timeAggregation,
+    options,
   };
 }
 
-export function fetchHourlyIfNeeded(timeAggregation, locationId) {
+export function fetchHourlyIfNeeded(timeAggregation, locationId, options = {}) {
   return (dispatch, getState) => {
-    if (shouldFetchHourly(getState(), timeAggregation, locationId)) {
-      dispatch(fetchHourly(timeAggregation, locationId));
+    if (shouldFetchHourly(getState(), timeAggregation, locationId, options)) {
+      dispatch(fetchHourly(timeAggregation, locationId, options));
     }
   };
 }
@@ -117,7 +139,7 @@ export function fetchClientIspsIfNeeded(locationId) {
 // ---------------------
 // Fetch Client ISP in Location Time Series
 // ---------------------
-export function shouldFetchClientIspLocationTimeSeries(state, timeAggregation, locationId, clientIspId) {
+export function shouldFetchClientIspLocationTimeSeries(state, timeAggregation, locationId, clientIspId, options = {}) {
   const locationState = state.locations[locationId];
   if (!locationState) {
     return true;
@@ -133,31 +155,38 @@ export function shouldFetchClientIspLocationTimeSeries(state, timeAggregation, l
     return true;
   }
 
+  if (options.startDate && !options.startDate.isSame(clientIspTimeState.timeSeries.startDate, timeAggregation)) {
+    return true;
+  }
+
+  if (options.endDate && !options.endDate.isSame(clientIspTimeState.timeSeries.endDate, timeAggregation)) {
+    return true;
+  }
+
   // only fetch if it isn't fetching/already fetched
   return !(clientIspTimeState.timeSeries.isFetched ||
     clientIspTimeState.timeSeries.isFetching);
 }
 
-export function fetchClientIspLocationTimeSeries(timeAggregation, locationId, clientIspId) {
+export function fetchClientIspLocationTimeSeries(timeAggregation, locationId, clientIspId, options = {}) {
   return {
     types: [FETCH_CLIENT_ISP_TIME_SERIES, FETCH_CLIENT_ISP_TIME_SERIES_SUCCESS,
       FETCH_CLIENT_ISP_TIME_SERIES_FAIL],
-    promise: (api) => api.getLocationClientIspTimeSeries(timeAggregation, locationId, clientIspId),
+    promise: (api) => api.getLocationClientIspTimeSeries(timeAggregation, locationId, clientIspId, options),
     clientIspId,
     locationId,
     timeAggregation,
+    options,
   };
 }
 
-export function fetchClientIspLocationTimeSeriesIfNeeded(timeAggregation, locationId, clientIspId) {
+export function fetchClientIspLocationTimeSeriesIfNeeded(timeAggregation, locationId, clientIspId, options = {}) {
   return (dispatch, getState) => {
-    if (shouldFetchClientIspLocationTimeSeries(getState(), timeAggregation, locationId, clientIspId)) {
-      dispatch(fetchClientIspLocationTimeSeries(timeAggregation, locationId, clientIspId));
+    if (shouldFetchClientIspLocationTimeSeries(getState(), timeAggregation, locationId, clientIspId, options)) {
+      dispatch(fetchClientIspLocationTimeSeries(timeAggregation, locationId, clientIspId, options));
     }
   };
 }
-
-
 
 
 // ---------------------
@@ -185,4 +214,3 @@ export const FETCH_INFO_FAIL = infoFetch.types.fail;
 export const shouldFetchInfo = infoFetch.shouldFetch;
 export const fetchInfo = infoFetch.fetch;
 export const fetchInfoIfNeeded = infoFetch.fetchIfNeeded;
-

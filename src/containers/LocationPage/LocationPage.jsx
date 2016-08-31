@@ -1,5 +1,6 @@
 import React, { PureComponent, PropTypes } from 'react';
 import Helmet from 'react-helmet';
+import moment from 'moment';
 import { browserHistory } from 'react-router';
 import { Row, Col } from 'react-bootstrap';
 import * as LocationPageSelectors from '../../redux/locationPage/selectors';
@@ -32,8 +33,9 @@ const urlQueryConfig = {
   showRegionalValues: { type: 'boolean', defaultValue: false, urlKey: 'regional' },
 
   // selected time
-  startDate: { type: 'date', urlKey: 'start' },
-  endDate: { type: 'date', urlKey: 'end' },
+  // TODO: change defaults to more recent time period when data is up-to-date
+  startDate: { type: 'date', urlKey: 'start', defaultValue: new Date(2015, 10, 1) },
+  endDate: { type: 'date', urlKey: 'end', defaultValue: new Date(2015, 11, 1) },
   timeAggregation: { type: 'string', defaultValue: 'day', urlKey: 'aggr' },
   selectedClientIspIds: { type: 'array', urlKey: 'isps' },
 };
@@ -89,6 +91,7 @@ class LocationPage extends PureComponent {
     this.onViewMetricChange = this.onViewMetricChange.bind(this);
     this.onTimeAggregationChange = this.onTimeAggregationChange.bind(this);
     this.onSelectedClientIspsChange = this.onSelectedClientIspsChange.bind(this);
+    this.onDateRangeChange = this.onDateRangeChange.bind(this);
   }
 
   componentDidMount() {
@@ -103,10 +106,14 @@ class LocationPage extends PureComponent {
    * Fetch the data for the page if needed
    */
   fetchData(props) {
-    const { dispatch, locationId, timeAggregation, clientIsps, selectedClientIspIds } = props;
+    const { dispatch, locationId, timeAggregation, startDate, endDate, clientIsps, selectedClientIspIds } = props;
+    const options = {
+      startDate: moment(startDate),
+      endDate: moment(endDate),
+    };
     dispatch(LocationsActions.fetchInfoIfNeeded(locationId));
-    dispatch(LocationsActions.fetchTimeSeriesIfNeeded(timeAggregation, locationId));
-    dispatch(LocationsActions.fetchHourlyIfNeeded(timeAggregation, locationId));
+    dispatch(LocationsActions.fetchTimeSeriesIfNeeded(timeAggregation, locationId, options));
+    dispatch(LocationsActions.fetchHourlyIfNeeded(timeAggregation, locationId, options));
     dispatch(LocationsActions.fetchClientIspsIfNeeded(locationId));
 
     // setup selected ISPs if needed
@@ -123,11 +130,22 @@ class LocationPage extends PureComponent {
       }
     }
 
+    this.fetchSelectedClientIspData(props);
+  }
+
+  fetchSelectedClientIspData(props) {
+    const { dispatch, locationId, timeAggregation, startDate, endDate, selectedClientIspIds } = props;
+    const options = {
+      startDate: moment(startDate),
+      endDate: moment(endDate),
+    };
     // fetch data for selected Client ISPs
     if (selectedClientIspIds) {
       selectedClientIspIds.forEach(clientIspId => {
         dispatch(LocationsActions.fetchClientIspLocationTimeSeriesIfNeeded(timeAggregation,
-          locationId, clientIspId));
+                                                                           locationId,
+                                                                           clientIspId,
+                                                                           options));
       });
     }
   }
@@ -184,6 +202,21 @@ class LocationPage extends PureComponent {
   }
 
   /**
+   * Callback for when start or end date is changed
+   * @param {Date} startDate new startDate
+   * @param {Date} endDate new endDate
+   */
+  onDateRangeChange(newStartDate, newEndDate) {
+    const { dispatch, startDate, endDate } = this.props;
+    if ((!startDate && newStartDate) || (newStartDate && !newStartDate.isSame(startDate, 'day'))) {
+      dispatch(LocationPageActions.changeStartDate(newStartDate.toDate()));
+    }
+    if ((!endDate && newEndDate) || (newEndDate && !newEndDate.isSame(endDate, 'day'))) {
+      dispatch(LocationPageActions.changeEndDate(newEndDate.toDate()));
+    }
+  }
+
+  /**
    * Helper to get the extent key based on the metric
    *
    * Combines upload and download as 'throughput'
@@ -233,8 +266,18 @@ class LocationPage extends PureComponent {
   }
 
   renderTimeRangeSelector() {
+    const { startDate, endDate } = this.props;
+
+
+    const mStartDate = startDate ? moment(startDate) : null;
+    const mEndDate = endDate ? moment(endDate) : null;
+
     return (
-      <DateRangeSelector />
+      <DateRangeSelector
+        startDate={mStartDate}
+        endDate={mEndDate}
+        onChange={this.onDateRangeChange}
+      />
     );
   }
 
