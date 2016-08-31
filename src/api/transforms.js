@@ -219,15 +219,22 @@ export function transformFixedData(body) {
       'last_year_': 'lastYear',
     };
 
+    const mappedKeys = Object.keys(keyMapping);
+
+    // group keys based on the prefix of the key (e.g. last_year_)
+    // ends up with { last_year_: ['last_year_download_avg', ...]}
     const keyGroups = d3.nest().key(key => {
-      if (key.indexOf('last_year_') === 0) {
-        return 'last_year_';
+      for (let i = 0; i < mappedKeys.length; i++) {
+        if (key.indexOf(mappedKeys[i]) === 0) {
+          return mappedKeys[i];
+        }
       }
 
       return 'general';
     }).object(Object.keys(body.data));
 
-
+    // convert to an object
+    // e.g. { lastYear: { download_avg: ... }, ... }
     body.data = Object.keys(keyGroups).reduce((groupedData, key) => {
       groupedData[keyMapping[key]] = keyGroups[key].reduce((keyData, dataKey) => {
         const newDataKey = dataKey.substring(key.length);
