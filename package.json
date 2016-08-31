@@ -145,7 +145,7 @@
     "eslint-plugin-jsx-a11y": "^2.0.1",
     "eslint-plugin-react": "^6.1.2",
     "extract-text-webpack-plugin": "^0.9.1",
-    "hard-source-webpack-plugin": "0.0.22",
+    "hard-source-webpack-plugin": "0.0.25",
     "json-loader": "^0.5.4",
     "karma": "^1.2.0",
     "karma-cli": "^1.0.1",
