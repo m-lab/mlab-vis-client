@@ -1,5 +1,4 @@
 import React, { PureComponent, PropTypes } from 'react';
-import { groupBy } from 'lodash';
 import d3 from 'd3';
 
 import { HourChart, CountChart } from '../../components';
@@ -63,7 +62,8 @@ export default class HourChartWithCounts extends PureComponent {
     const filteredData = (data || []).filter(d => d[yKey] != null);
 
     // produce the byHour array
-    const groupedByHour = groupBy(filteredData, 'hour');
+    const groupedByHour = d3.nest().key(d => d.hour).object(filteredData);
+
     // use d3.range(24) instead of Object.keys to ensure we get an entry for each hour
     const dataByHour = d3.range(24).map(hour => {
       const hourPoints = groupedByHour[hour];
