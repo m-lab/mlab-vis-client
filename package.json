@@ -27,7 +27,8 @@
     "webpack-dashboard": "WEBPACK_DASHBOARD=true node webpack/webpack-dev-server.js",
     "dev": "concurrently --kill-others \"npm run start-dev\" \"npm run watch-client\"",
     "test": "karma start",
-    "webpack-clean-cache": "rm -rf webpack/webpack-records.json webpack/cache"
+    "webpack-clean-cache": "rm -rf webpack/webpack-records.json webpack/cache",
+    "deploy": "gcloud app deploy"
   },
   "betterScripts": {
     "start-prod": {
