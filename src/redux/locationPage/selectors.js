@@ -4,7 +4,7 @@
 import d3 from 'd3';
 
 import { createSelector } from 'reselect';
-import { initialLocationState } from '../locations/reducer';
+import { initialLocationState } from '../locations/initialState';
 import { metrics } from '../../constants';
 import { mergeStatuses, status } from '../status';
 
@@ -54,9 +54,9 @@ export function getLocationTimeSeriesStatus(state, props) {
   return status(location.time.timeSeries);
 }
 
-export function getLocationClientIsps(state, props) {
+export function getLocationTopClientIsps(state, props) {
   const location = getLocation(state, props);
-  return location.clientIsps.data;
+  return location.topClientIsps.data;
 }
 
 /**
@@ -64,7 +64,7 @@ export function getLocationClientIsps(state, props) {
  * selected clientIsps
  */
 export function getLocationClientIspsSelected(state, props) {
-  const clientIsps = getLocationClientIsps(state, props);
+  const clientIsps = getLocationTopClientIsps(state, props);
   const selectedIds = props.selectedClientIspIds;
   if (clientIsps && selectedIds) {
     const selected = clientIsps.filter(isp => selectedIds.includes(isp.meta.client_asn_number));

@@ -312,7 +312,7 @@ describe('redux', () => {
           myLocation: {
             ...initialLocationState,
             locationId: 'myLocation',
-            clientIsps: {
+            topClientIsps: {
               data: undefined,
               isFetching: true,
               isFetched: false,
@@ -335,7 +335,7 @@ describe('redux', () => {
           myLocation: {
             ...initialLocationState,
             locationId: 'myLocation',
-            clientIsps: {
+            topClientIsps: {
               data: 'data!',
               isFetching: false,
               isFetched: true,
@@ -358,7 +358,7 @@ describe('redux', () => {
           myLocation: {
             ...initialLocationState,
             locationId: 'myLocation',
-            clientIsps: {
+            topClientIsps: {
               error: 'error!',
               isFetching: false,
               isFetched: false,

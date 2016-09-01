@@ -100,7 +100,7 @@ export function getLocationClientIspTimeSeries(timeAggregation, locationId, clie
  * @param {String} locationId The location to query (e.g., nauswaseattle)
  * @return {Promise} A promise after the get request was made
  */
-export function getLocationClientIsps(locationId) {
+export function getLocationTopClientIsps(locationId) {
   return get(`/locations/${locationId}/clientisps`);
 }
 

@@ -49,7 +49,7 @@ function mapStateToProps(state, propsWithUrl) {
     ...propsWithUrl,
     locationInfo: LocationPageSelectors.getLocationInfo(state, propsWithUrl),
     viewMetric: LocationPageSelectors.getViewMetric(state, propsWithUrl),
-    clientIsps: LocationPageSelectors.getLocationClientIsps(state, propsWithUrl),
+    clientIsps: LocationPageSelectors.getLocationTopClientIsps(state, propsWithUrl),
     selectedClientIsps: LocationPageSelectors.getLocationClientIspsSelected(state, propsWithUrl),
     hourly: LocationPageSelectors.getLocationHourly(state, propsWithUrl),
     hourlyStatus: LocationPageSelectors.getLocationHourlyStatus(state, propsWithUrl),
@@ -118,7 +118,7 @@ class LocationPage extends PureComponent {
     dispatch(LocationsActions.fetchInfoIfNeeded(locationId));
     dispatch(LocationsActions.fetchTimeSeriesIfNeeded(timeAggregation, locationId, options));
     dispatch(LocationsActions.fetchHourlyIfNeeded(timeAggregation, locationId, options));
-    dispatch(LocationsActions.fetchClientIspsIfNeeded(locationId));
+    dispatch(LocationsActions.fetchTopClientIspsIfNeeded(locationId));
 
     // setup selected ISPs if needed
     if (clientIsps) {
