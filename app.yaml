@@ -1,0 +1,7 @@
+
+service: client
+
+# [START app_yaml]
+runtime: nodejs
+vm: true
+# [END app_yaml]
