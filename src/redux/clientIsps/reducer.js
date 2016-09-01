@@ -50,6 +50,8 @@ function time(state = initialClientIspState.time, action = {}) {
         timeSeries: {
           data: state.timeSeries.data,
           timeAggregation: action.timeAggregation,
+          startDate: action.options.startDate,
+          endDate: action.options.endDate,
           isFetching: true,
           isFetched: false,
         },
@@ -60,6 +62,8 @@ function time(state = initialClientIspState.time, action = {}) {
         timeSeries: {
           data: action.result,
           timeAggregation: state.timeSeries.timeAggregation,
+          startDate: action.options.startDate,
+          endDate: action.options.endDate,
           isFetching: false,
           isFetched: true,
         },

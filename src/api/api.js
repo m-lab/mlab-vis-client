@@ -8,9 +8,33 @@ import {
   transformFixedData,
 } from './transforms';
 
-// -------------
-// API Calls
-// -------------
+const DATE_FORMATS = {
+  day: 'YYYY-MM-DD',
+  month: 'YYYY-MM',
+  year: 'YYYY',
+};
+
+/**
+ * Get information for a location
+ *
+ * @param {String} timeAggregation either day, month, or year
+ * @param {Object} options with optional startDate and endDate
+ * @return {Array} array of parameters for start and end date
+ */
+function getDateRangeParams(timeAggregation, options) {
+  const params = {};
+  const dateFormat = DATE_FORMATS[timeAggregation];
+  if (options.startDate) {
+    params.startdate = options.startDate.format(dateFormat);
+    // params.push(`startdate=${options.startDate.format(dateFormat)}`);
+  }
+  if (options.endDate) {
+    // params.push(`enddate=${options.endDate.format(dateFormat)}`);
+    params.enddate = options.endDate.format(dateFormat);
+  }
+
+  return params;
+}
 
 /**
  * Get information for a location
@@ -28,10 +52,12 @@ export function getLocationInfo(locationId) {
  *
  * @param {String} timeAggregation The aggregation of the data (one of day, month, year)
  * @param {String} locationId The location to query (e.g., nauswaseattle)
+ * @param {Options} object Options with startDate and endDate
  * @return {Promise} A promise after the get request was made
  */
-export function getLocationTimeSeries(timeAggregation, locationId) {
-  return get(`/locations/${locationId}/time/${timeAggregation}/metrics`)
+export function getLocationTimeSeries(timeAggregation, locationId, options = {}) {
+  const params = getDateRangeParams(timeAggregation, options);
+  return get(`/locations/${locationId}/time/${timeAggregation}/metrics`, { params })
     .then(transform(transformTimeSeries));
 }
 
@@ -43,10 +69,12 @@ export function getLocationTimeSeries(timeAggregation, locationId) {
  *
  * @param {String} timeAggregation The aggregation of the data (one of day, month, year)
  * @param {String} locationId The location to query (e.g., nauswaseattle)
+ * @param {Options} object Options with startDate and endDate
  * @return {Promise} A promise after the get request was made
  */
-export function getLocationHourly(timeAggregation, locationId) {
-  return get(`/locations/${locationId}/time/${timeAggregation}_hour/metrics`)
+export function getLocationHourly(timeAggregation, locationId, options = {}) {
+  const params = getDateRangeParams(timeAggregation, options);
+  return get(`/locations/${locationId}/time/${timeAggregation}_hour/metrics`, { params })
     .then(transform(transformHourly));
 }
 
@@ -56,10 +84,13 @@ export function getLocationHourly(timeAggregation, locationId) {
  *    year, day_hour, month_hour, year_hour)
  * @param {String} locationId The location to query (e.g., nauswaseattle)
  * @param {String} clientIspId The AS number of the ISP (e.g., AS7922)
+ * @param {Object} options with startDate and endDate moment objects
  * @return {Promise} A promise after the get request was made
  */
-export function getLocationClientIspTimeSeries(timeAggregation, locationId, clientIspId) {
-  return get(`/locations/${locationId}/time/${timeAggregation}/clientisps/${clientIspId}/metrics`)
+export function getLocationClientIspTimeSeries(timeAggregation, locationId, clientIspId, options = {}) {
+  const params = getDateRangeParams(timeAggregation, options);
+
+  return get(`/locations/${locationId}/time/${timeAggregation}/clientisps/${clientIspId}/metrics`, { params })
     .then(transform(transformTimeSeries));
 }
 
