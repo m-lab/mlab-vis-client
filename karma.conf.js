@@ -45,7 +45,8 @@ module.exports = function (config) {
           },
           { test: /\.json$/, loader: 'json-loader' },
           { test: /\.less$/, loader: 'style!css!less' },
-          { test: /\.scss$/, loader: 'style!css!sass' }
+          { test: /\.scss$/, loader: 'style!css!sass' },
+          { test: /\.css$/, loader: 'style!css' },
         ]
       },
       resolve: {
