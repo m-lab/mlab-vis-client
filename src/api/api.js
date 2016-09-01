@@ -5,6 +5,7 @@ import {
   transformHourly,
   transformSearchResults,
   transformLocationInfo,
+  transformFixedData,
 } from './transforms';
 
 const DATE_FORMATS = {
@@ -43,7 +44,7 @@ function getDateRangeParams(timeAggregation, options) {
  */
 export function getLocationInfo(locationId) {
   return get(`/locations/${locationId}/info`)
-    .then(transform(transformLocationInfo));
+    .then(transform(transformLocationInfo, transformFixedData));
 }
 
 /**

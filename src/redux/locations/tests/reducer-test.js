@@ -14,6 +14,9 @@ import {
   FETCH_CLIENT_ISP_TIME_SERIES,
   FETCH_CLIENT_ISP_TIME_SERIES_SUCCESS,
   FETCH_CLIENT_ISP_TIME_SERIES_FAIL,
+  FETCH_INFO,
+  FETCH_INFO_SUCCESS,
+  FETCH_INFO_FAIL,
 } from '../actions';
 import reducer, { initialLocationState, initialClientIspTimeState } from '../reducer';
 
@@ -363,6 +366,94 @@ describe('redux', () => {
           },
         };
 
+        expect(result).to.deep.equal(expectedOutput);
+      });
+
+
+      // -------------------------------------------------------------------------------------
+      it(FETCH_INFO, () => {
+        const result = reducer({}, {
+          type: FETCH_INFO,
+          locationId: 'myLocation',
+        });
+
+        const expectedOutput = {
+          myLocation: {
+            ...initialLocationState,
+            locationId: 'myLocation',
+            info: {
+              data: undefined,
+              isFetching: true,
+              isFetched: false,
+            },
+            fixed: {
+              data: undefined,
+              isFetching: true,
+              isFetched: false,
+            },
+          },
+        };
+
+        expect(result.myLocation.info).to.deep.equal(expectedOutput.myLocation.info);
+        expect(result.myLocation.fixed).to.deep.equal(expectedOutput.myLocation.fixed);
+        expect(result).to.deep.equal(expectedOutput);
+      });
+
+      it(FETCH_INFO_SUCCESS, () => {
+        const result = reducer({}, {
+          type: FETCH_INFO_SUCCESS,
+          result: { meta: 'info', data: 'fixed-data' },
+          locationId: 'myLocation',
+        });
+
+        const expectedOutput = {
+          myLocation: {
+            ...initialLocationState,
+            locationId: 'myLocation',
+            info: {
+              data: 'info',
+              isFetching: false,
+              isFetched: true,
+            },
+            fixed: {
+              data: 'fixed-data',
+              isFetching: false,
+              isFetched: true,
+            },
+          },
+        };
+
+        expect(result.myLocation.info).to.deep.equal(expectedOutput.myLocation.info);
+        expect(result.myLocation.fixed).to.deep.equal(expectedOutput.myLocation.fixed);
+        expect(result).to.deep.equal(expectedOutput);
+      });
+
+      it(FETCH_INFO_FAIL, () => {
+        const result = reducer({}, {
+          type: FETCH_INFO_FAIL,
+          error: 'error!',
+          locationId: 'myLocation',
+        });
+
+        const expectedOutput = {
+          myLocation: {
+            ...initialLocationState,
+            locationId: 'myLocation',
+            info: {
+              error: 'error!',
+              isFetching: false,
+              isFetched: false,
+            },
+            fixed: {
+              error: 'error!',
+              isFetching: false,
+              isFetched: false,
+            },
+          },
+        };
+
+        expect(result.myLocation.info).to.deep.equal(expectedOutput.myLocation.info);
+        expect(result.myLocation.fixed).to.deep.equal(expectedOutput.myLocation.fixed);
         expect(result).to.deep.equal(expectedOutput);
       });
     }); // reducer

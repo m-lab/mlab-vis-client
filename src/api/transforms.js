@@ -202,3 +202,49 @@ export function transformLocationInfo(body) {
 
   return body;
 }
+
+
+/**
+ * Transforms the fixed data portion of a response.
+ *
+ * - converts `last_year_` keys to be grouped under last_year.
+ *
+ * @param {Object} body The response body
+ * @return {Object} The transformed response body
+ */
+export function transformFixedData(body) {
+  // NOTE: modifying body directly means it modifies what is stored in the API cache
+  if (body.data) {
+    const keyMapping = {
+      last_year_: 'lastYear',
+    };
+
+    const mappedKeys = Object.keys(keyMapping);
+
+    // group keys based on the prefix of the key (e.g. last_year_)
+    // ends up with { last_year_: ['last_year_download_avg', ...]}
+    const keyGroups = d3.nest().key(key => {
+      for (let i = 0; i < mappedKeys.length; i++) {
+        if (key.indexOf(mappedKeys[i]) === 0) {
+          return mappedKeys[i];
+        }
+      }
+
+      return 'general';
+    }).object(Object.keys(body.data));
+
+    // convert to an object
+    // e.g. { lastYear: { download_avg: ... }, ... }
+    body.data = Object.keys(keyGroups).reduce((groupedData, key) => {
+      groupedData[keyMapping[key]] = keyGroups[key].reduce((keyData, dataKey) => {
+        const newDataKey = dataKey.substring(key.length);
+        keyData[newDataKey] = body.data[dataKey];
+
+        return keyData;
+      }, {});
+      return groupedData;
+    }, {});
+  }
+
+  return body;
+}
