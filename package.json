@@ -86,6 +86,7 @@
     "d3-array": "^1.0.1",
     "d3-axis": "^1.0.3",
     "d3-collection": "^1.0.1",
+    "d3-interpolate-path": "^1.0.1",
     "d3-line-chunked": "^1.2.0",
     "d3-scale": "^1.0.3",
     "d3-selection": "^1.0.2",
