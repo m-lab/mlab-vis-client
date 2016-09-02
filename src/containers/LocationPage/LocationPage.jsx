@@ -12,6 +12,7 @@ import {
   ChartExportControls,
   LineChartWithCounts,
   HourChartWithCounts,
+  LineChartSmallMult,
   MetricSelector,
   TimeAggregationSelector,
   StatusWrapper,
@@ -343,6 +344,7 @@ class LocationPage extends PureComponent {
     );
   }
 
+
   renderCompareProviders() {
     const { locationId, locationTimeSeries, timeSeriesStatus, viewMetric, clientIspTimeSeries } = this.props;
     const chartId = 'providers-time-series';
@@ -376,11 +378,29 @@ class LocationPage extends PureComponent {
   }
 
   renderCompareMetrics() {
+    const { timeSeriesStatus, locationTimeSeries, clientIspTimeSeries } = this.props;
+    let series = [];
+    if (locationTimeSeries) {
+      series = [locationTimeSeries].concat(clientIspTimeSeries);
+    }
+    const chartId = 'providers-small-mult';
+    const metrics = ['download_speed_mbps_median', 'upload_speed_mbps_median', 'rtt_avg', 'retransmit_avg'];
+    const metricNames = ['Download Speed', 'Upload Speed', 'RTT', 'Retransmission Rate'];
     return (
       <div className="subsection">
         <header>
           <h3>Compare Metrics</h3>
         </header>
+        <StatusWrapper status={timeSeriesStatus}>
+          <LineChartSmallMult
+            id={chartId}
+            series={series}
+            width={800}
+            xKey="date"
+            yKeys={metrics}
+            yLabels={metricNames}
+          />
+        </StatusWrapper>
       </div>
     );
   }

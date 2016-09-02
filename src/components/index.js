@@ -21,3 +21,4 @@ export OmniSearch from './OmniSearch/OmniSearch';
 export IspSelect from './IspSelect/IspSelect';
 export DateRangeSelector from './DateRangeSelector/DateRangeSelector';
 export Breadcrumbs from './Breadcrumbs/Breadcrumbs';
+export LineChartSmallMult from './LineChartSmallMult/LineChartSmallMult';
