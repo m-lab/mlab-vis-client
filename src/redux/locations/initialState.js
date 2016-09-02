@@ -2,7 +2,7 @@
 export const initialState = {};
 
 export const initialLocationState = {
-  id: 123,
+  id: null,
 
   info: {
     isFetching: false,
@@ -34,7 +34,7 @@ export const initialLocationState = {
 };
 
 export const initialClientIspState = {
-  id: 45,
+  id: null,
 
   info: {
     isFetching: false,
@@ -48,11 +48,6 @@ export const initialClientIspState = {
 
   time: {
     timeSeries: {
-      isFetching: false,
-      isFetched: false,
-    },
-
-    hourly: {
       isFetching: false,
       isFetched: false,
     },

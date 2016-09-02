@@ -106,7 +106,7 @@ const topClientIsps = createFetchAction({
     }
 
     // only fetch if it isn't fetching/already fetched
-    return !(locationState.clientIsps.isFetched || locationState.clientIsps.isFetching);
+    return !(locationState.topClientIsps.isFetched || locationState.topClientIsps.isFetching);
   },
   promise(locationId) {
     return api => api.getLocationTopClientIsps(locationId);
@@ -133,10 +133,11 @@ const clientIspLocationTimeSeries = createFetchAction({
       return true;
     }
 
-    const clientIspTimeState = locationState.time.clientIsps[clientIspId];
-    if (!clientIspTimeState) {
+    const clientIspState = locationState.clientIsps[clientIspId];
+    if (!clientIspState) {
       return true;
     }
+    const clientIspTimeState = clientIspState.time;
 
     // if we don't have this time aggregation, we should fetch it
     if (clientIspTimeState.timeSeries.timeAggregation !== timeAggregation) {
@@ -180,7 +181,8 @@ const infoFetch = createFetchAction({
       return true;
     }
 
-    return !(locationState.info.isFetched || locationState.info.isFetching);
+    return !locationState.info.isFetched && !locationState.info.isFetching &&
+     !locationState.fixed.isFetched && !locationState.fixed.isFetching;
   },
   promise(locationId) {
     return api => api.getLocationInfo(locationId);
@@ -206,14 +208,13 @@ const clientIspInfo = createFetchAction({
       return true;
     }
 
-    console.log('shouldFetch TODO');
-
     const clientIspState = locationState.clientIsps[clientIspId];
     if (!clientIspState) {
       return true;
     }
 
-    return !(clientIspState.info.isFetched || clientIspState.info.isFetching);
+    return !(clientIspState.info.isFetched || clientIspState.info.isFetching ||
+      clientIspState.fixed.isFetched || clientIspState.fixed.isFetching);
   },
   promise(locationId, clientIspId) {
     return api => api.getLocationClientIspInfo(locationId, clientIspId);

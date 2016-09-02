@@ -4,43 +4,34 @@
 import { combineReducers } from 'redux';
 import * as Actions from '../actions';
 import clientIsp from './clientIsp';
-import { initialLocationState } from '../initialState';
+import { initialLocationState, initialClientIspState } from '../initialState';
 
 // reducer for the time series portion of a location
 function timeSeries(state = initialLocationState.time.timeSeries, action = {}) {
   switch (action.type) {
     case Actions.FETCH_TIME_SERIES:
       return {
-        ...state,
-        timeSeries: {
-          data: state.timeSeries.data,
-          timeAggregation: action.timeAggregation,
-          startDate: action.options.startDate,
-          endDate: action.options.endDate,
-          isFetching: true,
-          isFetched: false,
-        },
+        data: state.data,
+        timeAggregation: action.timeAggregation,
+        startDate: action.options.startDate,
+        endDate: action.options.endDate,
+        isFetching: true,
+        isFetched: false,
       };
     case Actions.FETCH_TIME_SERIES_SUCCESS:
       return {
-        ...state,
-        timeSeries: {
-          data: action.result,
-          timeAggregation: action.timeAggregation,
-          startDate: action.options.startDate,
-          endDate: action.options.endDate,
-          isFetching: false,
-          isFetched: true,
-        },
+        data: action.result,
+        timeAggregation: action.timeAggregation,
+        startDate: action.options.startDate,
+        endDate: action.options.endDate,
+        isFetching: false,
+        isFetched: true,
       };
     case Actions.FETCH_TIME_SERIES_FAIL:
       return {
-        ...state,
-        timeSeries: {
-          isFetching: false,
-          isFetched: false,
-          error: action.error,
-        },
+        isFetching: false,
+        isFetched: false,
+        error: action.error,
       };
     default:
       return state;
@@ -51,36 +42,27 @@ function hourly(state = initialLocationState.time.hourly, action = {}) {
   switch (action.type) {
     case Actions.FETCH_HOURLY:
       return {
-        ...state,
-        hourly: {
-          data: state.hourly.data,
-          timeAggregation: action.timeAggregation,
-          startDate: action.options.startDate,
-          endDate: action.options.endDate,
-          isFetching: true,
-          isFetched: false,
-        },
+        data: state.data,
+        timeAggregation: action.timeAggregation,
+        startDate: action.options.startDate,
+        endDate: action.options.endDate,
+        isFetching: true,
+        isFetched: false,
       };
     case Actions.FETCH_HOURLY_SUCCESS:
       return {
-        ...state,
-        hourly: {
-          data: action.result,
-          timeAggregation: action.timeAggregation,
-          startDate: action.options.startDate,
-          endDate: action.options.endDate,
-          isFetching: false,
-          isFetched: true,
-        },
+        data: action.result,
+        timeAggregation: action.timeAggregation,
+        startDate: action.options.startDate,
+        endDate: action.options.endDate,
+        isFetching: false,
+        isFetched: true,
       };
     case Actions.FETCH_HOURLY_FAIL:
       return {
-        ...state,
-        hourly: {
-          isFetching: false,
-          isFetched: false,
-          error: action.error,
-        },
+        isFetching: false,
+        isFetched: false,
+        error: action.error,
       };
     default:
       return state;
@@ -172,18 +154,46 @@ function fixed(state = initialLocationState.fixed, action = {}) {
 
 // reducer for the collection of client ISPs
 function clientIsps(state = initialLocationState.clientIsps, action = {}) {
-  console.log('client isps called', state);
   switch (action.type) {
     case Actions.FETCH_CLIENT_ISP_TIME_SERIES:
     case Actions.FETCH_CLIENT_ISP_TIME_SERIES_SUCCESS:
     case Actions.FETCH_CLIENT_ISP_TIME_SERIES_FAIL:
       return {
         ...state,
-        clientIsps: {
-          ...state.clientIsps,
-          [action.clientIspId]: clientIsp(state[action.clientIspId], action),
-        },
+        [action.clientIspId]: clientIsp(state[action.clientIspId], action),
       };
+    // when top ISPs come, merge them into info if they aren't already in there.
+    case Actions.FETCH_TOP_CLIENT_ISPS_SUCCESS: {
+      const topIsps = action.result.results;
+      let result = state;
+      topIsps.forEach(topIsp => {
+        const id = topIsp.client_asn_number;
+        let clientIspState = state[id];
+        if (!clientIspState) {
+          clientIspState = {
+            ...initialClientIspState,
+            id,
+          };
+        }
+
+        if (!clientIspState.info.isFetched) {
+          clientIspState = {
+            ...clientIspState,
+            info: {
+              ...clientIspState.info,
+              data: topIsp,
+              isFetched: true,
+            },
+          };
+          result = {
+            ...result,
+            [id]: clientIspState,
+          };
+        }
+      });
+
+      return result;
+    }
     default:
       return state;
   }

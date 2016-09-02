@@ -10,36 +10,27 @@ function timeSeries(state = initialClientIspState.time.timeSeries, action = {}) 
   switch (action.type) {
     case Actions.FETCH_CLIENT_ISP_TIME_SERIES:
       return {
-        ...state,
-        timeSeries: {
-          data: state.timeSeries.data,
-          timeAggregation: action.timeAggregation,
-          startDate: action.options.startDate,
-          endDate: action.options.endDate,
-          isFetching: true,
-          isFetched: false,
-        },
+        data: state.data,
+        timeAggregation: action.timeAggregation,
+        startDate: action.options.startDate,
+        endDate: action.options.endDate,
+        isFetching: true,
+        isFetched: false,
       };
     case Actions.FETCH_CLIENT_ISP_TIME_SERIES_SUCCESS:
       return {
-        ...state,
-        timeSeries: {
-          data: action.result,
-          timeAggregation: action.timeAggregation,
-          startDate: action.options.startDate,
-          endDate: action.options.endDate,
-          isFetching: false,
-          isFetched: true,
-        },
+        data: action.result,
+        timeAggregation: action.timeAggregation,
+        startDate: action.options.startDate,
+        endDate: action.options.endDate,
+        isFetching: false,
+        isFetched: true,
       };
     case Actions.FETCH_CLIENT_ISP_TIME_SERIES_FAIL:
       return {
-        ...state,
-        timeSeries: {
-          isFetching: false,
-          isFetched: false,
-          error: action.error,
-        },
+        isFetching: false,
+        isFetched: false,
+        error: action.error,
       };
     default:
       return state;

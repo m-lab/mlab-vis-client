@@ -47,7 +47,7 @@ export default function createFetchAction({ key, shouldFetch, promise, args = []
   }
 
   function fetchIfNeeded(...fetchArgs) {
-    return (dispatch, getState) => {
+    return function fetchIfNeededResult(dispatch, getState) {
       if (shouldFetch(getState(), ...fetchArgs)) {
         dispatch(fetch(...fetchArgs));
       }

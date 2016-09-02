@@ -6,6 +6,7 @@ import {
   transformSearchResults,
   transformLocationInfo,
   transformFixedData,
+  transformMapMeta,
 } from './transforms';
 
 const DATE_FORMATS = {
@@ -101,7 +102,8 @@ export function getLocationClientIspTimeSeries(timeAggregation, locationId, clie
  * @return {Promise} A promise after the get request was made
  */
 export function getLocationTopClientIsps(locationId) {
-  return get(`/locations/${locationId}/clientisps`);
+  return get(`/locations/${locationId}/clientisps`)
+    .then(transform(transformMapMeta));
 }
 
 

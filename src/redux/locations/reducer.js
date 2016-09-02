@@ -17,9 +17,9 @@ function locations(state = initialState, action = {}) {
     case Actions.FETCH_CLIENT_ISP_TIME_SERIES:
     case Actions.FETCH_CLIENT_ISP_TIME_SERIES_SUCCESS:
     case Actions.FETCH_CLIENT_ISP_TIME_SERIES_FAIL:
-    case Actions.FETCH_CLIENT_ISPS:
-    case Actions.FETCH_CLIENT_ISPS_SUCCESS:
-    case Actions.FETCH_CLIENT_ISPS_FAIL:
+    case Actions.FETCH_TOP_CLIENT_ISPS:
+    case Actions.FETCH_TOP_CLIENT_ISPS_SUCCESS:
+    case Actions.FETCH_TOP_CLIENT_ISPS_FAIL:
     case Actions.FETCH_INFO:
     case Actions.FETCH_INFO_SUCCESS:
     case Actions.FETCH_INFO_FAIL: {
