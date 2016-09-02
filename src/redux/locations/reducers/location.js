@@ -158,6 +158,9 @@ function clientIsps(state = initialLocationState.clientIsps, action = {}) {
     case Actions.FETCH_CLIENT_ISP_TIME_SERIES:
     case Actions.FETCH_CLIENT_ISP_TIME_SERIES_SUCCESS:
     case Actions.FETCH_CLIENT_ISP_TIME_SERIES_FAIL:
+    case Actions.FETCH_CLIENT_ISP_INFO:
+    case Actions.FETCH_CLIENT_ISP_INFO_SUCCESS:
+    case Actions.FETCH_CLIENT_ISP_INFO_FAIL:
       return {
         ...state,
         [action.clientIspId]: clientIsp(state[action.clientIspId], action),
@@ -166,9 +169,11 @@ function clientIsps(state = initialLocationState.clientIsps, action = {}) {
     case Actions.FETCH_TOP_CLIENT_ISPS_SUCCESS: {
       const topIsps = action.result.results;
       let result = state;
+      // for each top ISP, see if we need to merge in info
       topIsps.forEach(topIsp => {
         const id = topIsp.client_asn_number;
         let clientIspState = state[id];
+        // if we don't have state for this client ISP yet, initialize to the default + id
         if (!clientIspState) {
           clientIspState = {
             ...initialClientIspState,
@@ -176,6 +181,7 @@ function clientIsps(state = initialLocationState.clientIsps, action = {}) {
           };
         }
 
+        // if we don't have info for this client ISP, use the top client ISP data
         if (!clientIspState.info.isFetched) {
           clientIspState = {
             ...clientIspState,
@@ -185,6 +191,8 @@ function clientIsps(state = initialLocationState.clientIsps, action = {}) {
               isFetched: true,
             },
           };
+
+          // update the result to have the new info data
           result = {
             ...result,
             [id]: clientIspState,

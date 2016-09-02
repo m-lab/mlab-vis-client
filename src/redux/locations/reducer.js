@@ -22,7 +22,10 @@ function locations(state = initialState, action = {}) {
     case Actions.FETCH_TOP_CLIENT_ISPS_FAIL:
     case Actions.FETCH_INFO:
     case Actions.FETCH_INFO_SUCCESS:
-    case Actions.FETCH_INFO_FAIL: {
+    case Actions.FETCH_INFO_FAIL:
+    case Actions.FETCH_CLIENT_ISP_INFO:
+    case Actions.FETCH_CLIENT_ISP_INFO_SUCCESS:
+    case Actions.FETCH_CLIENT_ISP_INFO_FAIL: {
       const { locationId } = action;
 
       return {

@@ -117,3 +117,15 @@ export function getLocationSearch(searchQuery) {
   return get(`/locations/search/${searchQuery}`)
     .then(transform(transformSearchResults));
 }
+
+/**
+ * Get information for a client ISP in a location
+ *
+ * @param {String} locationId The location to query (e.g., nauswaseattle)
+ * @param {String} clientIspId The AS number of the ISP (e.g., AS7922)
+ * @return {Promise} A promise after the get request was made
+ */
+export function getLocationClientIspInfo(locationId, clientIspId) {
+  return get(`/locations/${locationId}/clientisps/${clientIspId}/info`)
+    .then(transform(transformFixedData));
+}
