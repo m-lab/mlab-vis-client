@@ -8,9 +8,9 @@ import {
   FETCH_HOURLY,
   FETCH_HOURLY_SUCCESS,
   FETCH_HOURLY_FAIL,
-  FETCH_CLIENT_ISPS,
-  FETCH_CLIENT_ISPS_SUCCESS,
-  FETCH_CLIENT_ISPS_FAIL,
+  FETCH_TOP_CLIENT_ISPS,
+  FETCH_TOP_CLIENT_ISPS_SUCCESS,
+  FETCH_TOP_CLIENT_ISPS_FAIL,
   FETCH_CLIENT_ISP_TIME_SERIES,
   FETCH_CLIENT_ISP_TIME_SERIES_SUCCESS,
   FETCH_CLIENT_ISP_TIME_SERIES_FAIL,
@@ -18,7 +18,8 @@ import {
   FETCH_INFO_SUCCESS,
   FETCH_INFO_FAIL,
 } from '../actions';
-import reducer, { initialLocationState, initialClientIspTimeState } from '../reducer';
+import reducer from '../reducer';
+import { initialLocationState, initialClientIspState } from '../initialState';
 
 describe('redux', () => {
   describe('locations', () => {
@@ -35,7 +36,7 @@ describe('redux', () => {
         const expectedOutput = {
           myLocation: {
             ...initialLocationState,
-            locationId: 'myLocation',
+            id: 'myLocation',
             time: {
               ...initialLocationState.time,
               timeSeries: {
@@ -65,7 +66,7 @@ describe('redux', () => {
         const expectedOutput = {
           myLocation: {
             ...initialLocationState,
-            locationId: 'myLocation',
+            id: 'myLocation',
             time: {
               ...initialLocationState.time,
               timeSeries: {
@@ -94,7 +95,7 @@ describe('redux', () => {
         const expectedOutput = {
           myLocation: {
             ...initialLocationState,
-            locationId: 'myLocation',
+            id: 'myLocation',
             time: {
               ...initialLocationState.time,
               timeSeries: {
@@ -122,7 +123,7 @@ describe('redux', () => {
         const expectedOutput = {
           myLocation: {
             ...initialLocationState,
-            locationId: 'myLocation',
+            id: 'myLocation',
             time: {
               ...initialLocationState.time,
               hourly: {
@@ -152,7 +153,7 @@ describe('redux', () => {
         const expectedOutput = {
           myLocation: {
             ...initialLocationState,
-            locationId: 'myLocation',
+            id: 'myLocation',
             time: {
               ...initialLocationState.time,
               hourly: {
@@ -181,7 +182,7 @@ describe('redux', () => {
         const expectedOutput = {
           myLocation: {
             ...initialLocationState,
-            locationId: 'myLocation',
+            id: 'myLocation',
             time: {
               ...initialLocationState.time,
               hourly: {
@@ -210,12 +211,13 @@ describe('redux', () => {
         const expectedOutput = {
           myLocation: {
             ...initialLocationState,
-            locationId: 'myLocation',
-            time: {
-              ...initialLocationState.time,
-              clientIsps: {
-                myClientIsp: {
-                  ...initialClientIspTimeState,
+            id: 'myLocation',
+            clientIsps: {
+              myClientIsp: {
+                ...initialClientIspState,
+                id: 'myClientIsp',
+                time: {
+                  ...initialClientIspState.time,
                   timeSeries: {
                     data: undefined,
                     timeAggregation: 'day',
@@ -230,6 +232,8 @@ describe('redux', () => {
           },
         };
 
+        expect(result.myLocation.clientIsps.myClientIsp).to.deep.equal(
+          expectedOutput.myLocation.clientIsps.myClientIsp);
         expect(result).to.deep.equal(expectedOutput);
       });
 
@@ -246,12 +250,13 @@ describe('redux', () => {
         const expectedOutput = {
           myLocation: {
             ...initialLocationState,
-            locationId: 'myLocation',
-            time: {
-              ...initialLocationState.time,
-              clientIsps: {
-                myClientIsp: {
-                  ...initialClientIspTimeState,
+            id: 'myLocation',
+            clientIsps: {
+              myClientIsp: {
+                ...initialClientIspState,
+                id: 'myClientIsp',
+                time: {
+                  ...initialClientIspState.time,
                   timeSeries: {
                     data: 'data!',
                     timeAggregation: 'day',
@@ -281,12 +286,13 @@ describe('redux', () => {
         const expectedOutput = {
           myLocation: {
             ...initialLocationState,
-            locationId: 'myLocation',
-            time: {
-              ...initialLocationState.time,
-              clientIsps: {
-                myClientIsp: {
-                  ...initialClientIspTimeState,
+            id: 'myLocation',
+            clientIsps: {
+              myClientIsp: {
+                ...initialClientIspState,
+                id: 'myClientIsp',
+                time: {
+                  ...initialClientIspState.time,
                   timeSeries: {
                     error: 'error!',
                     isFetching: false,
@@ -302,17 +308,17 @@ describe('redux', () => {
       });
 
       // -------------------------------------------------------------------------------------
-      it(FETCH_CLIENT_ISPS, () => {
+      it(FETCH_TOP_CLIENT_ISPS, () => {
         const result = reducer({}, {
-          type: FETCH_CLIENT_ISPS,
+          type: FETCH_TOP_CLIENT_ISPS,
           locationId: 'myLocation',
         });
 
         const expectedOutput = {
           myLocation: {
             ...initialLocationState,
-            locationId: 'myLocation',
-            clientIsps: {
+            id: 'myLocation',
+            topClientIsps: {
               data: undefined,
               isFetching: true,
               isFetched: false,
@@ -324,32 +330,99 @@ describe('redux', () => {
         expect(result).to.deep.equal(expectedOutput);
       });
 
-      it(FETCH_CLIENT_ISPS_SUCCESS, () => {
+      it(FETCH_TOP_CLIENT_ISPS_SUCCESS, () => {
         const result = reducer({}, {
-          type: FETCH_CLIENT_ISPS_SUCCESS,
-          result: { results: 'data!' },
+          type: FETCH_TOP_CLIENT_ISPS_SUCCESS,
+          result: { results: [{ client_asn_number: 'AS100', stat: 123 }] },
           locationId: 'myLocation',
         });
 
         const expectedOutput = {
           myLocation: {
             ...initialLocationState,
-            locationId: 'myLocation',
-            clientIsps: {
-              data: 'data!',
+            id: 'myLocation',
+            topClientIsps: {
+              data: [{ client_asn_number: 'AS100', stat: 123 }],
               isFetching: false,
               isFetched: true,
+            },
+
+            clientIsps: {
+              AS100: {
+                ...initialClientIspState,
+                id: 'AS100',
+                info: {
+                  ...initialClientIspState.info,
+                  data: { client_asn_number: 'AS100', stat: 123 },
+                  isFetched: true,
+                },
+              },
             },
           },
         };
 
-        expect(result.myLocation.clientIsps).to.deep.equal(expectedOutput.myLocation.clientIsps);
+        expect(result.myLocation.topClientIsps).to.deep.equal(expectedOutput.myLocation.topClientIsps);
+        expect(result.myLocation.clientIsps.AS100).to.deep.equal(expectedOutput.myLocation.clientIsps.AS100);
         expect(result).to.deep.equal(expectedOutput);
       });
 
-      it(FETCH_CLIENT_ISPS_FAIL, () => {
+      it(`${FETCH_TOP_CLIENT_ISPS_SUCCESS} already has info`, () => {
+        const result = reducer({
+          myLocation: {
+            ...initialLocationState,
+            id: 'myLocation',
+            clientIsps: {
+              AS100: {
+                ...initialClientIspState,
+                id: 'AS100',
+                info: {
+                  data: 'foo',
+                  isFetched: true,
+                  isFetching: false,
+                },
+              },
+            },
+          },
+        }, {
+          type: FETCH_TOP_CLIENT_ISPS_SUCCESS,
+          result: { results: [{ client_asn_number: 'AS100', stat: 123 }] },
+          locationId: 'myLocation',
+        });
+
+        // shouldn't overwrite existing info
+        const expectedOutput = {
+          myLocation: {
+            ...initialLocationState,
+            id: 'myLocation',
+            topClientIsps: {
+              data: [{ client_asn_number: 'AS100', stat: 123 }],
+              isFetching: false,
+              isFetched: true,
+            },
+
+            clientIsps: {
+              AS100: {
+                ...initialClientIspState,
+                id: 'AS100',
+                info: {
+                  ...initialClientIspState.info,
+                  data: 'foo',
+                  isFetched: true,
+                  isFetching: false,
+                },
+              },
+            },
+          },
+        };
+
+        expect(result.myLocation.topClientIsps).to.deep.equal(expectedOutput.myLocation.topClientIsps);
+        expect(result.myLocation.clientIsps.AS100).to.deep.equal(expectedOutput.myLocation.clientIsps.AS100);
+        expect(result).to.deep.equal(expectedOutput);
+      });
+
+      it(FETCH_TOP_CLIENT_ISPS_FAIL, () => {
         const result = reducer({}, {
-          type: FETCH_CLIENT_ISPS_FAIL,
+          type: FETCH_TOP_CLIENT_ISPS_FAIL,
           error: 'error!',
           locationId: 'myLocation',
         });
@@ -357,8 +430,8 @@ describe('redux', () => {
         const expectedOutput = {
           myLocation: {
             ...initialLocationState,
-            locationId: 'myLocation',
-            clientIsps: {
+            id: 'myLocation',
+            topClientIsps: {
               error: 'error!',
               isFetching: false,
               isFetched: false,
@@ -380,7 +453,7 @@ describe('redux', () => {
         const expectedOutput = {
           myLocation: {
             ...initialLocationState,
-            locationId: 'myLocation',
+            id: 'myLocation',
             info: {
               data: undefined,
               isFetching: true,
@@ -409,7 +482,7 @@ describe('redux', () => {
         const expectedOutput = {
           myLocation: {
             ...initialLocationState,
-            locationId: 'myLocation',
+            id: 'myLocation',
             info: {
               data: 'info',
               isFetching: false,
@@ -438,7 +511,7 @@ describe('redux', () => {
         const expectedOutput = {
           myLocation: {
             ...initialLocationState,
-            locationId: 'myLocation',
+            id: 'myLocation',
             info: {
               error: 'error!',
               isFetching: false,

@@ -55,7 +55,7 @@ export default class IspSelect extends PureComponent {
    */
   onRemove(removeValue) {
     const { selected, onChange } = this.props;
-    const filtered = selected.filter((isp) => isp.meta.client_asn_number !== removeValue.meta.client_asn_number);
+    const filtered = selected.filter((isp) => isp.client_asn_number !== removeValue.client_asn_number);
     const values = this.getOptions(filtered);
     if (onChange) {
       onChange(values.map(value => value.value));
@@ -68,7 +68,7 @@ export default class IspSelect extends PureComponent {
    * @return {Array} array of {value: label:} objects
    */
   getOptions(isps) {
-    return isps.map(isp => ({ value: isp.meta.client_asn_number, label: isp.meta.client_asn_name }));
+    return isps.map(isp => ({ value: isp.client_asn_number, label: isp.client_asn_name }));
   }
 
   /**
@@ -77,8 +77,8 @@ export default class IspSelect extends PureComponent {
    */
   renderIsp(isp) {
     return (
-      <div key={isp.meta.client_asn_number} className="selected-isp">
-        <span className="isp-label">{isp.meta.client_asn_name}</span>
+      <div key={isp.client_asn_number} className="selected-isp">
+        <span className="isp-label">{isp.client_asn_name}</span>
         <Icon
           name="close"
           className="isp-remove-control"

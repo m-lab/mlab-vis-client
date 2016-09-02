@@ -1,16 +1,17 @@
 /* eslint-disable import/no-extraneous-dependencies */
 /* eslint-disable no-unused-expressions */
 import { expect } from 'chai';
+import moment from 'moment';
 import {
   shouldFetchTimeSeries,
   shouldFetchHourly,
-  shouldFetchClientIsps,
+  shouldFetchTopClientIsps,
   shouldFetchClientIspLocationTimeSeries,
 } from '../actions';
 import {
   initialLocationState,
-  initialClientIspTimeState,
-} from '../reducer';
+  initialClientIspState,
+} from '../initialState';
 
 describe('redux', () => {
   describe('locations', () => {
@@ -134,36 +135,36 @@ describe('redux', () => {
       });
 
       // -------------------------------------------------------------------------------------
-      describe('shouldFetchClientIsps', () => {
+      describe('shouldFetchTopClientIsps', () => {
         it('no location state', () => {
-          const result = shouldFetchClientIsps({ locations: {} }, 'myLocation');
+          const result = shouldFetchTopClientIsps({ locations: {} }, 'myLocation');
           expect(result).to.be.true;
         });
 
         it('already fetching', () => {
           const locationState = {
             ...initialLocationState,
-            clientIsps: {
+            topClientIsps: {
               ...initialLocationState.clientIsps,
               isFetching: true,
             },
           };
 
-          const result = shouldFetchClientIsps({ locations: { myLocation: locationState } }, 'myLocation');
+          const result = shouldFetchTopClientIsps({ locations: { myLocation: locationState } }, 'myLocation');
           expect(result).to.be.false;
         });
 
         it('already fetched', () => {
           const locationState = {
             ...initialLocationState,
-            clientIsps: {
+            topClientIsps: {
               ...initialLocationState.clientIsps,
               isFetching: false,
               isFetched: true,
             },
           };
 
-          const result = shouldFetchClientIsps({ locations: { myLocation: locationState } }, 'myLocation');
+          const result = shouldFetchTopClientIsps({ locations: { myLocation: locationState } }, 'myLocation');
           expect(result).to.be.false;
         });
       });
@@ -186,15 +187,16 @@ describe('redux', () => {
         it('different time aggregation', () => {
           const locationState = {
             ...initialLocationState,
-            time: {
-              ...initialLocationState.time,
-              clientIsps: {
-                ...initialLocationState.time.clientIsps,
-                myClientIsp: {
-                  ...initialClientIspTimeState,
+            clientIsps: {
+              myClientIsp: {
+                ...initialClientIspState,
+                time: {
+                  ...initialClientIspState.time,
                   timeSeries: {
-                    ...initialClientIspTimeState.timeSeries,
+                    ...initialClientIspState.time.timeSeries,
                     timeAggregation: 'month',
+                    isFetching: false,
+                    isFetched: true,
                   },
                 },
               },
@@ -206,17 +208,64 @@ describe('redux', () => {
           expect(result).to.be.true;
         });
 
+        it('different start time', () => {
+          const locationState = {
+            ...initialLocationState,
+            clientIsps: {
+              myClientIsp: {
+                ...initialClientIspState,
+                time: {
+                  ...initialClientIspState.time,
+                  timeSeries: {
+                    ...initialClientIspState.time.timeSeries,
+                    startDate: moment('2015-01-01'),
+                    isFetching: false,
+                    isFetched: true,
+                  },
+                },
+              },
+            },
+          };
+
+          const result = shouldFetchClientIspLocationTimeSeries({ locations: { myLocation: locationState } }, 'day',
+            'myLocation', 'myClientIsp', { startDate: moment('2015-01-02') });
+          expect(result).to.be.true;
+        });
+
+        it('different end time', () => {
+          const locationState = {
+            ...initialLocationState,
+            clientIsps: {
+              myClientIsp: {
+                ...initialClientIspState,
+                time: {
+                  ...initialClientIspState.time,
+                  timeSeries: {
+                    ...initialClientIspState.time.timeSeries,
+                    endDate: moment('2015-01-01'),
+                    isFetching: false,
+                    isFetched: true,
+                  },
+                },
+              },
+            },
+          };
+
+          const result = shouldFetchClientIspLocationTimeSeries({ locations: { myLocation: locationState } }, 'day',
+            'myLocation', 'myClientIsp', { endDate: moment('2015-01-02') });
+          expect(result).to.be.true;
+        });
+
         it('already fetching', () => {
           const locationState = {
             ...initialLocationState,
-            time: {
-              ...initialLocationState.time,
-              clientIsps: {
-                ...initialLocationState.time.clientIsps,
-                myClientIsp: {
-                  ...initialClientIspTimeState,
+            clientIsps: {
+              myClientIsp: {
+                ...initialClientIspState,
+                time: {
+                  ...initialClientIspState.time,
                   timeSeries: {
-                    ...initialClientIspTimeState.timeSeries,
+                    ...initialClientIspState.time.timeSeries,
                     timeAggregation: 'day',
                     isFetching: true,
                   },
@@ -226,21 +275,20 @@ describe('redux', () => {
           };
 
           const result = shouldFetchClientIspLocationTimeSeries({ locations: { myLocation: locationState } }, 'day',
-            'myLocation', 'myClientIsp');
+            'myLocation', 'myClientIsp', {});
           expect(result).to.be.false;
         });
 
         it('already fetched', () => {
           const locationState = {
             ...initialLocationState,
-            time: {
-              ...initialLocationState.time,
-              clientIsps: {
-                ...initialLocationState.time.clientIsps,
-                myClientIsp: {
-                  ...initialClientIspTimeState,
+            clientIsps: {
+              myClientIsp: {
+                ...initialClientIspState,
+                time: {
+                  ...initialClientIspState.time,
                   timeSeries: {
-                    ...initialClientIspTimeState.timeSeries,
+                    ...initialClientIspState.time.timeSeries,
                     timeAggregation: 'day',
                     isFetched: true,
                   },
@@ -250,7 +298,7 @@ describe('redux', () => {
           };
 
           const result = shouldFetchClientIspLocationTimeSeries({ locations: { myLocation: locationState } }, 'day',
-            'myLocation', 'myClientIsp');
+            'myLocation', 'myClientIsp', {});
           expect(result).to.be.false;
         });
       });

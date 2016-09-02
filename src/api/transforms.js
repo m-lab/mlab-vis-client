@@ -248,3 +248,20 @@ export function transformFixedData(body) {
 
   return body;
 }
+
+
+/**
+ * Transforms the body `results` array to just be the meta value
+ * for each entry in the array.
+ *
+ * @param {Object} body The response body
+ * @return {Object} The transformed response body
+ */
+export function transformMapMeta(body) {
+  // NOTE: modifying body directly means it modifies what is stored in the API cache
+  if (body.results) {
+    body.results = body.results.map(d => d.meta);
+  }
+
+  return body;
+}
