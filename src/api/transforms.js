@@ -215,6 +215,16 @@ export function transformLocationInfo(body) {
 export function transformFixedData(body) {
   // NOTE: modifying body directly means it modifies what is stored in the API cache
   if (body.data) {
+    // read in test_counts from meta if available
+    if (body.meta) {
+      const testCountFields = ['last_year_test_count', 'last_week_test_count', 'last_month_test_count'];
+      testCountFields.forEach(field => {
+        if (body.meta[field] != null && body.data[field] == null) {
+          body.data[field] = body.meta[field];
+        }
+      });
+    }
+
     const keyMapping = {
       last_year_: 'lastYear',
       other: 'other',
