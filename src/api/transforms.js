@@ -182,8 +182,17 @@ export function transformLocationInfo(body) {
 
     meta.name = meta.client_city || meta.client_region || meta.client_country || meta.client_continent;
     meta.locationKey = meta.child_location_key;
+    let parentFields = ['client_continent', 'client_country', 'client_region'];
+    const { type } = meta;
 
-    const parentFields = ['client_continent', 'client_country', 'client_region'];
+    if (type === 'region') {
+      parentFields = parentFields.slice(0, parentFields.length - 1);
+    } else if (type === 'country') {
+      parentFields = parentFields.slice(0, parentFields.length - 2);
+    } else if (type === 'continent') {
+      parentFields = [];
+    }
+
     const parents = parentFields.filter(field => meta[field] != null).map(field => ({
       name: meta[field],
       code: meta[`${field}_code`],
