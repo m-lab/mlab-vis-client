@@ -176,14 +176,14 @@ export const getTimeSeriesStatus = createSelector(
  * Selector to get the summary data for the location and related ISPs
  */
 export const getSummaryData = createSelector(
-  getLocationInfo, getLocationFixed, // getLocationClientIspFixed, (TODO add client ISP fixed data)
-  (locationInfo, locationFixed, locationClientIspFixed) => {
+  getLocationInfo, getLocationFixed, getLocationSelectedClientIsps,
+  (locationInfo, locationFixed, selectedClientIsps) => {
     if (!locationFixed) {
       return undefined;
     }
 
-    if (!locationClientIspFixed) {
-      locationClientIspFixed = [];
+    if (!selectedClientIsps) {
+      selectedClientIsps = [];
     }
 
     // gropu all the `lastYear`, `lastweek`, etc together
@@ -193,11 +193,16 @@ export const getSummaryData = createSelector(
         label: locationInfo.name,
       };
 
-      // add in the results for client ISPs here (TODO - add in proper names)
-      const clientIspsData = locationClientIspFixed.map((ispFixed, i) => ({
-        ...ispFixed[key],
-        label: `clientIsp${i}`,
-      }));
+      // add in the results for client ISPs here
+      const clientIspsData = selectedClientIsps.map(clientIsp => {
+        const ispFixed = clientIsp.fixed.data || {};
+        const ispInfo = clientIsp.info.data || {};
+
+        return {
+          ...ispFixed[key],
+          label: ispInfo.client_asn_name,
+        };
+      });
 
       grouped[key] = [locationData, ...clientIspsData];
 

@@ -149,6 +149,7 @@ class LocationPage extends PureComponent {
         dispatch(
           LocationsActions.fetchClientIspLocationTimeSeriesIfNeeded(timeAggregation, locationId, clientIspId, options)
         );
+        dispatch(LocationsActions.fetchClientIspInfoIfNeeded(locationId, clientIspId));
       });
     }
   }
