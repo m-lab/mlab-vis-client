@@ -50,11 +50,9 @@ function info(state = initialClientIspState.info, action = {}) {
         isFetched: false,
       };
     case Actions.FETCH_CLIENT_ISP_INFO_SUCCESS:
-      console.warn('TODO merging ISP Info due to API bug');
       return {
         // store the meta info directly
-        data: Object.assign({}, state.data, action.result.meta), // TODO temporarily copy from state.data to handle API bug of not having asn number or name
-        // data: action.result.meta,
+        data: action.result.meta,
         isFetching: false,
         isFetched: true,
       };
