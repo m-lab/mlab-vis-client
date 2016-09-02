@@ -181,8 +181,10 @@ const infoFetch = createFetchAction({
       return true;
     }
 
-    return !locationState.info.isFetched && !locationState.info.isFetching &&
-     !locationState.fixed.isFetched && !locationState.fixed.isFetching;
+    const hasInfo = locationState.info.isFetched || locationState.info.isFetching;
+    const hasFixed = locationState.fixed.isFetched || locationState.fixed.isFetching;
+
+    return !hasInfo || !hasFixed;
   },
   promise(locationId) {
     return api => api.getLocationInfo(locationId);
@@ -213,8 +215,10 @@ const clientIspInfo = createFetchAction({
       return true;
     }
 
-    return !(clientIspState.info.isFetched || clientIspState.info.isFetching ||
-      clientIspState.fixed.isFetched || clientIspState.fixed.isFetching);
+    const hasInfo = clientIspState.info.isFetched || clientIspState.info.isFetching;
+    const hasFixed = clientIspState.fixed.isFetched || clientIspState.fixed.isFetching;
+
+    return !hasInfo || !hasFixed;
   },
   promise(locationId, clientIspId) {
     return api => api.getLocationClientIspInfo(locationId, clientIspId);
