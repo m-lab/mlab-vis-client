@@ -217,6 +217,7 @@ export function transformFixedData(body) {
   if (body.data) {
     const keyMapping = {
       last_year_: 'lastYear',
+      other: 'other',
     };
 
     const mappedKeys = Object.keys(keyMapping);
@@ -230,14 +231,14 @@ export function transformFixedData(body) {
         }
       }
 
-      return 'general';
+      return 'other';
     }).object(Object.keys(body.data));
 
     // convert to an object
     // e.g. { lastYear: { download_avg: ... }, ... }
     body.data = Object.keys(keyGroups).reduce((groupedData, key) => {
       groupedData[keyMapping[key]] = keyGroups[key].reduce((keyData, dataKey) => {
-        const newDataKey = dataKey.substring(key.length);
+        const newDataKey = key === 'other' ? dataKey : dataKey.substring(key.length);
         keyData[newDataKey] = body.data[dataKey];
 
         return keyData;
