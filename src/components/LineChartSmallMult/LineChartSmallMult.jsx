@@ -55,9 +55,9 @@ export default class LineChartSmallMult extends PureComponent {
   }
 
   /**
-   * When new props are received, regenerate vis components if necessary
+   * When new component is updating, regenerate vis components if necessary
    */
-  componentWillReceiveProps(nextProps) {
+  componentWillUpdate(nextProps) {
     // regenerate the vis components if the relevant props change
     this.visComponents = this.makeVisComponents(nextProps);
   }
