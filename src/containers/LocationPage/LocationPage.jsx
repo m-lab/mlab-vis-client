@@ -8,6 +8,8 @@ import * as LocationPageSelectors from '../../redux/locationPage/selectors';
 import * as LocationPageActions from '../../redux/locationPage/actions';
 import * as LocationsActions from '../../redux/locations/actions';
 
+import { metrics } from '../../constants';
+
 import {
   ChartExportControls,
   LineChartWithCounts,
@@ -388,8 +390,6 @@ class LocationPage extends PureComponent {
       series = [locationTimeSeries].concat(clientIspTimeSeries);
     }
     const chartId = 'providers-small-mult';
-    const metrics = ['download_speed_mbps_median', 'upload_speed_mbps_median', 'rtt_avg', 'retransmit_avg'];
-    const metricNames = ['Download Speed', 'Upload Speed', 'RTT', 'Retransmission Rate'];
     return (
       <div className="subsection">
         <header>
@@ -401,8 +401,7 @@ class LocationPage extends PureComponent {
             series={series}
             width={800}
             xKey="date"
-            yKeys={metrics}
-            yLabels={metricNames}
+            metrics={metrics}
           />
         </StatusWrapper>
       </div>

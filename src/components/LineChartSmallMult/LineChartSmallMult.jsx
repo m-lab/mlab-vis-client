@@ -16,7 +16,7 @@ import './LineChartSmallMult.scss';
  * @prop {Number} width The width in pixels of the entire small multiple
  * @prop {Array} xExtent The min and max value of the xKey in the chart
  * @prop {String} xKey="x" The key to read the x value from in the data
- * @prop {String} yKeys="y" The keys to read the y value from in the data
+ * @prop {Array} metrics="y" The keys and names to read the y value from in the data
  */
 export default class LineChartSmallMult extends PureComponent {
 
@@ -24,13 +24,12 @@ export default class LineChartSmallMult extends PureComponent {
     chartHeight: PropTypes.number,
     forceZeroMin: PropTypes.bool,
     id: PropTypes.string,
+    metrics: PropTypes.array,
     series: PropTypes.array,
     showBaseline: PropTypes.bool,
     width: React.PropTypes.number,
     xExtent: PropTypes.array,
     xKey: PropTypes.string,
-    yKeys: PropTypes.array,
-    yLabels: PropTypes.array,
   }
 
   static defaultProps = {
@@ -38,8 +37,7 @@ export default class LineChartSmallMult extends PureComponent {
     forceZeroMin: true,
     showBaseline: true,
     xKey: 'date',
-    yKeys: [],
-    yLabels: [],
+    metrics: [],
   }
 
   /**
@@ -92,8 +90,7 @@ export default class LineChartSmallMult extends PureComponent {
             width,
             xExtent,
             xKey,
-            yKeys,
-            yLabels,
+            metrics,
             chartHeight,
             innerMarginLeft = 50,
             innerMarginRight = 20,
@@ -112,7 +109,7 @@ export default class LineChartSmallMult extends PureComponent {
 
     const innerWidth = width - innerMargin.left - innerMargin.right;
 
-    const chartWidth = (innerWidth / yKeys.length) - chartPadding;
+    const chartWidth = (innerWidth / metrics.length) - chartPadding;
 
 
     let height = innerMargin.top + innerMargin.bottom;
@@ -132,11 +129,11 @@ export default class LineChartSmallMult extends PureComponent {
     }
 
 
-    // setup the y scales for all our yKeys
+    // setup the y scales for all our metrics
     let yScales = [];
-    if (yKeys && series && series.length > 0) {
-      yScales = yKeys.map((yKey) => {
-        const yExtent = multiExtent(series, d => d[yKey], oneSeries => oneSeries.results);
+    if (metrics && series && series.length > 0) {
+      yScales = metrics.map((metric) => {
+        const yExtent = multiExtent(series, d => d[metric.dataKey], oneSeries => oneSeries.results);
         if (yExtent && forceZeroMin) {
           yExtent[0] = 0;
         }
@@ -168,9 +165,9 @@ export default class LineChartSmallMult extends PureComponent {
         // function to generate paths for each yKey
         d3.lineChunked()
           .x((d) => xScale(d[xKey]))
-          .y((d) => yScale(d[yKeys[yIndex]]))
+          .y((d) => yScale(d[metrics[yIndex].dataKey]))
           .curve(d3.curveLinear)
-          .defined(d => d[yKeys[yIndex]] != null)
+          .defined(d => d[metrics[yIndex].dataKey] != null)
           .accessData(d => d.results)
           .lineStyles({
             stroke: (d, i) => {
@@ -205,8 +202,7 @@ export default class LineChartSmallMult extends PureComponent {
       xScale,
       xKey,
       yScales,
-      yKeys,
-      yLabels,
+      metrics,
     };
   }
 
@@ -221,13 +217,13 @@ export default class LineChartSmallMult extends PureComponent {
    * Iterates through data, using line generators to update charts.
    */
   updateCharts() {
-    const { series, lineGens, yKeys, showBaseline } = this.visComponents;
+    const { series, lineGens, metrics, showBaseline } = this.visComponents;
 
     series.forEach((s, sIndex) => {
-      yKeys.forEach((yKey, keyIndex) => {
+      metrics.forEach((metric, keyIndex) => {
         // TODO: change to just .id once data consistently has id and name value
         const seriesId = (showBaseline && sIndex === 0) ? s.meta.client_city : s.meta.client_asn_number;
-        const chartId = `${seriesId}-${yKey}`;
+        const chartId = `${seriesId}-${metric.dataKey}`;
 
         // get appropriate chart node
         const chart = d3.select(this.chartNodes[chartId]);
@@ -279,7 +275,7 @@ export default class LineChartSmallMult extends PureComponent {
    * React style building of row of data
    */
   renderSeries(series, seriesIndex) {
-    const { yKeys, chartHeight, chartPadding, showBaseline } = this.visComponents;
+    const { metrics, chartHeight, chartPadding, showBaseline } = this.visComponents;
 
     const yPos = (chartHeight + chartPadding) * seriesIndex;
     // position text below charts for now
@@ -301,7 +297,7 @@ export default class LineChartSmallMult extends PureComponent {
         >
           {seriesName}
         </text>
-        {yKeys.map((k, i) => this.renderChart(series, seriesIndex, k, i))}
+        {metrics.map((metric, i) => this.renderChart(series, seriesIndex, metric.dataKey, i))}
       </g>
     );
   }
@@ -310,17 +306,17 @@ export default class LineChartSmallMult extends PureComponent {
    * React style label creation
    */
   renderLabels() {
-    const { chartWidth, chartPadding, yLabels, innerMargin } = this.visComponents;
-    const labels = yLabels.map((key, index) => {
+    const { chartWidth, chartPadding, metrics, innerMargin } = this.visComponents;
+    const labels = metrics.map((metric, index) => {
       const xPos = (chartWidth / 2) + ((chartWidth + chartPadding) * index);
       return (
         <text
-          key={key}
+          key={metric.dataKey}
           className="small-mult-label"
           x={xPos}
           y={chartPadding}
           textAnchor="middle"
-        >{key}</text>
+        >{metric.label}</text>
 
       );
     });
