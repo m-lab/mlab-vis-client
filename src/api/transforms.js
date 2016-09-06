@@ -182,8 +182,17 @@ export function transformLocationInfo(body) {
 
     meta.name = meta.client_city || meta.client_region || meta.client_country || meta.client_continent;
     meta.locationKey = meta.child_location_key;
+    let parentFields = ['client_continent', 'client_country', 'client_region'];
+    const { type } = meta;
 
-    const parentFields = ['client_continent', 'client_country', 'client_region'];
+    if (type === 'region') {
+      parentFields = parentFields.slice(0, parentFields.length - 1);
+    } else if (type === 'country') {
+      parentFields = parentFields.slice(0, parentFields.length - 2);
+    } else if (type === 'continent') {
+      parentFields = [];
+    }
+
     const parents = parentFields.filter(field => meta[field] != null).map(field => ({
       name: meta[field],
       code: meta[`${field}_code`],
@@ -198,6 +207,80 @@ export function transformLocationInfo(body) {
     });
 
     meta.parents = parents;
+  }
+
+  return body;
+}
+
+
+/**
+ * Transforms the fixed data portion of a response.
+ *
+ * - converts `last_year_` keys to be grouped under last_year.
+ *
+ * @param {Object} body The response body
+ * @return {Object} The transformed response body
+ */
+export function transformFixedData(body) {
+  // NOTE: modifying body directly means it modifies what is stored in the API cache
+  if (body.data) {
+    // read in test_counts from meta if available
+    if (body.meta) {
+      const testCountFields = ['last_year_test_count', 'last_week_test_count', 'last_month_test_count'];
+      testCountFields.forEach(field => {
+        if (body.meta[field] != null && body.data[field] == null) {
+          body.data[field] = body.meta[field];
+        }
+      });
+    }
+
+    const keyMapping = {
+      last_year_: 'lastYear',
+      other: 'other',
+    };
+
+    const mappedKeys = Object.keys(keyMapping);
+
+    // group keys based on the prefix of the key (e.g. last_year_)
+    // ends up with { last_year_: ['last_year_download_avg', ...]}
+    const keyGroups = d3.nest().key(key => {
+      for (let i = 0; i < mappedKeys.length; i++) {
+        if (key.indexOf(mappedKeys[i]) === 0) {
+          return mappedKeys[i];
+        }
+      }
+
+      return 'other';
+    }).object(Object.keys(body.data));
+
+    // convert to an object
+    // e.g. { lastYear: { download_avg: ... }, ... }
+    body.data = Object.keys(keyGroups).reduce((groupedData, key) => {
+      groupedData[keyMapping[key]] = keyGroups[key].reduce((keyData, dataKey) => {
+        const newDataKey = key === 'other' ? dataKey : dataKey.substring(key.length);
+        keyData[newDataKey] = body.data[dataKey];
+
+        return keyData;
+      }, {});
+      return groupedData;
+    }, {});
+  }
+
+  return body;
+}
+
+
+/**
+ * Transforms the body `results` array to just be the meta value
+ * for each entry in the array.
+ *
+ * @param {Object} body The response body
+ * @return {Object} The transformed response body
+ */
+export function transformMapMeta(body) {
+  // NOTE: modifying body directly means it modifies what is stored in the API cache
+  if (body.results) {
+    body.results = body.results.map(d => d.meta);
   }
 
   return body;

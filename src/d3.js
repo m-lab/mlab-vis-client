@@ -15,6 +15,7 @@ import * as timeFormat from 'd3-time-format';
 import * as axis from 'd3-axis';
 import * as collection from 'd3-collection';
 import * as lineChunked from 'd3-line-chunked';
+import * as scaleInteractive from 'd3-scale-interactive';
 
 export default Object.assign({},
   array,
@@ -25,4 +26,5 @@ export default Object.assign({},
   axis,
   lineChunked,
   transition,
+  scaleInteractive,
   collection);

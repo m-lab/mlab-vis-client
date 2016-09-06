@@ -19,6 +19,7 @@ import {
   IspSelect,
   DateRangeSelector,
   Breadcrumbs,
+  SummaryTable,
 } from '../../components';
 
 import UrlHandler from '../../url/UrlHandler';
@@ -49,21 +50,21 @@ function mapStateToProps(state, propsWithUrl) {
     ...propsWithUrl,
     locationInfo: LocationPageSelectors.getLocationInfo(state, propsWithUrl),
     viewMetric: LocationPageSelectors.getViewMetric(state, propsWithUrl),
-    clientIsps: LocationPageSelectors.getLocationClientIsps(state, propsWithUrl),
-    selectedClientIsps: LocationPageSelectors.getLocationClientIspsSelected(state, propsWithUrl),
+    topClientIsps: LocationPageSelectors.getLocationTopClientIsps(state, propsWithUrl),
+    selectedClientIspInfo: LocationPageSelectors.getLocationSelectedClientIspInfo(state, propsWithUrl),
     hourly: LocationPageSelectors.getLocationHourly(state, propsWithUrl),
     hourlyStatus: LocationPageSelectors.getLocationHourlyStatus(state, propsWithUrl),
     locationTimeSeries: LocationPageSelectors.getLocationTimeSeries(state, propsWithUrl),
     timeSeriesStatus: LocationPageSelectors.getTimeSeriesStatus(state, propsWithUrl),
     clientIspTimeSeries: LocationPageSelectors.getLocationClientIspTimeSeries(state, propsWithUrl),
     highlightHourly: LocationPageSelectors.getHighlightHourly(state, propsWithUrl),
+    summary: LocationPageSelectors.getSummaryData(state, propsWithUrl),
   };
 }
 
 class LocationPage extends PureComponent {
   static propTypes = {
     clientIspTimeSeries: PropTypes.array,
-    clientIsps: PropTypes.array,
     dispatch: PropTypes.func,
     endDate: momentPropTypes.momentObj,
     highlightHourly: PropTypes.object,
@@ -74,12 +75,14 @@ class LocationPage extends PureComponent {
     locationInfo: PropTypes.object,
     locationTimeSeries: PropTypes.object,
     selectedClientIspIds: PropTypes.array,
-    selectedClientIsps: PropTypes.array,
+    selectedClientIspInfo: PropTypes.array,
     showBaselines: PropTypes.bool,
     showRegionalValues: PropTypes.bool,
     startDate: momentPropTypes.momentObj,
+    summary: PropTypes.object,
     timeAggregation: PropTypes.string,
     timeSeriesStatus: PropTypes.string,
+    topClientIsps: PropTypes.array,
     viewMetric: PropTypes.object,
   }
 
@@ -108,7 +111,7 @@ class LocationPage extends PureComponent {
    * Fetch the data for the page if needed
    */
   fetchData(props) {
-    const { dispatch, locationId, timeAggregation, startDate, endDate, clientIsps, selectedClientIspIds } = props;
+    const { dispatch, locationId, timeAggregation, startDate, endDate, topClientIsps, selectedClientIspIds } = props;
     const options = {
       startDate,
       endDate,
@@ -116,16 +119,16 @@ class LocationPage extends PureComponent {
     dispatch(LocationsActions.fetchInfoIfNeeded(locationId));
     dispatch(LocationsActions.fetchTimeSeriesIfNeeded(timeAggregation, locationId, options));
     dispatch(LocationsActions.fetchHourlyIfNeeded(timeAggregation, locationId, options));
-    dispatch(LocationsActions.fetchClientIspsIfNeeded(locationId));
+    dispatch(LocationsActions.fetchTopClientIspsIfNeeded(locationId));
 
     // setup selected ISPs if needed
-    if (clientIsps) {
+    if (topClientIsps) {
       if (!selectedClientIspIds) {
         // once we have the client ISPs for the location, if we don't have selected client ISPs,
         // set the selected client ISPs to the top 3 for the location.
         const newSelectedIsps = [];
-        clientIsps.slice(0, 3).forEach(clientIsp => {
-          const clientIspId = clientIsp.meta.client_asn_number;
+        topClientIsps.slice(0, 3).forEach(clientIsp => {
+          const clientIspId = clientIsp.client_asn_number;
           newSelectedIsps.push(clientIspId);
         });
         dispatch(LocationPageActions.changeSelectedClientIspIds(newSelectedIsps));
@@ -147,6 +150,7 @@ class LocationPage extends PureComponent {
         dispatch(
           LocationsActions.fetchClientIspLocationTimeSeriesIfNeeded(timeAggregation, locationId, clientIspId, options)
         );
+        dispatch(LocationsActions.fetchClientIspInfoIfNeeded(locationId, clientIspId));
       });
     }
   }
@@ -279,13 +283,13 @@ class LocationPage extends PureComponent {
   }
 
   renderClientIspSelector() {
-    const { clientIsps = [], selectedClientIsps } = this.props;
+    const { topClientIsps = [], selectedClientIspInfo } = this.props;
 
     return (
       <div className="client-isp-selector">
         <IspSelect
-          isps={clientIsps}
-          selected={selectedClientIsps}
+          isps={topClientIsps}
+          selected={selectedClientIspInfo}
           onChange={this.onSelectedClientIspsChange}
         />
       </div>
@@ -472,11 +476,16 @@ class LocationPage extends PureComponent {
   }
 
   renderFixedSummaryData() {
+    const { summary = {} } = this.props;
+    const { lastYear } = summary;
+
     return (
       <div className="subsection">
         <header>
           <h3>Summary Data</h3>
         </header>
+        <h4>Last Year</h4>
+        <SummaryTable data={lastYear} />
       </div>
     );
   }

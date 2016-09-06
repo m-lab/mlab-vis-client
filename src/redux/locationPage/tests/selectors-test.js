@@ -5,12 +5,12 @@ import {
   getLocation,
   getLocationHourly,
   getLocationTimeSeries,
-  getLocationClientIsps,
+  getLocationTopClientIsps,
   getHighlightHourly,
   getViewMetric,
   getLocationClientIspTimeSeries,
 } from '../selectors';
-import { initialLocationState } from '../../locations/reducer';
+import { initialLocationState } from '../../locations/initialState';
 import { metrics } from '../../../constants';
 
 describe('redux', () => {
@@ -81,25 +81,25 @@ describe('redux', () => {
         expect(getLocationTimeSeries({ locations: {} }, { locationId: 'foo' })).to.equal(undefined);
       });
 
-      it('getLocationClientIsps', () => {
+      it('getLocationTopClientIsps', () => {
         const state = {
           locations: {
             myLocation: {
               ...initialLocationState,
               locationId: 'myLocation',
-              clientIsps: {
+              topClientIsps: {
                 data: ['one', 'two', 'three', 'four'],
               },
             },
           },
         };
-        const result = getLocationClientIsps(state, { locationId: 'myLocation' });
+        const result = getLocationTopClientIsps(state, { locationId: 'myLocation' });
 
         expect(result).to.deep.equal(['one', 'two', 'three', 'four']);
 
         // location not found
-        expect(getLocationClientIsps(state, { locationId: 'foo' })).to.equal(undefined);
-        expect(getLocationClientIsps({ locations: {} }, { locationId: 'foo' })).to.equal(undefined);
+        expect(getLocationTopClientIsps(state, { locationId: 'foo' })).to.equal(undefined);
+        expect(getLocationTopClientIsps({ locations: {} }, { locationId: 'foo' })).to.equal(undefined);
       });
 
       it('getHighlightHourly', () => {
@@ -130,28 +130,27 @@ describe('redux', () => {
             myLocation: {
               ...initialLocationState,
               locationId: 'myLocation',
-              time: {
-                ...initialLocationState.time,
-                clientIsps: {
-                  AS100: {
+              clientIsps: {
+                AS100: {
+                  info: {
+                    client_asn_number: 'AS100',
+                  },
+                  time: {
                     timeSeries: {
                       data: 'as100-time!',
                     },
                   },
-                  AS200: {
+                },
+                AS200: {
+                  info: {
+                    client_asn_number: 'AS200',
+                  },
+                  time: {
                     timeSeries: {
                       data: 'as200-time!',
                     },
                   },
                 },
-              },
-
-              clientIsps: {
-                data: [
-                  { meta: { client_asn_number: 'AS100' } },
-                  { meta: { client_asn_number: 'AS200' } },
-                  { meta: { client_asn_number: 'AS300' } },
-                ],
               },
             },
           },

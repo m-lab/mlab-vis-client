@@ -302,7 +302,7 @@ export default class HourChart extends PureComponent {
     }
 
     // otherwise, we have a highlighted point, show a line and highlight the points
-    const dateKey = highlightPoint.date.toString();
+    const dateKey = highlightPoint.date.format('YYYY-MM-DD');
     const dateData = dataByDate[dateKey] ? dataByDate[dateKey].points : [];
 
     const g = this.gHighlight.select('.highlight-line');
