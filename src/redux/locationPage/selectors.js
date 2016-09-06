@@ -87,18 +87,28 @@ function getLocationSelectedClientIspIds(state, props) {
   return props.selectedClientIspIds;
 }
 
+
+/**
+ * Input selector to get the client ISP map for a location
+ */
+function getLocationClientIsps(state, props) {
+  return getLocation(state, props).clientIsps;
+}
+
+
 // ----------------------
 // Selectors
 // ----------------------
+
 /**
  * Inflates clientIspIds into clientIsp values and returns
  * selected clientIsps
  */
 export const getLocationSelectedClientIsps = createSelector(
-  getLocation, getLocationSelectedClientIspIds,
-  (location, selectedIds) => {
+  getLocationClientIsps, getLocationSelectedClientIspIds,
+  (clientIsps, selectedIds) => {
     if (selectedIds) {
-      const selected = selectedIds.map(id => location.clientIsps[id]).filter(d => d != null);
+      const selected = selectedIds.map(id => clientIsps[id]).filter(d => d != null);
       return selected;
     }
     return [];
@@ -127,14 +137,6 @@ export const getLocationClientIspTimeSeriesObjects = createSelector(
     }
 
     return clientIsps.map(clientIsp => clientIsp.time.timeSeries);
-
-    // const timeSeriesObjects = clientIsps.map(clientIsp => {
-    //   const clientIspId = clientIsp.meta.client_asn_number;
-    //   const locationClientIsp = location.time.clientIsps[clientIspId];
-    //   return locationClientIsp && locationClientIsp.timeSeries;
-    // });
-
-    // return timeSeriesObjects;
   }
 );
 
@@ -170,6 +172,27 @@ export const getLocationClientIspTimeSeriesStatus = createSelector(
 export const getTimeSeriesStatus = createSelector(
   getLocationClientIspTimeSeriesStatus, getLocationTimeSeriesStatus,
   (ispStatus, locationStatus) => mergeStatuses(ispStatus, locationStatus));
+
+
+/**
+ * Selector to get the location+client ISP time series data
+ * for the selected client ISPs AND for the location all ine one array.
+ */
+export const getLocationAndClientIspTimeSeries = createSelector(
+  getLocationClientIspTimeSeries, getLocationTimeSeries,
+  (clientIspTimeSeries = [], locationTimeSeries) => {
+    let result = [];
+    if (locationTimeSeries) {
+      result.push(locationTimeSeries);
+    }
+
+    if (clientIspTimeSeries) {
+      result = result.concat(clientIspTimeSeries);
+    }
+
+    return result;
+  }
+);
 
 
 /**

@@ -59,6 +59,7 @@ function mapStateToProps(state, propsWithUrl) {
     locationTimeSeries: LocationPageSelectors.getLocationTimeSeries(state, propsWithUrl),
     timeSeriesStatus: LocationPageSelectors.getTimeSeriesStatus(state, propsWithUrl),
     clientIspTimeSeries: LocationPageSelectors.getLocationClientIspTimeSeries(state, propsWithUrl),
+    locationAndClientIspTimeSeries: LocationPageSelectors.getLocationAndClientIspTimeSeries(state, propsWithUrl),
     highlightHourly: LocationPageSelectors.getHighlightHourly(state, propsWithUrl),
     summary: LocationPageSelectors.getSummaryData(state, propsWithUrl),
   };
@@ -75,6 +76,7 @@ class LocationPage extends PureComponent {
     location: PropTypes.object, // route location
     locationId: PropTypes.string,
     locationInfo: PropTypes.object,
+    locationAndClientIspTimeSeries: PropTypes.array,
     locationTimeSeries: PropTypes.object,
     selectedClientIspIds: PropTypes.array,
     selectedClientIspInfo: PropTypes.array,
@@ -384,11 +386,8 @@ class LocationPage extends PureComponent {
   }
 
   renderCompareMetrics() {
-    const { timeSeriesStatus, locationTimeSeries, clientIspTimeSeries } = this.props;
-    let series = [];
-    if (locationTimeSeries) {
-      series = [locationTimeSeries].concat(clientIspTimeSeries);
-    }
+    const { timeSeriesStatus, locationAndClientIspTimeSeries } = this.props;
+
     const chartId = 'providers-small-mult';
     return (
       <div className="subsection">
@@ -398,7 +397,7 @@ class LocationPage extends PureComponent {
         <StatusWrapper status={timeSeriesStatus}>
           <LineChartSmallMult
             id={chartId}
-            series={series}
+            series={locationAndClientIspTimeSeries}
             width={800}
             xKey="date"
             metrics={metrics}
