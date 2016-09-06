@@ -8,10 +8,13 @@ import * as LocationPageSelectors from '../../redux/locationPage/selectors';
 import * as LocationPageActions from '../../redux/locationPage/actions';
 import * as LocationsActions from '../../redux/locations/actions';
 
+import { metrics } from '../../constants';
+
 import {
   ChartExportControls,
   LineChartWithCounts,
   HourChartWithCounts,
+  LineChartSmallMult,
   MetricSelector,
   TimeAggregationSelector,
   StatusWrapper,
@@ -347,6 +350,7 @@ class LocationPage extends PureComponent {
     );
   }
 
+
   renderCompareProviders() {
     const { locationId, locationTimeSeries, timeSeriesStatus, viewMetric, clientIspTimeSeries } = this.props;
     const chartId = 'providers-time-series';
@@ -380,11 +384,26 @@ class LocationPage extends PureComponent {
   }
 
   renderCompareMetrics() {
+    const { timeSeriesStatus, locationTimeSeries, clientIspTimeSeries } = this.props;
+    let series = [];
+    if (locationTimeSeries) {
+      series = [locationTimeSeries].concat(clientIspTimeSeries);
+    }
+    const chartId = 'providers-small-mult';
     return (
       <div className="subsection">
         <header>
           <h3>Compare Metrics</h3>
         </header>
+        <StatusWrapper status={timeSeriesStatus}>
+          <LineChartSmallMult
+            id={chartId}
+            series={series}
+            width={800}
+            xKey="date"
+            metrics={metrics}
+          />
+        </StatusWrapper>
       </div>
     );
   }
