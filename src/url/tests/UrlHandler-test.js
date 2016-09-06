@@ -29,6 +29,42 @@ describe('url', () => {
         expect(result).to.deep.equal(expectedOutput);
       });
 
+      it('reuses cached values', () => {
+        const config = {
+          myArray: { type: 'array' },
+          myObject: { type: 'object' },
+          myArray2: { type: 'array' },
+        };
+
+        const query = {
+          myArray: '1_2_3',
+          myObject: 'a-1_b-2',
+          myArray2: '3_4_5',
+        };
+        const urlHandler = new UrlHandler(config);
+
+        const expectedOutput = {
+          myArray: ['1', '2', '3'],
+          myObject: { a: '1', b: '2' },
+          myArray2: ['3', '4', '5'],
+        };
+
+        const result = urlHandler.decodeQuery(query);
+        expect(result).to.deep.equal(expectedOutput);
+
+        const query2 = {
+          myArray: '1_2_3',
+          myObject: 'a-1_b-2',
+          myArray2: '4_5_6',
+        };
+
+        const result2 = urlHandler.decodeQuery(query2);
+        expect(result2.myArray).to.equal(result.myArray);
+        expect(result2.myObject).to.equal(result.myObject);
+        expect(result2.myArray2).to.not.equal(result.myArray2);
+        expect(result2.myArray2).to.deep.equal(['4', '5', '6']);
+      });
+
       it('ignores query params not in config', () => {
         const config = {
           myStr: { type: 'string', defaultValue: 'download', urlKey: 'str' },
