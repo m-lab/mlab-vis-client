@@ -411,7 +411,7 @@ class LocationPage extends PureComponent {
   }
 
   renderProvidersByHour() {
-    const { locationHourly, clientIspHourly, hourlyStatus, highlightHourly, locationId, viewMetric } = this.props;
+    const { locationHourly, hourlyStatus, highlightHourly, locationId, viewMetric } = this.props;
     const extentKey = this.extentKey(viewMetric);
     const chartId = 'providers-hourly';
     const chartData = locationHourly && locationHourly.results;
@@ -421,29 +421,27 @@ class LocationPage extends PureComponent {
         <header>
           <h3>By Hour, Median download speeds</h3>
         </header>
-        <StatusWrapper status={hourlyStatus}>
-          <HourChartWithCounts
-            data={locationHourly && locationHourly.results}
-            height={400}
-            highlightPoint={highlightHourly}
-            id={chartId}
-            onHighlightPoint={this.onHighlightHourly}
-            threshold={30}
-            width={800}
-            yExtent={locationHourly && locationHourly.extents[extentKey]}
-            yKey={viewMetric.dataKey}
-          />
-          <ChartExportControls
-            chartId={chartId}
-            data={chartData}
-            filename={`${locationId}_${viewMetric.value}_${chartId}`}
-          />
-        </StatusWrapper>
-        <div style={{ clear: 'both' /* TODO: fix this */ }}>
-          <Row>
-            {this.renderClientIspsByHour()}
-          </Row>
+        <div className="clearfix">
+          <StatusWrapper status={hourlyStatus}>
+            <HourChartWithCounts
+              data={locationHourly && locationHourly.results}
+              height={400}
+              highlightPoint={highlightHourly}
+              id={chartId}
+              onHighlightPoint={this.onHighlightHourly}
+              threshold={30}
+              width={800}
+              yExtent={locationHourly && locationHourly.extents[extentKey]}
+              yKey={viewMetric.dataKey}
+            />
+            <ChartExportControls
+              chartId={chartId}
+              data={chartData}
+              filename={`${locationId}_${viewMetric.value}_${chartId}`}
+            />
+          </StatusWrapper>
         </div>
+        {this.renderClientIspsByHour()}
       </div>
     );
   }
