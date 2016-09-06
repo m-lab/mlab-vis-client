@@ -235,3 +235,46 @@ export const getSummaryData = createSelector(
     return results;
   }
 );
+
+/**
+ * Selector to get the data objects for location+client ISP hourly data
+ * for the selected client ISPs
+ */
+export const getLocationClientIspHourlyObjects = createSelector(
+  getLocationSelectedClientIsps,
+  (clientIsps) => {
+    if (!clientIsps) {
+      return undefined;
+    }
+
+    return clientIsps.map(clientIsp => clientIsp.time.hourly);
+  }
+);
+
+/**
+ * Selector to get the location+client ISP hourly data
+ * for the selected client ISPs
+ */
+export const getLocationClientIspHourly = createSelector(
+  getLocationClientIspHourlyObjects,
+  (hourlyObjects) => {
+    if (!hourlyObjects) {
+      return undefined;
+    }
+
+    return hourlyObjects.map(hourly => hourly && hourly.data)
+      .filter(hourly => hourly != null);
+  }
+);
+
+/**
+ * Selector to get the status of the location+client ISP hourly data
+ * for the selected client ISPs
+ */
+export const getLocationClientIspHourlyStatus = createSelector(
+  getLocationClientIspHourlyObjects,
+  (hourlyObjects) => status(hourlyObjects));
+
+
+
+

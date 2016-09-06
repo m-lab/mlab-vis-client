@@ -264,7 +264,7 @@ export default class HourChart extends PureComponent {
         // ENTER
         const entering = hourBinding.enter()
           .append('circle')
-          .style('fill', 'rgb(163, 163, 237)');
+          .style('fill', 'rgb(34, 121, 181)');
 
         // ENTER + UPDATE
         hourBinding
