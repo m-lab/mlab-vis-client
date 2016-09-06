@@ -17,19 +17,43 @@ export default class UrlHandler {
   }
 
   /**
-   * Decodes a query based on the config.
+   * Decodes a query based on the config. It compares against cached values to see
+   * if decoding is necessary or if it can reuse old values.
    *
    * @param {Object} query The query object (typically from props.location.query)
+   *
    * @return {Object} the decoded values `{ key: decodedValue, ... }`
    */
   decodeQuery(query) {
-    return Object.keys(this.config).reduce((decoded, key) => {
+    const cachedQuery = this.cachedQuery;
+    const cachedDecodedQuery = this.cachedDecodedQuery;
+
+    // decode the query
+    const decodedQuery = Object.keys(this.config).reduce((decoded, key) => {
       const keyConfig = this.config[key];
       // read from the URL key if provided, otherwise use the key
       const { urlKey = key } = keyConfig;
-      decoded[key] = decode(keyConfig.type, query[urlKey], keyConfig.defaultValue); // eslint-disable-line
+      const encodedValue = query[urlKey];
+
+      let decodedValue;
+      // reused cached value
+      if (cachedQuery && cachedQuery[urlKey] !== undefined && cachedQuery[urlKey] === encodedValue) {
+        decodedValue = cachedDecodedQuery[key];
+
+      // not cached, decode now
+      } else {
+        decodedValue = decode(keyConfig.type, encodedValue, keyConfig.defaultValue);
+      }
+
+      decoded[key] = decodedValue; // eslint-disable-line
       return decoded;
     }, {});
+
+    // update the cache
+    this.cachedQuery = query;
+    this.cachedDecodedQuery = decodedQuery;
+
+    return decodedQuery;
   }
 
   /**

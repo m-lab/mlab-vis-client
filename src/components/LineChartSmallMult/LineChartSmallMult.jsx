@@ -55,9 +55,9 @@ export default class LineChartSmallMult extends PureComponent {
   }
 
   /**
-   * When new props are received, regenerate vis components if necessary
+   * When new component is updating, regenerate vis components if necessary
    */
-  componentWillReceiveProps(nextProps) {
+  componentWillUpdate(nextProps) {
     // regenerate the vis components if the relevant props change
     this.visComponents = this.makeVisComponents(nextProps);
   }
@@ -170,11 +170,9 @@ export default class LineChartSmallMult extends PureComponent {
           .defined(d => d[metrics[yIndex].dataKey] != null)
           .accessData(d => d.results)
           .lineStyles({
-            stroke: (d, i) => {
-              // first element is baseline value
-              return (showBaseline && i === 0) ? '#aaa' : color(d.meta.client_asn_number);
-            },
-            'stroke-width': 1.5,
+            // first element is baseline value
+            stroke: (d, i) => ((showBaseline && i === 0) ? '#bbb' : color(d.meta.client_asn_number)),
+            'stroke-width': (d, i) => ((showBaseline && i === 0) ? 1 : 1.5),
           })
       );
     }
@@ -217,7 +215,7 @@ export default class LineChartSmallMult extends PureComponent {
    * Iterates through data, using line generators to update charts.
    */
   updateCharts() {
-    const { series, lineGens, metrics, showBaseline } = this.visComponents;
+    const { series, lineGens, metrics, showBaseline, chartHeight, xScale } = this.visComponents;
 
     series.forEach((s, sIndex) => {
       metrics.forEach((metric, keyIndex) => {
@@ -233,6 +231,16 @@ export default class LineChartSmallMult extends PureComponent {
           data.unshift(series[0]);
         }
 
+        // add in axis line
+        let axisLine = chart.select('.axis-line');
+        if (axisLine.empty()) {
+          axisLine = chart.append('line').attr('class', 'axis-line');
+        }
+        axisLine
+          .attr('x1', xScale.range()[0])
+          .attr('x2', xScale.range()[1])
+          .attr('y1', chartHeight + 3)
+          .attr('y2', chartHeight + 3);
 
         // BIND
         const binding = chart.selectAll('g').data(data);
