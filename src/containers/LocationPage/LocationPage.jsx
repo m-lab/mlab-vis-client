@@ -151,10 +151,11 @@ class LocationPage extends PureComponent {
     // fetch data for selected Client ISPs
     if (selectedClientIspIds) {
       selectedClientIspIds.forEach(clientIspId => {
-        dispatch(
-          LocationsActions.fetchClientIspLocationTimeSeriesIfNeeded(timeAggregation, locationId, clientIspId, options)
-        );
         dispatch(LocationsActions.fetchClientIspInfoIfNeeded(locationId, clientIspId));
+        dispatch(LocationsActions.fetchClientIspLocationTimeSeriesIfNeeded(timeAggregation, locationId,
+          clientIspId, options));
+        dispatch(LocationsActions.fetchClientIspLocationHourlyIfNeeded(timeAggregation, locationId,
+          clientIspId, options));
       });
     }
   }

@@ -37,7 +37,38 @@ function timeSeries(state = initialClientIspState.time.timeSeries, action = {}) 
   }
 }
 
-const time = combineReducers({ timeSeries });
+function hourly(state = initialClientIspState.time.hourly, action = {}) {
+  switch (action.type) {
+    case Actions.FETCH_CLIENT_ISP_HOURLY:
+      return {
+        data: state.data,
+        timeAggregation: action.timeAggregation,
+        startDate: action.options.startDate,
+        endDate: action.options.endDate,
+        isFetching: true,
+        isFetched: false,
+      };
+    case Actions.FETCH_CLIENT_ISP_HOURLY_SUCCESS:
+      return {
+        data: action.result,
+        timeAggregation: action.timeAggregation,
+        startDate: action.options.startDate,
+        endDate: action.options.endDate,
+        isFetching: false,
+        isFetched: true,
+      };
+    case Actions.FETCH_CLIENT_ISP_HOURLY_FAIL:
+      return {
+        isFetching: false,
+        isFetched: false,
+        error: action.error,
+      };
+    default:
+      return state;
+  }
+}
+
+const time = combineReducers({ timeSeries, hourly });
 
 
 // reducer for location+client ISP info

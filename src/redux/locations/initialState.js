@@ -51,5 +51,9 @@ export const initialClientIspState = {
       isFetching: false,
       isFetched: false,
     },
+    hourly: {
+      isFetching: false,
+      isFetched: false,
+    },
   },
 };
