@@ -50,18 +50,18 @@ const urlHandler = new UrlHandler(urlQueryConfig, browserHistory);
 function mapStateToProps(state, propsWithUrl) {
   return {
     ...propsWithUrl,
-    locationInfo: LocationPageSelectors.getLocationInfo(state, propsWithUrl),
-    viewMetric: LocationPageSelectors.getViewMetric(state, propsWithUrl),
-    topClientIsps: LocationPageSelectors.getLocationTopClientIsps(state, propsWithUrl),
-    selectedClientIspInfo: LocationPageSelectors.getLocationSelectedClientIspInfo(state, propsWithUrl),
-    locationHourly: LocationPageSelectors.getLocationHourly(state, propsWithUrl),
-    hourlyStatus: LocationPageSelectors.getLocationHourlyStatus(state, propsWithUrl),
-    locationTimeSeries: LocationPageSelectors.getLocationTimeSeries(state, propsWithUrl),
-    timeSeriesStatus: LocationPageSelectors.getTimeSeriesStatus(state, propsWithUrl),
     clientIspTimeSeries: LocationPageSelectors.getLocationClientIspTimeSeries(state, propsWithUrl),
-    locationAndClientIspTimeSeries: LocationPageSelectors.getLocationAndClientIspTimeSeries(state, propsWithUrl),
     highlightHourly: LocationPageSelectors.getHighlightHourly(state, propsWithUrl),
+    hourlyStatus: LocationPageSelectors.getLocationHourlyStatus(state, propsWithUrl),
+    locationInfo: LocationPageSelectors.getLocationInfo(state, propsWithUrl),
+    locationAndClientIspTimeSeries: LocationPageSelectors.getLocationAndClientIspTimeSeries(state, propsWithUrl),
+    locationHourly: LocationPageSelectors.getLocationHourly(state, propsWithUrl),
+    locationTimeSeries: LocationPageSelectors.getLocationTimeSeries(state, propsWithUrl),
+    selectedClientIspInfo: LocationPageSelectors.getLocationSelectedClientIspInfo(state, propsWithUrl),
     summary: LocationPageSelectors.getSummaryData(state, propsWithUrl),
+    timeSeriesStatus: LocationPageSelectors.getTimeSeriesStatus(state, propsWithUrl),
+    topClientIsps: LocationPageSelectors.getLocationTopClientIsps(state, propsWithUrl),
+    viewMetric: LocationPageSelectors.getViewMetric(state, propsWithUrl),
   };
 }
 
