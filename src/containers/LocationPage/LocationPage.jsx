@@ -54,7 +54,7 @@ function mapStateToProps(state, propsWithUrl) {
     viewMetric: LocationPageSelectors.getViewMetric(state, propsWithUrl),
     topClientIsps: LocationPageSelectors.getLocationTopClientIsps(state, propsWithUrl),
     selectedClientIspInfo: LocationPageSelectors.getLocationSelectedClientIspInfo(state, propsWithUrl),
-    hourly: LocationPageSelectors.getLocationHourly(state, propsWithUrl),
+    locationHourly: LocationPageSelectors.getLocationHourly(state, propsWithUrl),
     hourlyStatus: LocationPageSelectors.getLocationHourlyStatus(state, propsWithUrl),
     locationTimeSeries: LocationPageSelectors.getLocationTimeSeries(state, propsWithUrl),
     timeSeriesStatus: LocationPageSelectors.getTimeSeriesStatus(state, propsWithUrl),
@@ -71,12 +71,12 @@ class LocationPage extends PureComponent {
     dispatch: PropTypes.func,
     endDate: momentPropTypes.momentObj,
     highlightHourly: PropTypes.object,
-    hourly: PropTypes.object,
     hourlyStatus: PropTypes.string,
     location: PropTypes.object, // route location
+    locationAndClientIspTimeSeries: PropTypes.array,
+    locationHourly: PropTypes.object,
     locationId: PropTypes.string,
     locationInfo: PropTypes.object,
-    locationAndClientIspTimeSeries: PropTypes.array,
     locationTimeSeries: PropTypes.object,
     selectedClientIspIds: PropTypes.array,
     selectedClientIspInfo: PropTypes.array,
@@ -409,10 +409,10 @@ class LocationPage extends PureComponent {
   }
 
   renderProvidersByHour() {
-    const { hourly, hourlyStatus, highlightHourly, locationId, viewMetric } = this.props;
+    const { locationHourly, hourlyStatus, highlightHourly, locationId, viewMetric } = this.props;
     const extentKey = this.extentKey(viewMetric);
     const chartId = 'providers-hourly';
-    const chartData = hourly && hourly.results;
+    const chartData = locationHourly && locationHourly.results;
 
     return (
       <div className="subsection">
@@ -421,14 +421,14 @@ class LocationPage extends PureComponent {
         </header>
         <StatusWrapper status={hourlyStatus}>
           <HourChartWithCounts
-            data={hourly && hourly.results}
+            data={locationHourly && locationHourly.results}
             height={400}
             highlightPoint={highlightHourly}
             id={chartId}
             onHighlightPoint={this.onHighlightHourly}
             threshold={30}
             width={800}
-            yExtent={hourly && hourly.extents[extentKey]}
+            yExtent={locationHourly && locationHourly.extents[extentKey]}
             yKey={viewMetric.dataKey}
           />
           <ChartExportControls
