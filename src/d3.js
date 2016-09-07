@@ -13,6 +13,7 @@ import * as selection from 'd3-selection';
 import * as shape from 'd3-shape';
 import * as timeFormat from 'd3-time-format';
 import * as axis from 'd3-axis';
+import * as color from 'd3-color';
 import * as collection from 'd3-collection';
 import * as lineChunked from 'd3-line-chunked';
 import * as scaleInteractive from 'd3-scale-interactive';
@@ -24,6 +25,7 @@ export default Object.assign({},
   shape,
   timeFormat,
   axis,
+  color,
   lineChunked,
   transition,
   scaleInteractive,

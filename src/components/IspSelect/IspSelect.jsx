@@ -4,6 +4,8 @@ import Select from 'react-select';
 
 import { Icon } from '../../components';
 
+import { colorsFor } from '../../utils/color';
+
 import '../../assets/react-select.scss';
 import './IspSelect.scss';
 
@@ -75,9 +77,10 @@ export default class IspSelect extends PureComponent {
    * Render individual isp name
    * @return {React.Component} active isps
    */
-  renderIsp(isp) {
+  renderIsp(isp, color) {
+    const style = { backgroundColor: color };
     return (
-      <div key={isp.client_asn_number} className="selected-isp">
+      <div key={isp.client_asn_number} className="selected-isp" style={style}>
         <span className="isp-label">{isp.client_asn_name}</span>
         <Icon
           name="close"
@@ -93,10 +96,11 @@ export default class IspSelect extends PureComponent {
    * @return {React.Component} active isps
    */
   renderSelectedIsps(selectedIsps) {
+    const colors = colorsFor(selectedIsps, (d) => d.client_asn_number);
     return (
       <div className="active-isps">
         {selectedIsps.map((selectedIsp, i) =>
-          this.renderIsp(selectedIsp, i)
+          this.renderIsp(selectedIsp, colors[selectedIsp.client_asn_number])
         )}
       </div>
     );
