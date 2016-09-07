@@ -35,15 +35,16 @@ const columns = [
  */
 export default class SummaryData extends PureComponent {
   static propTypes = {
+    bottomData: PropTypes.oneOfType([PropTypes.array, PropTypes.object]),
     data: PropTypes.array,
   }
 
   render() {
-    const { data } = this.props;
+    const { data, bottomData } = this.props;
 
     return (
       <div className="SummaryTable">
-        <TacoTable columns={columns} data={data} />
+        <TacoTable columns={columns} data={data} bottomData={bottomData} />
       </div>
     );
   }

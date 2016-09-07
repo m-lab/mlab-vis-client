@@ -197,6 +197,8 @@ export const getLocationAndClientIspTimeSeries = createSelector(
 
 /**
  * Selector to get the summary data for the location and related ISPs
+ * @return {Object} A key for each type of fixed data
+ * Sample: { lastYear: { locationData: {}, clientIspsData: [] }}
  */
 export const getSummaryData = createSelector(
   getLocationInfo, getLocationFixed, getLocationSelectedClientIsps,
@@ -209,7 +211,7 @@ export const getSummaryData = createSelector(
       selectedClientIsps = [];
     }
 
-    // gropu all the `lastYear`, `lastweek`, etc together
+    // group all the `lastYear`, `lastweek`, etc together
     const results = Object.keys(locationFixed).reduce((grouped, key) => {
       const locationData = {
         ...locationFixed[key],
@@ -227,7 +229,7 @@ export const getSummaryData = createSelector(
         };
       });
 
-      grouped[key] = [locationData, ...clientIspsData];
+      grouped[key] = { locationData, clientIspsData };
 
       return grouped;
     }, {});
