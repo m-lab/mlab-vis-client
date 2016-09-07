@@ -50,6 +50,13 @@ npm run build
 npm run start
 ```
 
+## Deploying 
+
+The site is currently configured to deploy to http://client-dot-mlab-oti.appspot.com/. To do so, run:
+
+```bash
+npm run deploy
+```
 
 ---
 
