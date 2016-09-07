@@ -50,33 +50,35 @@ const urlHandler = new UrlHandler(urlQueryConfig, browserHistory);
 function mapStateToProps(state, propsWithUrl) {
   return {
     ...propsWithUrl,
-    locationInfo: LocationPageSelectors.getLocationInfo(state, propsWithUrl),
-    viewMetric: LocationPageSelectors.getViewMetric(state, propsWithUrl),
-    topClientIsps: LocationPageSelectors.getLocationTopClientIsps(state, propsWithUrl),
-    selectedClientIspInfo: LocationPageSelectors.getLocationSelectedClientIspInfo(state, propsWithUrl),
-    hourly: LocationPageSelectors.getLocationHourly(state, propsWithUrl),
-    hourlyStatus: LocationPageSelectors.getLocationHourlyStatus(state, propsWithUrl),
-    locationTimeSeries: LocationPageSelectors.getLocationTimeSeries(state, propsWithUrl),
-    timeSeriesStatus: LocationPageSelectors.getTimeSeriesStatus(state, propsWithUrl),
+    clientIspHourly: LocationPageSelectors.getLocationClientIspHourly(state, propsWithUrl),
     clientIspTimeSeries: LocationPageSelectors.getLocationClientIspTimeSeries(state, propsWithUrl),
-    locationAndClientIspTimeSeries: LocationPageSelectors.getLocationAndClientIspTimeSeries(state, propsWithUrl),
     highlightHourly: LocationPageSelectors.getHighlightHourly(state, propsWithUrl),
+    hourlyStatus: LocationPageSelectors.getLocationHourlyStatus(state, propsWithUrl),
+    locationInfo: LocationPageSelectors.getLocationInfo(state, propsWithUrl),
+    locationAndClientIspTimeSeries: LocationPageSelectors.getLocationAndClientIspTimeSeries(state, propsWithUrl),
+    locationHourly: LocationPageSelectors.getLocationHourly(state, propsWithUrl),
+    locationTimeSeries: LocationPageSelectors.getLocationTimeSeries(state, propsWithUrl),
+    selectedClientIspInfo: LocationPageSelectors.getLocationSelectedClientIspInfo(state, propsWithUrl),
     summary: LocationPageSelectors.getSummaryData(state, propsWithUrl),
+    timeSeriesStatus: LocationPageSelectors.getTimeSeriesStatus(state, propsWithUrl),
+    topClientIsps: LocationPageSelectors.getLocationTopClientIsps(state, propsWithUrl),
+    viewMetric: LocationPageSelectors.getViewMetric(state, propsWithUrl),
   };
 }
 
 class LocationPage extends PureComponent {
   static propTypes = {
+    clientIspHourly: PropTypes.array,
     clientIspTimeSeries: PropTypes.array,
     dispatch: PropTypes.func,
     endDate: momentPropTypes.momentObj,
     highlightHourly: PropTypes.object,
-    hourly: PropTypes.object,
     hourlyStatus: PropTypes.string,
     location: PropTypes.object, // route location
+    locationAndClientIspTimeSeries: PropTypes.array,
+    locationHourly: PropTypes.object,
     locationId: PropTypes.string,
     locationInfo: PropTypes.object,
-    locationAndClientIspTimeSeries: PropTypes.array,
     locationTimeSeries: PropTypes.object,
     selectedClientIspIds: PropTypes.array,
     selectedClientIspInfo: PropTypes.array,
@@ -151,10 +153,11 @@ class LocationPage extends PureComponent {
     // fetch data for selected Client ISPs
     if (selectedClientIspIds) {
       selectedClientIspIds.forEach(clientIspId => {
-        dispatch(
-          LocationsActions.fetchClientIspLocationTimeSeriesIfNeeded(timeAggregation, locationId, clientIspId, options)
-        );
         dispatch(LocationsActions.fetchClientIspInfoIfNeeded(locationId, clientIspId));
+        dispatch(LocationsActions.fetchClientIspLocationTimeSeriesIfNeeded(timeAggregation, locationId,
+          clientIspId, options));
+        dispatch(LocationsActions.fetchClientIspLocationHourlyIfNeeded(timeAggregation, locationId,
+          clientIspId, options));
       });
     }
   }
@@ -408,35 +411,74 @@ class LocationPage extends PureComponent {
   }
 
   renderProvidersByHour() {
-    const { hourly, hourlyStatus, highlightHourly, locationId, viewMetric } = this.props;
+    const { locationHourly, hourlyStatus, highlightHourly, locationId, viewMetric } = this.props;
     const extentKey = this.extentKey(viewMetric);
     const chartId = 'providers-hourly';
-    const chartData = hourly && hourly.results;
+    const chartData = locationHourly && locationHourly.results;
 
     return (
       <div className="subsection">
         <header>
           <h3>By Hour, Median download speeds</h3>
         </header>
-        <StatusWrapper status={hourlyStatus}>
-          <HourChartWithCounts
-            data={hourly && hourly.results}
-            height={400}
-            highlightPoint={highlightHourly}
-            id={chartId}
-            onHighlightPoint={this.onHighlightHourly}
-            threshold={30}
-            width={800}
-            yExtent={hourly && hourly.extents[extentKey]}
-            yKey={viewMetric.dataKey}
-          />
-          <ChartExportControls
-            chartId={chartId}
-            data={chartData}
-            filename={`${locationId}_${viewMetric.value}_${chartId}`}
-          />
-        </StatusWrapper>
+        <div className="clearfix">
+          <StatusWrapper status={hourlyStatus}>
+            <HourChartWithCounts
+              data={locationHourly && locationHourly.results}
+              height={400}
+              highlightPoint={highlightHourly}
+              id={chartId}
+              onHighlightPoint={this.onHighlightHourly}
+              threshold={30}
+              width={800}
+              yExtent={locationHourly && locationHourly.extents[extentKey]}
+              yKey={viewMetric.dataKey}
+            />
+            <ChartExportControls
+              chartId={chartId}
+              data={chartData}
+              filename={`${locationId}_${viewMetric.value}_${chartId}`}
+            />
+          </StatusWrapper>
+        </div>
+        {this.renderClientIspsByHour()}
       </div>
+    );
+  }
+
+  renderClientIspsByHour() {
+    const { clientIspHourly, hourlyStatus, highlightHourly, locationId, viewMetric } = this.props;
+    const extentKey = this.extentKey(viewMetric);
+
+    return (
+      <Row>
+        {clientIspHourly.map(hourly => {
+          const clientIspId = hourly.meta.client_asn_number;
+          const chartId = `providers-hourly-${clientIspId}`;
+          return (
+            <Col md={6} key={clientIspId}>
+              <StatusWrapper status={hourlyStatus}>
+                <HourChartWithCounts
+                  data={hourly.results}
+                  height={300}
+                  highlightPoint={highlightHourly}
+                  id={chartId}
+                  onHighlightPoint={this.onHighlightHourly}
+                  threshold={30}
+                  width={400}
+                  yExtent={hourly.extents[extentKey]}
+                  yKey={viewMetric.dataKey}
+                />
+                <ChartExportControls
+                  chartId={chartId}
+                  data={hourly.results}
+                  filename={`${locationId}_${clientIspId}_${viewMetric.value}_${chartId}`}
+                />
+              </StatusWrapper>
+            </Col>
+          );
+        })}
+      </Row>
     );
   }
 

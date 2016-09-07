@@ -158,6 +158,9 @@ function clientIsps(state = initialLocationState.clientIsps, action = {}) {
     case Actions.FETCH_CLIENT_ISP_TIME_SERIES:
     case Actions.FETCH_CLIENT_ISP_TIME_SERIES_SUCCESS:
     case Actions.FETCH_CLIENT_ISP_TIME_SERIES_FAIL:
+    case Actions.FETCH_CLIENT_ISP_HOURLY:
+    case Actions.FETCH_CLIENT_ISP_HOURLY_SUCCESS:
+    case Actions.FETCH_CLIENT_ISP_HOURLY_FAIL:
     case Actions.FETCH_CLIENT_ISP_INFO:
     case Actions.FETCH_CLIENT_ISP_INFO_SUCCESS:
     case Actions.FETCH_CLIENT_ISP_INFO_FAIL:

@@ -80,7 +80,8 @@ export function getLocationHourly(timeAggregation, locationId, options = {}) {
 }
 
 /**
- * Get data for a client ISP in a location in a given time aggregation
+ * Get time series data for a client ISP in a location in a given time aggregation
+ *
  * @param {String} timeAggregation The aggregation of the data (one of day, month,
  *    year, day_hour, month_hour, year_hour)
  * @param {String} locationId The location to query (e.g., nauswaseattle)
@@ -93,6 +94,24 @@ export function getLocationClientIspTimeSeries(timeAggregation, locationId, clie
 
   return get(`/locations/${locationId}/time/${timeAggregation}/clientisps/${clientIspId}/metrics`, { params })
     .then(transform(transformTimeSeries));
+}
+
+
+/**
+ * Get hourly data for a client ISP in a location in a given time aggregation
+ *
+ * @param {String} timeAggregation The aggregation of the data (one of day, month,
+ *    year, day_hour, month_hour, year_hour)
+ * @param {String} locationId The location to query (e.g., nauswaseattle)
+ * @param {String} clientIspId The AS number of the ISP (e.g., AS7922)
+ * @param {Object} options with startDate and endDate moment objects
+ * @return {Promise} A promise after the get request was made
+ */
+export function getLocationClientIspHourly(timeAggregation, locationId, clientIspId, options = {}) {
+  const params = getDateRangeParams(timeAggregation, options);
+
+  return get(`/locations/${locationId}/time/${timeAggregation}_hour/clientisps/${clientIspId}/metrics`, { params })
+    .then(transform(transformHourly));
 }
 
 /**

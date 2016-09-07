@@ -168,6 +168,56 @@ export const shouldFetchClientIspLocationTimeSeries = clientIspLocationTimeSerie
 export const fetchClientIspLocationTimeSeries = clientIspLocationTimeSeries.fetch;
 export const fetchClientIspLocationTimeSeriesIfNeeded = clientIspLocationTimeSeries.fetchIfNeeded;
 
+
+// ---------------------
+// Fetch Client ISP in Location Hourly
+// ---------------------
+const clientIspLocationHourly = createFetchAction({
+  typePrefix: 'location/',
+  key: 'CLIENT_ISP_HOURLY',
+  args: ['timeAggregation', 'locationId', 'clientIspId', 'options'],
+  shouldFetch(state, timeAggregation, locationId, clientIspId, options) {
+    const locationState = state.locations[locationId];
+    if (!locationState) {
+      return true;
+    }
+
+    const clientIspState = locationState.clientIsps[clientIspId];
+    if (!clientIspState) {
+      return true;
+    }
+    const clientIspTimeState = clientIspState.time;
+
+    // if we don't have this time aggregation, we should fetch it
+    if (clientIspTimeState.hourly.timeAggregation !== timeAggregation) {
+      return true;
+    }
+
+    if (options.startDate && !options.startDate.isSame(clientIspTimeState.hourly.startDate, timeAggregation)) {
+      return true;
+    }
+
+    if (options.endDate && !options.endDate.isSame(clientIspTimeState.hourly.endDate, timeAggregation)) {
+      return true;
+    }
+
+    // only fetch if it isn't fetching/already fetched
+    return !(clientIspTimeState.hourly.isFetched ||
+      clientIspTimeState.hourly.isFetching);
+  },
+
+  promise(timeAggregation, locationId, clientIspId, options) {
+    return api => api.getLocationClientIspHourly(timeAggregation, locationId, clientIspId, options);
+  },
+});
+export const FETCH_CLIENT_ISP_HOURLY = clientIspLocationHourly.types.fetch;
+export const FETCH_CLIENT_ISP_HOURLY_SUCCESS = clientIspLocationHourly.types.success;
+export const FETCH_CLIENT_ISP_HOURLY_FAIL = clientIspLocationHourly.types.fail;
+export const shouldFetchClientIspLocationHourly = clientIspLocationHourly.shouldFetch;
+export const fetchClientIspLocationHourly = clientIspLocationHourly.fetch;
+export const fetchClientIspLocationHourlyIfNeeded = clientIspLocationHourly.fetchIfNeeded;
+
+
 // ---------------------
 // Fetch Location Info
 // ---------------------
