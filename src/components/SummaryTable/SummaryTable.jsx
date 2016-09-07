@@ -13,6 +13,7 @@ const columns = [
     id: 'test_count',
     type: DataType.Number,
     header: '# Tests',
+    renderer: Formatters.commaFormat,
   },
   {
     id: 'download_speed_mbps_median',
