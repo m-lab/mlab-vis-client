@@ -2,7 +2,7 @@
 import d3 from 'd3';
 import { mod } from './math';
 
-
+// colors come from: http://tools.medialab.sciences-po.fr/iwanthue/
 const HCL_COLORS = [
   [58, 41.304, 34.656],
   [298, 75.161, 42.059],
@@ -37,18 +37,30 @@ const HCL_COLORS = [
 ];
 
 /**
- * color for isps
+ * Converts a ASN string to a number from 0 to maxCount.
+ * Expects ASN string to have digits in it, and in format following: `AS123`.
+ *
+ * @param {String} asnNumber Number string to hash
+ * @param {Integer} maxCount Largest number to allow.
+ * @return {Integer} value between 0 and maxCount
  */
 export function hashAsn(asnNumber, maxCount) {
   if (!asnNumber) {
     return 0;
   }
-  const asn = +(asnNumber.replace(/\D+/g, ''));
+
+  const asn = parseInt(asnNumber.replace(/\D+/g, ''), 10);
   return mod(asn, maxCount);
 }
 
 /**
- * color for isps
+ * Change brightness of overlapping colors.
+ * @param {Array} colors Array of d3.color values
+ * @param {Array} Array of overlap objects. Overlap created using d3.nest
+ *  will have a `values` array attribute - an entry for each value in colors
+ *  that are the same color. Each entry in values has a `index` attribute indicating
+ *  the position in `colors` for that color.
+ * @return {Array} Array of d3.color values altered so that none overlap.
  */
 function varyColor(colors, overlaps) {
   overlaps.forEach((overlap) => {
@@ -56,12 +68,16 @@ function varyColor(colors, overlaps) {
     if (length > 1) {
       let brightenToggle = true;
       let k = 1.0;
-      let i = 1;
       // Start at the 2nd overlapping index
-      for (i = 1; i < length; i++) {
+      for (let i = 1; i < length; i++) {
         const index = overlap.values[i].index;
+
+        // brighten / darken matching colors.
+        // Alternate between brightening and darkening.
         colors[index] = (brightenToggle) ? colors[index].brighter(k) : colors[index].darker(k);
         brightenToggle = !brightenToggle;
+        // amount to brigten/darken by increases if we have used that same value
+        // to brigten and darken already.
         if (brightenToggle) {
           k += 1.0;
         }
@@ -73,7 +89,14 @@ function varyColor(colors, overlaps) {
 }
 
 /**
- * create an array of colors, one for each value in values
+ * Create an array of colors, one for each entry in values. Colors will not overlap,
+ * but remain consistent based on `hashFunction`.
+ * @param {Array} values Array to extract colors for.
+ * @param {Function} valueAccessor Function to pull out the value from values with.
+ *  defaults to identity function.
+ * @param {Function} hashFunction Function to convert value to an index into color array.
+ *  defaults to hashAsn which expects value to be ASN strings.
+ * @return {Array} Array of Color strings in order of values.
  */
 export function extractColors(values, valueAccessor = d => d, hashFunction = hashAsn) {
   const maxCount = HCL_COLORS.length;
@@ -81,7 +104,8 @@ export function extractColors(values, valueAccessor = d => d, hashFunction = has
 
   const colors = indexes.map((h) => d3.hcl(...HCL_COLORS[h.hash]));
 
-
+  // groups by hash value - so we can easily find duplicate colors.
+  // alternative would be to rely on comparing d3.color values inside `varyColor`
   const overlaps = d3.nest()
     .key((d) => d.hash)
     .entries(indexes);
@@ -92,7 +116,15 @@ export function extractColors(values, valueAccessor = d => d, hashFunction = has
 }
 
 /**
- * create an object with keys as values, mapped to colors
+ * Create an object of colors, with entries in `values` as attributes.
+ * Each value is a color string. Colors will not overlap
+ * but remain consistent based on `hashFunction`.
+ * @param {Array} values Array to extract colors for.
+ * @param {Function} valueAccessor Function to pull out the value from values with.
+ *  defaults to identity function.
+ * @param {Function} hashFunction Function to convert value to an index into color array.
+ *  defaults to hashAsn which expects value to be ASN strings.
+ * @return {Object} With a key for each value in values.
  */
 export function colorsFor(values, valueAccessor = d => d, hashFunction = hashAsn) {
   const colors = extractColors(values, valueAccessor, hashFunction);
