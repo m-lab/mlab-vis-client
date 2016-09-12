@@ -17,6 +17,7 @@ import * as color from 'd3-color';
 import * as collection from 'd3-collection';
 import * as lineChunked from 'd3-line-chunked';
 import * as scaleInteractive from 'd3-scale-interactive';
+import * as format from 'd3-format';
 
 export default Object.assign({},
   array,
@@ -26,6 +27,7 @@ export default Object.assign({},
   timeFormat,
   axis,
   color,
+  format,
   lineChunked,
   transition,
   scaleInteractive,

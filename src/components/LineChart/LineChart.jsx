@@ -5,6 +5,48 @@ import { colorsFor } from '../../utils/color';
 
 import './LineChart.scss';
 
+
+// TODO: since our data is sorted, we should add in alternatives that use binary search.
+
+/**
+ * Helper function to compute distance and find the closest item
+ * Since it assumes the data is unsorted, it does a linear scan O(n).
+ *
+ * @param {Array} array the input array to search
+ * @param {Number} value the value to match against (typically pixels)
+ * @param {Function} accessor applied to each item in the array to get equivalent
+ *   value to compare against
+ * @return {Any} The item in the array that is closest to `value`
+ */
+function findClosestUnsorted(array, value, accessor) {
+  let closest = null;
+  let closestDist = null;
+
+  array.forEach((elem) => {
+    const dist = Math.abs(accessor(elem) - value);
+    if (closestDist == null || dist < closestDist) {
+      closestDist = dist;
+      closest = elem;
+    }
+  });
+
+  return closest;
+}
+
+/**
+ * Helper function to find the item that matches this value.
+ * Since it assumes the data is unsorted, it does a linear scan O(n).
+ *
+ * @param {Array} array the input array to search
+ * @param {Number} value the value to match against (typically pixels)
+ * @param {Function} accessor applied to each item in the array to get equivalent
+ *   value to compare against
+ * @return {Any} The item in the array that has this value or null if not found
+ */
+function findEqualUnsorted(array, value, accessor) {
+  return array.find(d => accessor(d) === value);
+}
+
 /**
  * A line chart that uses d3 to draw. Assumes X is a time scale.
  *
@@ -12,30 +54,42 @@ import './LineChart.scss';
  * @prop {Number} height The height in pixels of the SVG chart
  * @prop {String} id The ID of the SVG chart (needed for PNG export)
  * @prop {Boolean} inSvg Whether this is being nested inside an SVG, if true renders a <g>
+ * @prop {Object} highlightDate The date being highlighted in the chart
+ * @prop {Object} highlightLine The line being highlighted in the chart
+ * @prop {Function} onHighlightDate Callback when the mouse moves across the main area of the chart
+ *   passes in the hovered upon date
+ * @prop {Function} onHighlightLine Callback when a series is highlighted
  * @prop {Array} series The array of series data (e.g., [{ meta, results }, ...])
  * @prop {Number} width The width in pixels of the SVG chart
  * @prop {Array} xExtent The min and max value of the xKey in the chart
  * @prop {String} xKey="x" The key to read the x value from in the data
  * @prop {Array} yExtent The min and max value of the yKey in the chart
+ * @prop {Function} yFormatter Format function that takes a y value and outputs a string
  * @prop {String} yKey="y" The key to read the y value from in the data
  */
 export default class LineChart extends PureComponent {
   static propTypes = {
     forceZeroMin: PropTypes.bool,
     height: React.PropTypes.number,
+    highlightDate: React.PropTypes.object,
+    highlightLine: React.PropTypes.object,
     id: React.PropTypes.string,
     inSvg: React.PropTypes.bool,
+    onHighlightDate: React.PropTypes.func,
+    onHighlightLine: React.PropTypes.func,
     series: PropTypes.array,
     width: React.PropTypes.number,
     xExtent: PropTypes.array,
     xKey: React.PropTypes.string,
     yExtent: PropTypes.array,
+    yFormatter: PropTypes.func,
     yKey: React.PropTypes.string,
   }
 
   static defaultProps = {
     forceZeroMin: true,
     xKey: 'x',
+    yFormatter: d => d,
     yKey: 'y',
   }
 
@@ -69,10 +123,54 @@ export default class LineChart extends PureComponent {
   }
 
   /**
+   * Callback for when the mouse hovers over a legend entry
+   *
+   * @param {Object} oneSeries an item from the series array or annotationSeries array
+   * @return {void}
+   */
+  onHoverLegendEntry(oneSeries) {
+    const { onHighlightLine } = this.props;
+    if (onHighlightLine) {
+      onHighlightLine(oneSeries);
+    }
+  }
+
+  /**
+   * Callback for when the user moves the mouse across
+   *
+   * @param {Array} mouse the [x, y] mouse coordinates in chart space (pixels)
+   * @return {void}
+   */
+  onMouseMove(mouse) {
+    const { onHighlightDate } = this.props;
+    const { series, xScale, xKey } = this.visComponents;
+
+    if (!onHighlightDate) {
+      return;
+    }
+
+    if (mouse === null) {
+      // mouse out
+      onHighlightDate(null);
+      return;
+    }
+
+    let closest;
+    // moving around, find nearest x value.
+    if (series && series.length) {
+      const [mouseX] = mouse;
+      const checkSeries = series[0];
+      closest = findClosestUnsorted(checkSeries.results, mouseX, d => xScale(d[xKey]))[xKey];
+    }
+
+    onHighlightDate(closest);
+  }
+
+  /**
    * Initialize the d3 chart - this is run once on mount
    */
   setup() {
-    const { height, innerMargin, width } = this.visComponents;
+    const { height, width } = this.visComponents;
 
     // add in white background for saving as PNG
     d3.select(this.root).append('rect')
@@ -84,8 +182,7 @@ export default class LineChart extends PureComponent {
       .attr('fill', '#fff');
 
     this.g = d3.select(this.root)
-      .append('g')
-      .attr('transform', `translate(${innerMargin.left} ${innerMargin.top})`);
+      .append('g'); // transformed to have margin in update()
 
     this.legend = this.g.append('g').classed('legend', true);
 
@@ -97,6 +194,33 @@ export default class LineChart extends PureComponent {
     this.annotationLines = this.g.append('g').classed('annotation-lines-group', true);
     this.lines = this.g.append('g').classed('lines-group', true);
     this.circles = this.g.append('g').classed('circles-group', true);
+
+    // container for showing the x highlighte date indicator
+    this.highlightDate = this.g.append('g').attr('class', 'highlight-date');
+    this.highlightDate.append('line')
+      .attr('x1', 0)
+      .attr('x2', 0)
+      .attr('y1', 0)
+      .attr('y2', innerHeight + 3)
+      .attr('class', 'highlight-ref-line');
+
+    // container for showing the highlighted line
+    this.highlightLine = this.g.append('g').attr('class', 'highlight-line');
+    this.highlightLine.append('rect').attr('class', 'series-overlay');
+    this.highlightLine.append('g');
+
+    // add in mouse listener -- this should be added above the lines and axes
+    const that = this;
+    this.mouseListener = this.g.append('rect')
+      .attr('class', 'mouse-listener')
+      .style('fill', '#f00')
+      .style('stroke', 'none')
+      .style('opacity', 0)
+      .on('mousemove', function mouseMoveListener() {
+        that.onMouseMove.call(that, d3.mouse(this));
+      })
+      .on('mouseout', () => this.onMouseMove(null));
+
 
     this.update();
   }
@@ -111,9 +235,11 @@ export default class LineChart extends PureComponent {
     const legendData = series.map(oneSeries => ({
       id: oneSeries.meta.client_asn_number,
       label: oneSeries.meta.client_asn_name,
+      series: oneSeries,
     })).concat(annotationSeries.map(oneSeries => ({
       id: oneSeries.meta.client_city,
       label: oneSeries.meta.client_city,
+      series: oneSeries,
     })));
 
     const entryMarginRight = 14;
@@ -153,7 +279,8 @@ export default class LineChart extends PureComponent {
    */
   makeVisComponents(props) {
     const { series, forceZeroMin, height, innerMarginLeft = 50,
-      innerMarginRight = 20, width, xExtent, xKey, yExtent, yKey } = props;
+      innerMarginRight = 20, width, xExtent, xKey, yExtent, yKey,
+      yFormatter } = props;
     let { annotationSeries, xScale } = props;
 
 
@@ -223,7 +350,7 @@ export default class LineChart extends PureComponent {
       .defined(d => d[yKey] != null)
       .accessData(d => d.results)
       .lineStyles({
-        stroke: (d) => colors[d.meta.client_asn_number],
+        stroke: (d) => colors[d.meta.client_asn_number] || '#aaa',
         'stroke-width': 1.5,
       });
 
@@ -256,6 +383,7 @@ export default class LineChart extends PureComponent {
       xKey,
       yScale,
       yKey,
+      yFormatter,
     };
   }
 
@@ -264,23 +392,63 @@ export default class LineChart extends PureComponent {
    */
   update() {
     // ensure we have room for the legend
-    const { innerMargin } = this.visComponents;
+    const { innerMargin, innerHeight, innerWidth } = this.visComponents;
     this.g.attr('transform', `translate(${innerMargin.left} ${innerMargin.top})`);
+    this.mouseListener
+      .attr('width', innerWidth)
+      .attr('height', innerHeight + 25); // plus some to cover part of the x axis
+
 
     this.renderLegend();
     this.renderAxes();
     this.renderAnnotationLines();
     this.renderLines();
+    this.renderHighlightDate();
+    this.renderHighlightLine();
+  }
+
+  renderHighlightDate() {
+    const { highlightDate } = this.props;
+    const { xScale, innerHeight } = this.visComponents;
+
+    // render the x-axis marker for highlightDate
+    if (highlightDate == null) {
+      this.highlightDate.style('display', 'none');
+    } else {
+      this.highlightDate
+        .style('display', '')
+        .attr('transform', `translate(${xScale(highlightDate)} 0)`);
+      this.highlightDate.select('line')
+        .attr('y2', innerHeight + 3);
+    }
+  }
+
+  renderHighlightLine() {
+    // render the highlight line
+    const { highlightLine } = this.props;
+    const { lineChunked, innerWidth, innerHeight } = this.visComponents;
+
+    if (!highlightLine) {
+      this.highlightLine.style('display', 'none');
+    } else {
+      this.highlightLine.style('display', '');
+      this.highlightLine.select('g').datum(highlightLine).call(lineChunked);
+      this.highlightLine.select('.series-overlay')
+        .attr('width', innerWidth)
+        .attr('height', innerHeight);
+    }
   }
 
   renderLegend() {
-    const { legend, colors } = this.visComponents;
+    const { highlightDate } = this.props;
+    const { legend, colors, xKey, yKey, yFormatter } = this.visComponents;
 
     this.legend.attr('transform', `translate(0 ${-legend.height})`);
 
     const binding = this.legend.selectAll('.legend-entry').data(legend.data, d => d.id);
     binding.exit().remove();
 
+    const that = this;
     const entering = binding.enter().append('g')
       .attr('class', 'legend-entry')
       .each(function legendEnter(d) {
@@ -298,13 +466,6 @@ export default class LineChart extends PureComponent {
             .attr('width', legend.entry.width)
             .attr('height', legend.entry.height);
 
-        // mouse listener rect
-        root.append('rect')
-          .attr('width', legend.entry.width)
-          .attr('height', legend.entry.height)
-          .style('fill', 'none')
-          .style('stroke', 'none')
-          .on('click', () => console.log('click', d));
 
         root.append('rect')
           .attr('class', 'legend-color-box')
@@ -332,6 +493,16 @@ export default class LineChart extends PureComponent {
           .attr('x', legend.entry.width)
           .attr('text-anchor', 'end')
           .style('fill', colors[d.id] || '#aaa');
+
+        // mouse listener rect
+        root.append('rect')
+          .attr('width', legend.entry.width)
+          .attr('height', legend.entry.height)
+          .style('fill', '#f00')
+          .style('stroke', 'none')
+          .style('opacity', 0)
+          .on('mouseenter', () => that.onHoverLegendEntry.call(that, d.series))
+          .on('mouseleave', () => that.onHoverLegendEntry.call(that, null));
       });
 
     binding.merge(entering)
@@ -348,6 +519,15 @@ export default class LineChart extends PureComponent {
 
         // TODO: get highlight values
         let highlightValue;
+        if (highlightDate) {
+          // find equal (TODO should use binary search)
+          highlightValue = findEqualUnsorted(d.series.results, highlightDate.unix(), d => d[xKey].unix());
+          if (highlightValue[yKey] != null) {
+            highlightValue = yFormatter(highlightValue[yKey]);
+          } else {
+            highlightValue = '--';
+          }
+        }
 
         if (highlightValue != null) {
           const valueText = root.select('.legend-entry-value')
