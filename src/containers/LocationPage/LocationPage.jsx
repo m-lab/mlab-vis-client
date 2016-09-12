@@ -373,7 +373,7 @@ class LocationPage extends PureComponent {
             series={clientIspTimeSeries}
             annotationSeries={locationTimeSeries}
             height={400}
-            width={800}
+            width={840}
             xKey="date"
             yKey={viewMetric.dataKey}
           />
