@@ -1,7 +1,9 @@
 import React, { PureComponent, PropTypes } from 'react';
+import moment from 'moment';
 import d3 from 'd3';
 import { multiExtent } from '../../utils/array';
 import { colorsFor } from '../../utils/color';
+
 
 import './LineChartSmallMult.scss';
 
@@ -41,6 +43,19 @@ export default class LineChartSmallMult extends PureComponent {
     metrics: [],
   }
 
+  constructor(props) {
+    super(props);
+
+    this.state = {
+      hover: false,
+      mouse: { x: 0, y: 0 },
+    };
+
+    this.onMouseOver = this.onMouseOver.bind(this);
+    this.onMouseOut = this.onMouseOut.bind(this);
+    this.onMouseMove = this.onMouseMove.bind(this);
+  }
+
   /**
    * Initiailize the vis components when the component is about to mount
    */
@@ -74,6 +89,79 @@ export default class LineChartSmallMult extends PureComponent {
   }
 
   /**
+   * Mouse over callback
+   */
+  onMouseOver() {
+    this.setState({ hover: true });
+  }
+
+  /**
+   * Mouse out callback
+   */
+  onMouseOut() {
+    this.setState({ hover: false });
+  }
+
+  /**
+   * Mouse move callback. gets mouse position relative to chart and
+   * save it in state.
+   * @param {Object} evnt React Event
+   */
+  onMouseMove(evnt) {
+    const rawMouse = this.getDocumentRelativeCursorPosition(evnt);
+    const offset = this.getElementOffsetPosition(evnt.currentTarget);
+    const mouse = this.getOffsetCursorPosition(rawMouse, offset);
+    this.setState({ mouse });
+  }
+
+  /**
+   * Given x and y of a cursor and the x/y of a element to offset by,
+   * returns x/y of the cursor within that element.
+   * extracted from: https://github.com/ethanselzer/react-cursor-position/blob/master/src/ReactCursorPosition.js
+   *
+   * @param {Object} documentRelativeCursorPosition {x,y} of cursor
+   * @param {Object} elementOffset {x,y} of element to offset by
+   * @return {Object} xy object of mouse position relative to element
+   */
+  getOffsetCursorPosition(documentRelativeCursorPosition, elementOffset) {
+    const { x: cursorX, y: cursorY } = documentRelativeCursorPosition;
+    const { x: offsetX, y: offsetY } = elementOffset;
+
+    return {
+      x: cursorX - offsetX,
+      y: cursorY - offsetY,
+    };
+  }
+
+  /**
+   * Get position of mouse in the document
+   * @param {Object} evnt React Event
+   * @return {Object} xy object of mouse position
+   */
+  getDocumentRelativeCursorPosition(evnt) {
+    return {
+      x: evnt.pageX,
+      y: evnt.pageY,
+    };
+  }
+
+  /**
+   * Get position of a target element in the DOM
+   * @param {Object} target DOM element
+   * @return {Object} xy object offset location
+   */
+  getElementOffsetPosition(target) {
+    // TODO: this doesn't take into account scroll.
+    // so the y value is wrong. Since I only really use
+    // x, doesn't matter here...
+    const boundingRect = target.getBoundingClientRect();
+    return {
+      x: boundingRect.left,
+      y: boundingRect.top,
+    };
+  }
+
+  /**
    * Initialize the d3 chart - this is run once on mount
    */
   setup() {
@@ -93,13 +181,14 @@ export default class LineChartSmallMult extends PureComponent {
             xKey,
             metrics,
             chartHeight,
+            timeAggregation,
             innerMarginLeft = 50,
             innerMarginRight = 20,
             innerMarginTop = 40,
             chartPadding = 30,
           } = props;
 
-    let { annotationSeries, xScale } = props;
+    let { xScale } = props;
 
     const innerMargin = {
       top: innerMarginTop,
@@ -146,14 +235,13 @@ export default class LineChartSmallMult extends PureComponent {
 
     // use the props xScale if provided, otherwise compute it
     if (!xScale) {
-      xScale = d3.scaleTime().range([xMin, xMax]);
+      xScale = d3.scaleTime().range([xMin, xMax]).clamp(true);
       if (xDomain) {
         xScale.domain(xDomain);
       }
     }
 
-    // initialize a color scale
-    // TODO: this should be moved out and shared among components.
+    // get colors
     let colors = {};
     if (series) {
       colors = colorsFor(series, (d) => d.meta.client_asn_number);
@@ -178,14 +266,9 @@ export default class LineChartSmallMult extends PureComponent {
       );
     }
 
-    // ensure annotation series is an array
-    if (annotationSeries && !Array.isArray(annotationSeries)) {
-      annotationSeries = [annotationSeries];
-    }
+    const bisector = d3.bisector((d) => d[xKey]).left;
 
     return {
-      // annotationLineChunked,
-      annotationSeries,
       colors,
       height,
       innerHeight,
@@ -202,6 +285,8 @@ export default class LineChartSmallMult extends PureComponent {
       xKey,
       yScales,
       metrics,
+      bisector,
+      timeAggregation,
     };
   }
 
@@ -263,19 +348,83 @@ export default class LineChartSmallMult extends PureComponent {
   /**
    * React style building of chart
    */
-  renderChart(series, seriesIndex, yKey, index) {
+  renderChart(series, seriesIndex, yKey, metricIndex) {
     const { chartWidth, chartPadding, showBaseline } = this.visComponents;
     // TODO: change to just .id once data consistently has id and name value
     const seriesId = (showBaseline && seriesIndex === 0) ? series.meta.client_city : series.meta.client_asn_number;
     const chartId = `${seriesId}-${yKey}`;
-    const xPos = (chartWidth + chartPadding) * index;
+    const xPos = (chartWidth + chartPadding) * metricIndex;
 
     return (
-      <g
-        id={chartId}
+      <g key={chartId} transform={`translate(${xPos},${0})`} >
+        <g
+          id={chartId}
+          ref={node => { this.chartNodes[chartId] = node; }}
+        />
+      { this.renderChartLabels(series, chartId, seriesIndex, yKey, metricIndex) }
+      { this.renderChartBackground(chartId) }
+      </g>
+    );
+  }
+
+  /**
+   * React style addition of labels on mouseover
+   */
+  renderChartLabels(series, chartId, seriesIndex, yKey, metricIndex) {
+    const { hover, mouse } = this.state;
+    const { xScale, yScales, colors, bisector, showBaseline, timeAggregation } = this.visComponents;
+
+    const xValue = moment(xScale.invert(mouse.x)).startOf(timeAggregation);
+
+    const index = bisector(series.results, xValue, 0, series.results.length - 1);
+    const yValue = series.results[index][yKey];
+    const color = ((showBaseline && seriesIndex === 0) ? '#bbb' : colors[series.meta.client_asn_number]);
+    const darkColor = d3.color(color).darker();
+
+    if (hover && yValue) {
+      return (
+        <g>
+          <circle
+            cx={xScale(xValue)}
+            cy={yScales[metricIndex](yValue)}
+            r={3}
+            fill={darkColor}
+          />
+          <text
+            x={xScale(xValue)}
+            y={yScales[metricIndex](yValue)}
+            dy={3}
+            dx={6}
+            textAnchor="start"
+            className="small-mult-label small-mult-hover-label"
+          >
+            {yValue}
+          </text>
+        </g>
+      );
+    }
+
+    return null;
+  }
+
+  /**
+   * React style addition of mouseover box
+   */
+  renderChartBackground(chartId) {
+    const { chartWidth, chartHeight, chartPadding } = this.visComponents;
+    return (
+      <rect
+        className="small-mult-chart-background"
         key={chartId}
-        ref={node => { this.chartNodes[chartId] = node; }}
-        transform={`translate(${xPos},${0})`}
+        x={0}
+        y={0}
+        width={chartWidth + chartPadding}
+        height={chartHeight}
+        onMouseOver={this.onMouseOver}
+        onMouseOut={this.onMouseOut}
+        onMouseMove={this.onMouseMove}
+        fill="none"
+        pointerEvents="all"
       />
     );
   }
@@ -302,7 +451,7 @@ export default class LineChartSmallMult extends PureComponent {
         <text
           className="small-mult-label small-mult-name"
           y={yPosText}
-          dy={-4}
+          dy={-14}
         >
           {seriesName}
         </text>
@@ -317,14 +466,14 @@ export default class LineChartSmallMult extends PureComponent {
   renderLabels() {
     const { chartWidth, chartPadding, metrics, innerMargin } = this.visComponents;
     const labels = metrics.map((metric, index) => {
-      const xPos = (chartWidth / 2) + ((chartWidth + chartPadding) * index);
+      const xPos = ((chartWidth + chartPadding) * index);
       return (
         <text
           key={metric.dataKey}
-          className="small-mult-label"
+          className="small-mult-label small-mult-title"
           x={xPos}
           y={chartPadding}
-          textAnchor="middle"
+          textAnchor="start"
         >{metric.label}</text>
 
       );
