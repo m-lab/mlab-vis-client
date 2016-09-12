@@ -21,7 +21,7 @@ export default function queryRebuild(urlQuery, urlQueryConfig) {
 
   configValues.forEach((config) => {
     // persist defaults to true.
-    if ((config.persist === undefined) || (config.persist)) {
+    if (config.persist !== false) {
       const urlKey = config.urlKey;
       if (urlQuery[urlKey]) {
         rebuiltQuery[urlKey] = urlQuery[urlKey];
