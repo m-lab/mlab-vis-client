@@ -1,6 +1,7 @@
 import React, { PureComponent, PropTypes } from 'react';
 import d3 from 'd3';
 import { multiExtent } from '../../utils/array';
+import { colorsFor } from '../../utils/color';
 
 import './LineChart.scss';
 
@@ -150,9 +151,9 @@ export default class LineChart extends PureComponent {
     }
 
     // initialize a color scale
-    const color = d3.scaleOrdinal(d3.schemeCategory10);
+    let colors = {};
     if (series) {
-      color.domain(d3.range(series.length));
+      colors = colorsFor(series, (d) => d.meta.client_asn_number);
     }
 
     // function to generate paths for each series
@@ -163,7 +164,7 @@ export default class LineChart extends PureComponent {
       .defined(d => d[yKey] != null)
       .accessData(d => d.results)
       .lineStyles({
-        stroke: (d, i) => color(i),
+        stroke: (d) => colors[d.meta.client_asn_number],
         'stroke-width': 1.5,
       });
 
@@ -187,7 +188,7 @@ export default class LineChart extends PureComponent {
     return {
       annotationLineChunked,
       annotationSeries,
-      color,
+      colors,
       height,
       innerHeight,
       innerMargin,

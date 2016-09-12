@@ -1,6 +1,7 @@
 import React, { PureComponent, PropTypes } from 'react';
 import d3 from 'd3';
 import { multiExtent } from '../../utils/array';
+import { colorsFor } from '../../utils/color';
 
 import './LineChartSmallMult.scss';
 
@@ -153,9 +154,9 @@ export default class LineChartSmallMult extends PureComponent {
 
     // initialize a color scale
     // TODO: this should be moved out and shared among components.
-    const color = d3.scaleOrdinal(d3.schemeCategory10);
+    let colors = {};
     if (series) {
-      color.domain(series.map(s => s.meta.client_asn_number));
+      colors = colorsFor(series, (d) => d.meta.client_asn_number);
     }
 
     // create lineChunked generators for all ykeys
@@ -171,7 +172,7 @@ export default class LineChartSmallMult extends PureComponent {
           .accessData(d => d.results)
           .lineStyles({
             // first element is baseline value
-            stroke: (d, i) => ((showBaseline && i === 0) ? '#bbb' : color(d.meta.client_asn_number)),
+            stroke: (d, i) => ((showBaseline && i === 0) ? '#bbb' : colors[d.meta.client_asn_number]),
             'stroke-width': (d, i) => ((showBaseline && i === 0) ? 1 : 1.5),
           })
       );
@@ -185,7 +186,7 @@ export default class LineChartSmallMult extends PureComponent {
     return {
       // annotationLineChunked,
       annotationSeries,
-      color,
+      colors,
       height,
       innerHeight,
       innerMargin,

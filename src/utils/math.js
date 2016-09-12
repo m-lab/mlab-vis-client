@@ -1,3 +1,12 @@
+
+/**
+ * Return modulo of a number
+ */
+export function mod(num, mod) {
+  const remain = num % mod;
+  return Math.floor(remain >= 0 ? remain : remain + mod);
+}
+
 /**
  * Helper function to make an accessor from a string or function.
  *
