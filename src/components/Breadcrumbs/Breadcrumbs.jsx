@@ -11,6 +11,7 @@ import './Breadcrumbs.scss';
 export default class Breadcrumbs extends PureComponent {
   static propTypes = {
     info: PropTypes.object,
+    query: PropTypes.object,
   }
 
   static defaultProps = {
@@ -18,7 +19,7 @@ export default class Breadcrumbs extends PureComponent {
   }
 
   render() {
-    const { info } = this.props;
+    const { info, query } = this.props;
     const { name, parents = [] } = info;
 
     return (
@@ -26,7 +27,7 @@ export default class Breadcrumbs extends PureComponent {
         <ul className="list-inline">
           {parents.map(parent => (
             <li key={parent.locationKey}>
-              <Link to={`/location/${parent.locationKey}`}>{parent.name}</Link>
+              <Link to={`/location/${parent.locationKey}`} query={query}>{parent.name}</Link>
               <span className="breadcrumb-separator">/</span>
             </li>
           ))}
