@@ -44,6 +44,9 @@ export default class LineChartSmallMult extends PureComponent {
    * Initiailize the vis components when the component is about to mount
    */
   componentWillMount() {
+    // Holds refs to chart nodes for line updating.
+    this.chartNodes = {};
+
     this.visComponents = this.makeVisComponents(this.props);
   }
 
@@ -73,9 +76,6 @@ export default class LineChartSmallMult extends PureComponent {
    * Initialize the d3 chart - this is run once on mount
    */
   setup() {
-    // Holds refs to chart nodes for line updating.
-    this.chartNodes = {};
-
     this.update();
   }
 
