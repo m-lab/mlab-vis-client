@@ -26,6 +26,7 @@ import {
 
 import UrlHandler from '../../url/UrlHandler';
 import urlConnect from '../../url/urlConnect';
+import queryRebuild from '../../url/queryRebuild';
 
 import './LocationPage.scss';
 
@@ -42,7 +43,7 @@ const urlQueryConfig = {
   startDate: { type: 'date', urlKey: 'start', defaultValue: moment('2015-10-1') },
   endDate: { type: 'date', urlKey: 'end', defaultValue: moment('2015-11-1') },
   timeAggregation: { type: 'string', defaultValue: 'day', urlKey: 'aggr' },
-  selectedClientIspIds: { type: 'array', urlKey: 'isps' },
+  selectedClientIspIds: { type: 'array', urlKey: 'isps', persist: false },
 };
 const urlHandler = new UrlHandler(urlQueryConfig, browserHistory);
 
@@ -531,10 +532,13 @@ class LocationPage extends PureComponent {
   }
 
   renderBreadCrumbs() {
-    const { locationInfo } = this.props;
+    const { locationInfo, location } = this.props;
 
     return (
-      <Breadcrumbs info={locationInfo} />
+      <Breadcrumbs
+        info={locationInfo}
+        query={queryRebuild(location.query, urlQueryConfig)}
+      />
     );
   }
 
