@@ -31,3 +31,42 @@ export function multiExtent(outerArray, valueAccessor = d => d, arrayAccessor = 
   const extent = [d3.min(innerExtents, d => d[0]), d3.max(innerExtents, d => d[1])];
   return extent;
 }
+
+/**
+ * Helper function to compute distance and find the closest item
+ * Since it assumes the data is unsorted, it does a linear scan O(n).
+ *
+ * @param {Array} array the input array to search
+ * @param {Number} value the value to match against (typically pixels)
+ * @param {Function} accessor applied to each item in the array to get equivalent
+ *   value to compare against
+ * @return {Any} The item in the array that is closest to `value`
+ */
+export function findClosestUnsorted(array, value, accessor = d => d) {
+  let closest = null;
+  let closestDist = null;
+
+  array.forEach((elem) => {
+    const dist = Math.abs(accessor(elem) - value);
+    if (closestDist == null || dist < closestDist) {
+      closestDist = dist;
+      closest = elem;
+    }
+  });
+
+  return closest;
+}
+
+/**
+ * Helper function to find the item that matches this value.
+ * Since it assumes the data is unsorted, it does a linear scan O(n).
+ *
+ * @param {Array} array the input array to search
+ * @param {Number} value the value to match against (typically pixels)
+ * @param {Function} accessor applied to each item in the array to get equivalent
+ *   value to compare against
+ * @return {Any} The item in the array that has this value or null if not found
+ */
+export function findEqualUnsorted(array, value, accessor = d => d) {
+  return array.find(d => accessor(d) === value);
+}
