@@ -1,7 +1,7 @@
 import React, { PureComponent, PropTypes } from 'react';
 import moment from 'moment';
 import d3 from 'd3';
-import { multiExtent } from '../../utils/array';
+import { multiExtent, findClosestSorted } from '../../utils/array';
 import { colorsFor } from '../../utils/color';
 
 
@@ -220,8 +220,6 @@ export default class LineChartSmallMult extends PureComponent {
       );
     }
 
-    const bisector = d3.bisector((d) => d[xKey]).left;
-
     return {
       colors,
       height,
@@ -239,7 +237,6 @@ export default class LineChartSmallMult extends PureComponent {
       xKey,
       yScales,
       metrics,
-      bisector,
       timeAggregation,
     };
   }
@@ -335,12 +332,13 @@ export default class LineChartSmallMult extends PureComponent {
    */
   renderChartLabels(series, chartId, seriesIndex, yKey, metricIndex) {
     const { hover, mouse } = this.state;
-    const { xScale, yScales, colors, bisector, showBaseline, timeAggregation } = this.visComponents;
+    const { xScale, yScales, colors, xKey, showBaseline } = this.visComponents;
 
-    const xValue = moment(xScale.invert(mouse[0])).startOf(timeAggregation);
+    // find the value closest to the mouse's x coordinate
+    const closest = findClosestSorted(series.results, mouse[0], d => xScale(d[xKey]));
+    const xValue = closest[xKey];
+    const yValue = closest[yKey];
 
-    const index = bisector(series.results, xValue, 0, series.results.length - 1);
-    const yValue = series.results[index][yKey];
     const color = ((showBaseline && seriesIndex === 0) ? '#bbb' : colors[series.meta.client_asn_number]);
     const darkColor = d3.color(color).darker();
 
