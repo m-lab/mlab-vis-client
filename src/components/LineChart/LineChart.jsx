@@ -2,6 +2,7 @@ import React, { PureComponent, PropTypes } from 'react';
 import d3 from 'd3';
 import { multiExtent, findClosestSorted, findEqualSorted } from '../../utils/array';
 import { colorsFor } from '../../utils/color';
+import { Legend } from '../../d3-components';
 
 import './LineChart.scss';
 
@@ -49,6 +50,13 @@ export default class LineChart extends PureComponent {
     xKey: 'x',
     yFormatter: d => d,
     yKey: 'y',
+  }
+
+  constructor(...args) {
+    super(...args);
+
+    // bind handlers
+    this.onHoverLegendEntry = this.onHoverLegendEntry.bind(this);
   }
 
   /**
@@ -142,7 +150,8 @@ export default class LineChart extends PureComponent {
     this.g = d3.select(this.root)
       .append('g'); // transformed to have margin in update()
 
-    this.legend = this.g.append('g').classed('legend', true);
+
+    this.legendContainer = this.g.append('g').classed('legend', true);
 
     // add in axis groups
     this.xAxis = this.g.append('g').classed('x-axis', true);
@@ -184,54 +193,6 @@ export default class LineChart extends PureComponent {
   }
 
   /**
-   * Helper function to make components necessary for the legend
-   */
-  makeLegendComponents(series = [], annotationSeries = [], legendWidth) {
-    // TODO: for now just assume what ID and Label are
-    // TODO: this means we need to update how we transform the data to have ID and label
-    // make legend data
-    const legendData = series.map(oneSeries => ({
-      id: oneSeries.meta.client_asn_number,
-      label: oneSeries.meta.client_asn_name,
-      series: oneSeries,
-    })).concat(annotationSeries.map(oneSeries => ({
-      id: oneSeries.meta.client_city,
-      label: oneSeries.meta.client_city,
-      series: oneSeries,
-    })));
-
-    const entryMarginRight = 14;
-    const minEntryWidth = 180;
-    const maxEntriesPerRow = 3;
-
-    const entry = {
-      height: 14,
-      width: Math.max(Math.floor(legendWidth / maxEntriesPerRow) - entryMarginRight, minEntryWidth),
-      margin: { bottom: 4, right: entryMarginRight },
-    };
-
-    const colorBox = {
-      width: 8,
-      margin: 2,
-    };
-
-    const numEntriesPerRow = Math.floor(legendWidth / entry.width);
-    const numRows = Math.ceil(legendData.length / numEntriesPerRow);
-    const legendPaddingBottom = 4;
-    const height = (numRows * (entry.height + entry.margin.bottom)) + legendPaddingBottom;
-
-    return {
-      colorBox,
-      data: legendData,
-      entry,
-      height,
-      numEntriesPerRow,
-      numRows,
-      width: legendWidth,
-    };
-  }
-
-  /**
    * Figure out what is needed to render the chart
    * based on the props of the component
    */
@@ -247,6 +208,12 @@ export default class LineChart extends PureComponent {
       annotationSeries = [annotationSeries];
     }
 
+    // initialize a color scale
+    let colors = {};
+    if (series) {
+      colors = colorsFor(series, (d) => d.meta.client_asn_number);
+    }
+
     const innerMargin = {
       top: 20,
       right: innerMarginRight,
@@ -257,7 +224,14 @@ export default class LineChart extends PureComponent {
     const innerWidth = width - innerMargin.left - innerMargin.right;
 
     // compute legend properties and make room for it at the top.
-    const legend = this.makeLegendComponents(series, annotationSeries, innerWidth);
+    const legend = new Legend({
+      data: series,
+      colors,
+      formatter: yFormatter,
+      width: innerWidth,
+      onHoverLegendEntry: this.onHoverLegendEntry,
+    });
+
     innerMargin.top += legend.height;
 
     const innerHeight = height - innerMargin.top - innerMargin.bottom;
@@ -294,11 +268,6 @@ export default class LineChart extends PureComponent {
       yScale.domain(yDomain);
     }
 
-    // initialize a color scale
-    let colors = {};
-    if (series) {
-      colors = colorsFor(series, (d) => d.meta.client_asn_number);
-    }
 
     // function to generate paths for each series
     const lineChunked = d3.lineChunked()
@@ -398,111 +367,8 @@ export default class LineChart extends PureComponent {
   }
 
   renderLegend() {
-    const { highlightDate } = this.props;
-    const { legend, colors, xKey, yKey, yFormatter } = this.visComponents;
-
-    this.legend.attr('transform', `translate(0 ${-legend.height})`);
-
-    const binding = this.legend.selectAll('.legend-entry').data(legend.data, d => d.id);
-    binding.exit().remove();
-
-    const that = this;
-    const entering = binding.enter().append('g')
-      .attr('class', 'legend-entry')
-      .each(function legendEnter(d) {
-        const root = d3.select(this);
-
-        const entryId = String(Math.random()).replace(/\./, '');
-        const clipId = `legend-clip-${entryId}`;
-        root.attr('clip-path', `url(#${clipId})`);
-
-        // add in the clipping rects
-        root.append('defs')
-          .append('clipPath')
-            .attr('id', clipId)
-          .append('rect')
-            .attr('width', legend.entry.width)
-            .attr('height', legend.entry.height);
-
-
-        root.append('rect')
-          .attr('class', 'legend-color-box')
-          .attr('y', 3)
-          .attr('width', legend.colorBox.width)
-          .attr('height', legend.colorBox.width)
-          .style('fill', colors[d.id] || '#aaa');
-
-        root.append('text')
-          .attr('class', 'legend-entry-label')
-          .attr('x', legend.colorBox.width + legend.colorBox.margin)
-          .attr('dy', 12)
-          .text(d.label);
-
-        root.append('rect')
-          .attr('class', 'legend-entry-value-bg')
-          .attr('x', legend.entry.width)
-          .attr('width', 0)
-          .attr('height', legend.entry.height)
-          .style('fill', '#fff');
-
-        root.append('text')
-          .attr('class', 'legend-entry-value')
-          .attr('dy', 12)
-          .attr('x', legend.entry.width)
-          .attr('text-anchor', 'end')
-          .style('fill', colors[d.id] || '#aaa');
-
-        // mouse listener rect
-        root.append('rect')
-          .attr('width', legend.entry.width)
-          .attr('height', legend.entry.height)
-          .style('fill', '#f00')
-          .style('stroke', 'none')
-          .style('opacity', 0)
-          .on('mouseenter', () => that.onHoverLegendEntry.call(that, d.series))
-          .on('mouseleave', () => that.onHoverLegendEntry.call(that, null));
-      });
-
-    binding.merge(entering)
-      .attr('transform', (d, i) => {
-        const rowNum = Math.floor(i / legend.numEntriesPerRow);
-        const numInRow = i % legend.numEntriesPerRow;
-
-        const x = numInRow * (legend.entry.width + legend.entry.margin.right);
-        const y = rowNum * (legend.entry.height + legend.entry.margin.bottom);
-        return `translate(${x} ${y})`;
-      })
-      .each(function legendUpdate(d) {
-        const root = d3.select(this);
-
-        // TODO: get highlight values
-        let highlightValue;
-        if (highlightDate) {
-          // find equal (TODO should use binary search)
-          highlightValue = findEqualSorted(d.series.results, highlightDate.unix(), d => d[xKey].unix());
-          if (highlightValue[yKey] != null) {
-            highlightValue = yFormatter(highlightValue[yKey]);
-          } else {
-            highlightValue = '--';
-          }
-        }
-
-        if (highlightValue != null) {
-          const valueText = root.select('.legend-entry-value')
-            .style('display', '')
-            .text(highlightValue);
-
-          const valueTextBBox = valueText.node().getBBox();
-          const valueTextMargin = 4;
-          root.select('.legend-entry-value-bg')
-            .style('display', '')
-            .attr('x', Math.floor(valueTextBBox.x) - valueTextMargin)
-            .attr('width', (2 * valueTextMargin) + Math.ceil(valueTextBBox.width));
-        } else {
-          root.select('.legend-entry-value').style('display', 'none');
-          root.select('.legend-entry-value-bg').style('display', 'none');
-        }
-      });
+    const { legend } = this.visComponents;
+    legend.render(this.legendContainer);
   }
 
   /**
