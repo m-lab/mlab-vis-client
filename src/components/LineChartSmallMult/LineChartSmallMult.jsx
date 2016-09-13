@@ -48,7 +48,7 @@ export default class LineChartSmallMult extends PureComponent {
 
     this.state = {
       hover: false,
-      mouse: { x: 0, y: 0 },
+      mouse: [0, 0],
     };
 
     this.onMouseOver = this.onMouseOver.bind(this);
@@ -62,6 +62,10 @@ export default class LineChartSmallMult extends PureComponent {
   componentWillMount() {
     // Holds refs to chart nodes for line updating.
     this.chartNodes = {};
+
+    // holds refs to backgrounds of charts so we can do
+    // mouseover with d3.mouse
+    this.backgroundNodes = {};
 
     this.visComponents = this.makeVisComponents(this.props);
   }
@@ -105,60 +109,10 @@ export default class LineChartSmallMult extends PureComponent {
   /**
    * Mouse move callback. gets mouse position relative to chart and
    * save it in state.
-   * @param {Object} evnt React Event
+   * @param {Array} mouse Mouse [x,y] position relative to chart
    */
-  onMouseMove(evnt) {
-    const rawMouse = this.getDocumentRelativeCursorPosition(evnt);
-    const offset = this.getElementOffsetPosition(evnt.currentTarget);
-    const mouse = this.getOffsetCursorPosition(rawMouse, offset);
+  onMouseMove(mouse) {
     this.setState({ mouse });
-  }
-
-  /**
-   * Given x and y of a cursor and the x/y of a element to offset by,
-   * returns x/y of the cursor within that element.
-   * extracted from: https://github.com/ethanselzer/react-cursor-position/blob/master/src/ReactCursorPosition.js
-   *
-   * @param {Object} documentRelativeCursorPosition {x,y} of cursor
-   * @param {Object} elementOffset {x,y} of element to offset by
-   * @return {Object} xy object of mouse position relative to element
-   */
-  getOffsetCursorPosition(documentRelativeCursorPosition, elementOffset) {
-    const { x: cursorX, y: cursorY } = documentRelativeCursorPosition;
-    const { x: offsetX, y: offsetY } = elementOffset;
-
-    return {
-      x: cursorX - offsetX,
-      y: cursorY - offsetY,
-    };
-  }
-
-  /**
-   * Get position of mouse in the document
-   * @param {Object} evnt React Event
-   * @return {Object} xy object of mouse position
-   */
-  getDocumentRelativeCursorPosition(evnt) {
-    return {
-      x: evnt.pageX,
-      y: evnt.pageY,
-    };
-  }
-
-  /**
-   * Get position of a target element in the DOM
-   * @param {Object} target DOM element
-   * @return {Object} xy object offset location
-   */
-  getElementOffsetPosition(target) {
-    // TODO: this doesn't take into account scroll.
-    // so the y value is wrong. Since I only really use
-    // x, doesn't matter here...
-    const boundingRect = target.getBoundingClientRect();
-    return {
-      x: boundingRect.left,
-      y: boundingRect.top,
-    };
   }
 
   /**
@@ -341,6 +295,15 @@ export default class LineChartSmallMult extends PureComponent {
 
         // EXIT
         binding.exit().remove();
+
+        // handle mouse over
+        const that = this;
+        d3.select(this.backgroundNodes[chartId])
+          .on('mousemove', function mouseMoveListener() {
+            that.onMouseMove(d3.mouse(this));
+          })
+          .on('mouseover', this.onMouseOver)
+          .on('mouseout', this.onMouseOut);
       });
     });
   }
@@ -374,7 +337,7 @@ export default class LineChartSmallMult extends PureComponent {
     const { hover, mouse } = this.state;
     const { xScale, yScales, colors, bisector, showBaseline, timeAggregation } = this.visComponents;
 
-    const xValue = moment(xScale.invert(mouse.x)).startOf(timeAggregation);
+    const xValue = moment(xScale.invert(mouse[0])).startOf(timeAggregation);
 
     const index = bisector(series.results, xValue, 0, series.results.length - 1);
     const yValue = series.results[index][yKey];
@@ -416,13 +379,11 @@ export default class LineChartSmallMult extends PureComponent {
       <rect
         className="small-mult-chart-background"
         key={chartId}
+        ref={node => { this.backgroundNodes[chartId] = node; }}
         x={0}
         y={0}
         width={chartWidth + chartPadding}
         height={chartHeight}
-        onMouseOver={this.onMouseOver}
-        onMouseOut={this.onMouseOut}
-        onMouseMove={this.onMouseMove}
         fill="none"
         pointerEvents="all"
       />
