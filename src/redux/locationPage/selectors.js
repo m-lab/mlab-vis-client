@@ -61,6 +61,15 @@ export function getHighlightHourly(state) {
   return state.locationPage.highlightHourly;
 }
 
+export function getHighlightTimeSeriesDate(state) {
+  return state.locationPage.highlightTimeSeriesDate;
+}
+
+export function getHighlightTimeSeriesLine(state) {
+  return state.locationPage.highlightTimeSeriesLine;
+}
+
+
 /**
  * Input selector to get the currently viewed metric
  * @param {Object} state the redux state

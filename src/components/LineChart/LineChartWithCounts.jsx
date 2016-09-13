@@ -12,12 +12,18 @@ import { multiExtent } from '../../utils/array';
  * @prop {Array} data The array of data points to render (e.g., [{x: Date, y: Number}, ...])
  * @prop {Boolean} forceZeroMin=true Whether the min y value should always be 0.
  * @prop {Number} height The height in pixels of the SVG chart
+ * @prop {Object} highlightDate The date being highlighted in the chart
+ * @prop {Object} highlightLine The line being highlighted in the chart
  * @prop {String} id The ID of the SVG chart (needed for PNG export)
+ * @prop {Function} onHighlightDate Callback when the mouse moves across the main area of the chart
+ *   passes in the hovered upon date
+ * @prop {Function} onHighlightLine Callback when a series is highlighted
  * @prop {Array} series The array of series data (e.g., [{ meta, results }, ...])
  * @prop {Number} width The width in pixels of the SVG chart
  * @prop {Array} xExtent The min and max value of the xKey in the chart
  * @prop {String} xKey="x" The key to read the x value from in the data
  * @prop {Array} yExtent The min and max value of the yKey in the chart
+ * @prop {Function} yFormatter Format function that takes a y value and outputs a string
  * @prop {String} yKey="y" The key to read the y value from in the data
  */
 export default class LineChartWithCounts extends PureComponent {
@@ -26,12 +32,17 @@ export default class LineChartWithCounts extends PureComponent {
     data: PropTypes.array,
     forceZeroMin: PropTypes.bool,
     height: React.PropTypes.number,
+    highlightDate: React.PropTypes.object,
+    highlightLine: React.PropTypes.object,
     id: React.PropTypes.string,
+    onHighlightDate: React.PropTypes.func,
+    onHighlightLine: React.PropTypes.func,
     series: PropTypes.array,
     width: React.PropTypes.number,
     xExtent: PropTypes.array,
     xKey: React.PropTypes.string,
     yExtent: PropTypes.array,
+    yFormatter: PropTypes.func,
     yKey: React.PropTypes.string,
   }
 

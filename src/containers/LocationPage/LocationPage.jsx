@@ -54,6 +54,8 @@ function mapStateToProps(state, propsWithUrl) {
     clientIspHourly: LocationPageSelectors.getLocationClientIspHourly(state, propsWithUrl),
     clientIspTimeSeries: LocationPageSelectors.getLocationClientIspTimeSeries(state, propsWithUrl),
     highlightHourly: LocationPageSelectors.getHighlightHourly(state, propsWithUrl),
+    highlightTimeSeriesDate: LocationPageSelectors.getHighlightTimeSeriesDate(state, propsWithUrl),
+    highlightTimeSeriesLine: LocationPageSelectors.getHighlightTimeSeriesLine(state, propsWithUrl),
     hourlyStatus: LocationPageSelectors.getLocationHourlyStatus(state, propsWithUrl),
     locationInfo: LocationPageSelectors.getLocationInfo(state, propsWithUrl),
     locationAndClientIspTimeSeries: LocationPageSelectors.getLocationAndClientIspTimeSeries(state, propsWithUrl),
@@ -74,6 +76,8 @@ class LocationPage extends PureComponent {
     dispatch: PropTypes.func,
     endDate: momentPropTypes.momentObj,
     highlightHourly: PropTypes.object,
+    highlightTimeSeriesDate: PropTypes.object,
+    highlightTimeSeriesLine: PropTypes.object,
     hourlyStatus: PropTypes.string,
     location: PropTypes.object, // route location
     locationAndClientIspTimeSeries: PropTypes.array,
@@ -98,6 +102,8 @@ class LocationPage extends PureComponent {
 
     // bind handlers
     this.onHighlightHourly = this.onHighlightHourly.bind(this);
+    this.onHighlightTimeSeriesDate = this.onHighlightTimeSeriesDate.bind(this);
+    this.onHighlightTimeSeriesLine = this.onHighlightTimeSeriesLine.bind(this);
     this.onShowBaselinesChange = this.onShowBaselinesChange.bind(this);
     this.onShowRegionalValuesChange = this.onShowRegionalValuesChange.bind(this);
     this.onViewMetricChange = this.onViewMetricChange.bind(this);
@@ -204,6 +210,23 @@ class LocationPage extends PureComponent {
     const { dispatch } = this.props;
     dispatch(LocationPageActions.highlightHourly(d));
   }
+
+  /**
+   * Callback for when a date is highlighted in time series
+   */
+  onHighlightTimeSeriesDate(date) {
+    const { dispatch } = this.props;
+    dispatch(LocationPageActions.highlightTimeSeriesDate(date));
+  }
+
+  /**
+   * Callback for when a line is highlighted in time series
+   */
+  onHighlightTimeSeriesLine(series) {
+    const { dispatch } = this.props;
+    dispatch(LocationPageActions.highlightTimeSeriesLine(series));
+  }
+
 
   /**
    * Callback for when The Selected Client ISPs change
@@ -358,10 +381,10 @@ class LocationPage extends PureComponent {
 
 
   renderCompareProviders() {
-    const { locationId, locationTimeSeries, timeSeriesStatus, viewMetric, clientIspTimeSeries } = this.props;
+    const { clientIspTimeSeries, highlightTimeSeriesDate, highlightTimeSeriesLine,
+      locationId, locationTimeSeries, timeSeriesStatus, viewMetric } = this.props;
     const chartId = 'providers-time-series';
     const chartData = locationTimeSeries && locationTimeSeries.results;
-
     return (
       <div className="subsection">
         <header>
@@ -373,8 +396,13 @@ class LocationPage extends PureComponent {
             data={chartData}
             series={clientIspTimeSeries}
             annotationSeries={locationTimeSeries}
+            onHighlightDate={this.onHighlightTimeSeriesDate}
+            highlightDate={highlightTimeSeriesDate}
+            onHighlightLine={this.onHighlightTimeSeriesLine}
+            highlightLine={highlightTimeSeriesLine}
+            yFormatter={viewMetric.formatter}
             height={400}
-            width={800}
+            width={840}
             xKey="date"
             yKey={viewMetric.dataKey}
           />
