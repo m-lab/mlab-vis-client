@@ -1,6 +1,6 @@
 import React, { PureComponent, PropTypes } from 'react';
 import d3 from 'd3';
-import { multiExtent, findClosestUnsorted, findEqualUnsorted } from '../../utils/array';
+import { multiExtent, findClosestSorted, findEqualSorted } from '../../utils/array';
 import { colorsFor } from '../../utils/color';
 
 import './LineChart.scss';
@@ -118,7 +118,7 @@ export default class LineChart extends PureComponent {
     if (series && series.length) {
       const [mouseX] = mouse;
       const checkSeries = series[0];
-      closest = findClosestUnsorted(checkSeries.results, mouseX, d => xScale(d[xKey]))[xKey];
+      closest = findClosestSorted(checkSeries.results, mouseX, d => xScale(d[xKey]))[xKey];
     }
 
     onHighlightDate(closest);
@@ -479,7 +479,7 @@ export default class LineChart extends PureComponent {
         let highlightValue;
         if (highlightDate) {
           // find equal (TODO should use binary search)
-          highlightValue = findEqualUnsorted(d.series.results, highlightDate.unix(), d => d[xKey].unix());
+          highlightValue = findEqualSorted(d.series.results, highlightDate.unix(), d => d[xKey].unix());
           if (highlightValue[yKey] != null) {
             highlightValue = yFormatter(highlightValue[yKey]);
           } else {
