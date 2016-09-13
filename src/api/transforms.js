@@ -163,12 +163,52 @@ export function transformSearchResults(body) {
 
 
 /**
+ * Transforms location meta to have label
+ *
+ * - adds in a `label` property to meta
+ *
+ * @param {Object} body The response body
+ * @return {Object} The transformed response body
+ */
+export function transformLocationLabel(body) {
+  // NOTE: modifying body directly means it modifies what is stored in the API cache
+  if (body.meta) {
+    const { meta } = body;
+
+    meta.label = meta.client_city || meta.client_region || meta.client_country || meta.client_continent;
+  }
+
+  return body;
+}
+
+
+/**
+ * Transforms client ISP meta to have label
+ *
+ * - adds in a `label` property to meta
+ *
+ * @param {Object} body The response body
+ * @return {Object} The transformed response body
+ */
+export function transformClientIspLabel(body) {
+  // NOTE: modifying body directly means it modifies what is stored in the API cache
+  if (body.meta) {
+    const { meta } = body;
+
+    meta.label = meta.client_asn_name;
+  }
+
+  return body;
+}
+
+
+/**
  * Transforms the response from location info before passing it into
  * the application.
  *
- * - adds in a `name` property to meta
- * - adds in a `locationKey` property to meta
- * - adds in a `parents` array to meta where each is { name,  locationKey }
+ * - adds in a `label` property to meta
+ * - adds in a `id` property to meta
+ * - adds in a `parents` array to meta where each is { id, label }
  * - removes meta.parent_location_key
  *
  * @param {Object} body The response body
@@ -177,11 +217,12 @@ export function transformSearchResults(body) {
 export function transformLocationInfo(body) {
   // NOTE: modifying body directly means it modifies what is stored in the API cache
   if (body.meta) {
+    // add in label and ID
+    transformLocationLabel(body);
+
     const { meta } = body;
     delete meta.parent_location_key;
 
-    meta.name = meta.client_city || meta.client_region || meta.client_country || meta.client_continent;
-    meta.locationKey = meta.child_location_key;
     let parentFields = ['client_continent', 'client_country', 'client_region'];
     const { type } = meta;
 
@@ -194,7 +235,7 @@ export function transformLocationInfo(body) {
     }
 
     const parents = parentFields.filter(field => meta[field] != null).map(field => ({
-      name: meta[field],
+      label: meta[field],
       code: meta[`${field}_code`],
     }));
 
@@ -203,7 +244,7 @@ export function transformLocationInfo(body) {
 
     parents.forEach(parent => {
       lastCode += parent.code.toLowerCase();
-      parent.locationKey = lastCode;
+      parent.id = lastCode;
     });
 
     meta.parents = parents;
