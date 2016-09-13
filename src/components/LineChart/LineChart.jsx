@@ -368,6 +368,7 @@ export default class LineChart extends PureComponent {
 
   renderLegend() {
     const { legend } = this.visComponents;
+    this.legendContainer.attr('transform', `translate(0 ${-legend.height})`);
     legend.render(this.legendContainer);
   }
 

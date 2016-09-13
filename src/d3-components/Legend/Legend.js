@@ -43,8 +43,6 @@ export default class Legend {
    * @return {void}
    */
   render(root) {
-    root.attr('transform', `translate(0 ${-this.height})`);
-
     const binding = root.selectAll('.legend-entry').data(this.data, d => d.meta.id);
     binding.exit().remove();
 
