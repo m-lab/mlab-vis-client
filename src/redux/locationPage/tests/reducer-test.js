@@ -4,7 +4,7 @@ import { expect } from 'chai';
 import {
   HIGHLIGHT_HOURLY,
 } from '../actions';
-import reducer, { initialState } from '../reducer';
+import reducer from '../reducer';
 
 describe('redux', () => {
   describe('locationPage', () => {
@@ -16,12 +16,8 @@ describe('redux', () => {
           highlightPoint: 'point',
         });
 
-        const expectedOutput = {
-          ...initialState,
-          highlightHourly: 'point',
-        };
-
-        expect(result).to.deep.equal(expectedOutput);
+        expect(result).to.contain.key('highlightHourly');
+        expect(result.highlightHourly).to.equal('point');
       });
     }); // reducer
   });
