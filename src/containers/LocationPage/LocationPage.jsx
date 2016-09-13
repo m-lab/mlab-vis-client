@@ -21,6 +21,7 @@ import {
   IspSelect,
   DateRangeSelector,
   Breadcrumbs,
+  ScatterGroup,
   SummaryTable,
 } from '../../components';
 
@@ -526,11 +527,25 @@ class LocationPage extends PureComponent {
   }
 
   renderFixedCompareMetrics() {
+    const { summary = {} } = this.props;
+    const xKey = 'download_speed_mbps_avg';
+    const yKey = 'upload_speed_mbps_avg';
+    const fields = [
+      { id: 'lastWeek', label: 'Last Week' },
+      { id: 'lastMonth', label: 'Last Month' },
+      { id: 'lastYear', label: 'Last Year' },
+    ];
     return (
       <div className="subsection">
         <header>
           <h3>Compare Metrics</h3>
         </header>
+        <ScatterGroup
+          summary={summary}
+          fields={fields}
+          xKey={xKey}
+          yKey={yKey}
+        />
       </div>
     );
   }

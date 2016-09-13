@@ -225,6 +225,7 @@ export const getSummaryData = createSelector(
       const locationData = {
         ...locationFixed[key],
         label: locationInfo.name,
+        id: locationInfo.id,
       };
 
       // add in the results for client ISPs here
@@ -235,6 +236,7 @@ export const getSummaryData = createSelector(
         return {
           ...ispFixed[key],
           label: ispInfo.client_asn_name,
+          id: ispInfo.client_asn_number,
         };
       });
 
@@ -285,7 +287,3 @@ export const getLocationClientIspHourly = createSelector(
 export const getLocationClientIspHourlyStatus = createSelector(
   getLocationClientIspHourlyObjects,
   (hourlyObjects) => status(hourlyObjects));
-
-
-
-
