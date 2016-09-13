@@ -3,10 +3,19 @@
 .LineChartSmallMult {
   .small-mult-label {
     fill: #888;
+  }
 
+  .small-mult-title {
+    font-weight: bold;
   }
 
   .small-mult-name {
+    font-size: 0.8em;
+  }
+
+  .small-mult-hover-label {
+    fill: #000;
+    font-weight: bold;
     font-size: 0.8em;
   }
 

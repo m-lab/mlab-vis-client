@@ -390,7 +390,7 @@ class LocationPage extends PureComponent {
   }
 
   renderCompareMetrics() {
-    const { timeSeriesStatus, locationAndClientIspTimeSeries } = this.props;
+    const { timeSeriesStatus, locationAndClientIspTimeSeries, timeAggregation } = this.props;
 
     const chartId = 'providers-small-mult';
     return (
@@ -405,6 +405,7 @@ class LocationPage extends PureComponent {
             width={800}
             xKey="date"
             metrics={metrics}
+            timeAggregation={timeAggregation}
           />
         </StatusWrapper>
       </div>
