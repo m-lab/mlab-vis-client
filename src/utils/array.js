@@ -109,6 +109,8 @@ export function findClosestSorted(array, value, accessor = d => d) {
     }
   }
 
+  // this result is always to the right, so see if the one to the left is closer
+  // and use it if it is.
   let result = array[index];
   const before = array[index - 1];
   if (before != null && Math.abs(accessor(result) - value) > Math.abs(accessor(before) - value)) {
