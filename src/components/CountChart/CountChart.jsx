@@ -164,7 +164,7 @@ export default class CountChart extends PureComponent {
    */
   update() {
     this.renderAxes();
-    this.renderBars();
+    this.renderMainBars();
     this.renderHighlightBars();
   }
 
@@ -179,49 +179,28 @@ export default class CountChart extends PureComponent {
   }
 
   /**
-   * Render the rects
+   * Render the main count bars (not the highlight ones)
    */
-  renderBars() {
-    const {
-      data,
-      xKey,
-      xScale,
-      yKey,
-      yScale,
-      binWidth,
-      innerHeight,
-    } = this.visComponents;
+  renderMainBars() {
+    const { data } = this.visComponents;
 
-    const binding = this.bars.selectAll('rect').data(data);
-
-    // ENTER
-    const entering = binding.enter()
-      .append('rect')
-      .style('shape-rendering', 'crispEdges')
-      .style('fill', '#eee')
-      .style('stroke', '#ccc');
-
-    // ENTER + UPDATE
-    binding.merge(entering)
-      .attr('x', d => xScale(d[xKey]))
-      .attr('y', d => yScale(d[yKey]))
-      .attr('width', binWidth)
-      .attr('height', d => innerHeight - yScale(d[yKey]))
-      .style('fill', d => (d.belowThreshold ? '#fff' : '#eee'))
-      .style('stroke', d => (d.belowThreshold ? '#ddd' : '#ccc'));
-
-    // EXIT
-    binding.exit()
-      .remove();
+    this.renderBars(this.bars, data, '#ccc');
   }
 
   /**
-   * Render the highlight rects
+   * Render the highlight count bars
    */
   renderHighlightBars() {
+    const { highlightData, highlightColor } = this.visComponents;
+
+    this.renderBars(this.highlightBars, highlightData, highlightColor);
+  }
+
+  /**
+   * Helper function to render the rects
+   */
+  renderBars(root, data = [], color = '#ccc') {
     const {
-      highlightData = [],
-      highlightColor,
       xKey,
       xScale,
       yKey,
@@ -230,26 +209,32 @@ export default class CountChart extends PureComponent {
       innerHeight,
     } = this.visComponents;
 
-    const asColor = d3.color(highlightColor);
-    const lighterColor = asColor ? asColor.brighter(0.3) : undefined;
+    const d3Color = d3.color(color);
+    const lighterColor = d3Color ? d3Color.brighter(0.3) : undefined;
 
-    const binding = this.highlightBars.selectAll('rect').data(highlightData);
+    const binding = root.selectAll('rect').data(data);
 
     // ENTER
     const entering = binding.enter()
       .append('rect')
-      .style('shape-rendering', 'crispEdges')
-      .style('fill', '#eee')
-      .style('stroke', '#ccc');
+        .attr('x', d => xScale(d[xKey]))
+        .attr('y', yScale(0))
+        .attr('width', binWidth)
+        .attr('height', 0)
+        .style('shape-rendering', 'crispEdges')
+        .style('fill', d => (d.belowThreshold ? '#fff' : lighterColor))
+        .style('stroke', d => (d.belowThreshold ? '#ddd' : color));
 
     // ENTER + UPDATE
     binding.merge(entering)
       .attr('x', d => xScale(d[xKey]))
-      .attr('y', d => yScale(d[yKey] || 0))
       .attr('width', binWidth)
-      .attr('height', d => innerHeight - yScale(d[yKey] || 0))
-      .style('fill', d => (d.belowThreshold ? '#fff' : lighterColor))
-      .style('stroke', d => (d.belowThreshold ? '#ddd' : highlightColor));
+      .transition()
+        .attr('y', d => yScale(d[yKey] || 0))
+        .attr('height', d => innerHeight - yScale(d[yKey] || 0))
+        .style('fill', d => (d.belowThreshold ? '#fff' : lighterColor))
+        .style('stroke', d => (d.belowThreshold ? '#ddd' : color));
+
 
     // EXIT
     binding.exit()
