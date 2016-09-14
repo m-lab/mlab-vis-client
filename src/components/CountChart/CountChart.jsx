@@ -9,6 +9,7 @@ import './CountChart.scss';
  * other chart.
  *
  * @prop {String} highlightColor Color used to render the highlighted bars if provided
+ * @prop {Object} highlightCount The date being highlighted in the chart
  * @prop {Array} highlightData Used to highlight a subset of the count data (typically a series object with { meta, results })
  */
 export default class CountChart extends PureComponent {
@@ -17,6 +18,7 @@ export default class CountChart extends PureComponent {
     data: PropTypes.array,
     height: PropTypes.number,
     highlightColor: PropTypes.string,
+    highlightCount: PropTypes.object,
     highlightData: PropTypes.array,
     innerMarginLeft: PropTypes.number,
     innerMarginRight: PropTypes.number,
@@ -102,12 +104,18 @@ export default class CountChart extends PureComponent {
     this.bars = this.g.append('g').classed('bars-group', true);
     this.highlightBars = this.g.append('g').classed('highlight-bars-group', true);
 
+    this.highlightCountBar = this.g.append('g').attr('class', 'highlight-count-bar');
+    this.highlightCountBar.append('rect');
+    this.highlightCountBar.append('text')
+      .attr('text-anchor', 'middle')
+      .attr('dy', 12);
+
     this.update();
   }
 
   makeVisComponents(props) {
     const { height, innerMarginLeft = 50, innerMarginRight = 20, width, xKey,
-      xExtent, yExtent, yKey, data, numBins, highlightData, highlightColor } = props;
+      xExtent, yExtent, yKey, data, numBins } = props;
     let { xScale } = props;
 
     const innerMargin = {
@@ -149,8 +157,6 @@ export default class CountChart extends PureComponent {
       binWidth,
       data,
       height,
-      highlightColor,
-      highlightData,
       innerHeight,
       innerMargin,
       innerWidth,
@@ -169,6 +175,7 @@ export default class CountChart extends PureComponent {
     this.renderAxes();
     this.renderMainBars();
     this.renderHighlightBars();
+    this.renderHighlightCountBar();
   }
 
   /**
@@ -197,7 +204,7 @@ export default class CountChart extends PureComponent {
    * Render the highlight count bars
    */
   renderHighlightBars() {
-    const { highlightData, highlightColor } = this.visComponents;
+    const { highlightData, highlightColor } = this.props;
 
     this.renderBars(this.highlightBars, highlightData, highlightColor);
   }
@@ -248,12 +255,49 @@ export default class CountChart extends PureComponent {
   }
 
   /**
+   * Render the highlighted count bar
+   */
+  renderHighlightCountBar() {
+    const { highlightCount } = this.props;
+    const {
+      data,
+      xKey,
+      xScale,
+      yKey,
+      yScale,
+      binWidth,
+      innerHeight,
+    } = this.visComponents;
+
+    if (highlightCount == null) {
+      this.highlightCountBar.style('display', 'none');
+    } else {
+      const d = data.find(datum => datum[xKey] === highlightCount);
+      this.highlightCountBar
+        .style('display', '')
+        .attr('transform', `translate(${xScale(d[xKey])} ${yScale(d[yKey] || 0)})`);
+
+      const barHeight = innerHeight - yScale(d[yKey] || 0);
+      this.highlightCountBar.select('rect')
+        .attr('width', binWidth)
+        .attr('height', barHeight)
+        .style('fill', '#ccc')
+        .style('stroke', '#aaa');
+
+      this.highlightCountBar.select('text')
+        .attr('x', binWidth / 2)
+        .attr('y', barHeight < 15 ? -14 : 0)
+        .text(d[yKey]);
+    }
+  }
+
+  /**
    * The main render method. Defers chart rendering to d3 in `update` and `setup`
    * @return {React.Component} The rendered container
    */
   render() {
     return (
-      <g className="count-chart chart" ref={node => { this.root = node; }} />
+      <g className="CountChart chart" ref={node => { this.root = node; }} />
     );
   }
 }

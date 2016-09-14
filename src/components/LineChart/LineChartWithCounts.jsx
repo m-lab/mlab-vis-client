@@ -44,10 +44,10 @@ export default class LineChartWithCounts extends PureComponent {
     width: React.PropTypes.number,
     xExtent: PropTypes.array,
     xKey: React.PropTypes.string,
-    yExtent: PropTypes.array,
-    yFormatter: PropTypes.func,
     yAxisLabel: React.PropTypes.string,
     yAxisUnit: React.PropTypes.string,
+    yExtent: PropTypes.array,
+    yFormatter: PropTypes.func,
     yKey: React.PropTypes.string,
   }
 
@@ -76,7 +76,7 @@ export default class LineChartWithCounts extends PureComponent {
    * @return {Array} the prepared data
    */
   prepareData(props) {
-    const { series, highlightLine } = props;
+    const { series } = props;
 
     if (!series) {
       return {};
@@ -159,7 +159,7 @@ export default class LineChartWithCounts extends PureComponent {
    * @return {React.Component} The rendered container
    */
   render() {
-    const { id, width, xKey, annotationSeries, series, highlightLine } = this.props;
+    const { id, width, xKey, annotationSeries, series, highlightLine, highlightDate } = this.props;
     const { counts, innerMargin, xScale, numBins, colors } = this.visComponents;
 
     const lineChartHeight = 350;
@@ -195,6 +195,7 @@ export default class LineChartWithCounts extends PureComponent {
             <CountChart
               data={counts} /* TODO figure out multi-series counts */
               highlightData={highlightCountData}
+              highlightCount={highlightDate}
               highlightColor={highlightColor}
               height={countHeight}
               innerMarginLeft={innerMargin.left}

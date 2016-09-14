@@ -1,2 +1,10 @@
 .CountChart {
+  .highlighted {
+    fill: blue !important;
+  }
+
+  .highlight-count-bar {
+    font-size: 10px;
+    font-weight: 500;
+  }
 }
