@@ -7,6 +7,7 @@ import { sum, average } from '../../utils/math';
 /**
  * Chart for showing data by hour and with test counts
  *
+ * @prop {String} color The color to render the chart in
  * @prop {Array} data The array of data points indexed by hour. Should be
  *   an array of length 24 of form [{ hour:Number(0..23), points: [{ yKey:Number }, ...]}, ...]
  * @prop {Boolean} forceZeroMin=true Whether the min y value should always be 0.
@@ -18,6 +19,7 @@ import { sum, average } from '../../utils/math';
  */
 export default class HourChartWithCounts extends PureComponent {
   static propTypes = {
+    color: PropTypes.string,
     data: PropTypes.array,
     forceZeroMin: PropTypes.bool,
     highlightPoint: PropTypes.object,
@@ -141,7 +143,7 @@ export default class HourChartWithCounts extends PureComponent {
    * @return {React.Component} The rendered container
    */
   render() {
-    const { id, width } = this.props;
+    const { id, width, color } = this.props;
     const { dataByHour, dataByDate, filteredData, innerMargin, overallData,
       xScale, numBins } = this.visComponents;
 
@@ -161,6 +163,7 @@ export default class HourChartWithCounts extends PureComponent {
           <g>
             <HourChart
               {...this.props}
+              color={color}
               data={filteredData}
               dataByHour={dataByHour}
               dataByDate={dataByDate}

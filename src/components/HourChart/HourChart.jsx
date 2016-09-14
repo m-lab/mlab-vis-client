@@ -6,6 +6,7 @@ import './HourChart.scss';
 /**
  * Chart for showing data by hour
  *
+ * @prop {String} color The color to render the chart in
  * @prop {Array} data The array of data points indexed by hour. Should be
  *   an array of length 24 of form [{ hour:Number(0..23), points: [{ yKey:Number }, ...]}, ...]
  * @prop {Boolean} forceZeroMin=true Whether the min y value should always be 0.
@@ -18,6 +19,7 @@ import './HourChart.scss';
  */
 export default class HourChart extends PureComponent {
   static propTypes = {
+    color: PropTypes.string,
     data: PropTypes.array,
     dataByDate: PropTypes.object,
     dataByHour: PropTypes.array,
@@ -38,6 +40,7 @@ export default class HourChart extends PureComponent {
 
   static defaultProps = {
     data: [],
+    color: '#aaa',
     forceZeroMin: true,
     threshold: 30,
     yKey: 'y',
@@ -123,7 +126,7 @@ export default class HourChart extends PureComponent {
   makeVisComponents(props) {
     const { dataByHour, dataByDate, data, forceZeroMin, height,
       innerMarginLeft = 50, innerMarginRight = 20, overallData,
-      width, yExtent, yKey } = props;
+      width, yExtent, yKey, color } = props;
     let { xScale } = props;
 
     const innerMargin = {
@@ -164,12 +167,17 @@ export default class HourChart extends PureComponent {
       .x((d) => xScale(d.hour) + (binWidth / 2))
       .y((d) => yScale(d[yKey]));
 
+    // for highlighted dates
+    const highlightColor = 'rgb(245, 46, 113)';
+
     return {
       binWidth,
+      color,
       dataByHour,
       dataByDate,
       data,
       height,
+      highlightColor,
       innerHeight,
       innerMargin,
       innerWidth,
@@ -239,7 +247,7 @@ export default class HourChart extends PureComponent {
    * Render some circles in the chart
    */
   renderCircles() {
-    const { dataByHour, xScale, yScale, yKey, binWidth } = this.visComponents;
+    const { dataByHour, xScale, yScale, yKey, binWidth, color } = this.visComponents;
 
     const binding = this.circles
       .selectAll('g')
@@ -264,7 +272,7 @@ export default class HourChart extends PureComponent {
         // ENTER
         const entering = hourBinding.enter()
           .append('circle')
-          .style('fill', 'rgb(34, 121, 181)');
+          .style('fill', color);
 
         // ENTER + UPDATE
         hourBinding
@@ -284,15 +292,15 @@ export default class HourChart extends PureComponent {
   }
 
   renderOverallLine() {
-    const { overallData } = this.visComponents;
-    this.renderLine(overallData, this.gOverallLine, { stroke: 'rgb(204, 204, 245)' });
+    const { overallData, color } = this.visComponents;
+    this.renderLine(overallData, this.gOverallLine, { stroke: color });
   }
 
   /**
    * Renders the highlighted points
    */
   renderHighlight() {
-    const { binWidth, dataByDate, xScale, yKey, yScale } = this.visComponents;
+    const { binWidth, dataByDate, xScale, yKey, yScale, highlightColor } = this.visComponents;
     const { highlightPoint } = this.props;
 
     // if no highlight, remove all children
@@ -308,7 +316,6 @@ export default class HourChart extends PureComponent {
     const g = this.gHighlight.select('.highlight-line');
 
     // render a line
-    const highlightColor = 'rgb(245, 46, 113)';
     this.renderLine(dateData, g, { stroke: highlightColor });
 
     // also render some brighter circles

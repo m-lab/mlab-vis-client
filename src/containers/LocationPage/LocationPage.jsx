@@ -8,6 +8,7 @@ import * as LocationPageSelectors from '../../redux/locationPage/selectors';
 import * as LocationPageActions from '../../redux/locationPage/actions';
 import * as LocationsActions from '../../redux/locations/actions';
 
+import { colorsFor } from '../../utils/color';
 import { metrics } from '../../constants';
 
 import {
@@ -336,6 +337,7 @@ class LocationPage extends PureComponent {
 
     return (
       <div className="client-isp-selector">
+        <h5>Client ISPs</h5>
         <IspSelect
           isps={topClientIsps}
           selected={selectedClientIspInfo}
@@ -460,72 +462,57 @@ class LocationPage extends PureComponent {
   }
 
   renderProvidersByHour() {
-    const { locationHourly, hourlyStatus, highlightHourly, locationId, viewMetric } = this.props;
-    const extentKey = this.extentKey(viewMetric);
-    const chartId = 'providers-hourly';
-    const chartData = locationHourly && locationHourly.results;
+    const { locationHourly, clientIspHourly } = this.props;
+
+    const colors = colorsFor(clientIspHourly, (d) => d.meta.id);
 
     return (
       <div className="subsection">
         <header>
           <h3>By Hour, Median download speeds</h3>
         </header>
-        <div className="clearfix">
-          <StatusWrapper status={hourlyStatus}>
-            <HourChartWithCounts
-              data={locationHourly && locationHourly.results}
-              highlightPoint={highlightHourly}
-              id={chartId}
-              onHighlightPoint={this.onHighlightHourly}
-              threshold={30}
-              width={800}
-              yExtent={locationHourly && locationHourly.extents[extentKey]}
-              yKey={viewMetric.dataKey}
-            />
-            <ChartExportControls
-              chartId={chartId}
-              data={chartData}
-              filename={`${locationId}_${viewMetric.value}_${chartId}`}
-            />
-          </StatusWrapper>
-        </div>
-        {this.renderClientIspsByHour()}
+        <Row>
+          {this.renderHourChart(locationHourly)}
+          {clientIspHourly.map(hourly => this.renderHourChart(hourly, colors[hourly.meta.id]))}
+        </Row>
       </div>
     );
   }
 
-  renderClientIspsByHour() {
-    const { clientIspHourly, hourlyStatus, highlightHourly, locationId, viewMetric } = this.props;
+  renderHourChart(hourlyData, color) {
+    const { hourlyStatus, highlightHourly, locationId, viewMetric } = this.props;
     const extentKey = this.extentKey(viewMetric);
 
+    if (!hourlyData || !hourlyData.meta) {
+      return null;
+    }
+
+    const id = hourlyData.meta.id;
+    const chartId = `providers-hourly-${id}`;
     return (
-      <Row>
-        {clientIspHourly.map(hourly => {
-          const clientIspId = hourly.meta.client_asn_number;
-          const chartId = `providers-hourly-${clientIspId}`;
-          return (
-            <Col md={6} key={clientIspId}>
-              <StatusWrapper status={hourlyStatus}>
-                <HourChartWithCounts
-                  data={hourly.results}
-                  highlightPoint={highlightHourly}
-                  id={chartId}
-                  onHighlightPoint={this.onHighlightHourly}
-                  threshold={30}
-                  width={400}
-                  yExtent={hourly.extents[extentKey]}
-                  yKey={viewMetric.dataKey}
-                />
-                <ChartExportControls
-                  chartId={chartId}
-                  data={hourly.results}
-                  filename={`${locationId}_${clientIspId}_${viewMetric.value}_${chartId}`}
-                />
-              </StatusWrapper>
-            </Col>
-          );
-        })}
-      </Row>
+      <Col md={6} key={id}>
+        <h4>{hourlyData.meta.label}</h4>
+        <div className="clearfix">
+          <StatusWrapper status={hourlyStatus}>
+            <HourChartWithCounts
+              color={color}
+              data={hourlyData.results}
+              highlightPoint={highlightHourly}
+              id={chartId}
+              onHighlightPoint={this.onHighlightHourly}
+              threshold={30}
+              width={400}
+              yExtent={hourlyData.extents[extentKey]}
+              yKey={viewMetric.dataKey}
+            />
+            <ChartExportControls
+              chartId={chartId}
+              data={hourlyData.results}
+              filename={`${locationId}${id === locationId ? '' : `_${id}`}_${viewMetric.value}_${chartId}`}
+            />
+          </StatusWrapper>
+        </div>
+      </Col>
     );
   }
 
