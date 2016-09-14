@@ -46,8 +46,14 @@ export default class Legend {
    */
   render(container, values) {
     let root = container.select('.Legend');
+
+    const onHoverLegendEntry = this.onHoverLegendEntry;
     if (root.empty()) {
       root = container.append('g').attr('class', 'Legend');
+
+      // add mouse leave listener on the main root group for smoother animations
+      // when mousing between entries
+      root.on('mouseleave', () => onHoverLegendEntry(null));
     }
 
     const binding = root.selectAll('.legend-entry').data(this.data, d => d.meta.id);
@@ -55,7 +61,6 @@ export default class Legend {
 
     const { entry: entryConfig, colorBox: colorBoxConfig } = this.config;
     const colors = this.colors;
-    const onHoverLegendEntry = this.onHoverLegendEntry;
 
     // render entering entries (one per item in data)
     const entering = binding.enter().append('g')
@@ -69,7 +74,8 @@ export default class Legend {
         // use the provided color or default to gray
         const color = colors[d.meta.id] || '#aaa';
 
-        entry.attr('clip-path', `url(#${clipId})`);
+        // clip on the inner entry so the mouse listener can be outside of it.
+        const innerEntry = entry.append('g').attr('clip-path', `url(#${clipId})`);
 
         // add in the clipping rects to prevent text from extending beyond the width
         entry.append('defs')
@@ -80,7 +86,7 @@ export default class Legend {
             .attr('height', entryConfig.height);
 
         // draw the color box
-        entry.append('rect')
+        innerEntry.append('rect')
           .attr('class', 'legend-color-box')
           .attr('y', 3)
           .attr('width', colorBoxConfig.width)
@@ -88,7 +94,7 @@ export default class Legend {
           .style('fill', color);
 
         // draw the label for the entry
-        entry.append('text')
+        innerEntry.append('text')
           .attr('class', 'legend-entry-label')
           .attr('x', colorBoxConfig.width + colorBoxConfig.margin)
           .attr('dy', 12)
@@ -96,7 +102,7 @@ export default class Legend {
 
         // prepare the area where values are shown
         // this is the white bg rect to overlap the label text if necessary
-        entry.append('rect')
+        innerEntry.append('rect')
           .attr('class', 'legend-entry-value-bg')
           .attr('x', entryConfig.width)
           .attr('width', 0)
@@ -104,7 +110,7 @@ export default class Legend {
           .style('fill', '#fff');
 
         // the value text element when values are provided
-        entry.append('text')
+        innerEntry.append('text')
           .attr('class', 'legend-entry-value')
           .attr('dy', 12)
           .attr('x', entryConfig.width)
@@ -113,13 +119,13 @@ export default class Legend {
 
         // mouse listener rect over the entry
         entry.append('rect')
-          .attr('width', entryConfig.width)
-          .attr('height', entryConfig.height)
+          .attr('width', entryConfig.width + entryConfig.margin.right)
+          .attr('height', entryConfig.height + entryConfig.margin.bottom)
           .style('fill', '#f00')
           .style('stroke', 'none')
           .style('opacity', 0)
-          .on('mouseenter', () => onHoverLegendEntry(d))
-          .on('mouseleave', () => onHoverLegendEntry(null));
+          .on('mouseenter', () => onHoverLegendEntry(d));
+          // .on('mouseleave', () => onHoverLegendEntry(null));
       });
 
     const formatter = this.formatter;
