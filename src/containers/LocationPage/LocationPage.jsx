@@ -594,13 +594,17 @@ class LocationPage extends PureComponent {
 
   renderFixedSummaryData() {
     const { summary = {} } = this.props;
-    const { lastYear = {} } = summary;
+    const { lastWeek = {}, lastMonth = {}, lastYear = {} } = summary;
 
     return (
       <div className="subsection">
         <header>
           <h3>Summary Data</h3>
         </header>
+        <h4>Last Week</h4>
+        <SummaryTable data={lastWeek.clientIspsData} bottomData={lastWeek.locationData} />
+        <h4>Last Month</h4>
+        <SummaryTable data={lastMonth.clientIspsData} bottomData={lastMonth.locationData} />
         <h4>Last Year</h4>
         <SummaryTable data={lastYear.clientIspsData} bottomData={lastYear.locationData} />
       </div>
