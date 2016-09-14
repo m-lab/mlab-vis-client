@@ -348,25 +348,36 @@ export default class LineChart extends PureComponent {
    * Update the d3 chart - this is the main drawing function
    */
   update() {
+    const { highlightDate } = this.props;
+    const { series = [], annotationSeries = [], xKey, yKey, innerMargin, innerHeight, innerWidth } = this.visComponents;
+
     // ensure we have room for the legend
-    const { innerMargin, innerHeight, innerWidth } = this.visComponents;
     this.g.attr('transform', `translate(${innerMargin.left} ${innerMargin.top})`);
     this.mouseListener
       .attr('width', innerWidth)
       .attr('height', innerHeight + 25); // plus some to cover part of the x axis
 
+    // see what the values are for the highlighted date if we have one
+    let highlightValues;
+    if (highlightDate != null) {
+      // find the y value for the highlighted date
+      highlightValues = series.concat(annotationSeries).map(oneSeries => {
+        const value = findEqualSorted(oneSeries.results, highlightDate.unix(), d => d[xKey].unix());
+        return value;
+      });
+    }
 
-    this.renderLegend();
+    this.renderLegend(highlightValues);
     this.renderAxes();
     this.renderAnnotationLines();
     this.renderLines();
-    this.renderHighlightDate();
+    this.renderHighlightDate(highlightValues);
     this.renderHighlightLine();
   }
 
-  renderHighlightDate() {
+  renderHighlightDate(highlightValues) {
     const { highlightDate } = this.props;
-    const { xScale, innerHeight } = this.visComponents;
+    const { xScale, innerHeight, yScale, yKey, series, colors } = this.visComponents;
 
     // render the x-axis marker for highlightDate
     if (highlightDate == null) {
@@ -384,6 +395,32 @@ export default class LineChart extends PureComponent {
       this.highlightDate.select('text')
         .attr('y', innerHeight + 3)
         .text(highlightDate.format('MMM D YYYY'));
+
+      const points = this.highlightDate.selectAll('circle').data(highlightValues);
+      points.exit().remove();
+      const entering = points.enter().append('circle');
+
+      // don't filter out d values so we can use `i` to get the color
+      points.merge(entering)
+        .attr('class', 'highlight-circle')
+        .style('display', d => ((d == null || d[yKey] == null) ? 'none' : ''))
+        .attr('r', 3)
+        .attr('cx', 0)
+        .style('fill', (d, i) => {
+          if (series[i] && colors[series[i].meta.id]) {
+            return d3.color(colors[series[i].meta.id]).brighter(0.3);
+          }
+
+          return '#bbb';
+        })
+        .style('stroke', (d, i) => {
+          if (series[i] && colors[series[i].meta.id]) {
+            return colors[series[i].meta.id];
+          }
+
+          return '#aaa';
+        })
+        .attr('cy', d => (d == null ? 0 : yScale(d[yKey]) || 0));
     }
   }
 
@@ -403,23 +440,16 @@ export default class LineChart extends PureComponent {
     }
   }
 
-  renderLegend() {
-    const { highlightDate, highlightLine } = this.props;
-    const { series = [], annotationSeries = [], legend, xKey, yKey } = this.visComponents;
+  renderLegend(highlightValues) {
+    const { highlightLine } = this.props;
+    const { legend, yKey } = this.visComponents;
 
     this.legendContainer.attr('transform', `translate(0 ${-legend.height})`);
 
-    let highlightValues;
+    // map to just Y values
+    const highlightYValues = highlightValues && highlightValues.map(d => (d == null ? d : d[yKey]));
 
-    if (highlightDate != null) {
-      // find the y value for the highlighted date
-      highlightValues = series.concat(annotationSeries).map(oneSeries => {
-        const value = findEqualSorted(oneSeries.results, highlightDate.unix(), d => d[xKey].unix());
-        return value == null ? value : value[yKey];
-      });
-    }
-
-    legend.render(this.legendContainer, highlightValues, highlightLine);
+    legend.render(this.legendContainer, highlightYValues, highlightLine);
   }
 
   /**
