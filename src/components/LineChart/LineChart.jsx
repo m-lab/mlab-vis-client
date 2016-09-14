@@ -367,9 +367,22 @@ export default class LineChart extends PureComponent {
   }
 
   renderLegend() {
-    const { legend } = this.visComponents;
+    const { highlightDate } = this.props;
+    const { series, legend, xKey, yKey } = this.visComponents;
+
     this.legendContainer.attr('transform', `translate(0 ${-legend.height})`);
-    legend.render(this.legendContainer);
+
+    let highlightValues;
+
+    if (highlightDate != null) {
+      // find the y value for the highlighted date
+      highlightValues = series.map(oneSeries => {
+        const value = findEqualSorted(oneSeries.results, highlightDate.unix(), d => d[xKey].unix());
+        return value == null ? value : value[yKey];
+      });
+    }
+
+    legend.render(this.legendContainer, highlightValues);
   }
 
   /**

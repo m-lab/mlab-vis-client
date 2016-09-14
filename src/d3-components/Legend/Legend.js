@@ -1,5 +1,4 @@
 import d3 from 'd3';
-import { findEqualSorted } from '../../utils/array';
 
 /**
  * D3 Component for rendering a legend
@@ -7,7 +6,7 @@ import { findEqualSorted } from '../../utils/array';
  * root container node.
  */
 export default class Legend {
-  constructor({ data, colors, formatter, width, onHoverLegendEntry }) {
+  constructor({ data = [], colors, formatter = d => d, width, onHoverLegendEntry }) {
     this.data = data;
     this.colors = colors;
     this.formatter = formatter;
@@ -40,9 +39,11 @@ export default class Legend {
    * Renders the legend to the `root` container
    *
    * @param {Object} root A d3 selection of a container to render the legend in
+   * @param {Array} values Array of values corresponding to the data array. If provided,
+   *   these values show up in the legend (typically used for mouse behavior)
    * @return {void}
    */
-  render(root) {
+  render(root, values) {
     const binding = root.selectAll('.legend-entry').data(this.data, d => d.meta.id);
     binding.exit().remove();
 
@@ -107,6 +108,7 @@ export default class Legend {
       });
 
     // UPDATE + ENTER -- mostly for hover behavior
+    const formatter = this.formatter;
     binding.merge(entering)
       .attr('transform', (d, i) => {
         const rowNum = Math.floor(i / this.numEntriesPerRow);
@@ -116,36 +118,29 @@ export default class Legend {
         const y = rowNum * (entryConfig.height + entryConfig.margin.bottom);
         return `translate(${x} ${y})`;
       })
-      // .each(function legendUpdate(d) {
-      //   const entry = d3.select(this);
+      .each(function legendUpdate(d, i) {
+        const entry = d3.select(this);
 
-      //   // TODO: get highlight values
-      //   let highlightValue;
-      //   if (highlightDate) {
-      //     // find equal (TODO should use binary search)
-      //     highlightValue = findEqualSorted(d.series.results, highlightDate.unix(), d => d[xKey].unix());
-      //     if (highlightValue[yKey] != null) {
-      //       highlightValue = yFormatter(highlightValue[yKey]);
-      //     } else {
-      //       highlightValue = '--';
-      //     }
-      //   }
+        let highlightValue;
+        if (values) {
+          highlightValue = values[i] == null ? '--' : formatter(values[i]);
+        }
 
-      //   if (highlightValue != null) {
-      //     const valueText = entry.select('.legend-entry-value')
-      //       .style('display', '')
-      //       .text(highlightValue);
+        if (highlightValue !== undefined) {
+          const valueText = entry.select('.legend-entry-value')
+            .style('display', '')
+            .text(highlightValue);
 
-      //     const valueTextBBox = valueText.node().getBBox();
-      //     const valueTextMargin = 4;
-      //     entry.select('.legend-entry-value-bg')
-      //       .style('display', '')
-      //       .attr('x', Math.floor(valueTextBBox.x) - valueTextMargin)
-      //       .attr('width', (2 * valueTextMargin) + Math.ceil(valueTextBBox.width));
-      //   } else {
-      //     entry.select('.legend-entry-value').style('display', 'none');
-      //     entry.select('.legend-entry-value-bg').style('display', 'none');
-      //   }
-      // });
+          const valueTextBBox = valueText.node().getBBox();
+          const valueTextMargin = 4;
+          entry.select('.legend-entry-value-bg')
+            .style('display', '')
+            .attr('x', Math.floor(valueTextBBox.x) - valueTextMargin)
+            .attr('width', (2 * valueTextMargin) + Math.ceil(valueTextBBox.width));
+        } else {
+          entry.select('.legend-entry-value').style('display', 'none');
+          entry.select('.legend-entry-value-bg').style('display', 'none');
+        }
+      });
   }
 }
