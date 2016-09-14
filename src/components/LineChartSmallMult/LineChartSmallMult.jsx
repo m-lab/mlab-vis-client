@@ -332,7 +332,7 @@ export default class LineChartSmallMult extends PureComponent {
    */
   renderChartLabels(series, chartId, seriesIndex, yKey, metricIndex) {
     const { hover, mouse } = this.state;
-    const { xScale, yScales, colors, xKey, showBaseline } = this.visComponents;
+    const { xScale, yScales, colors, xKey, showBaseline, metrics } = this.visComponents;
 
     // find the value closest to the mouse's x coordinate
     const closest = findClosestSorted(series.results, mouse[0], d => xScale(d[xKey]));
@@ -341,6 +341,7 @@ export default class LineChartSmallMult extends PureComponent {
 
     const color = ((showBaseline && seriesIndex === 0) ? '#bbb' : colors[series.meta.client_asn_number]);
     const darkColor = d3.color(color).darker();
+    const yFormatter = metrics[metricIndex].formatter || (d => d);
 
     if (hover && yValue) {
       return (
@@ -355,7 +356,7 @@ export default class LineChartSmallMult extends PureComponent {
             textAnchor="start"
             className="small-mult-label small-mult-hover-label"
           >
-            {yValue}
+            {yFormatter(yValue)}
           </text>
         </g>
       );
