@@ -42,9 +42,10 @@ export default class Legend {
    * @param {Object} container A d3 selection of a container to render the legend in
    * @param {Array} values Array of values corresponding to the data array. If provided,
    *   these values show up in the legend (typically used for mouse behavior)
+   * @param {Object} highlightDatum The data point in `data` to highlight as active
    * @return {void}
    */
-  render(container, values) {
+  render(container, values, highlightDatum) {
     let root = container.select('.Legend');
 
     const onHoverLegendEntry = this.onHoverLegendEntry;
@@ -132,6 +133,8 @@ export default class Legend {
 
     // UPDATE + ENTER -- mostly for hover behavior to show values
     binding.merge(entering)
+      .classed('highlighted', d => highlightDatum === d)
+      .classed('not-highlighted', d => highlightDatum && highlightDatum !== d)
       // ensure the entry is in the correct position
       .attr('transform', (d, i) => {
         const rowNum = Math.floor(i / this.numEntriesPerRow);
