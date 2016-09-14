@@ -26,6 +26,8 @@ import { multiExtent } from '../../utils/array';
  * @prop {Array} yExtent The min and max value of the yKey in the chart
  * @prop {Function} yFormatter Format function that takes a y value and outputs a string
  * @prop {String} yKey="y" The key to read the y value from in the data
+ * @prop {String} yAxisLabel The label to show on the Y axis
+ * @prop {String} yAxisUnit The unit to show on the Y axis label
  */
 export default class LineChartWithCounts extends PureComponent {
   static propTypes = {
@@ -44,6 +46,8 @@ export default class LineChartWithCounts extends PureComponent {
     xKey: React.PropTypes.string,
     yExtent: PropTypes.array,
     yFormatter: PropTypes.func,
+    yAxisLabel: React.PropTypes.string,
+    yAxisUnit: React.PropTypes.string,
     yKey: React.PropTypes.string,
   }
 
