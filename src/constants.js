@@ -13,24 +13,28 @@ export const metrics = [
   {
     value: 'download',
     label: 'Download Speed',
+    unit: 'Mbps',
     dataKey: 'download_speed_mbps_median',
     formatter: d3.format('.1f'),
   },
   {
     value: 'upload',
     label: 'Upload Speed',
+    unit: 'Mbps',
     dataKey: 'upload_speed_mbps_median',
     formatter: d3.format('.1f'),
   },
   {
     value: 'rtt',
     label: 'Round-trip Time',
+    unit: 'ms',
     dataKey: 'rtt_avg',
     formatter: d3.format('.1f'),
   },
   {
     value: 'retransmission',
     label: 'Retransmission Rate',
+    unit: '%',
     dataKey: 'retransmit_avg',
     formatter: d3.format('.1p'),
   },

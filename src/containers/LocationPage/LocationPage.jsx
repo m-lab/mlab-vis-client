@@ -404,6 +404,8 @@ class LocationPage extends PureComponent {
             height={400}
             width={840}
             xKey="date"
+            yAxisLabel={viewMetric.label}
+            yAxisUnit={viewMetric.unit}
             yKey={viewMetric.dataKey}
           />
           <ChartExportControls

@@ -25,6 +25,8 @@ import './LineChart.scss';
  * @prop {String} xKey="x" The key to read the x value from in the data
  * @prop {Array} yExtent The min and max value of the yKey in the chart
  * @prop {Function} yFormatter Format function that takes a y value and outputs a string
+ * @prop {String} yAxisLabel The label to show on the Y axis
+ * @prop {String} yAxisUnit The unit to show on the Y axis label
  * @prop {String} yKey="y" The key to read the y value from in the data
  */
 export default class LineChart extends PureComponent {
@@ -44,6 +46,8 @@ export default class LineChart extends PureComponent {
     xKey: React.PropTypes.string,
     yExtent: PropTypes.array,
     yFormatter: PropTypes.func,
+    yAxisLabel: React.PropTypes.string,
+    yAxisUnit: React.PropTypes.string,
     yKey: React.PropTypes.string,
   }
 
@@ -157,7 +161,14 @@ export default class LineChart extends PureComponent {
 
     // add in axis groups
     this.xAxis = this.g.append('g').classed('x-axis', true);
+    this.xAxisLabel = this.g.append('text')
+      .attr('class', 'axis-label')
+      .attr('text-anchor', 'middle');
+
     this.yAxis = this.g.append('g').classed('y-axis', true);
+    this.yAxisLabel = this.g.append('text')
+      .attr('class', 'axis-label')
+      .attr('text-anchor', 'middle');
 
     // add in groups for data
     this.annotationLines = this.g.append('g').classed('annotation-lines-group', true);
@@ -194,6 +205,11 @@ export default class LineChart extends PureComponent {
     this.update();
   }
 
+  getFullYAxisLabel() {
+    const { yAxisLabel, yAxisUnit } = this.visComponents;
+    return `${yAxisLabel}${yAxisUnit ? ` (${yAxisUnit})` : ''}`;
+  }
+
   /**
    * Figure out what is needed to render the chart
    * based on the props of the component
@@ -201,7 +217,7 @@ export default class LineChart extends PureComponent {
   makeVisComponents(props) {
     const { series, forceZeroMin, height, innerMarginLeft = 50,
       innerMarginRight = 20, width, xExtent, xKey, yExtent, yKey,
-      yFormatter } = props;
+      yFormatter, yAxisLabel, yAxisUnit } = props;
     let { colors, annotationSeries, xScale } = props;
 
 
@@ -218,7 +234,7 @@ export default class LineChart extends PureComponent {
     const innerMargin = {
       top: 20,
       right: innerMarginRight,
-      bottom: 35,
+      bottom: 40,
       left: innerMarginLeft,
     };
 
@@ -312,6 +328,8 @@ export default class LineChart extends PureComponent {
       yScale,
       yKey,
       yFormatter,
+      yAxisLabel,
+      yAxisUnit,
     };
   }
 
@@ -390,15 +408,27 @@ export default class LineChart extends PureComponent {
    * Render the x and y axis components
    */
   renderAxes() {
-    const { xScale, yScale, innerHeight } = this.visComponents;
+    const { xScale, yScale, innerHeight, innerMargin, innerWidth, yKey, yFormatter } = this.visComponents;
     const xAxis = d3.axisBottom(xScale);
     const yAxis = d3.axisLeft(yScale);
 
+    // use default formatter unless retransmit_avg since we want percentages rendered
+    if (yKey === 'retransmit_avg') {
+      yAxis.tickFormat(yFormatter);
+    }
+
     this.yAxis.call(yAxis);
+    this.yAxisLabel
+      .attr('transform', `rotate(270) translate(${-innerHeight / 2} ${-innerMargin.left + 12})`)
+      .text(this.getFullYAxisLabel());
 
     this.xAxis
       .attr('transform', `translate(0 ${innerHeight + 3})`)
       .call(xAxis);
+
+    this.xAxisLabel
+      .attr('transform', `translate(${innerWidth / 2} ${innerHeight + (innerMargin.bottom)})`)
+      .text('Time');
   }
 
   /**
