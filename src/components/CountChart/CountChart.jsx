@@ -11,6 +11,7 @@ import './CountChart.scss';
  * @prop {String} highlightColor Color used to render the highlighted bars if provided
  * @prop {Object} highlightCount The date being highlighted in the chart
  * @prop {Array} highlightData Used to highlight a subset of the count data (typically a series object with { meta, results })
+ * @prop {Function} onHighlightCount Callback when the mouse hovers over a bar. Passes in the x value.
  */
 export default class CountChart extends PureComponent {
 
@@ -23,6 +24,7 @@ export default class CountChart extends PureComponent {
     innerMarginLeft: PropTypes.number,
     innerMarginRight: PropTypes.number,
     numBins: PropTypes.number,
+    onHighlightCount: PropTypes.func,
     width: PropTypes.number,
     xExtent: PropTypes.array,
     xKey: React.PropTypes.string,
@@ -65,6 +67,16 @@ export default class CountChart extends PureComponent {
    */
   componentDidUpdate() {
     this.update();
+  }
+
+  /**
+   * callback for when mouse hovers over a count bar
+   */
+  onHoverCountBar(xValue) {
+    const { onHighlightCount } = this.props;
+    if (onHighlightCount) {
+      onHighlightCount(xValue);
+    }
   }
 
   /**
@@ -197,7 +209,7 @@ export default class CountChart extends PureComponent {
   renderMainBars() {
     const { data } = this.visComponents;
 
-    this.renderBars(this.bars, data, '#ccc');
+    this.renderBars(this.bars, data, '#ccc', true);
   }
 
   /**
@@ -212,7 +224,7 @@ export default class CountChart extends PureComponent {
   /**
    * Helper function to render the rects
    */
-  renderBars(root, data = [], color = '#ccc') {
+  renderBars(root, data = [], color = '#ccc', addHandlers) {
     const {
       xKey,
       xScale,
@@ -237,6 +249,12 @@ export default class CountChart extends PureComponent {
         .style('shape-rendering', 'crispEdges')
         .style('fill', d => (d.belowThreshold ? '#fff' : lighterColor))
         .style('stroke', d => (d.belowThreshold ? '#ddd' : color));
+
+    if (addHandlers) {
+      entering
+        .on('mouseenter', d => this.onHoverCountBar(d[xKey]))
+        .on('mouseleave', () => this.onHoverCountBar(null));
+    }
 
     // ENTER + UPDATE
     binding.merge(entering)
