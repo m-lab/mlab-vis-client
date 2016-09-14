@@ -63,8 +63,8 @@ export default class ScatterGroup extends PureComponent {
   renderPlot(field, allData) {
     const { compareMetrics, width, height } = this.props;
     const data = allData ? allData.clientIspsData : [];
-    const xKey = (compareMetrics && compareMetrics.first) ? compareMetrics.first.dataKey : metrics[0].dataKey;
-    const yKey = (compareMetrics && compareMetrics.last) ? compareMetrics.last.dataKey : metrics[1].dataKey;
+    const xKey = (compareMetrics && compareMetrics.x) ? compareMetrics.x.dataKey : metrics[0].dataKey;
+    const yKey = (compareMetrics && compareMetrics.y) ? compareMetrics.y.dataKey : metrics[1].dataKey;
     return (
       <Col md={3} key={field.id} className="scatter-plot-container">
         <h4>{field.label}</h4>
@@ -108,7 +108,7 @@ export default class ScatterGroup extends PureComponent {
       <div className="ScatterGroup">
         <Row>
           <div>
-            Comparing {this.renderDropDown('first')} with {this.renderDropDown('last')}
+            Comparing {this.renderDropDown('x')} with {this.renderDropDown('y')}
           </div>
         </Row>
         <Row>

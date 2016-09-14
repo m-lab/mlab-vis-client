@@ -104,12 +104,12 @@ export function getViewMetric(state, props) {
  * @param {Object} props the react props with URL query params included
  */
 export function getCompareMetrics(state, props) {
-  const firstValue = props.compareMetricFirst || 'download';
-  const lastValue = props.compareMetricLast || 'upload';
+  const xValue = props.compareMetricX || 'download';
+  const yValue = props.compareMetricY || 'upload';
 
   return {
-    first: extractMetric(firstValue),
-    last: extractMetric(lastValue),
+    x: extractMetric(xValue),
+    y: extractMetric(yValue),
   };
 }
 

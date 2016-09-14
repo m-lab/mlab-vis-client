@@ -34,8 +34,8 @@ import './LocationPage.scss';
 // Define how to read/write state to URL query parameters
 const urlQueryConfig = {
   viewMetric: { type: 'string', defaultValue: 'download', urlKey: 'metric' },
-  compareMetricFirst: { type: 'string', defaultValue: 'download', urlKey: 'first' },
-  compareMetricLast: { type: 'string', defaultValue: 'upload', urlKey: 'last' },
+  compareMetricX: { type: 'string', defaultValue: 'download', urlKey: 'compareX' },
+  compareMetricY: { type: 'string', defaultValue: 'upload', urlKey: 'compareY' },
 
   // chart options
   showBaselines: { type: 'boolean', defaultValue: false, urlKey: 'baselines' },
@@ -215,9 +215,9 @@ class LocationPage extends PureComponent {
   onCompareMetricsChange(compareName, value) {
     const { dispatch } = this.props;
     if (compareName === 'first') {
-      dispatch(LocationPageActions.changeCompareMetricFirst(value));
+      dispatch(LocationPageActions.changecompareMetricX(value));
     } else {
-      dispatch(LocationPageActions.changeCompareMetricLast(value));
+      dispatch(LocationPageActions.changecompareMetricY(value));
     }
   }
 

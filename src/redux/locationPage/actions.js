@@ -46,5 +46,5 @@ export const changeSelectedClientIspIds = urlReplaceAction('selectedClientIspIds
 export const changeStartDate = urlReplaceAction('startDate');
 export const changeEndDate = urlReplaceAction('endDate');
 
-export const changeCompareMetricFirst = urlReplaceAction('compareMetricFirst');
-export const changeCompareMetricLast = urlReplaceAction('compareMetricLast');
+export const changecompareMetricX = urlReplaceAction('compareMetricX');
+export const changecompareMetricY = urlReplaceAction('compareMetricY');
