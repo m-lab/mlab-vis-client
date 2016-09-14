@@ -7,12 +7,17 @@ import './CountChart.scss';
  * This chart is intended to be used paired with another chart. It
  * shares the same x-axis, width, margin left and margin right as the
  * other chart.
+ *
+ * @prop {String} highlightColor Color used to render the highlighted bars if provided
+ * @prop {Array} highlightData Used to highlight a subset of the count data (typically a series object with { meta, results })
  */
 export default class CountChart extends PureComponent {
 
   static propTypes = {
     data: PropTypes.array,
     height: PropTypes.number,
+    highlightColor: PropTypes.string,
+    highlightData: PropTypes.array,
     innerMarginLeft: PropTypes.number,
     innerMarginRight: PropTypes.number,
     numBins: PropTypes.number,
@@ -28,6 +33,7 @@ export default class CountChart extends PureComponent {
     data: [],
     xKey: 'x',
     yKey: 'count',
+    highlightColor: '#aaa',
   };
 
   /**
@@ -63,7 +69,7 @@ export default class CountChart extends PureComponent {
    * Initialize the d3 chart - this is run once on mount
    */
   setup() {
-    const { width, height, innerMargin, binWidth, innerHeight, innerWidth } = this.visComponents;
+    const { width, height, innerMargin, innerHeight, innerWidth } = this.visComponents;
 
     // add in white background for saving as PNG
     d3.select(this.root).append('rect')
@@ -91,13 +97,14 @@ export default class CountChart extends PureComponent {
 
     // add in groups for data
     this.bars = this.g.append('g').classed('bars-group', true);
+    this.highlightBars = this.g.append('g').classed('highlight-bars-group', true);
 
     this.update();
   }
 
   makeVisComponents(props) {
     const { height, innerMarginLeft = 50, innerMarginRight = 20, width, xKey,
-      xExtent, yExtent, yKey, data, numBins } = props;
+      xExtent, yExtent, yKey, data, numBins, highlightData, highlightColor } = props;
     let { xScale } = props;
 
     const innerMargin = {
@@ -139,6 +146,8 @@ export default class CountChart extends PureComponent {
       binWidth,
       data,
       height,
+      highlightColor,
+      highlightData,
       innerHeight,
       innerMargin,
       innerWidth,
@@ -156,6 +165,7 @@ export default class CountChart extends PureComponent {
   update() {
     this.renderAxes();
     this.renderBars();
+    this.renderHighlightBars();
   }
 
   /**
@@ -199,6 +209,47 @@ export default class CountChart extends PureComponent {
       .attr('height', d => innerHeight - yScale(d[yKey]))
       .style('fill', d => (d.belowThreshold ? '#fff' : '#eee'))
       .style('stroke', d => (d.belowThreshold ? '#ddd' : '#ccc'));
+
+    // EXIT
+    binding.exit()
+      .remove();
+  }
+
+  /**
+   * Render the highlight rects
+   */
+  renderHighlightBars() {
+    const {
+      highlightData = [],
+      highlightColor,
+      xKey,
+      xScale,
+      yKey,
+      yScale,
+      binWidth,
+      innerHeight,
+    } = this.visComponents;
+
+    const asColor = d3.color(highlightColor);
+    const lighterColor = asColor ? asColor.brighter(0.3) : undefined;
+
+    const binding = this.highlightBars.selectAll('rect').data(highlightData);
+
+    // ENTER
+    const entering = binding.enter()
+      .append('rect')
+      .style('shape-rendering', 'crispEdges')
+      .style('fill', '#eee')
+      .style('stroke', '#ccc');
+
+    // ENTER + UPDATE
+    binding.merge(entering)
+      .attr('x', d => xScale(d[xKey]))
+      .attr('y', d => yScale(d[yKey] || 0))
+      .attr('width', binWidth)
+      .attr('height', d => innerHeight - yScale(d[yKey] || 0))
+      .style('fill', d => (d.belowThreshold ? '#fff' : lighterColor))
+      .style('stroke', d => (d.belowThreshold ? '#ddd' : highlightColor));
 
     // EXIT
     binding.exit()

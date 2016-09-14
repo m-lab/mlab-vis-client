@@ -9,6 +9,7 @@ import './LineChart.scss';
 /**
  * A line chart that uses d3 to draw. Assumes X is a time scale.
  *
+ * @prop {Object} colors Obect mapping series IDs to colors
  * @prop {Boolean} forceZeroMin=true Whether the min y value should always be 0.
  * @prop {Number} height The height in pixels of the SVG chart
  * @prop {String} id The ID of the SVG chart (needed for PNG export)
@@ -28,6 +29,7 @@ import './LineChart.scss';
  */
 export default class LineChart extends PureComponent {
   static propTypes = {
+    colors: PropTypes.object,
     forceZeroMin: PropTypes.bool,
     height: React.PropTypes.number,
     highlightDate: React.PropTypes.object,
@@ -200,7 +202,7 @@ export default class LineChart extends PureComponent {
     const { series, forceZeroMin, height, innerMarginLeft = 50,
       innerMarginRight = 20, width, xExtent, xKey, yExtent, yKey,
       yFormatter } = props;
-    let { annotationSeries, xScale } = props;
+    let { colors, annotationSeries, xScale } = props;
 
 
     // ensure annotation series is an array
@@ -208,10 +210,9 @@ export default class LineChart extends PureComponent {
       annotationSeries = [annotationSeries];
     }
 
-    // initialize a color scale
-    let colors = {};
-    if (series) {
-      colors = colorsFor(series, (d) => d.meta.client_asn_number);
+    // initialize a color scale unless one was provided
+    if (series && !colors) {
+      colors = colorsFor(series, (d) => d.meta.id);
     }
 
     const innerMargin = {
