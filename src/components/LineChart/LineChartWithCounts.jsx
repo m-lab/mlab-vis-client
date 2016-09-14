@@ -1,6 +1,7 @@
 import React, { PureComponent, PropTypes } from 'react';
 import d3 from 'd3';
 
+import { colorsFor } from '../../utils/color';
 import { LineChart, CountChart } from '../../components';
 import { multiExtent } from '../../utils/array';
 
@@ -71,7 +72,7 @@ export default class LineChartWithCounts extends PureComponent {
    * @return {Array} the prepared data
    */
   prepareData(props) {
-    const { series } = props;
+    const { series, highlightLine } = props;
 
     if (!series) {
       return {};
@@ -129,6 +130,12 @@ export default class LineChartWithCounts extends PureComponent {
       xScale.domain(xDomain);
     }
 
+    // initialize a color scale
+    let colors = {};
+    if (series) {
+      colors = colorsFor(series, (d) => d.meta.id);
+    }
+
     // TODO - this is incorrect in the event that there is missing data.
     // e.g. Jan 1, Jan 2, Jan 4, Jan 5, Jan 6. = 5 bins, but should be 6.
     // also currently only looks at the first series.
@@ -139,6 +146,7 @@ export default class LineChartWithCounts extends PureComponent {
       innerMargin,
       numBins,
       xScale,
+      colors,
     };
   }
 
@@ -147,11 +155,13 @@ export default class LineChartWithCounts extends PureComponent {
    * @return {React.Component} The rendered container
    */
   render() {
-    const { height, id, width, xKey, annotationSeries, series } = this.props;
-    const { counts, innerMargin, xScale, numBins } = this.visComponents;
+    const { height, id, width, xKey, annotationSeries, series, highlightLine } = this.props;
+    const { counts, innerMargin, xScale, numBins, colors } = this.visComponents;
 
     const lineChartHeight = height * 0.75;
     const countHeight = height - lineChartHeight;
+    const highlightColor = highlightLine ? colors[highlightLine.meta.id] : undefined;
+    const highlightCountData = highlightLine ? highlightLine.results : undefined;
 
     return (
       <div className="line-chart-with-counts-container">
@@ -166,6 +176,7 @@ export default class LineChartWithCounts extends PureComponent {
             <LineChart
               {...this.props}
               series={series}
+              colors={colors}
               annotationSeries={annotationSeries}
               id={undefined}
               inSvg
@@ -178,6 +189,8 @@ export default class LineChartWithCounts extends PureComponent {
           <g transform={`translate(0 ${lineChartHeight})`}>
             <CountChart
               data={counts} /* TODO figure out multi-series counts */
+              highlightData={highlightCountData}
+              highlightColor={highlightColor}
               height={countHeight}
               innerMarginLeft={innerMargin.left}
               innerMarginRight={innerMargin.right}
