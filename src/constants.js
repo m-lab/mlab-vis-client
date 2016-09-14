@@ -32,6 +32,6 @@ export const metrics = [
     value: 'retransmission',
     label: 'Retransmission Rate',
     dataKey: 'retransmit_avg',
-    formatter: d3.format('.1f'),
+    formatter: d3.format('.1p'),
   },
 ];

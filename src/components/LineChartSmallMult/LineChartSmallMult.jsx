@@ -136,7 +136,7 @@ export default class LineChartSmallMult extends PureComponent {
             metrics,
             chartHeight,
             timeAggregation,
-            innerMarginLeft = 50,
+            innerMarginLeft = 3, // leave enough room for circle radius
             innerMarginRight = 20,
             innerMarginTop = 40,
             chartPadding = 30,
@@ -332,7 +332,7 @@ export default class LineChartSmallMult extends PureComponent {
    */
   renderChartLabels(series, chartId, seriesIndex, yKey, metricIndex) {
     const { hover, mouse } = this.state;
-    const { xScale, yScales, colors, xKey, showBaseline } = this.visComponents;
+    const { xScale, yScales, colors, xKey, showBaseline, metrics } = this.visComponents;
 
     // find the value closest to the mouse's x coordinate
     const closest = findClosestSorted(series.results, mouse[0], d => xScale(d[xKey]));
@@ -341,25 +341,22 @@ export default class LineChartSmallMult extends PureComponent {
 
     const color = ((showBaseline && seriesIndex === 0) ? '#bbb' : colors[series.meta.client_asn_number]);
     const darkColor = d3.color(color).darker();
+    const yFormatter = metrics[metricIndex].formatter || (d => d);
 
     if (hover && yValue) {
       return (
-        <g>
-          <circle
-            cx={xScale(xValue)}
-            cy={yScales[metricIndex](yValue)}
-            r={3}
-            fill={darkColor}
-          />
+        <g transform={`translate(${xScale(xValue)} ${yScales[metricIndex](yValue)})`}>
+          <rect x={0} y={-8} width={50} height={14} fill={'#fff'} />
+          <circle cx={0} cy={0} r={3} fill={darkColor} />
           <text
-            x={xScale(xValue)}
-            y={yScales[metricIndex](yValue)}
+            x={0}
+            y={0}
             dy={3}
             dx={6}
             textAnchor="start"
             className="small-mult-label small-mult-hover-label"
           >
-            {yValue}
+            {yFormatter(yValue)}
           </text>
         </g>
       );
@@ -429,7 +426,7 @@ export default class LineChartSmallMult extends PureComponent {
       return (
         <text
           key={metric.dataKey}
-          className="small-mult-label small-mult-title"
+          className="small-mult-title"
           x={xPos}
           y={chartPadding}
           textAnchor="start"
