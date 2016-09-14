@@ -533,9 +533,11 @@ class LocationPage extends PureComponent {
     return (
       <div className="section-fixedtime section">
         <Row>
-          <header>
-            <h2>Compare Fixed Time Frame</h2>
-          </header>
+          <Col md={12}>
+            <header>
+              <h2>Compare Fixed Time Frame</h2>
+            </header>
+          </Col>
         </Row>
         <Row>
           <Col md={3}>

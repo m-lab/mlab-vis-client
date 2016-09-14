@@ -107,9 +107,11 @@ export default class ScatterGroup extends PureComponent {
     return (
       <div className="ScatterGroup">
         <Row>
-          <div>
-            Comparing {this.renderDropDown('x')} with {this.renderDropDown('y')}
-          </div>
+          <Col md={12}>
+            <div>
+              Comparing {this.renderDropDown('x')} with {this.renderDropDown('y')}
+            </div>
+          </Col>
         </Row>
         <Row>
           {fields.map((f) => this.renderPlot(f, summary[f.id]))}
