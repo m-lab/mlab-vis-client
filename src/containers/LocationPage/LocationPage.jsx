@@ -34,6 +34,8 @@ import './LocationPage.scss';
 // Define how to read/write state to URL query parameters
 const urlQueryConfig = {
   viewMetric: { type: 'string', defaultValue: 'download', urlKey: 'metric' },
+  compareMetricFirst: { type: 'string', defaultValue: 'download', urlKey: 'first' },
+  compareMetricLast: { type: 'string', defaultValue: 'upload', urlKey: 'last' },
 
   // chart options
   showBaselines: { type: 'boolean', defaultValue: false, urlKey: 'baselines' },
@@ -67,6 +69,7 @@ function mapStateToProps(state, propsWithUrl) {
     timeSeriesStatus: LocationPageSelectors.getTimeSeriesStatus(state, propsWithUrl),
     topClientIsps: LocationPageSelectors.getLocationTopClientIsps(state, propsWithUrl),
     viewMetric: LocationPageSelectors.getViewMetric(state, propsWithUrl),
+    compareMetrics: LocationPageSelectors.getCompareMetrics(state, propsWithUrl),
   };
 }
 
@@ -74,6 +77,7 @@ class LocationPage extends PureComponent {
   static propTypes = {
     clientIspHourly: PropTypes.array,
     clientIspTimeSeries: PropTypes.array,
+    compareMetrics: PropTypes.object,
     dispatch: PropTypes.func,
     endDate: momentPropTypes.momentObj,
     highlightHourly: PropTypes.object,
@@ -108,6 +112,7 @@ class LocationPage extends PureComponent {
     this.onShowBaselinesChange = this.onShowBaselinesChange.bind(this);
     this.onShowRegionalValuesChange = this.onShowRegionalValuesChange.bind(this);
     this.onViewMetricChange = this.onViewMetricChange.bind(this);
+    this.onCompareMetricsChange = this.onCompareMetricsChange.bind(this);
     this.onTimeAggregationChange = this.onTimeAggregationChange.bind(this);
     this.onSelectedClientIspsChange = this.onSelectedClientIspsChange.bind(this);
     this.onDateRangeChange = this.onDateRangeChange.bind(this);
@@ -202,6 +207,18 @@ class LocationPage extends PureComponent {
   onViewMetricChange(value) {
     const { dispatch } = this.props;
     dispatch(LocationPageActions.changeViewMetric(value));
+  }
+
+  /**
+   * Callback for when viewMetric changes - updates URL
+   */
+  onCompareMetricsChange(compareName, value) {
+    const { dispatch } = this.props;
+    if (compareName === 'first') {
+      dispatch(LocationPageActions.changeCompareMetricFirst(value));
+    } else {
+      dispatch(LocationPageActions.changeCompareMetricLast(value));
+    }
   }
 
   /**
@@ -515,21 +532,35 @@ class LocationPage extends PureComponent {
 
   renderFixedTimeFrames() {
     return (
-      <div className="section">
-        <header>
-          <h2>Compare Fixed Time Frame</h2>
-        </header>
-        {this.renderFixedCompareMetrics()}
-        {this.renderFixedDistributions()}
-        {this.renderFixedSummaryData()}
+      <div className="section-fixedtime section">
+        <Row>
+          <header>
+            <h2>Compare Fixed Time Frame</h2>
+          </header>
+        </Row>
+        <Row>
+          <Col md={3}>
+            {this.renderClientIspSelector()}
+          </Col>
+          <Col md={9}>
+            {this.renderFixedCompareMetrics()}
+          </Col>
+        </Row>
+        <Row>
+          <Col md={3}>
+            {this.renderMetricSelector()}
+          </Col>
+          <Col md={9}>
+            {this.renderFixedDistributions()}
+            {this.renderFixedSummaryData()}
+          </Col>
+        </Row>
       </div>
     );
   }
 
   renderFixedCompareMetrics() {
-    const { summary = {} } = this.props;
-    const xKey = 'download_speed_mbps_avg';
-    const yKey = 'upload_speed_mbps_avg';
+    const { compareMetrics, summary = {} } = this.props;
     const fields = [
       { id: 'lastWeek', label: 'Last Week' },
       { id: 'lastMonth', label: 'Last Month' },
@@ -543,8 +574,8 @@ class LocationPage extends PureComponent {
         <ScatterGroup
           summary={summary}
           fields={fields}
-          xKey={xKey}
-          yKey={yKey}
+          compareMetrics={compareMetrics}
+          onChange={this.onCompareMetricsChange}
         />
       </div>
     );

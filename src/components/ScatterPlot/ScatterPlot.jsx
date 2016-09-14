@@ -7,13 +7,14 @@ import './ScatterPlot.scss';
 /**
  * Chart for showing dots
  *
- * @prop {Array} data The array of data points indexed by hour. Should be
- *   an array of length 24 of form [{ hour:Number(0..23), points: [{ yKey:Number }, ...]}, ...]
+ * @prop {Array} data array of objects with various metrics inside
  * @prop {Number} height The height of the chart
  * @prop {Function} onHover Callback for when a point is hovered on
  * @prop {Number} width The width of the chart
- * @prop {Array} yExtent The min and max value of the yKey in the chart
+ * @prop {Array} yExtent Optional. The min and max value of the yKey in the chart
  * @prop {String} yKey="y" The key in the data points to read the y value from
+ * @prop {Array} xExtent Optional. The min and max value of the xKey in the chart
+ * @prop {String} xKey="x" The key in the data points to read the x value from
  */
 export default class ScatterPlot extends PureComponent {
   static propTypes = {
@@ -103,6 +104,7 @@ export default class ScatterPlot extends PureComponent {
             yKey,
             yScale,
           } = this.visComponents;
+
     this.g.attr('transform', `translate(${innerMargin.left} ${innerMargin.top})`);
 
     const binding = this.g.selectAll('.data-point').data(data, d => d.id);
@@ -122,9 +124,12 @@ export default class ScatterPlot extends PureComponent {
    * Render the x and y axis components
    */
   updateAxes() {
-    const { xScale, yScale, chartHeight } = this.visComponents;
-    const xAxis = d3.axisBottom(xScale);
-    const yAxis = d3.axisLeft(yScale);
+    const { xScale, yScale, chartHeight, chartWidth } = this.visComponents;
+
+    const xTicks = Math.round(chartWidth / 50);
+    const yTicks = Math.round(chartHeight / 50);
+    const xAxis = d3.axisBottom(xScale).ticks(xTicks).tickSizeOuter(0);
+    const yAxis = d3.axisLeft(yScale).ticks(yTicks).tickSizeOuter(0);
 
     this.yAxis.call(yAxis);
 
