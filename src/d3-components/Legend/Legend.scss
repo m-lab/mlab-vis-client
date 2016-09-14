@@ -1,6 +1,10 @@
 .Legend {
   .legend-entry {
     font-size: 12px;
+
+    &.not-highlighted {
+      opacity: 0.4;
+    }
   }
   .legend-entry-value {
     font-weight: 400;

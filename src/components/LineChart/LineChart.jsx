@@ -386,7 +386,7 @@ export default class LineChart extends PureComponent {
   }
 
   renderLegend() {
-    const { highlightDate } = this.props;
+    const { highlightDate, highlightLine } = this.props;
     const { series = [], annotationSeries = [], legend, xKey, yKey } = this.visComponents;
 
     this.legendContainer.attr('transform', `translate(0 ${-legend.height})`);
@@ -401,7 +401,7 @@ export default class LineChart extends PureComponent {
       });
     }
 
-    legend.render(this.legendContainer, highlightValues);
+    legend.render(this.legendContainer, highlightValues, highlightLine);
   }
 
   /**
