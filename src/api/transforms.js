@@ -277,6 +277,8 @@ export function transformFixedData(body) {
 
     const keyMapping = {
       last_year_: 'lastYear',
+      last_month_: 'lastMonth',
+      last_week_: 'lastWeek',
       other: 'other',
     };
 
