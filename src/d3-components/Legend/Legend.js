@@ -1,5 +1,6 @@
 import d3 from 'd3';
 
+import './Legend.scss';
 /**
  * D3 Component for rendering a legend
  * Typically initialized in makeVisComponents() and then rendered with a passed in
@@ -38,12 +39,17 @@ export default class Legend {
   /**
    * Renders the legend to the `root` container
    *
-   * @param {Object} root A d3 selection of a container to render the legend in
+   * @param {Object} container A d3 selection of a container to render the legend in
    * @param {Array} values Array of values corresponding to the data array. If provided,
    *   these values show up in the legend (typically used for mouse behavior)
    * @return {void}
    */
-  render(root, values) {
+  render(container, values) {
+    let root = container.select('.Legend');
+    if (root.empty()) {
+      root = container.append('g').attr('class', 'Legend');
+    }
+
     const binding = root.selectAll('.legend-entry').data(this.data, d => d.meta.id);
     binding.exit().remove();
 

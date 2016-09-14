@@ -1,8 +1,4 @@
 .line-chart {
-  .legend-entry {
-    font-size: 12px;
-  }
-
   .highlight-line path {
     stroke-width: 3px !important;
   }
@@ -10,10 +6,6 @@
   .series-overlay {
     fill: #fff;
     opacity: 0.7;
-  }
-
-  .legend-entry-value {
-    font-weight: 400;
   }
 
   .highlight-ref-line {
