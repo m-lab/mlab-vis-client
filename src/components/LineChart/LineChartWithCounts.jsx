@@ -159,11 +159,12 @@ export default class LineChartWithCounts extends PureComponent {
    * @return {React.Component} The rendered container
    */
   render() {
-    const { height, id, width, xKey, annotationSeries, series, highlightLine } = this.props;
+    const { id, width, xKey, annotationSeries, series, highlightLine } = this.props;
     const { counts, innerMargin, xScale, numBins, colors } = this.visComponents;
 
-    const lineChartHeight = height * 0.75;
-    const countHeight = height - lineChartHeight;
+    const lineChartHeight = 350;
+    const countHeight = 80;
+    const height = lineChartHeight + countHeight;
     const highlightColor = highlightLine ? colors[highlightLine.meta.id] : undefined;
     const highlightCountData = highlightLine ? highlightLine.results : undefined;
 
