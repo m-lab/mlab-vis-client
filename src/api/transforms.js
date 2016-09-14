@@ -217,7 +217,7 @@ export function transformClientIspLabel(body) {
 export function transformLocationInfo(body) {
   // NOTE: modifying body directly means it modifies what is stored in the API cache
   if (body.meta) {
-    // add in label and ID
+    // add in label
     transformLocationLabel(body);
 
     const { meta } = body;
