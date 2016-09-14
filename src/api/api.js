@@ -4,7 +4,9 @@ import {
   transformTimeSeries,
   transformHourly,
   transformSearchResults,
+  transformClientIspLabel,
   transformLocationInfo,
+  transformLocationLabel,
   transformFixedData,
   transformMapMeta,
 } from './transforms';
@@ -59,7 +61,7 @@ export function getLocationInfo(locationId) {
 export function getLocationTimeSeries(timeAggregation, locationId, options = {}) {
   const params = getDateRangeParams(timeAggregation, options);
   return get(`/locations/${locationId}/time/${timeAggregation}/metrics`, { params })
-    .then(transform(transformTimeSeries));
+    .then(transform(transformLocationLabel, transformTimeSeries));
 }
 
 /**
@@ -76,7 +78,7 @@ export function getLocationTimeSeries(timeAggregation, locationId, options = {})
 export function getLocationHourly(timeAggregation, locationId, options = {}) {
   const params = getDateRangeParams(timeAggregation, options);
   return get(`/locations/${locationId}/time/${timeAggregation}_hour/metrics`, { params })
-    .then(transform(transformHourly));
+    .then(transform(transformLocationLabel, transformHourly));
 }
 
 /**
@@ -93,7 +95,7 @@ export function getLocationClientIspTimeSeries(timeAggregation, locationId, clie
   const params = getDateRangeParams(timeAggregation, options);
 
   return get(`/locations/${locationId}/time/${timeAggregation}/clientisps/${clientIspId}/metrics`, { params })
-    .then(transform(transformTimeSeries));
+    .then(transform(transformClientIspLabel, transformTimeSeries));
 }
 
 
@@ -111,7 +113,7 @@ export function getLocationClientIspHourly(timeAggregation, locationId, clientIs
   const params = getDateRangeParams(timeAggregation, options);
 
   return get(`/locations/${locationId}/time/${timeAggregation}_hour/clientisps/${clientIspId}/metrics`, { params })
-    .then(transform(transformHourly));
+    .then(transform(transformClientIspLabel, transformHourly));
 }
 
 /**
