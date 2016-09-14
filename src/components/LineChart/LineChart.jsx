@@ -457,8 +457,8 @@ export default class LineChart extends PureComponent {
    */
   renderAxes() {
     const { xScale, yScale, innerHeight, innerMargin, innerWidth, yKey, yFormatter } = this.visComponents;
-    const xAxis = d3.axisBottom(xScale);
-    const yAxis = d3.axisLeft(yScale);
+    const xAxis = d3.axisBottom(xScale).tickSizeOuter(0);
+    const yAxis = d3.axisLeft(yScale).tickSizeOuter(0);
 
     // use default formatter unless retransmit_avg since we want percentages rendered
     if (yKey === 'retransmit_avg') {

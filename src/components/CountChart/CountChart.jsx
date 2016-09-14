@@ -195,7 +195,7 @@ export default class CountChart extends PureComponent {
    */
   renderAxes() {
     const { yScale, innerHeight, innerMargin } = this.visComponents;
-    const yAxis = d3.axisLeft(yScale).ticks(4);
+    const yAxis = d3.axisLeft(yScale).ticks(4).tickSizeOuter(0);
 
     this.yAxis.call(yAxis);
     this.yAxisLabel

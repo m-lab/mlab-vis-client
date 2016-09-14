@@ -225,8 +225,8 @@ export default class HourChart extends PureComponent {
    */
   renderAxes() {
     const { xScale, yScale, innerHeight, binWidth } = this.visComponents;
-    const xAxis = d3.axisBottom(xScale);
-    const yAxis = d3.axisLeft(yScale);
+    const xAxis = d3.axisBottom(xScale).tickSizeOuter(0);
+    const yAxis = d3.axisLeft(yScale).tickSizeOuter(0);
 
     this.yAxis.call(yAxis);
 
