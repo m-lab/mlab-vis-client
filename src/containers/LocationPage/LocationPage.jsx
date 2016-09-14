@@ -8,6 +8,7 @@ import * as LocationPageSelectors from '../../redux/locationPage/selectors';
 import * as LocationPageActions from '../../redux/locationPage/actions';
 import * as LocationsActions from '../../redux/locations/actions';
 
+import { colorsFor } from '../../utils/color';
 import { metrics } from '../../constants';
 
 import {
@@ -462,6 +463,9 @@ class LocationPage extends PureComponent {
 
   renderProvidersByHour() {
     const { locationHourly, clientIspHourly } = this.props;
+
+    const colors = colorsFor(clientIspHourly, (d) => d.meta.id);
+
     return (
       <div className="subsection">
         <header>
@@ -469,13 +473,13 @@ class LocationPage extends PureComponent {
         </header>
         <Row>
           {this.renderHourChart(locationHourly)}
-          {clientIspHourly.map(hourly => this.renderHourChart(hourly))}
+          {clientIspHourly.map(hourly => this.renderHourChart(hourly, colors[hourly.meta.id]))}
         </Row>
       </div>
     );
   }
 
-  renderHourChart(hourlyData) {
+  renderHourChart(hourlyData, color) {
     const { hourlyStatus, highlightHourly, locationId, viewMetric } = this.props;
     const extentKey = this.extentKey(viewMetric);
 
@@ -491,6 +495,7 @@ class LocationPage extends PureComponent {
         <div className="clearfix">
           <StatusWrapper status={hourlyStatus}>
             <HourChartWithCounts
+              color={color}
               data={hourlyData.results}
               highlightPoint={highlightHourly}
               id={chartId}
