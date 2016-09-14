@@ -44,10 +44,10 @@ export default class LineChart extends PureComponent {
     width: React.PropTypes.number,
     xExtent: PropTypes.array,
     xKey: React.PropTypes.string,
-    yExtent: PropTypes.array,
-    yFormatter: PropTypes.func,
     yAxisLabel: React.PropTypes.string,
     yAxisUnit: React.PropTypes.string,
+    yExtent: PropTypes.array,
+    yFormatter: PropTypes.func,
     yKey: React.PropTypes.string,
   }
 
