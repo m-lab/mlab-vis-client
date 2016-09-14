@@ -86,6 +86,9 @@ export default class CountChart extends PureComponent {
 
     // add in axis groups
     this.yAxis = this.g.append('g').classed('y-axis', true);
+    this.yAxisLabel = this.g.append('text')
+      .attr('class', 'axis-label')
+      .attr('text-anchor', 'middle');
 
     // render a line for the x-axis (no ticks)
     this.xAxis = this.g.append('g').classed('x-axis', true)
@@ -108,9 +111,9 @@ export default class CountChart extends PureComponent {
     let { xScale } = props;
 
     const innerMargin = {
-      top: 20,
+      top: 10,
       right: innerMarginRight,
-      bottom: 35,
+      bottom: 10,
       left: innerMarginLeft,
     };
 
@@ -172,10 +175,13 @@ export default class CountChart extends PureComponent {
    * Render the x and y axis components
    */
   renderAxes() {
-    const { yScale } = this.visComponents;
+    const { yScale, innerHeight, innerMargin } = this.visComponents;
     const yAxis = d3.axisLeft(yScale).ticks(4);
 
     this.yAxis.call(yAxis);
+    this.yAxisLabel
+      .attr('transform', `rotate(270) translate(${-innerHeight / 2} ${-innerMargin.left + 12})`)
+      .text('Test Count');
   }
 
   /**

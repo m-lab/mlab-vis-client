@@ -401,7 +401,6 @@ class LocationPage extends PureComponent {
             onHighlightLine={this.onHighlightTimeSeriesLine}
             highlightLine={highlightTimeSeriesLine}
             yFormatter={viewMetric.formatter}
-            height={400}
             width={840}
             xKey="date"
             yAxisLabel={viewMetric.label}
@@ -457,7 +456,6 @@ class LocationPage extends PureComponent {
           <StatusWrapper status={hourlyStatus}>
             <HourChartWithCounts
               data={locationHourly && locationHourly.results}
-              height={400}
               highlightPoint={highlightHourly}
               id={chartId}
               onHighlightPoint={this.onHighlightHourly}
@@ -492,7 +490,6 @@ class LocationPage extends PureComponent {
               <StatusWrapper status={hourlyStatus}>
                 <HourChartWithCounts
                   data={hourly.results}
-                  height={300}
                   highlightPoint={highlightHourly}
                   id={chartId}
                   onHighlightPoint={this.onHighlightHourly}
