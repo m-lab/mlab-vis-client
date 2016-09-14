@@ -225,7 +225,7 @@ export default class LineChart extends PureComponent {
 
     // compute legend properties and make room for it at the top.
     const legend = new Legend({
-      data: series,
+      data: (series || []).concat(annotationSeries || []),
       colors,
       formatter: yFormatter,
       width: innerWidth,
@@ -368,7 +368,7 @@ export default class LineChart extends PureComponent {
 
   renderLegend() {
     const { highlightDate } = this.props;
-    const { series, legend, xKey, yKey } = this.visComponents;
+    const { series = [], annotationSeries = [], legend, xKey, yKey } = this.visComponents;
 
     this.legendContainer.attr('transform', `translate(0 ${-legend.height})`);
 
@@ -376,7 +376,7 @@ export default class LineChart extends PureComponent {
 
     if (highlightDate != null) {
       // find the y value for the highlighted date
-      highlightValues = series.map(oneSeries => {
+      highlightValues = series.concat(annotationSeries).map(oneSeries => {
         const value = findEqualSorted(oneSeries.results, highlightDate.unix(), d => d[xKey].unix());
         return value == null ? value : value[yKey];
       });
