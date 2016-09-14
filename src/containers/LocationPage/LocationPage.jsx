@@ -336,6 +336,7 @@ class LocationPage extends PureComponent {
 
     return (
       <div className="client-isp-selector">
+        <h5>Client ISPs</h5>
         <IspSelect
           isps={topClientIsps}
           selected={selectedClientIspInfo}
