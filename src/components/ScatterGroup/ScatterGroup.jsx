@@ -1,5 +1,6 @@
 import React, { PureComponent, PropTypes } from 'react';
-import { Row, Col } from 'react-bootstrap';
+import Row from 'react-bootstrap/lib/Row';
+import Col from 'react-bootstrap/lib/Col';
 import { metrics } from '../../constants';
 
 import { ScatterPlot, SelectableDropdown } from '../../components';
@@ -107,9 +108,11 @@ export default class ScatterGroup extends PureComponent {
     return (
       <div className="ScatterGroup">
         <Row>
-          <div>
-            Comparing {this.renderDropDown('x')} with {this.renderDropDown('y')}
-          </div>
+          <Col md={12}>
+            <div>
+              Comparing {this.renderDropDown('x')} with {this.renderDropDown('y')}
+            </div>
+          </Col>
         </Row>
         <Row>
           {fields.map((f) => this.renderPlot(f, summary[f.id]))}

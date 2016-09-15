@@ -3,11 +3,14 @@ import Helmet from 'react-helmet';
 import moment from 'moment';
 import { browserHistory } from 'react-router';
 import momentPropTypes from 'react-moment-proptypes';
-import { Row, Col } from 'react-bootstrap';
+import Row from 'react-bootstrap/lib/Row';
+import Col from 'react-bootstrap/lib/Col';
+
 import * as LocationPageSelectors from '../../redux/locationPage/selectors';
 import * as LocationPageActions from '../../redux/locationPage/actions';
 import * as LocationsActions from '../../redux/locations/actions';
 
+import { colorsFor } from '../../utils/color';
 import { metrics } from '../../constants';
 
 import {
@@ -342,6 +345,7 @@ class LocationPage extends PureComponent {
 
     return (
       <div className="client-isp-selector">
+        <h5>Client ISPs</h5>
         <IspSelect
           isps={topClientIsps}
           selected={selectedClientIspInfo}
@@ -425,9 +429,10 @@ class LocationPage extends PureComponent {
             onHighlightLine={this.onHighlightTimeSeriesLine}
             highlightLine={highlightTimeSeriesLine}
             yFormatter={viewMetric.formatter}
-            height={400}
             width={840}
             xKey="date"
+            yAxisLabel={viewMetric.label}
+            yAxisUnit={viewMetric.unit}
             yKey={viewMetric.dataKey}
           />
           <ChartExportControls
@@ -465,74 +470,57 @@ class LocationPage extends PureComponent {
   }
 
   renderProvidersByHour() {
-    const { locationHourly, hourlyStatus, highlightHourly, locationId, viewMetric } = this.props;
-    const extentKey = this.extentKey(viewMetric);
-    const chartId = 'providers-hourly';
-    const chartData = locationHourly && locationHourly.results;
+    const { locationHourly, clientIspHourly } = this.props;
+
+    const colors = colorsFor(clientIspHourly, (d) => d.meta.id);
 
     return (
       <div className="subsection">
         <header>
           <h3>By Hour, Median download speeds</h3>
         </header>
-        <div className="clearfix">
-          <StatusWrapper status={hourlyStatus}>
-            <HourChartWithCounts
-              data={locationHourly && locationHourly.results}
-              height={400}
-              highlightPoint={highlightHourly}
-              id={chartId}
-              onHighlightPoint={this.onHighlightHourly}
-              threshold={30}
-              width={800}
-              yExtent={locationHourly && locationHourly.extents[extentKey]}
-              yKey={viewMetric.dataKey}
-            />
-            <ChartExportControls
-              chartId={chartId}
-              data={chartData}
-              filename={`${locationId}_${viewMetric.value}_${chartId}`}
-            />
-          </StatusWrapper>
-        </div>
-        {this.renderClientIspsByHour()}
+        <Row>
+          {this.renderHourChart(locationHourly)}
+          {clientIspHourly.map(hourly => this.renderHourChart(hourly, colors[hourly.meta.id]))}
+        </Row>
       </div>
     );
   }
 
-  renderClientIspsByHour() {
-    const { clientIspHourly, hourlyStatus, highlightHourly, locationId, viewMetric } = this.props;
+  renderHourChart(hourlyData, color) {
+    const { hourlyStatus, highlightHourly, locationId, viewMetric } = this.props;
     const extentKey = this.extentKey(viewMetric);
 
+    if (!hourlyData || !hourlyData.meta) {
+      return null;
+    }
+
+    const id = hourlyData.meta.id;
+    const chartId = `providers-hourly-${id}`;
     return (
-      <Row>
-        {clientIspHourly.map(hourly => {
-          const clientIspId = hourly.meta.client_asn_number;
-          const chartId = `providers-hourly-${clientIspId}`;
-          return (
-            <Col md={6} key={clientIspId}>
-              <StatusWrapper status={hourlyStatus}>
-                <HourChartWithCounts
-                  data={hourly.results}
-                  height={300}
-                  highlightPoint={highlightHourly}
-                  id={chartId}
-                  onHighlightPoint={this.onHighlightHourly}
-                  threshold={30}
-                  width={400}
-                  yExtent={hourly.extents[extentKey]}
-                  yKey={viewMetric.dataKey}
-                />
-                <ChartExportControls
-                  chartId={chartId}
-                  data={hourly.results}
-                  filename={`${locationId}_${clientIspId}_${viewMetric.value}_${chartId}`}
-                />
-              </StatusWrapper>
-            </Col>
-          );
-        })}
-      </Row>
+      <Col md={6} key={id}>
+        <h4>{hourlyData.meta.label}</h4>
+        <div className="clearfix">
+          <StatusWrapper status={hourlyStatus}>
+            <HourChartWithCounts
+              color={color}
+              data={hourlyData.results}
+              highlightPoint={highlightHourly}
+              id={chartId}
+              onHighlightPoint={this.onHighlightHourly}
+              threshold={30}
+              width={400}
+              yExtent={hourlyData.extents[extentKey]}
+              yKey={viewMetric.dataKey}
+            />
+            <ChartExportControls
+              chartId={chartId}
+              data={hourlyData.results}
+              filename={`${locationId}${id === locationId ? '' : `_${id}`}_${viewMetric.value}_${chartId}`}
+            />
+          </StatusWrapper>
+        </div>
+      </Col>
     );
   }
 
@@ -540,9 +528,11 @@ class LocationPage extends PureComponent {
     return (
       <div className="section-fixedtime section">
         <Row>
-          <header>
-            <h2>Compare Fixed Time Frame</h2>
-          </header>
+          <Col md={12}>
+            <header>
+              <h2>Compare Fixed Time Frame</h2>
+            </header>
+          </Col>
         </Row>
         <Row>
           <Col md={3}>
@@ -600,13 +590,17 @@ class LocationPage extends PureComponent {
 
   renderFixedSummaryData() {
     const { summary = {} } = this.props;
-    const { lastYear = {} } = summary;
+    const { lastWeek = {}, lastMonth = {}, lastYear = {} } = summary;
 
     return (
       <div className="subsection">
         <header>
           <h3>Summary Data</h3>
         </header>
+        <h4>Last Week</h4>
+        <SummaryTable data={lastWeek.clientIspsData} bottomData={lastWeek.locationData} />
+        <h4>Last Month</h4>
+        <SummaryTable data={lastMonth.clientIspsData} bottomData={lastMonth.locationData} />
         <h4>Last Year</h4>
         <SummaryTable data={lastYear.clientIspsData} bottomData={lastYear.locationData} />
       </div>

@@ -26,6 +26,8 @@ import { multiExtent } from '../../utils/array';
  * @prop {Array} yExtent The min and max value of the yKey in the chart
  * @prop {Function} yFormatter Format function that takes a y value and outputs a string
  * @prop {String} yKey="y" The key to read the y value from in the data
+ * @prop {String} yAxisLabel The label to show on the Y axis
+ * @prop {String} yAxisUnit The unit to show on the Y axis label
  */
 export default class LineChartWithCounts extends PureComponent {
   static propTypes = {
@@ -42,6 +44,8 @@ export default class LineChartWithCounts extends PureComponent {
     width: React.PropTypes.number,
     xExtent: PropTypes.array,
     xKey: React.PropTypes.string,
+    yAxisLabel: React.PropTypes.string,
+    yAxisUnit: React.PropTypes.string,
     yExtent: PropTypes.array,
     yFormatter: PropTypes.func,
     yKey: React.PropTypes.string,
@@ -72,7 +76,7 @@ export default class LineChartWithCounts extends PureComponent {
    * @return {Array} the prepared data
    */
   prepareData(props) {
-    const { series, highlightLine } = props;
+    const { series } = props;
 
     if (!series) {
       return {};
@@ -155,11 +159,12 @@ export default class LineChartWithCounts extends PureComponent {
    * @return {React.Component} The rendered container
    */
   render() {
-    const { height, id, width, xKey, annotationSeries, series, highlightLine } = this.props;
+    const { id, width, xKey, annotationSeries, series, highlightLine, highlightDate, onHighlightDate } = this.props;
     const { counts, innerMargin, xScale, numBins, colors } = this.visComponents;
 
-    const lineChartHeight = height * 0.75;
-    const countHeight = height - lineChartHeight;
+    const lineChartHeight = 350;
+    const countHeight = 80;
+    const height = lineChartHeight + countHeight;
     const highlightColor = highlightLine ? colors[highlightLine.meta.id] : undefined;
     const highlightCountData = highlightLine ? highlightLine.results : undefined;
 
@@ -190,10 +195,12 @@ export default class LineChartWithCounts extends PureComponent {
             <CountChart
               data={counts} /* TODO figure out multi-series counts */
               highlightData={highlightCountData}
+              highlightCount={highlightDate}
               highlightColor={highlightColor}
               height={countHeight}
               innerMarginLeft={innerMargin.left}
               innerMarginRight={innerMargin.right}
+              onHighlightCount={onHighlightDate}
               numBins={numBins}
               width={width}
               xKey={xKey}

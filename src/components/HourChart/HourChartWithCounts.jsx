@@ -7,10 +7,10 @@ import { sum, average } from '../../utils/math';
 /**
  * Chart for showing data by hour and with test counts
  *
+ * @prop {String} color The color to render the chart in
  * @prop {Array} data The array of data points indexed by hour. Should be
  *   an array of length 24 of form [{ hour:Number(0..23), points: [{ yKey:Number }, ...]}, ...]
  * @prop {Boolean} forceZeroMin=true Whether the min y value should always be 0.
- * @prop {Number} height The height of the chart
  * @prop {Object} highlightPoint The point being highlighted in the chart
  * @prop {Function} onHighlightPoint Callback for when a point is hovered on
  * @prop {Number} width The width of the chart
@@ -19,9 +19,9 @@ import { sum, average } from '../../utils/math';
  */
 export default class HourChartWithCounts extends PureComponent {
   static propTypes = {
+    color: PropTypes.string,
     data: PropTypes.array,
     forceZeroMin: PropTypes.bool,
-    height: PropTypes.number,
     highlightPoint: PropTypes.object,
     id: React.PropTypes.string,
     onHighlightPoint: PropTypes.func,
@@ -143,12 +143,13 @@ export default class HourChartWithCounts extends PureComponent {
    * @return {React.Component} The rendered container
    */
   render() {
-    const { height, id, width } = this.props;
+    const { id, width, color } = this.props;
     const { dataByHour, dataByDate, filteredData, innerMargin, overallData,
       xScale, numBins } = this.visComponents;
 
-    const hourHeight = height * 0.75;
-    const countHeight = height - hourHeight;
+    const hourHeight = 250;
+    const countHeight = 80;
+    const height = hourHeight + countHeight;
 
     return (
       <div className="hour-chart-with-counts-container">
@@ -162,6 +163,7 @@ export default class HourChartWithCounts extends PureComponent {
           <g>
             <HourChart
               {...this.props}
+              color={color}
               data={filteredData}
               dataByHour={dataByHour}
               dataByDate={dataByDate}

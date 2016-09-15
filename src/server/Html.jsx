@@ -66,7 +66,8 @@ export default class Html extends Component {
             dangerouslySetInnerHTML={{ __html: `window.__data=${serialize(store.getState())};` }}
             charSet="UTF-8"
           />
-          <script src={assets.javascript.main} charSet="UTF-8" />
+          <script src={assets.javascript.vendor} charSet="UTF-8" />
+          <script src="/dist/main.js" charSet="UTF-8" />
         </body>
       </html>
     );
