@@ -253,6 +253,21 @@ export function transformLocationInfo(body) {
   return body;
 }
 
+function addBinPercents(fixedSection) {
+  metrics.forEach((metric) => {
+    // only attempt to modify metrics that have bin values
+    if (metric.countBinKey && metric.percentBinKey) {
+      const bins = fixedSection[metric.countBinKey];
+      if (bins) {
+        const totalValue = d3.sum(bins);
+
+        const percentBins = bins.map(b => (b / totalValue) * 100.0);
+        fixedSection[metric.percentBinKey] = percentBins;
+      }
+    }
+  });
+}
+
 
 /**
  * Transforms the fixed data portion of a response.
@@ -302,6 +317,7 @@ export function transformFixedData(body) {
       groupedData[keyMapping[key]] = keyGroups[key].reduce((keyData, dataKey) => {
         const newDataKey = key === 'other' ? dataKey : dataKey.substring(key.length);
         keyData[newDataKey] = body.data[dataKey];
+        addBinPercents(keyData);
 
         return keyData;
       }, {});
@@ -311,6 +327,7 @@ export function transformFixedData(body) {
 
   return body;
 }
+
 
 
 /**

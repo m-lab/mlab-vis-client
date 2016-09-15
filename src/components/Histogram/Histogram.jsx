@@ -1,5 +1,6 @@
 import React, { PureComponent, PropTypes } from 'react';
 import d3 from 'd3';
+import { mod } from '../../utils/math';
 
 import './Histogram.scss';
 
@@ -14,8 +15,8 @@ import './Histogram.scss';
 export default class Histogram extends PureComponent {
 
   static propTypes = {
-    binSize: PropTypes.number,
     binStart: PropTypes.number,
+    binWidth: PropTypes.number,
     bins: PropTypes.array,
     color: PropTypes.string,
     height: PropTypes.number,
@@ -27,13 +28,13 @@ export default class Histogram extends PureComponent {
 
   static defaultProps = {
     bins: [],
-    binSize: 4,
-    binStart: 0,
+    binStart: 4,
+    binWidth: 4,
     color: '#888',
     id: 'histogram',
     height: 200,
     width: 200,
-    usePercent: true,
+    usePercent: false,
   };
 
   /**
@@ -103,9 +104,10 @@ export default class Histogram extends PureComponent {
 
   makeVisComponents(props) {
     const {
-            xExtent,
             yExtent,
             usePercent,
+            binStart,
+            binWidth,
             width,
             height,
             color,
@@ -115,6 +117,9 @@ export default class Histogram extends PureComponent {
           } = props;
 
     let { bins } = props;
+
+    const binEnd = (binStart) + (binWidth * (bins.length - 1));
+    console.log(binStart);
 
     const innerMargin = {
       top: innerMarginTop,
@@ -127,10 +132,12 @@ export default class Histogram extends PureComponent {
 
     const chartHeight = height - innerMargin.top - innerMargin.bottom;
 
-    let xDomain = xExtent;
-    if (!xDomain && bins) {
-      xDomain = [0, bins.length];
-    }
+    const xValues = d3.range(binStart, binEnd, binWidth);
+    console.log(xValues);
+
+    const xScale = d3.scaleBand()
+      .domain(xValues)
+      .range([0, chartWidth]);
 
     let yDomain = yExtent;
     if (!yDomain && usePercent) {
@@ -146,20 +153,20 @@ export default class Histogram extends PureComponent {
 
     // force a zero minimum
     yDomain = [0, yDomain[1]];
-
-    const xScale = d3.scaleLinear().range([0, chartWidth]).clamp(true);
-    if (xDomain) {
-      xScale.domain(xDomain);
-    }
+    //
+    // const xScale = d3.scaleLinear().range([0, chartWidth]).clamp(true);
+    // if (xDomain) {
+    //   xScale.domain(xDomain);
+    // }
 
     const yScale = d3.scaleLinear().range([chartHeight, 0]).clamp(true);
     if (yDomain) {
       yScale.domain(yDomain);
     }
 
-    const numBins = bins.length;
+    // const numBins = bins.length;
 
-    const binWidth = (chartWidth - 0) / numBins;
+    // const binWidth = (chartWidth - 0) / numBins;
 
     return {
       innerMargin,
@@ -170,6 +177,7 @@ export default class Histogram extends PureComponent {
       chartWidth,
       chartHeight,
       width,
+      xValues,
       xScale,
       yScale,
     };
@@ -190,12 +198,12 @@ export default class Histogram extends PureComponent {
    * Render the x and y axis components
    */
   updateAxes() {
-    const { xScale, yScale, chartHeight, chartWidth } = this.visComponents;
+    const { xScale, xValues, yScale, chartHeight } = this.visComponents;
 
-    const xTicks = Math.round(chartWidth / 50);
     const yTicks = Math.round(chartHeight / 50);
+    const xTicks = xValues.filter((t, i) => i === 0 || mod(t, 12) === 0);
 
-    const xAxis = d3.axisBottom(xScale).ticks(xTicks).tickSizeOuter(0);
+    const xAxis = d3.axisBottom(xScale).tickValues(xTicks).tickSizeOuter(0);
     const yAxis = d3.axisLeft(yScale).ticks(yTicks).tickSizeOuter(0);
 
     this.yAxis.call(yAxis);
@@ -219,8 +227,8 @@ export default class Histogram extends PureComponent {
   renderBars(root, data = []) {
     const {
       xScale,
+      xValues,
       yScale,
-      binWidth,
       chartHeight,
       color,
     } = this.visComponents;
@@ -231,9 +239,7 @@ export default class Histogram extends PureComponent {
     // ENTER
     const entering = binding.enter()
       .append('rect')
-        .attr('x', (d, i) => xScale(i))
         .attr('y', yScale(0))
-        .attr('width', binWidth)
         .attr('height', 0)
         .style('shape-rendering', 'crispEdges')
         .style('fill', color)
@@ -241,8 +247,8 @@ export default class Histogram extends PureComponent {
 
     // ENTER + UPDATE
     binding.merge(entering)
-      .attr('x', (d, i) => xScale(i))
-      .attr('width', binWidth)
+      .attr('x', (d, i) => xScale(xValues[i]))
+      .attr('width', xScale.bandwidth)
       .transition()
         .attr('y', d => yScale(d || 0))
         .attr('height', d => chartHeight - yScale(d || 0))

@@ -29,8 +29,8 @@ export default class HistoGroup extends PureComponent {
   }
 
   static defaultProps = {
-    width: 200,
-    height: 200,
+    width: 250,
+    height: 250,
   }
 
   renderPlot(info, bins, color) {
@@ -41,13 +41,14 @@ export default class HistoGroup extends PureComponent {
     }
 
     return (
-      <Col md={3} key={info.id}>
+      <Col md={4} key={info.id}>
         <Histogram
           bins={bins}
           width={width}
           height={height}
           id={info.id}
           color={color}
+          yExtent={[0, 100.0]}
         />
         <p>{info.label}</p>
       </Col>
@@ -62,10 +63,10 @@ export default class HistoGroup extends PureComponent {
   renderPlots(field, allData) {
     const { viewMetric } = this.props;
     const data = allData ? allData.clientIspsData : [];
-    console.log(data);
-    const binSets = data.map((d) => d.download_speed_mbps_bins);
+    // console.log(data);
+    const binSets = data.map((d) => d[viewMetric.percentBinKey]);
     const colors = colorsFor(data, (d) => d.id);
-    console.log(binSets);
+    // console.log(binSets);
     return (
       <Row key={field.id} className="histogram-row">
         <h4>{field.label}</h4>
