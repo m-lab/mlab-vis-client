@@ -11,7 +11,6 @@ import { useScroll } from 'react-router-scroll';
 import createStore from './redux/createStore';
 import * as api from './api/api';
 import getRoutes from './routes';
-import DevTools from './containers/DevTools/DevTools';
 
 const dest = document.getElementById('content');
 const store = createStore(browserHistory, api, window.__data); // eslint-disable-line no-underscore-dangle, max-len
@@ -49,17 +48,4 @@ if (process.env.NODE_ENV !== 'production') {
     console.error(`Server-side React render was discarded. Make sure that your
       initial render does not contain any client-side code.`);
   }
-}
-
-
-if (__DEVTOOLS__ && !window.devToolsExtension) {
-  ReactDOM.render(
-    <Provider store={store} key="provider">
-      <div>
-        {component}
-        <DevTools />
-      </div>
-    </Provider>,
-    dest
-  );
 }
