@@ -23,6 +23,7 @@ export default class CountChart extends PureComponent {
     highlightData: PropTypes.array,
     innerMarginLeft: PropTypes.number,
     innerMarginRight: PropTypes.number,
+    maxBinWidth: React.PropTypes.number,
     numBins: PropTypes.number,
     onHighlightCount: PropTypes.func,
     width: PropTypes.number,
@@ -31,7 +32,6 @@ export default class CountChart extends PureComponent {
     xScale: React.PropTypes.func,
     yExtent: PropTypes.array,
     yKey: React.PropTypes.string,
-    maxBinWidth: React.PropTypes.number,
   };
 
   static defaultProps = {
