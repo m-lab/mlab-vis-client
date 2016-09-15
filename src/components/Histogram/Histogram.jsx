@@ -5,12 +5,16 @@ import { mod } from '../../utils/math';
 import './Histogram.scss';
 
 /**
- * This chart is intended to be used paired with another chart. It
- * shares the same x-axis, width, margin left and margin right as the
- * other chart.
- *
- * @prop {String} highlightColor Color used to render the highlighted bars if provided
- * @prop {Array} highlightData Used to highlight a subset of the count data (typically a series object with { meta, results })
+ * Histogram chart. Basic. Expects array of bins
+ * bin values come from binStart and binWidth inputs
+ * @prop {Array} bins Array of precomputed bin values
+ * @prop {Number} binStart X value of first bin .
+ * @prop {Number} binWidth how large each bin is, in terms of bucket size.
+ * @prop {String} color Color to color chart
+ * @prop {Number} height The height of the charts
+ * @prop {Number} width The width of the charts
+ * @prop {Array} yExtent Optional. [min, max] of yScale
+ * @prop {Function} yFormater formatter for y axis
  */
 export default class Histogram extends PureComponent {
 
@@ -21,9 +25,9 @@ export default class Histogram extends PureComponent {
     color: PropTypes.string,
     height: PropTypes.number,
     id: PropTypes.string,
-    usePercent: PropTypes.bool,
     width: PropTypes.number,
     yExtent: PropTypes.array,
+    yFormatter: PropTypes.func,
   };
 
   static defaultProps = {
@@ -34,7 +38,7 @@ export default class Histogram extends PureComponent {
     id: 'histogram',
     height: 200,
     width: 200,
-    usePercent: false,
+    yFormatter: d => d,
   };
 
   /**
@@ -104,22 +108,18 @@ export default class Histogram extends PureComponent {
 
   makeVisComponents(props) {
     const {
+            bins,
             yExtent,
-            usePercent,
             binStart,
             binWidth,
             width,
             height,
             color,
-            innerMarginLeft = 50,
+            yFormatter,
+            innerMarginLeft = 35,
             innerMarginRight = 10,
             innerMarginTop = 20,
           } = props;
-
-    let { bins } = props;
-
-    const binEnd = (binStart) + (binWidth * (bins.length - 1));
-    console.log(binStart);
 
     const innerMargin = {
       top: innerMarginTop,
@@ -128,45 +128,28 @@ export default class Histogram extends PureComponent {
       left: innerMarginLeft,
     };
 
+    // Take into account the margins
     const chartWidth = width - innerMargin.left - innerMargin.right;
-
     const chartHeight = height - innerMargin.top - innerMargin.bottom;
 
+    // Convert our bin stats to actual values
+    const binEnd = (binStart) + (binWidth * (bins.length - 1));
     const xValues = d3.range(binStart, binEnd, binWidth);
-    console.log(xValues);
 
+    // This is a histogram, so lets use a band scale.
     const xScale = d3.scaleBand()
       .domain(xValues)
       .range([0, chartWidth]);
 
     let yDomain = yExtent;
-    if (!yDomain && usePercent) {
-      yDomain = [0, 100.0];
-    } else {
-      yDomain = d3.extent(bins);
+    if (!yDomain) {
+      yDomain = [0, d3.max(bins)];
     }
-
-    if (usePercent) {
-      const totalValue = d3.sum(bins);
-      bins = bins.map(b => (b / totalValue) * 100.0);
-    }
-
-    // force a zero minimum
-    yDomain = [0, yDomain[1]];
-    //
-    // const xScale = d3.scaleLinear().range([0, chartWidth]).clamp(true);
-    // if (xDomain) {
-    //   xScale.domain(xDomain);
-    // }
 
     const yScale = d3.scaleLinear().range([chartHeight, 0]).clamp(true);
     if (yDomain) {
       yScale.domain(yDomain);
     }
-
-    // const numBins = bins.length;
-
-    // const binWidth = (chartWidth - 0) / numBins;
 
     return {
       innerMargin,
@@ -180,6 +163,7 @@ export default class Histogram extends PureComponent {
       xValues,
       xScale,
       yScale,
+      yFormatter,
     };
   }
 
@@ -198,13 +182,17 @@ export default class Histogram extends PureComponent {
    * Render the x and y axis components
    */
   updateAxes() {
-    const { xScale, xValues, yScale, chartHeight } = this.visComponents;
+    const { xScale, xValues, yScale, yFormatter, chartHeight } = this.visComponents;
 
     const yTicks = Math.round(chartHeight / 50);
+    // show the first tick, then some afterwards.
+    // TODO: should be moved out of histogram?
     const xTicks = xValues.filter((t, i) => i === 0 || mod(t, 12) === 0);
 
     const xAxis = d3.axisBottom(xScale).tickValues(xTicks).tickSizeOuter(0);
     const yAxis = d3.axisLeft(yScale).ticks(yTicks).tickSizeOuter(0);
+
+    yAxis.tickFormat(yFormatter);
 
     this.yAxis.call(yAxis);
 
@@ -232,7 +220,6 @@ export default class Histogram extends PureComponent {
       chartHeight,
       color,
     } = this.visComponents;
-
 
     const binding = root.selectAll('rect').data(data);
 
@@ -262,7 +249,7 @@ export default class Histogram extends PureComponent {
   }
 
   /**
-   * The main render method. Defers chart rendering to d3 in `update` and `setup`
+   * The main render method.
    * @return {React.Component} The rendered container
    */
   render() {

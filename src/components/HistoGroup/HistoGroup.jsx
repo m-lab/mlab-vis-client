@@ -49,6 +49,7 @@ export default class HistoGroup extends PureComponent {
           id={info.id}
           color={color}
           yExtent={[0, 100.0]}
+          yFormatter={(d) => `${d}%`}
         />
         <p>{info.label}</p>
       </Col>

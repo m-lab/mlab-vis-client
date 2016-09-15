@@ -253,11 +253,16 @@ export function transformLocationInfo(body) {
   return body;
 }
 
+/**
+ * Add a percent bin arrays to a particular fixed section
+ * @param {Object} fixedSection Section to add % bins to
+ */
 function addBinPercents(fixedSection) {
   metrics.forEach((metric) => {
     // only attempt to modify metrics that have bin values
     if (metric.countBinKey && metric.percentBinKey) {
       const bins = fixedSection[metric.countBinKey];
+
       if (bins) {
         const totalValue = d3.sum(bins);
 
@@ -327,8 +332,6 @@ export function transformFixedData(body) {
 
   return body;
 }
-
-
 
 /**
  * Transforms the body `results` array to just be the meta value
