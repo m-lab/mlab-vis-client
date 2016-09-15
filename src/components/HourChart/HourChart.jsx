@@ -179,7 +179,7 @@ export default class HourChart extends PureComponent {
 
     // function to generate paths for each series
     const line = d3.line()
-      .curve(d3.curveLinear)
+      .curve(d3.curveMonotoneX)
       .x((d) => xScale(d.hour) + (binWidth / 2))
       .y((d) => yScale(d[yKey]));
 

@@ -1,5 +1,9 @@
 
 .hour-chart {
+  path {
+    stroke-width: 1.5px;
+  }
+
   .circles circle {
     opacity: 0.2;
   }
