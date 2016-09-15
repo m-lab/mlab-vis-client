@@ -22,6 +22,8 @@ var serverOptions = {
     version: true,
     hash: true,
     timings: true,
+
+    // set these to true to see more verbose output
     chunks: false,
     chunkModules: false,
   },

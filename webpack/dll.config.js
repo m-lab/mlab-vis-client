@@ -1,3 +1,4 @@
+// For more details on DLL optimization see: https://github.com/erikras/react-redux-universal-hot-example/issues/616#issuecomment-228956242
 require('babel-polyfill');
 
 // Webpack config for development
@@ -10,31 +11,117 @@ var host = (process.env.HOST || 'localhost');
 var port = (+process.env.PORT + 1) || 3001;
 var HardSourceWebpackPlugin = require('hard-source-webpack-plugin');
 
-// read in developer settings if available
-var developerSettings;
-try {
-  developerSettings = JSON.parse(fs.readFileSync(path.join(__dirname,
-    '..', 'developer-settings.json'), 'utf8')).webpack;
-} catch (e) { /* ignore if not there */ }
-developerSettings = developerSettings || {};
-
 // https://github.com/halt-hammerzeit/webpack-isomorphic-tools
 var WebpackIsomorphicToolsPlugin = require('webpack-isomorphic-tools/plugin');
 var webpackIsomorphicToolsPlugin = new WebpackIsomorphicToolsPlugin(require('./webpack-isomorphic-tools'));
 
+
 module.exports = {
-  devtool: developerSettings.devtool || 'cheap-module-eval-source-map',
+  devtool: 'inline-source-map',
   context: path.resolve(__dirname, '..'),
   entry: {
-    main: [
-      'webpack-hot-middleware/client?overlay=false&path=http://' + host + ':' + port + '/__webpack_hmr',
+    app_assets: [
       './src/client.jsx',
     ],
+
+    // this list is discovered by scanning the list that webpack produces
+    // when you run webpack-dev-server with stats: { chunks: true, chunkModules: true }
+    vendor: [
+      'babel-runtime/core-js',
+      'babel-polyfill',
+      'react',
+      'react-dom',
+      'react-redux',
+      'redux',
+      'fbjs',
+      'react-router',
+      'query-string',
+      'querystring',
+      'strict-uri-encode',
+      'react-router-redux',
+      'deep-equal',
+      'react-router-scroll',
+      'scroll-behavior',
+      'lodash',
+      'lodash.curry',
+      'dom-helpers',
+      'reselect',
+      'd3-array',
+      'd3-axis',
+      'd3-collection',
+      'd3-color',
+      'd3-format',
+      'd3-interpolate-path',
+      'd3-line-chunked',
+      'd3-scale',
+      'd3-scale-interactive',
+      'd3-selection',
+      'd3-shape',
+      'd3-time-format',
+      'd3-transition',
+      'core-js',
+      'superagent',
+      'moment',
+      'react-transform-hmr',
+      'react-proxy',
+      'react-bootstrap',
+      'react-deep-force-update',
+      'react-router-bootstrap',
+      'global',
+      'classnames',
+      'keycode',
+      'react-prop-types',
+      'uncontrollable',
+      'dom-helpers',
+      'react-overlays',
+      'react-helmet',
+      'react-side-effect',
+      'save-svg-as-png',
+      'binary-search',
+      'react-autosuggest',
+      'shallow-equal/arrays',
+      'react-autowhatever',
+      'section-iterator',
+      'react-themeable',
+      'react-select',
+      'react-input-autosize',
+      'react-dates',
+      'react-portal',
+      'react-taco-table',
+      'array-includes',
+      'object-keys',
+      'define-properties',
+      'foreach',
+      'es-abstract',
+      'es-to-primitive',
+      'is-callable',
+      'is-date-object',
+      'is-symbol',
+      'function-bind',
+      'is-regex',
+      'object-assign',
+      'symbol-observable',
+      'hoist-non-react-statics',
+      'invariant',
+      'regenerator-runtime',
+      'warning',
+      'history',
+      'component-emitter',
+      'react-addons-shallow-compare',
+      'react-moment-proptypes',
+      'stable',
+      'react-addons-perf',
+      'strip-ansi',
+      'ansi-regex',
+      'ansi-html',
+      'html-entities',
+    ]
   },
   output: {
     path: assetsPath,
-    filename: 'main.js',
-    publicPath: 'http://' + host + ':' + port + '/dist/',
+    filename: '[name].dll.js',
+    library: '[name]',
+    publicPath: 'http://' + host + ':' + (port - 1) + '/dist/',
   },
   module: {
     loaders: [
@@ -87,11 +174,10 @@ module.exports = {
   // Can be constructed with __dirname and path.join.
   recordsPath: path.join(__dirname, 'webpack-records.json'),
   plugins: [
-    new webpack.DllReferencePlugin({
-      context: path.join(__dirname, '..'),
-      manifest: require(path.join(assetsPath, 'vendor-manifest.json')),
+    new webpack.DllPlugin({
+      name: '[name]',
+      path: path.join( assetsPath, '[name]-manifest.json' ),
     }),
-
     // do not include all momentjs locales to improve build time and size
     // note (en-us is the default and does not need to be passed in. replace
     // it with whatever other locales we need.)
@@ -104,8 +190,6 @@ module.exports = {
       // Either an absolute path or relative to output.path.
       cacheDirectory: path.join(__dirname, 'cache'),
     }),
-    // hot reload
-    new webpack.HotModuleReplacementPlugin(),
     new webpack.IgnorePlugin(/webpack-stats\.json$/),
     new webpack.DefinePlugin({
       __CLIENT__: true,
@@ -114,5 +198,6 @@ module.exports = {
       __DISABLE_SSR__: true, // <--- Ignores server-side rendering check/warning
       __DEVTOOLS__: true,  // <-------- DISABLE redux-devtools HERE
     }),
+    webpackIsomorphicToolsPlugin.development(),
   ],
 };
