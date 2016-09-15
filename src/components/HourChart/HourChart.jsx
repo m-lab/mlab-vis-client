@@ -14,6 +14,8 @@ import './HourChart.scss';
  * @prop {Object} highlightPoint The point being highlighted in the chart
  * @prop {Function} onHighlightPoint Callback for when a point is hovered on
  * @prop {Number} width The width of the chart
+ * @prop {String} yAxisLabel The label to show on the Y axis
+ * @prop {String} yAxisUnit The unit to show on the Y axis label
  * @prop {Array} yExtent The min and max value of the yKey in the chart
  * @prop {String} yKey="y" The key in the data points to read the y value from
  */
@@ -34,6 +36,8 @@ export default class HourChart extends PureComponent {
     threshold: PropTypes.number,
     width: PropTypes.number,
     xScale: React.PropTypes.func,
+    yAxisLabel: React.PropTypes.string,
+    yAxisUnit: React.PropTypes.string,
     yExtent: PropTypes.array,
     yKey: PropTypes.string,
   }
@@ -106,6 +110,9 @@ export default class HourChart extends PureComponent {
     // add in axis groups
     this.xAxis = this.g.append('g').classed('x-axis', true);
     this.yAxis = this.g.append('g').classed('y-axis', true);
+    this.yAxisLabel = this.g.append('text')
+      .attr('class', 'axis-label')
+      .attr('text-anchor', 'middle');
 
     this.gOverallLine = this.g.append('g').attr('class', 'overall');
 
@@ -119,6 +126,11 @@ export default class HourChart extends PureComponent {
     this.update();
   }
 
+  getFullYAxisLabel() {
+    const { yAxisLabel, yAxisUnit } = this.visComponents;
+    return `${yAxisLabel}${yAxisUnit ? ` (${yAxisUnit})` : ''}`;
+  }
+
   /**
    * Figure out what is needed to render the chart
    * based on the props of the component
@@ -126,7 +138,7 @@ export default class HourChart extends PureComponent {
   makeVisComponents(props) {
     const { dataByHour, dataByDate, data, forceZeroMin, height,
       innerMarginLeft = 50, innerMarginRight = 20, overallData,
-      width, yExtent, yKey, color } = props;
+      width, yAxisLabel, yAxisUnit, yExtent, yKey, color } = props;
     let { xScale } = props;
 
     const innerMargin = {
@@ -187,6 +199,8 @@ export default class HourChart extends PureComponent {
       xScale,
       yScale,
       yKey,
+      yAxisLabel,
+      yAxisUnit,
     };
   }
 
@@ -232,11 +246,14 @@ export default class HourChart extends PureComponent {
    * Render the x and y axis components
    */
   renderAxes() {
-    const { xScale, yScale, innerHeight, binWidth } = this.visComponents;
+    const { xScale, yScale, innerHeight, innerMargin, binWidth } = this.visComponents;
     const xAxis = d3.axisBottom(xScale).tickSizeOuter(0);
     const yAxis = d3.axisLeft(yScale).tickSizeOuter(0);
 
     this.yAxis.call(yAxis);
+    this.yAxisLabel
+      .attr('transform', `rotate(270) translate(${-innerHeight / 2} ${-innerMargin.left + 12})`)
+      .text(this.getFullYAxisLabel());
 
     this.xAxis
       .attr('transform', `translate(${binWidth / 2} ${innerHeight + 3})`)

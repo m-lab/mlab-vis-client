@@ -14,6 +14,8 @@ import { sum, average } from '../../utils/math';
  * @prop {Object} highlightPoint The point being highlighted in the chart
  * @prop {Function} onHighlightPoint Callback for when a point is hovered on
  * @prop {Number} width The width of the chart
+ * @prop {String} yAxisLabel The label to show on the Y axis
+ * @prop {String} yAxisUnit The unit to show on the Y axis label
  * @prop {Array} yExtent The min and max value of the yKey in the chart
  * @prop {String} yKey="y" The key in the data points to read the y value from
  */
@@ -27,6 +29,8 @@ export default class HourChartWithCounts extends PureComponent {
     onHighlightPoint: PropTypes.func,
     threshold: PropTypes.number,
     width: PropTypes.number,
+    yAxisLabel: React.PropTypes.string,
+    yAxisUnit: React.PropTypes.string,
     yExtent: PropTypes.array,
     yKey: PropTypes.string,
   }
