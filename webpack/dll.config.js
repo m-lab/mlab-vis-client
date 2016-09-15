@@ -186,10 +186,6 @@ module.exports = {
     // optimization for faster build times
     new webpack.PrefetchPlugin('assets/base.scss'),
 
-    new HardSourceWebpackPlugin({
-      // Either an absolute path or relative to output.path.
-      cacheDirectory: path.join(__dirname, 'cache'),
-    }),
     new webpack.IgnorePlugin(/webpack-stats\.json$/),
     new webpack.DefinePlugin({
       __CLIENT__: true,
