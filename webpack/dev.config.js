@@ -94,7 +94,7 @@ module.exports = {
   },
   module: {
     loaders: [
-      { test: /\.jsx?$/, exclude: /node_modules/, loaders: ['babel?' + JSON.stringify(babelLoaderQuery)] },
+      { test: /\.jsx?$/, include: path.resolve(__dirname, '../src'), loaders: ['babel?' + JSON.stringify(babelLoaderQuery)] },
       { test: /\.json$/, loader: 'json-loader' },
       { test: /\.less$/, loader: 'style!css!postcss!less' },
       { test: /\.scss$/, loader: 'style!css!postcss!sass' },
