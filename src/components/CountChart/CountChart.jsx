@@ -133,7 +133,7 @@ export default class CountChart extends PureComponent {
     let { xScale } = props;
 
     const innerMargin = {
-      top: 10,
+      top: 15,
       right: innerMarginRight,
       bottom: 10,
       left: innerMarginLeft,

@@ -109,6 +109,10 @@ export default class HourChart extends PureComponent {
 
     // add in axis groups
     this.xAxis = this.g.append('g').classed('x-axis', true);
+    this.xAxisLabel = this.g.append('text')
+      .attr('class', 'axis-label')
+      .attr('text-anchor', 'middle');
+
     this.yAxis = this.g.append('g').classed('y-axis', true);
     this.yAxisLabel = this.g.append('text')
       .attr('class', 'axis-label')
@@ -144,7 +148,7 @@ export default class HourChart extends PureComponent {
     const innerMargin = {
       top: 20,
       right: innerMarginRight,
-      bottom: 35,
+      bottom: 40,
       left: innerMarginLeft,
     };
 
@@ -246,7 +250,7 @@ export default class HourChart extends PureComponent {
    * Render the x and y axis components
    */
   renderAxes() {
-    const { xScale, yScale, innerHeight, innerMargin, binWidth } = this.visComponents;
+    const { xScale, yScale, innerHeight, innerWidth, innerMargin, binWidth } = this.visComponents;
     const xAxis = d3.axisBottom(xScale).tickSizeOuter(0);
     const yAxis = d3.axisLeft(yScale).tickSizeOuter(0);
 
@@ -258,6 +262,9 @@ export default class HourChart extends PureComponent {
     this.xAxis
       .attr('transform', `translate(${binWidth / 2} ${innerHeight + 3})`)
       .call(xAxis);
+    this.xAxisLabel
+      .attr('transform', `translate(${innerWidth / 2} ${innerHeight + (innerMargin.bottom)})`)
+      .text('Hour');
   }
 
   /**
