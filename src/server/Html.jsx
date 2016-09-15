@@ -67,7 +67,7 @@ export default class Html extends Component {
             charSet="UTF-8"
           />
           <script src={assets.javascript.vendor} charSet="UTF-8" />
-          <script src="/dist/main.js" charSet="UTF-8" />
+          <script src="http://localhost:3001/dist/main.js" charSet="UTF-8" />
         </body>
       </html>
     );
