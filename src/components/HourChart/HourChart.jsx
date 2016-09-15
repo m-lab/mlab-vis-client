@@ -3,9 +3,6 @@ import d3 from 'd3';
 
 import './HourChart.scss';
 
-// precompute a set of jitter values to get deterministic jittering
-const jitters = d3.range(100).map(() => Math.random());
-
 /**
  * Chart for showing data by hour
  *
@@ -283,7 +280,7 @@ export default class HourChart extends PureComponent {
     const entering = binding.enter()
       .append('g')
       .classed('hour-container', true);
-    const jitterAmount = binWidth * 0.5;
+
     const that = this;
     binding.merge(entering)
       .each(function createCircles(hourData) {
@@ -305,7 +302,7 @@ export default class HourChart extends PureComponent {
         hourBinding
           .merge(entering)
           .attr('r', 2.5)
-          .attr('cx', (d, i) => binWidth / 2 + jitters[i % jitters.length] * jitterAmount - (jitterAmount / 2))
+          .attr('cx', (d, i) => binWidth / 2)
           .attr('cy', d => yScale(d[yKey]))
           .on('mouseenter', that.onCircleMouseEnter)
           .on('mouseleave', that.onCircleMouseLeave);
