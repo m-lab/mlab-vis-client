@@ -301,7 +301,7 @@ export default class LineChart extends PureComponent {
     const lineChunked = d3.lineChunked()
       .x((d) => xScale(d[xKey]))
       .y((d) => yScale(d[yKey]))
-      .curve(d3.curveLinear)
+      .curve(d3.curveMonotoneX)
       .defined(d => d[yKey] != null)
       .accessData(d => d.results)
       .lineStyles({

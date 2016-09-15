@@ -209,7 +209,7 @@ export default class LineChartSmallMult extends PureComponent {
         d3.lineChunked()
           .x((d) => xScale(d[xKey]))
           .y((d) => yScale(d[metrics[yIndex].dataKey]))
-          .curve(d3.curveLinear)
+          .curve(d3.curveMonotoneX)
           .defined(d => d[metrics[yIndex].dataKey] != null)
           .accessData(d => d.results)
           .lineStyles({
