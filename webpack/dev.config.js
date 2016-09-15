@@ -122,7 +122,14 @@ module.exports = {
   // Can be constructed with __dirname and path.join.
   recordsPath: path.join(__dirname, 'webpack-records.json'),
   plugins: [
-    new webpack.PrefetchPlugin('assets/base.scss'), // optimization for faster build times
+    // do not include all momentjs locales to improve build time and size
+    // note (en-us is the default and does not need to be passed in. replace
+    // it with whatever other locales we need.)
+    new webpack.ContextReplacementPlugin(/moment[\/\\]locale$/, /en-us/),
+
+    // optimization for faster build times
+    new webpack.PrefetchPlugin('assets/base.scss'),
+
     new HardSourceWebpackPlugin({
       // Either an absolute path or relative to output.path.
       cacheDirectory: path.join(__dirname, 'cache'),
