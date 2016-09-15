@@ -122,6 +122,7 @@ module.exports = {
   // Can be constructed with __dirname and path.join.
   recordsPath: path.join(__dirname, 'webpack-records.json'),
   plugins: [
+    new webpack.PrefetchPlugin('assets/base.scss'), // optimization for faster build times
     new HardSourceWebpackPlugin({
       // Either an absolute path or relative to output.path.
       cacheDirectory: path.join(__dirname, 'cache'),
