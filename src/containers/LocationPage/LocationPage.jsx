@@ -3,7 +3,9 @@ import Helmet from 'react-helmet';
 import moment from 'moment';
 import { browserHistory } from 'react-router';
 import momentPropTypes from 'react-moment-proptypes';
-import { Row, Col } from 'react-bootstrap';
+import Row from 'react-bootstrap/lib/Row';
+import Col from 'react-bootstrap/lib/Col';
+
 import * as LocationPageSelectors from '../../redux/locationPage/selectors';
 import * as LocationPageActions from '../../redux/locationPage/actions';
 import * as LocationsActions from '../../redux/locations/actions';

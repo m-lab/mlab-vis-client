@@ -1,6 +1,10 @@
 import React, { PureComponent, PropTypes } from 'react';
 import { IndexLinkContainer, LinkContainer } from 'react-router-bootstrap';
-import { Navbar, Nav, NavItem } from 'react-bootstrap';
+import Nav from 'react-bootstrap/lib/Nav';
+import Navbar from 'react-bootstrap/lib/Navbar';
+import NavItem from 'react-bootstrap/lib/NavItem';
+
+
 import { connect } from 'react-redux';
 import Helmet from 'react-helmet';
 import { IndexLink } from 'react-router';
