@@ -31,6 +31,7 @@ export default class CountChart extends PureComponent {
     xScale: React.PropTypes.func,
     yExtent: PropTypes.array,
     yKey: React.PropTypes.string,
+    maxBinWidth: React.PropTypes.number,
   };
 
   static defaultProps = {
@@ -38,6 +39,7 @@ export default class CountChart extends PureComponent {
     xKey: 'x',
     yKey: 'count',
     highlightColor: '#aaa',
+    maxBinWidth: 40,
   };
 
   /**
@@ -127,7 +129,7 @@ export default class CountChart extends PureComponent {
 
   makeVisComponents(props) {
     const { height, innerMarginLeft = 50, innerMarginRight = 20, width, xKey,
-      xExtent, yExtent, yKey, data, numBins } = props;
+      xExtent, yExtent, yKey, data, numBins, maxBinWidth } = props;
     let { xScale } = props;
 
     const innerMargin = {
@@ -163,7 +165,8 @@ export default class CountChart extends PureComponent {
     }
 
     const yScale = d3.scaleLinear().domain(yDomain).range([yMin, yMax]);
-    const binWidth = (xMax - xMin) / (numBins || data.length);
+    const binWidth = Math.min(maxBinWidth,
+        (xMax - xMin) / (numBins || data.length));
 
     return {
       binWidth,
