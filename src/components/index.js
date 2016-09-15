@@ -26,3 +26,5 @@ export SummaryTable from './SummaryTable/SummaryTable';
 export ScatterPlot from './ScatterPlot/ScatterPlot';
 export ScatterGroup from './ScatterGroup/ScatterGroup';
 export SelectableDropdown from './SelectableDropdown/SelectableDropdown';
+export Histogram from './Histogram/Histogram';
+export HistoGroup from './HistoGroup/HistoGroup';

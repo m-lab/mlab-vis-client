@@ -25,6 +25,7 @@ import {
   DateRangeSelector,
   Breadcrumbs,
   ScatterGroup,
+  HistoGroup,
   SummaryTable,
 } from '../../components';
 
@@ -53,6 +54,11 @@ const urlQueryConfig = {
 };
 const urlHandler = new UrlHandler(urlQueryConfig, browserHistory);
 
+const fixedFields = [
+  { id: 'lastWeek', label: 'Last Week' },
+  { id: 'lastMonth', label: 'Last Month' },
+  { id: 'lastYear', label: 'Last Year' },
+];
 
 function mapStateToProps(state, propsWithUrl) {
   return {
@@ -551,11 +557,6 @@ class LocationPage extends PureComponent {
 
   renderFixedCompareMetrics() {
     const { compareMetrics, summary = {} } = this.props;
-    const fields = [
-      { id: 'lastWeek', label: 'Last Week' },
-      { id: 'lastMonth', label: 'Last Month' },
-      { id: 'lastYear', label: 'Last Year' },
-    ];
     return (
       <div className="subsection">
         <header>
@@ -563,7 +564,7 @@ class LocationPage extends PureComponent {
         </header>
         <ScatterGroup
           summary={summary}
-          fields={fields}
+          fields={fixedFields}
           compareMetrics={compareMetrics}
           onChange={this.onCompareMetricsChange}
         />
@@ -572,11 +573,17 @@ class LocationPage extends PureComponent {
   }
 
   renderFixedDistributions() {
+    const { viewMetric, summary = {} } = this.props;
     return (
       <div className="subsection">
         <header>
           <h3>Distributions of Metrics</h3>
         </header>
+        <HistoGroup
+          summary={summary}
+          fields={fixedFields}
+          viewMetric={viewMetric}
+        />
       </div>
     );
   }
