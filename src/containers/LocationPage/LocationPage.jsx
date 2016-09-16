@@ -89,7 +89,7 @@ class LocationPage extends PureComponent {
     compareMetrics: PropTypes.object,
     dispatch: PropTypes.func,
     endDate: momentPropTypes.momentObj,
-    highlightHourly: PropTypes.object,
+    highlightHourly: PropTypes.number,
     highlightTimeSeriesDate: PropTypes.object,
     highlightTimeSeriesLine: PropTypes.object,
     hourlyStatus: PropTypes.string,
@@ -505,12 +505,15 @@ class LocationPage extends PureComponent {
             <HourChartWithCounts
               color={color}
               data={hourlyData.results}
-              highlightPoint={highlightHourly}
+              highlightHour={highlightHourly}
               id={chartId}
-              onHighlightPoint={this.onHighlightHourly}
+              onHighlightHour={this.onHighlightHourly}
               threshold={30}
               width={400}
+              yAxisLabel={viewMetric.label}
+              yAxisUnit={viewMetric.unit}
               yExtent={hourlyData.extents[extentKey]}
+              yFormatter={viewMetric.formatter}
               yKey={viewMetric.dataKey}
             />
             <ChartExportControls

@@ -9,7 +9,7 @@ import './CountChart.scss';
  * other chart.
  *
  * @prop {String} highlightColor Color used to render the highlighted bars if provided
- * @prop {Object} highlightCount The date being highlighted in the chart
+ * @prop {Any} highlightCount The x value being highlighted in the chart
  * @prop {Array} highlightData Used to highlight a subset of the count data (typically a series object with { meta, results })
  * @prop {Function} onHighlightCount Callback when the mouse hovers over a bar. Passes in the x value.
  */
@@ -19,7 +19,7 @@ export default class CountChart extends PureComponent {
     data: PropTypes.array,
     height: PropTypes.number,
     highlightColor: PropTypes.string,
-    highlightCount: PropTypes.object,
+    highlightCount: PropTypes.any,
     highlightData: PropTypes.array,
     innerMarginLeft: PropTypes.number,
     innerMarginRight: PropTypes.number,
@@ -133,7 +133,7 @@ export default class CountChart extends PureComponent {
     let { xScale } = props;
 
     const innerMargin = {
-      top: 10,
+      top: 15,
       right: innerMarginRight,
       bottom: 10,
       left: innerMarginLeft,

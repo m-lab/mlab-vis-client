@@ -30,6 +30,10 @@
         "/^on.+$/",
         "/^(get|set)(?!(InitialState$|DefaultProps$|ChildContext$)).+$/",
         "everything-else",
+        "setup",
+        "/^setup.+$/",
+        "update",
+        "/^update.+$/",
         "/^render.+$/",
         "render"
       ],
