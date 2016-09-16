@@ -16,7 +16,7 @@
   ],
   "main": "bin/server.js",
   "scripts": {
-    "start": "concurrently --kill-others \"npm run start-prod\"",
+    "start": "better-npm-run start-prod",
     "start-prod": "better-npm-run start-prod",
     "build": "better-npm-run build",
     "prestart": "npm run build",

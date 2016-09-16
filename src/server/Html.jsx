@@ -19,6 +19,21 @@ export default class Html extends Component {
     store: PropTypes.object,
   };
 
+  renderScripts() {
+    const { assets } = this.props;
+    if (__DEVELOPMENT__) {
+      // in dev we separate vendor out for faster webpack rebuild times.
+      return [
+        <script key="vendor" src={assets.javascript.vendor} charSet="UTF-8" />,
+        <script key="main" src="http://localhost:3001/dist/main.js" charSet="UTF-8" />,
+      ];
+    }
+
+    return (
+      <script src={assets.javascript.main} charSet="UTF-8" />
+    );
+  }
+
   render() {
     const { assets, component, store } = this.props;
     const content = component ? ReactDOM.renderToString(component) : '';
@@ -66,8 +81,7 @@ export default class Html extends Component {
             dangerouslySetInnerHTML={{ __html: `window.__data=${serialize(store.getState())};` }}
             charSet="UTF-8"
           />
-          <script src={assets.javascript.vendor} charSet="UTF-8" />
-          <script src="http://localhost:3001/dist/main.js" charSet="UTF-8" />
+          {this.renderScripts()}
         </body>
       </html>
     );
