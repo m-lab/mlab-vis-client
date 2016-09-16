@@ -86,7 +86,7 @@ function visProps(props) {
  *   an array of length 24 of form [{ hour:Number(0..23), points: [{ yKey:Number }, ...]}, ...]
  * @prop {Boolean} forceZeroMin=true Whether the min y value should always be 0.
  * @prop {Number} height The height of the chart
- * @prop {Object} highlightHour The point being highlighted in the chart
+ * @prop {Number} highlightHour The hour being highlighted in the chart
  * @prop {Function} onHighlightHour Callback for when an hour is hovered on
  * @prop {Number} width The width of the chart
  * @prop {String} yAxisLabel The label to show on the Y axis
@@ -96,18 +96,24 @@ function visProps(props) {
  */
 class HourChart extends PureComponent {
   static propTypes = {
+    binWidth: PropTypes.number,
     color: PropTypes.string,
     data: PropTypes.array,
     dataByDate: PropTypes.object,
     dataByHour: PropTypes.array,
     forceZeroMin: PropTypes.bool,
     height: PropTypes.number,
-    highlightHour: PropTypes.object,
+    highlightHour: PropTypes.number,
     id: React.PropTypes.string,
     inSvg: React.PropTypes.bool,
+    innerHeight: PropTypes.number,
+    innerMargin: PropTypes.object,
     innerMarginLeft: PropTypes.number,
     innerMarginRight: PropTypes.number,
+    innerWidth: PropTypes.number,
+    line: PropTypes.func,
     onHighlightHour: PropTypes.func,
+    overallData: PropTypes.array,
     threshold: PropTypes.number,
     width: PropTypes.number,
     xScale: React.PropTypes.func,
@@ -115,6 +121,7 @@ class HourChart extends PureComponent {
     yAxisUnit: React.PropTypes.string,
     yExtent: PropTypes.array,
     yKey: PropTypes.string,
+    yScale: PropTypes.func,
   }
 
   static defaultProps = {
@@ -198,7 +205,8 @@ class HourChart extends PureComponent {
     this.gOverallLine = this.g.append('g').attr('class', 'overall');
 
     // add in groups for data
-    this.circles = this.g.append('g').classed('circles', true);
+    this.circles = this.g.append('g').classed('circles', true)
+      .on('mouseleave', () => this.onHoverHour(null));
 
     // setup highlight group
     this.gHighlight = this.g.append('g').classed('highlight', true);
@@ -258,8 +266,7 @@ class HourChart extends PureComponent {
     entering.append('rect')
       .style('fill', '#f00')
       .style('opacity', 0.2)
-      .on('mouseenter', d => this.onHoverHour(d))
-      .on('mouseleave', () => this.onHoverHour(null));
+      .on('mouseenter', d => this.onHoverHour(d));
 
     binding.merge(entering)
       .each(function createCircles(hourData) {

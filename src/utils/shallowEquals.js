@@ -6,7 +6,7 @@
  *
  * @return {Boolean}
  */
-export function shallowEquals(objA, objB, excludeKeys) {
+export default function shallowEquals(objA, objB, excludeKeys) {
   if (objA === objB) {
     return true;
   }

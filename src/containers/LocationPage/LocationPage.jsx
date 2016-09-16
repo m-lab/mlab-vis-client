@@ -83,7 +83,7 @@ class LocationPage extends PureComponent {
     compareMetrics: PropTypes.object,
     dispatch: PropTypes.func,
     endDate: momentPropTypes.momentObj,
-    highlightHourly: PropTypes.object,
+    highlightHourly: PropTypes.number,
     highlightTimeSeriesDate: PropTypes.object,
     highlightTimeSeriesLine: PropTypes.object,
     hourlyStatus: PropTypes.string,
