@@ -12,7 +12,12 @@ export default function createStore(history, api, data) {
 
   const finalCreateStore = applyMiddleware(...middleware)(_createStore);
 
-  const store = finalCreateStore(rootReducer, data, window.devToolsExtension && window.devToolsExtension());
+  let store;
+  if (__DEVELOPMENT__ && __CLIENT__) {
+    store = finalCreateStore(rootReducer, data, window.devToolsExtension && window.devToolsExtension());
+  } else {
+    store = finalCreateStore(rootReducer, data);
+  }
 
   // add in hook for hot reloading reducer
   if (__DEVELOPMENT__ && module.hot) {

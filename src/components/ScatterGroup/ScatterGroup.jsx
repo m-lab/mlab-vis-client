@@ -30,8 +30,8 @@ export default class ScatterGroup extends PureComponent {
   }
 
   static defaultProps = {
-    width: 200,
-    height: 200,
+    width: 250,
+    height: 250,
   }
 
   /**
@@ -67,7 +67,7 @@ export default class ScatterGroup extends PureComponent {
     const xKey = (compareMetrics && compareMetrics.x) ? compareMetrics.x.dataKey : metrics[0].dataKey;
     const yKey = (compareMetrics && compareMetrics.y) ? compareMetrics.y.dataKey : metrics[1].dataKey;
     return (
-      <Col md={3} key={field.id} className="scatter-plot-container">
+      <Col md={4} key={field.id} className="scatter-plot-container">
         <h4>{field.label}</h4>
         <ScatterPlot
           key={field.id}

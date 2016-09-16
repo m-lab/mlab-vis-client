@@ -15,6 +15,8 @@ export const metrics = [
     label: 'Download Speed',
     unit: 'Mbps',
     dataKey: 'download_speed_mbps_median',
+    countBinKey: 'download_speed_mbps_bins',
+    percentBinKey: 'download_speed_mbps_percent_bins',
     formatter: d3.format('.1f'),
   },
   {
@@ -22,6 +24,8 @@ export const metrics = [
     label: 'Upload Speed',
     unit: 'Mbps',
     dataKey: 'upload_speed_mbps_median',
+    countBinKey: 'upload_speed_mbps_bins',
+    percentBinKey: 'upload_speed_mbps_percent_bins',
     formatter: d3.format('.1f'),
   },
   {
