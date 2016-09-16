@@ -1,9 +1,8 @@
 import React, { PureComponent, PropTypes } from 'react';
-import moment from 'moment';
 import d3 from 'd3';
 import { multiExtent, findClosestSorted } from '../../utils/array';
 import { colorsFor } from '../../utils/color';
-
+import { TextWithBackground } from '../../components';
 
 import './LineChartSmallMult.scss';
 
@@ -340,24 +339,25 @@ export default class LineChartSmallMult extends PureComponent {
     const yValue = closest[yKey];
 
     const color = ((showBaseline && seriesIndex === 0) ? '#bbb' : colors[series.meta.client_asn_number]);
-    const darkColor = d3.color(color).darker();
+    const lightColor = d3.color(color).brighter(0.3);
     const yFormatter = metrics[metricIndex].formatter || (d => d);
 
     if (hover && yValue) {
       return (
         <g transform={`translate(${xScale(xValue)} ${yScales[metricIndex](yValue)})`}>
-          <rect x={0} y={-8} width={50} height={14} fill={'#fff'} />
-          <circle cx={0} cy={0} r={3} fill={darkColor} />
-          <text
+          <TextWithBackground
             x={0}
             y={0}
             dy={3}
             dx={6}
             textAnchor="start"
-            className="small-mult-label small-mult-hover-label"
+            textClassName="small-mult-label small-mult-hover-label"
+            background="#fff"
+            padding={{ top: 3, bottom: 3, left: 3, right: 3 }}
           >
             {yFormatter(yValue)}
-          </text>
+          </TextWithBackground>
+          <circle cx={0} cy={0} r={3} fill={lightColor} stroke={color} />
         </g>
       );
     }
