@@ -3,6 +3,96 @@ import d3 from 'd3';
 
 import { HourChart, CountChart } from '../../components';
 import { sum, average } from '../../utils/math';
+import addComputedProps from '../../hoc/addComputedProps';
+
+
+/**
+ * Filter the data and group it by hour and by date
+ * @param {Object} props the component props
+ * @return {Object} the prepared data { filteredData, dataByHour, dataByDate }
+ */
+function prepareData(props) {
+  const { data, yKey, threshold } = props;
+
+  // filter so all data has a value for yKey
+  const filteredData = (data || []).filter(d => d[yKey] != null);
+
+  // produce the byHour array
+  const groupedByHour = d3.nest().key(d => d.hour).object(filteredData);
+
+  // use d3.range(24) instead of Object.keys to ensure we get an entry for each hour
+  const dataByHour = d3.range(24).map(hour => {
+    const hourPoints = groupedByHour[hour];
+    const count = sum(hourPoints, 'count') || 0;
+
+    return {
+      hour,
+      points: hourPoints || [],
+      count,
+      belowThreshold: count < threshold,
+      overall: average(hourPoints, yKey),
+    };
+  });
+
+  // produce the byDate array
+  const groupedByDate = d3.nest().key(d => d.date.format('YYYY-MM-DD')).object(filteredData);
+  const dataByDate = Object.keys(groupedByDate).reduce((byDate, date) => {
+    const datePoints = groupedByDate[date];
+    const count = sum(datePoints, 'count') || 0;
+
+    byDate[date] = {
+      date: datePoints[0].date,
+      points: datePoints,
+      count,
+      belowThreshold: count < threshold,
+    };
+
+    return byDate;
+  }, {});
+
+  // compute the overall data for an average line
+  const overallData = dataByHour.map(d => ({
+    [yKey]: d.overall,
+    hour: d.hour,
+  })).filter(d => d[yKey] != null);
+
+  return {
+    filteredData,
+    dataByHour,
+    dataByDate,
+    overallData,
+  };
+}
+
+
+/**
+ * Figure out what is needed for both charts
+ */
+function visProps(props) {
+  const { width } = props;
+
+  const preparedData = prepareData(props);
+
+  const innerMargin = {
+    right: 50,
+    left: 50,
+  };
+  const innerWidth = width - innerMargin.left - innerMargin.right;
+
+  const xMin = 0;
+  const xMax = innerWidth;
+
+  const xDomain = [0, 23];
+  const xScale = d3.scaleLinear().domain(xDomain).range([xMin, xMax]);
+  const numBins = 24; // one for each hour
+
+  return {
+    ...preparedData,
+    innerMargin,
+    numBins,
+    xScale,
+  };
+}
 
 /**
  * Chart for showing data by hour and with test counts
@@ -20,16 +110,23 @@ import { sum, average } from '../../utils/math';
  * @prop {Function} yFormatter Format function that takes a y value and outputs a string
  * @prop {String} yKey="y" The key in the data points to read the y value from
  */
-export default class HourChartWithCounts extends PureComponent {
+class HourChartWithCounts extends PureComponent {
   static propTypes = {
     color: PropTypes.string,
     data: PropTypes.array,
+    dataByDate: PropTypes.object,
+    dataByHour: PropTypes.array,
+    filteredData: PropTypes.array,
     forceZeroMin: PropTypes.bool,
     highlightHour: PropTypes.number,
     id: React.PropTypes.string,
+    innerMargin: PropTypes.object,
+    numBins: PropTypes.number,
     onHighlightHour: PropTypes.func,
+    overallData: PropTypes.array,
     threshold: PropTypes.number,
     width: PropTypes.number,
+    xScale: React.PropTypes.func,
     yAxisLabel: React.PropTypes.string,
     yAxisUnit: React.PropTypes.string,
     yExtent: PropTypes.array,
@@ -42,116 +139,12 @@ export default class HourChartWithCounts extends PureComponent {
   }
 
   /**
-   * Initiailize the vis components when the component is about to mount
-   */
-  componentWillMount() {
-    this.visComponents = this.makeSharedVisComponents(this.props);
-  }
-
-  /**
-   * When new props are received, regenerate vis components if necessary
-   */
-  componentWillReceiveProps(nextProps) {
-    // regenerate the vis components if the relevant props change
-    this.visComponents = this.makeSharedVisComponents(nextProps);
-  }
-
-  /**
-   * Filter the data and group it by hour and by date
-   * @param {Object} props the component props
-   * @return {Object} the prepared data { filteredData, dataByHour, dataByDate }
-   */
-  prepareData(props) {
-    const { data, yKey, threshold } = props;
-
-    // filter so all data has a value for yKey
-    const filteredData = (data || []).filter(d => d[yKey] != null);
-
-    // produce the byHour array
-    const groupedByHour = d3.nest().key(d => d.hour).object(filteredData);
-
-    // use d3.range(24) instead of Object.keys to ensure we get an entry for each hour
-    const dataByHour = d3.range(24).map(hour => {
-      const hourPoints = groupedByHour[hour];
-      const count = sum(hourPoints, 'count') || 0;
-
-      return {
-        hour,
-        points: hourPoints || [],
-        count,
-        belowThreshold: count < threshold,
-        overall: average(hourPoints, yKey),
-      };
-    });
-
-    // produce the byDate array
-    const groupedByDate = d3.nest().key(d => d.date.format('YYYY-MM-DD')).object(filteredData);
-    const dataByDate = Object.keys(groupedByDate).reduce((byDate, date) => {
-      const datePoints = groupedByDate[date];
-      const count = sum(datePoints, 'count') || 0;
-
-      byDate[date] = {
-        date: datePoints[0].date,
-        points: datePoints,
-        count,
-        belowThreshold: count < threshold,
-      };
-
-      return byDate;
-    }, {});
-
-    // compute the overall data for an average line
-    const overallData = dataByHour.map(d => ({
-      [yKey]: d.overall,
-      hour: d.hour,
-    })).filter(d => d[yKey] != null);
-
-    return {
-      filteredData,
-      dataByHour,
-      dataByDate,
-      overallData,
-    };
-  }
-
-
-  /**
-   * Figure out what is needed for both charts
-   */
-  makeSharedVisComponents(props) {
-    const { width } = props;
-
-    const preparedData = this.prepareData(props);
-
-    const innerMargin = {
-      right: 50,
-      left: 50,
-    };
-    const innerWidth = width - innerMargin.left - innerMargin.right;
-
-    const xMin = 0;
-    const xMax = innerWidth;
-
-    const xDomain = [0, 23];
-    const xScale = d3.scaleLinear().domain(xDomain).range([xMin, xMax]);
-    const numBins = 24; // one for each hour
-
-    return {
-      ...preparedData,
-      innerMargin,
-      numBins,
-      xScale,
-    };
-  }
-
-  /**
    * The main render method. Defers chart rendering to d3 in `update` and `setup`
    * @return {React.Component} The rendered container
    */
   render() {
-    const { id, width, color, highlightHour, onHighlightHour } = this.props;
-    const { dataByHour, dataByDate, filteredData, innerMargin, overallData,
-      xScale, numBins } = this.visComponents;
+    const { id, width, color, highlightHour, onHighlightHour, dataByHour, dataByDate,
+      filteredData, innerMargin, overallData, xScale, numBins } = this.props;
 
     const hourHeight = 250;
     const countHeight = 80;
@@ -200,5 +193,6 @@ export default class HourChartWithCounts extends PureComponent {
       </div>
     );
   }
-
 }
+
+export default addComputedProps(visProps)(HourChartWithCounts);
