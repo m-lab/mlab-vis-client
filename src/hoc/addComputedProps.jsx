@@ -26,7 +26,7 @@ export default function addComputedProps(computedPropsFunc, ignoreChangeProps) {
 
       render() {
         const addedProps = this.propsToAdd || {};
-        return <WrappedComponent {...addedProps} {...this.props} />;
+        return <WrappedComponent {...this.props} {...addedProps} />;
       }
     }
 
