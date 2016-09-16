@@ -200,8 +200,20 @@ class HourChart extends PureComponent {
     this.circles = this.g.append('g').classed('circles', true)
       .on('mouseleave', () => this.onHoverHour(null));
 
+    this.setupHighlight();
+
+    this.update();
+  }
+
+  /**
+   * Helper to setup the elements for highlight
+   * @return {void}
+   */
+  setupHighlight() {
     // setup highlight group
     this.gHighlight = this.g.append('g').classed('highlight', true);
+
+    // add in the lines
     const extentLines = this.gHighlight.append('g').attr('class', 'extent-lines');
     extentLines.append('line').attr('class', 'extent-line');
     const extentEdgeWidth = 7;
@@ -212,11 +224,13 @@ class HourChart extends PureComponent {
       .attr('x1', -extentEdgeWidth / 2)
       .attr('x2', extentEdgeWidth / 2);
 
+    // add in the circle
     this.gHighlight.append('circle').attr('class', 'highlight-circle');
+
+    // add in the text
     const gHighlightText = this.gHighlight.append('g').attr('class', 'highlight-text');
     gHighlightText.append('rect').style('fill', '#fff');
     gHighlightText.append('text').attr('text-anchor', 'middle');
-
 
     const highlightX = this.gHighlight.append('g').attr('class', 'highlight-x');
     // add in a rect to fill out the area beneath the hovered hour in X axis
@@ -228,8 +242,6 @@ class HourChart extends PureComponent {
     highlightX.append('text')
       .attr('dy', 15)
       .attr('text-anchor', 'middle');
-
-    this.update();
   }
 
   /**
@@ -288,7 +300,7 @@ class HourChart extends PureComponent {
     entering.append('rect')
       .style('fill', '#f00')
       .style('opacity', 0)
-      .on('mouseenter', d => this.onHoverHour(d));
+      .on('mouseenter', this.onHoverHour);
 
     binding.merge(entering)
       .each(function createCircles(hourData) {
