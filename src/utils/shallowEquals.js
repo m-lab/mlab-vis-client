@@ -6,7 +6,7 @@
  *
  * @return {Boolean}
  */
-export function shallowEqual(objA, objB, excludeKeys) {
+export function shallowEquals(objA, objB, excludeKeys) {
   if (objA === objB) {
     return true;
   }
@@ -39,14 +39,13 @@ export function shallowEqual(objA, objB, excludeKeys) {
   return true;
 }
 
-export const shallowEquals = shallowEqual;
 
 /**
  * Logs and returns an array showing the places where shallow equals failed or the string "equal"
  */
-export function shallowEqualDebug(objA, objB) {
+export function shallowEqualsDebug(objA, objB) {
   let result;
-  if (shallowEqual(objA, objB)) {
+  if (shallowEquals(objA, objB)) {
     result = 'equal';
   } else {
     result = Object.keys(objA)
@@ -60,8 +59,6 @@ export function shallowEqualDebug(objA, objB) {
       }, []);
   }
 
-  console.log('shallowEqualDebug:', result);
+  console.log('shallowEqualsDebug:', result);
   return result;
 }
-
-export const shallowEqualsDebug = shallowEqualDebug;
