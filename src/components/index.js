@@ -28,3 +28,4 @@ export ScatterGroup from './ScatterGroup/ScatterGroup';
 export SelectableDropdown from './SelectableDropdown/SelectableDropdown';
 export Histogram from './Histogram/Histogram';
 export HistoGroup from './HistoGroup/HistoGroup';
+export TextWithBackground from './TextWithBackground/TextWithBackground';
