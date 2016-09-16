@@ -17,6 +17,7 @@ import { sum, average } from '../../utils/math';
  * @prop {String} yAxisLabel The label to show on the Y axis
  * @prop {String} yAxisUnit The unit to show on the Y axis label
  * @prop {Array} yExtent The min and max value of the yKey in the chart
+ * @prop {Function} yFormatter Format function that takes a y value and outputs a string
  * @prop {String} yKey="y" The key in the data points to read the y value from
  */
 export default class HourChartWithCounts extends PureComponent {
@@ -32,6 +33,7 @@ export default class HourChartWithCounts extends PureComponent {
     yAxisLabel: React.PropTypes.string,
     yAxisUnit: React.PropTypes.string,
     yExtent: PropTypes.array,
+    yFormatter: PropTypes.func,
     yKey: PropTypes.string,
   }
 

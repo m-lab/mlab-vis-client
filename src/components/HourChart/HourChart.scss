@@ -8,7 +8,17 @@
     opacity: 0.2;
   }
 
-  .highlight-line {
+  .highlight {
     pointer-events: none;
+    font-size: 12px;
+
+    text {
+      font-weight: 500;
+    }
+  }
+
+  .extent-lines {
+    stroke: #f00;
+    stroke-width: 1px;
   }
 }

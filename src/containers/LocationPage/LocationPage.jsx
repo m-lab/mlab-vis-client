@@ -513,6 +513,7 @@ class LocationPage extends PureComponent {
               yAxisLabel={viewMetric.label}
               yAxisUnit={viewMetric.unit}
               yExtent={hourlyData.extents[extentKey]}
+              yFormatter={viewMetric.formatter}
               yKey={viewMetric.dataKey}
             />
             <ChartExportControls
