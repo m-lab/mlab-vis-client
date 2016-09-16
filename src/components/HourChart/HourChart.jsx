@@ -9,9 +9,8 @@ import './HourChart.scss';
  * based on the props of the component
  */
 function visProps(props) {
-  const { dataByHour, dataByDate, data, forceZeroMin, height,
-    innerMarginLeft = 50, innerMarginRight = 20, overallData,
-    width, yAxisLabel, yAxisUnit, yExtent, yKey, color } = props;
+  const { data, forceZeroMin, height, innerMarginLeft = 50, innerMarginRight = 20,
+    width, yExtent, yKey } = props;
   let { xScale } = props;
 
   const innerMargin = {
@@ -54,22 +53,16 @@ function visProps(props) {
 
   return {
     binWidth,
-    color,
-    dataByHour,
-    dataByDate,
     data,
     height,
     innerHeight,
     innerMargin,
     innerWidth,
     line,
-    overallData,
     width,
     xScale,
     yScale,
     yKey,
-    yAxisLabel,
-    yAxisUnit,
   };
 }
 
