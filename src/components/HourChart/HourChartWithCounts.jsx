@@ -11,8 +11,8 @@ import { sum, average } from '../../utils/math';
  * @prop {Array} data The array of data points indexed by hour. Should be
  *   an array of length 24 of form [{ hour:Number(0..23), points: [{ yKey:Number }, ...]}, ...]
  * @prop {Boolean} forceZeroMin=true Whether the min y value should always be 0.
- * @prop {Object} highlightPoint The point being highlighted in the chart
- * @prop {Function} onHighlightPoint Callback for when a point is hovered on
+ * @prop {Object} highlightHour The hour being highlighted in the chart
+ * @prop {Function} onHighlightHour Callback for when a point is hovered on
  * @prop {Number} width The width of the chart
  * @prop {String} yAxisLabel The label to show on the Y axis
  * @prop {String} yAxisUnit The unit to show on the Y axis label
@@ -24,9 +24,9 @@ export default class HourChartWithCounts extends PureComponent {
     color: PropTypes.string,
     data: PropTypes.array,
     forceZeroMin: PropTypes.bool,
-    highlightPoint: PropTypes.object,
+    highlightHour: PropTypes.object,
     id: React.PropTypes.string,
-    onHighlightPoint: PropTypes.func,
+    onHighlightHour: PropTypes.func,
     threshold: PropTypes.number,
     width: PropTypes.number,
     yAxisLabel: React.PropTypes.string,

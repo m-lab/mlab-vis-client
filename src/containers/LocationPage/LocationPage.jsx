@@ -499,9 +499,9 @@ class LocationPage extends PureComponent {
             <HourChartWithCounts
               color={color}
               data={hourlyData.results}
-              highlightPoint={highlightHourly}
+              highlightHour={highlightHourly}
               id={chartId}
-              onHighlightPoint={this.onHighlightHourly}
+              onHighlightHour={this.onHighlightHourly}
               threshold={30}
               width={400}
               yAxisLabel={viewMetric.label}
