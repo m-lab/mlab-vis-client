@@ -223,7 +223,7 @@ class LocationPage extends PureComponent {
    */
   onCompareMetricsChange(compareName, value) {
     const { dispatch } = this.props;
-    if (compareName === 'first') {
+    if (compareName === 'x') {
       dispatch(LocationPageActions.changecompareMetricX(value));
     } else {
       dispatch(LocationPageActions.changecompareMetricY(value));

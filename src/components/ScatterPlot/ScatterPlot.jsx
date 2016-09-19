@@ -23,9 +23,15 @@ export default class ScatterPlot extends PureComponent {
     id: React.PropTypes.string,
     onHover: PropTypes.func,
     width: PropTypes.number,
+    xAxisLabel: React.PropTypes.string,
+    xAxisUnit: React.PropTypes.string,
     xExtent: PropTypes.array,
+    xFormatter: PropTypes.func,
     xKey: PropTypes.string,
+    yAxisLabel: React.PropTypes.string,
+    yAxisUnit: React.PropTypes.string,
     yExtent: PropTypes.array,
+    yFormatter: PropTypes.func,
     yKey: PropTypes.string,
   }
 
@@ -35,6 +41,8 @@ export default class ScatterPlot extends PureComponent {
     xKey: 'x',
     width: 200,
     height: 200,
+    xFormatter: d => d,
+    yFormatter: d => d,
   }
 
   /**
@@ -69,6 +77,17 @@ export default class ScatterPlot extends PureComponent {
     this.update();
   }
 
+  getXAxisLabel() {
+    const { xAxisLabel, xAxisUnit } = this.props;
+    return `${xAxisLabel}${xAxisUnit ? ` (${xAxisUnit})` : ''}`;
+  }
+
+  getYAxisLabel() {
+    const { yAxisLabel, yAxisUnit } = this.props;
+    return `${yAxisLabel}${yAxisUnit ? ` (${yAxisUnit})` : ''}`;
+  }
+
+
   /**
    * Initialize the d3 chart - this is run once on mount
    */
@@ -78,7 +97,16 @@ export default class ScatterPlot extends PureComponent {
 
     // add in axis groups
     this.xAxis = this.g.append('g').classed('x-axis', true);
+    this.xAxisLabel = this.g.append('text')
+      .attr('dy', -4)
+      .attr('class', 'axis-label')
+      .attr('text-anchor', 'middle');
+
     this.yAxis = this.g.append('g').classed('y-axis', true);
+    this.yAxisLabel = this.g.append('text')
+      .attr('class', 'axis-label')
+      .attr('text-anchor', 'middle');
+
 
     this.update();
   }
@@ -124,7 +152,7 @@ export default class ScatterPlot extends PureComponent {
    * Render the x and y axis components
    */
   updateAxes() {
-    const { xScale, yScale, chartHeight, chartWidth } = this.visComponents;
+    const { xScale, yScale, chartHeight, chartWidth, innerMargin } = this.visComponents;
 
     const xTicks = Math.round(chartWidth / 50);
     const yTicks = Math.round(chartHeight / 50);
@@ -132,12 +160,17 @@ export default class ScatterPlot extends PureComponent {
     const yAxis = d3.axisLeft(yScale).ticks(yTicks).tickSizeOuter(0);
 
     this.yAxis.call(yAxis);
+    this.yAxisLabel
+      .attr('transform', `rotate(270) translate(${-chartHeight / 2} ${-innerMargin.left + 12})`)
+      .text(this.getYAxisLabel());
 
     this.xAxis
       .attr('transform', `translate(0 ${chartHeight + 3})`)
       .call(xAxis);
-  }
-
+    this.xAxisLabel
+      .attr('transform', `translate(${chartWidth / 2} ${chartHeight + (innerMargin.bottom)})`)
+      .text(this.getXAxisLabel());
+ }
 
   /**
    * Figure out what is needed to render the chart
@@ -161,7 +194,7 @@ export default class ScatterPlot extends PureComponent {
     const innerMargin = {
       top: innerMarginTop,
       right: innerMarginRight,
-      bottom: 35,
+      bottom: 40,
       left: innerMarginLeft,
     };
 
