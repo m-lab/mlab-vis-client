@@ -17,6 +17,7 @@ class LocationSearch extends PureComponent {
     dispatch: PropTypes.func,
     locationSearchResults: PropTypes.array,
     router: PropTypes.object,
+    onSuggestionSelected: PropTypes.func,
   }
 
   constructor(props) {
@@ -27,6 +28,10 @@ class LocationSearch extends PureComponent {
     this.onSuggestionSelected = this.onSuggestionSelected.bind(this);
   }
 
+  /**
+   * Default is to navigate to the location page. This is only used
+   * if no `onSuggestionSelected` prop is passed in.
+   */
   onSuggestionSelected(suggestion) {
     const { router } = this.props;
 
@@ -44,13 +49,13 @@ class LocationSearch extends PureComponent {
   }
 
   render() {
-    const { locationSearchResults } = this.props;
+    const { locationSearchResults, onSuggestionSelected } = this.props;
     return (
       <Search
         placeholder="Search for a location"
         searchResults={locationSearchResults}
         onSearchChange={this.onSearchQueryChange}
-        onSuggestionSelected={this.onSuggestionSelected}
+        onSuggestionSelected={onSuggestionSelected || this.onSuggestionSelected}
       />
     );
   }

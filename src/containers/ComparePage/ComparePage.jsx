@@ -20,6 +20,10 @@ import {
   TimeAggregationSelector,
 } from '../../components';
 
+import {
+  LocationSearch,
+} from '../../containers';
+
 import UrlHandler from '../../url/UrlHandler';
 import urlConnect from '../../url/urlConnect';
 
@@ -63,6 +67,7 @@ class ComparePage extends PureComponent {
     // bind handlers
     this.onFacetTypeChange = this.onFacetTypeChange.bind(this);
     this.onDateRangeChange = this.onDateRangeChange.bind(this);
+    this.onLocationSearchResultSelected = this.onLocationSearchResultSelected.bind(this);
     this.onTimeAggregationChange = this.onTimeAggregationChange.bind(this);
     this.onViewMetricChange = this.onViewMetricChange.bind(this);
   }
@@ -121,6 +126,10 @@ class ComparePage extends PureComponent {
     }
   }
 
+  onLocationSearchResultSelected(suggestion) {
+    console.log('You selected', suggestion);
+  }
+
   renderTimeRangeSelector() {
     const { startDate, endDate } = this.props;
 
@@ -166,18 +175,18 @@ class ComparePage extends PureComponent {
         <div>
           <h3>Locations</h3>
           <p>Select one or more locations to explore measurements in. Each location will get its own chart.</p>
-          <input type="text" />
+          <LocationSearch onSuggestionSelected={this.onLocationSearchResultSelected} />
         </div>
         <Row>
           <Col md={6}>
             <h4>Filter by Client ISP</h4>
             <p>Select one or more Client ISPs to filter the measurements by.</p>
-            <input type="text" />
+            <input className="form-control" type="text" />
           </Col>
           <Col md={6}>
             <h4>Filter by Transit ISP</h4>
             <p>Select one or more Transit ISPs to filter the measurements by.</p>
-            <input type="text" />
+            <input className="form-control" type="text" />
           </Col>
         </Row>
       </div>
