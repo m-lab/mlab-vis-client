@@ -3,18 +3,6 @@
 }
 
 .location-page {
-  .metric-selector,
-  .time-aggregation-selector,
-  .client-isp-selector {
-    margin-bottom: 40px;
-  }
-
-  .client-isp-selector {
-    .IspSelect {
-      margin-bottom: 0;
-    }
-  }
-
   .chart-options .checkbox {
     margin: 0;
     font-size: 0.9em;

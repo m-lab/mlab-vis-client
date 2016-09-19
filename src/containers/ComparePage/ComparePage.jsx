@@ -1,0 +1,237 @@
+import React, { PureComponent, PropTypes } from 'react';
+import Helmet from 'react-helmet';
+import moment from 'moment';
+import { browserHistory } from 'react-router';
+import momentPropTypes from 'react-moment-proptypes';
+import Row from 'react-bootstrap/lib/Row';
+import Col from 'react-bootstrap/lib/Col';
+
+import * as ComparePageSelectors from '../../redux/comparePage/selectors';
+import * as ComparePageActions from '../../redux/comparePage/actions';
+// import * as LocationsActions from '../../redux/locations/actions';
+
+import { colorsFor } from '../../utils/color';
+import { metrics, facetTypes } from '../../constants';
+
+import {
+  DateRangeSelector,
+  SelectableList,
+  MetricSelector,
+  TimeAggregationSelector,
+} from '../../components';
+
+import UrlHandler from '../../url/UrlHandler';
+import urlConnect from '../../url/urlConnect';
+
+import './ComparePage.scss';
+
+// Define how to read/write state to URL query parameters
+const urlQueryConfig = {
+  viewMetric: { type: 'string', defaultValue: 'download', urlKey: 'metric' },
+  facetType: { type: 'string', defaultValue: 'location', urlKey: 'facetBy' },
+
+  // selected time
+  // TODO: change defaults to more recent time period when data is up-to-date
+  startDate: { type: 'date', urlKey: 'start', defaultValue: moment('2015-10-1') },
+  endDate: { type: 'date', urlKey: 'end', defaultValue: moment('2015-11-1') },
+  timeAggregation: { type: 'string', defaultValue: 'day', urlKey: 'aggr' },
+};
+const urlHandler = new UrlHandler(urlQueryConfig, browserHistory);
+
+function mapStateToProps(state, propsWithUrl) {
+  return {
+    ...propsWithUrl,
+    facetType: ComparePageSelectors.getFacetType(state, propsWithUrl),
+    viewMetric: ComparePageSelectors.getViewMetric(state, propsWithUrl),
+  };
+}
+
+const pageTitle = 'Compare';
+class ComparePage extends PureComponent {
+  static propTypes = {
+    dispatch: PropTypes.func,
+    endDate: momentPropTypes.momentObj,
+    facetType: PropTypes.object,
+    startDate: momentPropTypes.momentObj,
+    timeAggregation: PropTypes.string,
+    viewMetric: PropTypes.object,
+  }
+
+  constructor(props) {
+    super(props);
+
+    // bind handlers
+    this.onFacetTypeChange = this.onFacetTypeChange.bind(this);
+    this.onDateRangeChange = this.onDateRangeChange.bind(this);
+    this.onTimeAggregationChange = this.onTimeAggregationChange.bind(this);
+    this.onViewMetricChange = this.onViewMetricChange.bind(this);
+  }
+
+  componentDidMount() {
+    this.fetchData(this.props);
+  }
+
+  componentWillReceiveProps(nextProps) {
+    this.fetchData(nextProps);
+  }
+
+  /**
+   * Fetch the data for the page if needed
+   */
+  fetchData(props) {
+    // const { dispatch } = props;
+  }
+
+  /**
+   * Callback for when facet changes - updates URL
+   */
+  onFacetTypeChange(value) {
+    const { dispatch } = this.props;
+    dispatch(ComparePageActions.changeFacetType(value));
+  }
+
+  /**
+   * Callback for time aggregation checkbox
+   */
+  onTimeAggregationChange(value) {
+    const { dispatch } = this.props;
+    dispatch(ComparePageActions.changeTimeAggregation(value));
+  }
+
+  /**
+   * Callback for when viewMetric changes - updates URL
+   */
+  onViewMetricChange(value) {
+    const { dispatch } = this.props;
+    dispatch(ComparePageActions.changeViewMetric(value));
+  }
+
+  /**
+   * Callback for when start or end date is changed
+   * @param {Date} startDate new startDate
+   * @param {Date} endDate new endDate
+   */
+  onDateRangeChange(newStartDate, newEndDate) {
+    const { dispatch, startDate, endDate } = this.props;
+    if ((!startDate && newStartDate) || (newStartDate && !newStartDate.isSame(startDate, 'day'))) {
+      dispatch(ComparePageActions.changeStartDate(newStartDate.toDate()));
+    }
+    if ((!endDate && newEndDate) || (newEndDate && !newEndDate.isSame(endDate, 'day'))) {
+      dispatch(ComparePageActions.changeEndDate(newEndDate.toDate()));
+    }
+  }
+
+  renderTimeRangeSelector() {
+    const { startDate, endDate } = this.props;
+
+    return (
+      <DateRangeSelector
+        startDate={startDate}
+        endDate={endDate}
+        onChange={this.onDateRangeChange}
+      />
+    );
+  }
+
+  renderFacetSelector() {
+    const { facetType } = this.props;
+
+    return (
+      <div className="facet-by-selector">
+        <h5>Facet By</h5>
+        <SelectableList items={facetTypes} active={facetType.value} onChange={this.onFacetTypeChange} />
+      </div>
+    );
+  }
+
+  renderTimeAggregationSelector() {
+    const { timeAggregation } = this.props;
+
+    return (
+      <TimeAggregationSelector active={timeAggregation} onChange={this.onTimeAggregationChange} />
+    );
+  }
+
+  renderMetricSelector() {
+    const { viewMetric } = this.props;
+
+    return (
+      <MetricSelector active={viewMetric.value} onChange={this.onViewMetricChange} />
+    );
+  }
+
+  renderLocationInputs() {
+    return (
+      <div>Location inputs: {this.props.facetType.value}</div>
+    );
+  }
+
+  renderInputSection() {
+    return (
+      <Row>
+        <Col md={3}>
+          {this.renderFacetSelector()}
+        </Col>
+        <Col md={9}>
+          {this.renderLocationInputs()}
+        </Col>
+      </Row>
+    );
+  }
+
+  renderOverall() {
+    return (
+      <Row>
+        <Col md={3}>
+          {this.renderMetricSelector()}
+          {this.renderTimeAggregationSelector()}
+        </Col>
+        <Col md={9}>
+          <div className="subsection">
+            <h3>Compare Something</h3>
+          </div>
+        </Col>
+      </Row>
+    );
+  }
+
+  renderBreakdown() {
+    return (
+      <Row>
+        <Col md={3}>
+          <div />
+        </Col>
+        <Col md={9}>
+          <div className="subsection">
+            <h3>Breakdown</h3>
+          </div>
+        </Col>
+      </Row>
+    );
+  }
+
+  render() {
+    return (
+      <div className="ComparePage">
+        <Helmet title={pageTitle} />
+        <div className="section">
+          <header>
+            <Row>
+              <Col md={3}>
+                <h2>{pageTitle}</h2>
+              </Col>
+              <Col md={9}>
+                {this.renderTimeRangeSelector()}
+              </Col>
+            </Row>
+          </header>
+        </div>
+        {this.renderInputSection()}
+        {this.renderOverall()}
+        {this.renderBreakdown()}
+      </div>
+    );
+  }
+}
+
+export default urlConnect(urlHandler, mapStateToProps)(ComparePage);

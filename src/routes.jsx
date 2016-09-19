@@ -4,6 +4,7 @@ import {
     App,
     HomePage,
     LocationPage,
+    ComparePage,
     NotFoundPage,
   } from 'containers';
 
@@ -17,6 +18,7 @@ export default () => (
 
     { /* Routes */ }
     <Route path="location/:locationId" component={LocationPage} />
+    <Route path="compare" component={ComparePage} />
 
     { /* Catch all route */ }
     <Route path="*" component={NotFoundPage} status={404} />
