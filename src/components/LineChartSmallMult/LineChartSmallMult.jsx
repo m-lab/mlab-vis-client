@@ -137,8 +137,8 @@ export default class LineChartSmallMult extends PureComponent {
             timeAggregation,
             innerMarginLeft = 3, // leave enough room for circle radius
             innerMarginRight = 20,
-            innerMarginTop = 40,
-            chartPadding = 30,
+            innerMarginTop = 25, // need room for column headers
+            chartPadding = 45,
           } = props;
 
     let { xScale } = props;
@@ -255,8 +255,7 @@ export default class LineChartSmallMult extends PureComponent {
 
     series.forEach((s, sIndex) => {
       metrics.forEach((metric, keyIndex) => {
-        // TODO: change to just .id once data consistently has id and name value
-        const seriesId = (showBaseline && sIndex === 0) ? s.meta.client_city : s.meta.client_asn_number;
+        const seriesId = s.meta.id;
         const chartId = `${seriesId}-${metric.dataKey}`;
 
         // get appropriate chart node
@@ -308,20 +307,24 @@ export default class LineChartSmallMult extends PureComponent {
    * React style building of chart
    */
   renderChart(series, seriesIndex, yKey, metricIndex) {
-    const { chartWidth, chartPadding, showBaseline } = this.visComponents;
-    // TODO: change to just .id once data consistently has id and name value
-    const seriesId = (showBaseline && seriesIndex === 0) ? series.meta.client_city : series.meta.client_asn_number;
+    const { chartWidth, chartPadding } = this.visComponents;
+
+    const seriesId = series.meta.id;
     const chartId = `${seriesId}-${yKey}`;
-    const xPos = (chartWidth + chartPadding) * metricIndex;
+
+    // offset by circle radius so it doesn't get clipped
+    const circleRadius = 3;
+    const xPos = ((chartWidth + chartPadding) * metricIndex) + circleRadius;
+    const chartHeaderHeight = 27;
 
     return (
-      <g key={chartId} transform={`translate(${xPos},${0})`} >
+      <g key={chartId} transform={`translate(${xPos},${chartHeaderHeight})`} >
         <g
           id={chartId}
           ref={node => { this.chartNodes[chartId] = node; }}
         />
-      { this.renderChartLabels(series, chartId, seriesIndex, yKey, metricIndex) }
-      { this.renderChartBackground(chartId) }
+      {this.renderChartLabels(series, chartId, seriesIndex, yKey, metricIndex)}
+      {this.renderChartBackground(chartId)}
       </g>
     );
   }
@@ -393,9 +396,8 @@ export default class LineChartSmallMult extends PureComponent {
 
     const yPos = (chartHeight + chartPadding) * seriesIndex;
     // position text below charts for now
-    const yPosText = chartHeight + chartPadding;
-    // TODO: change to just .id once data consistently has id and name value
-    const seriesKey = (showBaseline && seriesIndex === 0) ? series.meta.client_city : series.meta.client_asn_number;
+    const yPosText = 0;
+    const seriesKey = series.meta.id;
     const seriesName = (showBaseline && seriesIndex === 0) ? series.meta.client_city : series.meta.client_asn_name;
 
     return (
@@ -407,7 +409,7 @@ export default class LineChartSmallMult extends PureComponent {
         <text
           className="small-mult-label small-mult-name"
           y={yPosText}
-          dy={-14}
+          dy={16}
         >
           {seriesName}
         </text>
@@ -420,7 +422,7 @@ export default class LineChartSmallMult extends PureComponent {
    * React style label creation
    */
   renderLabels() {
-    const { chartWidth, chartPadding, metrics, innerMargin } = this.visComponents;
+    const { chartWidth, chartPadding, metrics } = this.visComponents;
     const labels = metrics.map((metric, index) => {
       const xPos = ((chartWidth + chartPadding) * index);
       return (
@@ -428,7 +430,8 @@ export default class LineChartSmallMult extends PureComponent {
           key={metric.dataKey}
           className="small-mult-title"
           x={xPos}
-          y={chartPadding}
+          y={0}
+          dy={18}
           textAnchor="start"
         >{metric.label}</text>
 
@@ -436,7 +439,7 @@ export default class LineChartSmallMult extends PureComponent {
     });
 
     return (
-      <g transform={`translate(${innerMargin.left},${0})`}>
+      <g>
         {labels}
       </g>
     );
@@ -478,7 +481,7 @@ export default class LineChartSmallMult extends PureComponent {
           {this.renderBackground(width, height)}
           {this.renderLabels()}
           <g
-            transform={`translate(${innerMargin.left},${innerMargin.top})`}
+            transform={`translate(0,${innerMargin.top})`}
           >
             {series.map((s, i) => this.renderSeries(s, i))}
           </g>
