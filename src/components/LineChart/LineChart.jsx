@@ -3,8 +3,137 @@ import d3 from 'd3';
 import { multiExtent, findClosestSorted, findEqualSorted } from '../../utils/array';
 import { colorsFor } from '../../utils/color';
 import { Legend } from '../../d3-components';
+import addComputedProps from '../../hoc/addComputedProps';
 
 import './LineChart.scss';
+
+/**
+ * Figure out what is needed to render the chart
+ * based on the props of the component
+ */
+function visProps(props) {
+  const {
+    series,
+    forceZeroMin,
+    height,
+    innerMarginLeft = 50,
+    innerMarginRight = 20,
+    width,
+    xExtent,
+    xKey,
+    yExtent,
+    yKey,
+    yFormatter,
+  } = props;
+  let {
+    colors,
+    annotationSeries,
+    xScale,
+  } = props;
+
+
+  // ensure annotation series is an array
+  if (annotationSeries && !Array.isArray(annotationSeries)) {
+    annotationSeries = [annotationSeries];
+  }
+
+  // initialize a color scale unless one was provided
+  if (series && !colors) {
+    colors = colorsFor(series, (d) => d.meta.id);
+  }
+
+  const innerMargin = {
+    top: 20,
+    right: innerMarginRight,
+    bottom: 40,
+    left: innerMarginLeft,
+  };
+
+  const innerWidth = width - innerMargin.left - innerMargin.right;
+
+  // compute legend properties and make room for it at the top.
+  const legend = new Legend({
+    data: (series || []).concat(annotationSeries || []),
+    colors,
+    formatter: yFormatter,
+    width: innerWidth,
+  });
+
+  innerMargin.top += legend.height;
+
+  const innerHeight = height - innerMargin.top - innerMargin.bottom;
+
+  const xMin = 0;
+  const xMax = innerWidth;
+  const yMin = innerHeight;
+  const yMax = 0;
+
+  // set up the domains based on extent. Use the prop if provided, otherwise calculate
+  let xDomain = xExtent;
+  if (!xDomain && series) {
+    xDomain = multiExtent(series, d => d[xKey], oneSeries => oneSeries.results);
+  }
+  let yDomain = yExtent;
+  if (!yDomain && series) {
+    yDomain = multiExtent(series, d => d[yKey], oneSeries => oneSeries.results);
+  }
+
+  // force 0 as the min in the yDomain if specified
+  if (forceZeroMin) {
+    yDomain = [0, yDomain ? yDomain[1] : 1];
+  }
+
+  // use the props xScale if provided, otherwise compute it
+  if (!xScale) {
+    xScale = d3.scaleTime().range([xMin, xMax]);
+    if (xDomain) {
+      xScale.domain(xDomain);
+    }
+  }
+  const yScale = d3.scaleLinear().range([yMin, yMax]);
+  if (yDomain) {
+    yScale.domain(yDomain);
+  }
+
+
+  // function to generate paths for each series
+  const lineChunked = d3.lineChunked()
+    .x((d) => xScale(d[xKey]))
+    .y((d) => yScale(d[yKey]))
+    .curve(d3.curveMonotoneX)
+    .defined(d => d[yKey] != null)
+    .accessData(d => d.results)
+    .lineStyles({
+      stroke: (d) => colors[d.meta.client_asn_number] || '#aaa',
+      'stroke-width': 1.5,
+    });
+
+  // function to generate paths for each annotation series
+  const annotationLineChunked = d3.lineChunked()
+    .x(lineChunked.x())
+    .y(lineChunked.y())
+    .curve(lineChunked.curve())
+    .defined(lineChunked.defined())
+    .accessData(lineChunked.accessData())
+    .lineStyles({
+      stroke: '#aaa',
+      'stroke-width': 1,
+    });
+
+
+  return {
+    annotationLineChunked,
+    annotationSeries,
+    colors,
+    innerHeight,
+    innerMargin,
+    innerWidth,
+    legend,
+    lineChunked,
+    xScale,
+    yScale,
+  };
+}
 
 /**
  * A line chart that uses d3 to draw. Assumes X is a time scale.
@@ -29,8 +158,10 @@ import './LineChart.scss';
  * @prop {String} yAxisUnit The unit to show on the Y axis label
  * @prop {String} yKey="y" The key to read the y value from in the data
  */
-export default class LineChart extends PureComponent {
+class LineChart extends PureComponent {
   static propTypes = {
+    annotationLineChunked: React.PropTypes.func,
+    annotationSeries: PropTypes.array,
     colors: PropTypes.object,
     forceZeroMin: PropTypes.bool,
     height: React.PropTypes.number,
@@ -38,17 +169,24 @@ export default class LineChart extends PureComponent {
     highlightLine: React.PropTypes.object,
     id: React.PropTypes.string,
     inSvg: React.PropTypes.bool,
+    innerHeight: PropTypes.number,
+    innerMargin: PropTypes.object,
+    innerWidth: PropTypes.number,
+    legend: React.PropTypes.object,
+    lineChunked: React.PropTypes.func,
     onHighlightDate: React.PropTypes.func,
     onHighlightLine: React.PropTypes.func,
     series: PropTypes.array,
     width: React.PropTypes.number,
     xExtent: PropTypes.array,
     xKey: React.PropTypes.string,
+    xScale: PropTypes.func,
     yAxisLabel: React.PropTypes.string,
     yAxisUnit: React.PropTypes.string,
     yExtent: PropTypes.array,
     yFormatter: PropTypes.func,
     yKey: React.PropTypes.string,
+    yScale: PropTypes.func,
   }
 
   static defaultProps = {
@@ -66,25 +204,10 @@ export default class LineChart extends PureComponent {
   }
 
   /**
-   * Initiailize the vis components when the component is about to mount
-   */
-  componentWillMount() {
-    this.visComponents = this.makeVisComponents(this.props);
-  }
-
-  /**
    * When the react component mounts, setup the d3 vis
    */
   componentDidMount() {
     this.setup();
-  }
-
-  /**
-   * When new component is updating, regenerate vis components if necessary
-   */
-  componentWillUpdate(nextProps) {
-    // regenerate the vis components if the relevant props change
-    this.visComponents = this.makeVisComponents(nextProps);
   }
 
   /**
@@ -114,8 +237,7 @@ export default class LineChart extends PureComponent {
    * @return {void}
    */
   onMouseMove(mouse) {
-    const { onHighlightDate } = this.props;
-    const { series, xScale, xKey } = this.visComponents;
+    const { onHighlightDate, series, xScale, xKey } = this.props;
 
     if (!onHighlightDate) {
       return;
@@ -142,7 +264,7 @@ export default class LineChart extends PureComponent {
    * Initialize the d3 chart - this is run once on mount
    */
   setup() {
-    const { height, width } = this.visComponents;
+    const { height, width } = this.props;
 
     // add in white background for saving as PNG
     d3.select(this.root).append('rect')
@@ -216,140 +338,17 @@ export default class LineChart extends PureComponent {
     this.update();
   }
 
-  getFullYAxisLabel() {
-    const { yAxisLabel, yAxisUnit } = this.visComponents;
+  getYAxisLabel() {
+    const { yAxisLabel, yAxisUnit } = this.props;
     return `${yAxisLabel}${yAxisUnit ? ` (${yAxisUnit})` : ''}`;
-  }
-
-  /**
-   * Figure out what is needed to render the chart
-   * based on the props of the component
-   */
-  makeVisComponents(props) {
-    const { series, forceZeroMin, height, innerMarginLeft = 50,
-      innerMarginRight = 20, width, xExtent, xKey, yExtent, yKey,
-      yFormatter, yAxisLabel, yAxisUnit } = props;
-    let { colors, annotationSeries, xScale } = props;
-
-
-    // ensure annotation series is an array
-    if (annotationSeries && !Array.isArray(annotationSeries)) {
-      annotationSeries = [annotationSeries];
-    }
-
-    // initialize a color scale unless one was provided
-    if (series && !colors) {
-      colors = colorsFor(series, (d) => d.meta.id);
-    }
-
-    const innerMargin = {
-      top: 20,
-      right: innerMarginRight,
-      bottom: 40,
-      left: innerMarginLeft,
-    };
-
-    const innerWidth = width - innerMargin.left - innerMargin.right;
-
-    // compute legend properties and make room for it at the top.
-    const legend = new Legend({
-      data: (series || []).concat(annotationSeries || []),
-      colors,
-      formatter: yFormatter,
-      width: innerWidth,
-      onHoverLegendEntry: this.onHoverLegendEntry,
-    });
-
-    innerMargin.top += legend.height;
-
-    const innerHeight = height - innerMargin.top - innerMargin.bottom;
-
-    const xMin = 0;
-    const xMax = innerWidth;
-    const yMin = innerHeight;
-    const yMax = 0;
-
-    // set up the domains based on extent. Use the prop if provided, otherwise calculate
-    let xDomain = xExtent;
-    if (!xDomain && series) {
-      xDomain = multiExtent(series, d => d[xKey], oneSeries => oneSeries.results);
-    }
-    let yDomain = yExtent;
-    if (!yDomain && series) {
-      yDomain = multiExtent(series, d => d[yKey], oneSeries => oneSeries.results);
-    }
-
-    // force 0 as the min in the yDomain if specified
-    if (forceZeroMin) {
-      yDomain = [0, yDomain ? yDomain[1] : 1];
-    }
-
-    // use the props xScale if provided, otherwise compute it
-    if (!xScale) {
-      xScale = d3.scaleTime().range([xMin, xMax]);
-      if (xDomain) {
-        xScale.domain(xDomain);
-      }
-    }
-    const yScale = d3.scaleLinear().range([yMin, yMax]);
-    if (yDomain) {
-      yScale.domain(yDomain);
-    }
-
-
-    // function to generate paths for each series
-    const lineChunked = d3.lineChunked()
-      .x((d) => xScale(d[xKey]))
-      .y((d) => yScale(d[yKey]))
-      .curve(d3.curveMonotoneX)
-      .defined(d => d[yKey] != null)
-      .accessData(d => d.results)
-      .lineStyles({
-        stroke: (d) => colors[d.meta.client_asn_number] || '#aaa',
-        'stroke-width': 1.5,
-      });
-
-    // function to generate paths for each annotation series
-    const annotationLineChunked = d3.lineChunked()
-      .x(lineChunked.x())
-      .y(lineChunked.y())
-      .curve(lineChunked.curve())
-      .defined(lineChunked.defined())
-      .accessData(lineChunked.accessData())
-      .lineStyles({
-        stroke: '#aaa',
-        'stroke-width': 1,
-      });
-
-
-    return {
-      annotationLineChunked,
-      annotationSeries,
-      colors,
-      height,
-      innerHeight,
-      innerMargin,
-      innerWidth,
-      legend,
-      lineChunked,
-      series,
-      width,
-      xScale,
-      xKey,
-      yScale,
-      yKey,
-      yFormatter,
-      yAxisLabel,
-      yAxisUnit,
-    };
   }
 
   /**
    * Update the d3 chart - this is the main drawing function
    */
   update() {
-    const { highlightDate } = this.props;
-    const { series = [], annotationSeries = [], xKey, yKey, innerMargin, innerHeight, innerWidth } = this.visComponents;
+    const { highlightDate, series = [], annotationSeries = [], xKey, innerMargin,
+      innerHeight, innerWidth } = this.props;
 
     // ensure we have room for the legend
     this.g.attr('transform', `translate(${innerMargin.left} ${innerMargin.top})`);
@@ -367,17 +366,16 @@ export default class LineChart extends PureComponent {
       });
     }
 
-    this.renderLegend(highlightValues);
-    this.renderAxes();
-    this.renderAnnotationLines();
-    this.renderLines();
-    this.renderHighlightDate(highlightValues);
-    this.renderHighlightLine();
+    this.updateLegend(highlightValues);
+    this.updateAxes();
+    this.updateAnnotationLines();
+    this.updateLines();
+    this.updateHighlightDate(highlightValues);
+    this.updateHighlightLine();
   }
 
-  renderHighlightDate(highlightValues) {
-    const { highlightDate } = this.props;
-    const { xScale, innerHeight, yScale, yKey, series, colors } = this.visComponents;
+  updateHighlightDate(highlightValues) {
+    const { highlightDate, xScale, innerHeight, yScale, yKey, series, colors } = this.props;
 
     // render the x-axis marker for highlightDate
     if (highlightDate == null) {
@@ -424,10 +422,9 @@ export default class LineChart extends PureComponent {
     }
   }
 
-  renderHighlightLine() {
+  updateHighlightLine() {
     // render the highlight line
-    const { highlightLine } = this.props;
-    const { lineChunked, innerWidth, innerHeight } = this.visComponents;
+    const { highlightLine, lineChunked, innerWidth, innerHeight } = this.props;
 
     if (!highlightLine) {
       this.highlightLine.style('display', 'none');
@@ -440,23 +437,22 @@ export default class LineChart extends PureComponent {
     }
   }
 
-  renderLegend(highlightValues) {
-    const { highlightLine } = this.props;
-    const { legend, yKey } = this.visComponents;
+  updateLegend(highlightValues) {
+    const { highlightLine, legend, yKey } = this.props;
 
     this.legendContainer.attr('transform', `translate(0 ${-legend.height})`);
 
     // map to just Y values
     const highlightYValues = highlightValues && highlightValues.map(d => (d == null ? d : d[yKey]));
 
-    legend.render(this.legendContainer, highlightYValues, highlightLine);
+    legend.render(this.legendContainer, highlightYValues, this.onHoverLegendEntry, highlightLine);
   }
 
   /**
    * Render the x and y axis components
    */
-  renderAxes() {
-    const { xScale, yScale, innerHeight, innerMargin, innerWidth, yKey, yFormatter } = this.visComponents;
+  updateAxes() {
+    const { xScale, yScale, innerHeight, innerMargin, innerWidth, yKey, yFormatter } = this.props;
     const xAxis = d3.axisBottom(xScale).tickSizeOuter(0);
     const yAxis = d3.axisLeft(yScale).tickSizeOuter(0);
 
@@ -468,7 +464,7 @@ export default class LineChart extends PureComponent {
     this.yAxis.call(yAxis);
     this.yAxisLabel
       .attr('transform', `rotate(270) translate(${-innerHeight / 2} ${-innerMargin.left + 12})`)
-      .text(this.getFullYAxisLabel());
+      .text(this.getYAxisLabel());
 
     this.xAxis
       .attr('transform', `translate(0 ${innerHeight + 3})`)
@@ -482,8 +478,8 @@ export default class LineChart extends PureComponent {
   /**
    * Render the lines in the chart
    */
-  renderLines() {
-    const { series, lineChunked } = this.visComponents;
+  updateLines() {
+    const { series, lineChunked } = this.props;
 
     if (!series) {
       this.lines.selectAll('*').remove();
@@ -507,8 +503,8 @@ export default class LineChart extends PureComponent {
   /**
    * Render the annotation lines in the chart
    */
-  renderAnnotationLines() {
-    const { annotationSeries, annotationLineChunked } = this.visComponents;
+  updateAnnotationLines() {
+    const { annotationSeries, annotationLineChunked } = this.props;
 
     if (!annotationSeries) {
       this.annotationLines.selectAll('*').remove();
@@ -557,4 +553,6 @@ export default class LineChart extends PureComponent {
       </div>
     );
   }
- }
+}
+
+export default addComputedProps(visProps)(LineChart);

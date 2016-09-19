@@ -35,6 +35,7 @@ export default function addComputedProps(computedPropsFunc, ignoreChangeProps) {
     const addPropsDisplayName = `AddComputedProps(${componentDisplayName})`;
     AddComputedProps.displayName = addPropsDisplayName;
     AddComputedProps.WrappedComponent = WrappedComponent;
+    AddComputedProps.defaultProps = WrappedComponent.defaultProps;
 
     return AddComputedProps;
   };

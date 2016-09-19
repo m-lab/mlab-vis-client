@@ -42,20 +42,20 @@ export default class Legend {
    * @param {Object} container A d3 selection of a container to render the legend in
    * @param {Array} values Array of values corresponding to the data array. If provided,
    *   these values show up in the legend (typically used for mouse behavior)
+   * @param {Function} onHoverLegendEntry The callback when a legend item is hovered on
    * @param {Object} highlightDatum The data point in `data` to highlight as active
    * @return {void}
    */
-  render(container, values, highlightDatum) {
+  render(container, values, onHoverLegendEntry = () => {}, highlightDatum) {
     let root = container.select('.Legend');
 
-    const onHoverLegendEntry = this.onHoverLegendEntry;
     if (root.empty()) {
       root = container.append('g').attr('class', 'Legend');
-
-      // add mouse leave listener on the main root group for smoother animations
-      // when mousing between entries
-      root.on('mouseleave', () => onHoverLegendEntry(null));
     }
+
+    // add mouse leave listener on the main root group for smoother animations
+    // when mousing between entries
+    root.on('mouseleave', () => onHoverLegendEntry(null));
 
     const binding = root.selectAll('.legend-entry').data(this.data, d => d.meta.id);
     binding.exit().remove();
@@ -120,13 +120,12 @@ export default class Legend {
 
         // mouse listener rect over the entry
         entry.append('rect')
+          .attr('class', 'mouse-listener')
           .attr('width', entryConfig.width + entryConfig.margin.right)
           .attr('height', entryConfig.height + entryConfig.margin.bottom)
           .style('fill', '#f00')
           .style('stroke', 'none')
-          .style('opacity', 0)
-          .on('mouseenter', () => onHoverLegendEntry(d));
-          // .on('mouseleave', () => onHoverLegendEntry(null));
+          .style('opacity', 0);
       });
 
     const formatter = this.formatter;
@@ -147,6 +146,10 @@ export default class Legend {
       // show the current value or hide it if no values provided
       .each(function legendUpdate(d, i) {
         const entry = d3.select(this);
+
+        // attach/update the mouse listener
+        entry.select('.mouse-listener')
+          .on('mouseenter', () => onHoverLegendEntry(d));
 
         // if value is nully render it as -- otherwise use the formatter
         let highlightValue;
