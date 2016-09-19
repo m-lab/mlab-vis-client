@@ -17,7 +17,7 @@ export LineChartWithCounts from './LineChart/LineChartWithCounts';
 export HourChart from './HourChart/HourChart';
 export HourChartWithCounts from './HourChart/HourChartWithCounts';
 export CountChart from './CountChart/CountChart';
-export OmniSearch from './OmniSearch/OmniSearch';
+export Search from './Search/Search';
 export IspSelect from './IspSelect/IspSelect';
 export DateRangeSelector from './DateRangeSelector/DateRangeSelector';
 export Breadcrumbs from './Breadcrumbs/Breadcrumbs';

@@ -1,26 +1,26 @@
 import React, { PureComponent, PropTypes } from 'react';
-import { withRouter } from 'react-router';
 import Autosuggest from 'react-autosuggest';
 import d3 from 'd3';
 
 import { formatNumber, stringToKey } from '../../utils/format';
 
-import './OmniSearch.scss';
+import './Search.scss';
 
 /**
- * Omni Search component.
+ * Search component.
  * Allows for auto completing Location Searches
  */
-class OmniSearch extends PureComponent {
-
+class Search extends PureComponent {
   static propTypes = {
     onSearchChange: PropTypes.func,
-    router: PropTypes.object,
+    onSuggestionSelected: PropTypes.func,
+    placeholder: PropTypes.string,
     searchQuery: PropTypes.string,
     searchResults: PropTypes.array,
   }
 
   static defaultProps = {
+    placeholder: 'Search',
     searchQuery: '',
     searchResults: [],
   }
@@ -74,11 +74,12 @@ class OmniSearch extends PureComponent {
   * @param {String} suggestion The suggestion object selected
   */
   onSuggestionSelected(event, { suggestion }) {
-    const { router } = this.props;
+    const { onSuggestionSelected } = this.props;
     this.setState({ value: '' });
-    const suggestionId = suggestion.id;
-    const path = `/location/${suggestionId}`;
-    router.push(path);
+
+    if (onSuggestionSelected) {
+      onSuggestionSelected(suggestion);
+    }
   }
 
   /**
@@ -88,15 +89,10 @@ class OmniSearch extends PureComponent {
   onSuggestionsFetchRequested({ value }) {
     const { onSearchChange } = this.props;
 
-    // TODO: should this be in a different location?
     const search = stringToKey(value);
 
     if (search.length > 2) {
       onSearchChange(search);
-    } else {
-      // this.setState({
-      //   suggestions: this.formatSuggestions([]),
-      // });
     }
   }
 
@@ -163,12 +159,11 @@ class OmniSearch extends PureComponent {
    * @return {ReactElement} JSX markup.
    */
   render() {
-    // const { searchQuery, searchResults } = this.props;
+    const { placeholder } = this.props;
     const { value, suggestions } = this.state;
-    // const { value, suggestions } = this.state;
-    // const suggestions = this.getSuggestions(value);
+
     const inputProps = {
-      placeholder: 'Search for a Location',
+      placeholder: placeholder,
       value,
       onChange: this.onChange,
     };
@@ -191,4 +186,4 @@ class OmniSearch extends PureComponent {
   }
 }
 
-export default withRouter(OmniSearch);
+export default Search;

@@ -162,7 +162,25 @@ class ComparePage extends PureComponent {
 
   renderLocationInputs() {
     return (
-      <div>Location inputs: {this.props.facetType.value}</div>
+      <div className="input-section subsection">
+        <div>
+          <h3>Locations</h3>
+          <p>Select one or more locations to explore measurements in. Each location will get its own chart.</p>
+          <input type="text" />
+        </div>
+        <Row>
+          <Col md={6}>
+            <h4>Filter by Client ISP</h4>
+            <p>Select one or more Client ISPs to filter the measurements by.</p>
+            <input type="text" />
+          </Col>
+          <Col md={6}>
+            <h4>Filter by Transit ISP</h4>
+            <p>Select one or more Transit ISPs to filter the measurements by.</p>
+            <input type="text" />
+          </Col>
+        </Row>
+      </div>
     );
   }
 
@@ -180,6 +198,7 @@ class ComparePage extends PureComponent {
   }
 
   renderOverall() {
+    const { facetType } = this.props;
     return (
       <Row>
         <Col md={3}>
@@ -188,7 +207,7 @@ class ComparePage extends PureComponent {
         </Col>
         <Col md={9}>
           <div className="subsection">
-            <h3>Compare Something</h3>
+            <h3>{`Compare ${facetType.label}s`}</h3>
           </div>
         </Col>
       </Row>
@@ -225,10 +244,10 @@ class ComparePage extends PureComponent {
               </Col>
             </Row>
           </header>
+          {this.renderInputSection()}
+          {this.renderOverall()}
+          {this.renderBreakdown()}
         </div>
-        {this.renderInputSection()}
-        {this.renderOverall()}
-        {this.renderBreakdown()}
       </div>
     );
   }
