@@ -1,6 +1,7 @@
 /**
  * Reducer for globalSearch
  */
+import { combineReducers } from 'redux';
 import * as Actions from './actions';
 
 const initialState = {
@@ -42,21 +43,7 @@ function locationSearch(state = initialState.locationSearch, action = {}) {
   }
 }
 
-// The root reducer
-function globalSearch(state = initialState, action = {}) {
-  switch (action.type) {
-    case Actions.FETCH_LOCATION_SEARCH:
-    case Actions.FETCH_LOCATION_SEARCH_SUCCESS:
-    case Actions.FETCH_LOCATION_SEARCH_FAIL:
-      return {
-        ...state,
-        locationSearch: locationSearch(state.locationSearch, action),
-      };
-    default:
-      return state;
-  }
-}
-
-
 // Export the reducer
-export default globalSearch;
+export default combineReducers({
+  locationSearch,
+});
