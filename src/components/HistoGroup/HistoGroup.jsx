@@ -34,7 +34,7 @@ export default class HistoGroup extends PureComponent {
   }
 
   renderPlot(info, bins, color) {
-    const { width, height } = this.props;
+    const { width, height, viewMetric } = this.props;
 
     if (!bins) {
       return null;
@@ -42,16 +42,19 @@ export default class HistoGroup extends PureComponent {
 
     return (
       <Col md={4} key={info.id}>
+        <h5>{info.label}</h5>
         <Histogram
           bins={bins}
           width={width}
           height={height}
           id={info.id}
           color={color}
+          xFormatter={viewMetric.formatter}
+          xAxisLabel={viewMetric.label}
+          xAxisUnit={viewMetric.unit}
           yExtent={[0, 100.0]}
           yFormatter={(d) => `${d}%`}
         />
-        <p>{info.label}</p>
       </Col>
     );
   }
@@ -70,7 +73,9 @@ export default class HistoGroup extends PureComponent {
     // console.log(binSets);
     return (
       <Row key={field.id} className="histogram-row">
-        <h4>{field.label}</h4>
+        <Col md={12}>
+          <h4>{field.label}</h4>
+        </Col>
         {binSets.map((bins, i) => this.renderPlot(data[i], bins, colors[data[i].id]))}
       </Row>
     );

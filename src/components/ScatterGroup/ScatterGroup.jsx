@@ -45,7 +45,7 @@ export default class ScatterGroup extends PureComponent {
 
   /**
    * callback for when metric to compare changes
-   * @param {String} compareName either 'first' or 'last'
+   * @param {String} compareName either 'x' or 'y'
    * @param {String} metricValue new value.
    */
   onMetricChange(compareName, metricValue) {
@@ -64,8 +64,11 @@ export default class ScatterGroup extends PureComponent {
   renderPlot(field, allData) {
     const { compareMetrics, width, height } = this.props;
     const data = allData ? allData.clientIspsData : [];
-    const xKey = (compareMetrics && compareMetrics.x) ? compareMetrics.x.dataKey : metrics[0].dataKey;
-    const yKey = (compareMetrics && compareMetrics.y) ? compareMetrics.y.dataKey : metrics[1].dataKey;
+    const xMetric = (compareMetrics && compareMetrics.x) || metrics[0];
+    const yMetric = (compareMetrics && compareMetrics.y) || metrics[1];
+    const xKey = xMetric.dataKey;
+    const yKey = yMetric.dataKey;
+
     return (
       <Col md={4} key={field.id} className="scatter-plot-container">
         <h4>{field.label}</h4>
@@ -74,7 +77,11 @@ export default class ScatterGroup extends PureComponent {
           data={data}
           width={width}
           height={height}
+          xAxisLabel={xMetric.label}
+          xAxisUnit={xMetric.unit}
           xKey={xKey}
+          yAxisLabel={yMetric.label}
+          yAxisUnit={yMetric.unit}
           yKey={yKey}
         />
       </Col>
@@ -83,7 +90,7 @@ export default class ScatterGroup extends PureComponent {
 
   /**
    * Render dropdown
-   * @param {String} name 'first' or 'last'
+   * @param {String} name 'x' or 'y'
    */
   renderDropDown(name) {
     const { compareMetrics } = this.props;
