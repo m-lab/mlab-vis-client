@@ -30,7 +30,7 @@ class HomePage extends PureComponent {
   }
 
   /**
-   * Callback for when viewMetric changes - updates URL
+   * Callback for when the search query changes
    */
   onSearchQueryChange(query) {
     const { dispatch } = this.props;
