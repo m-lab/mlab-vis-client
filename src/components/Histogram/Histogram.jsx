@@ -17,21 +17,21 @@ function visProps(props) {
     binWidth,
     width,
     height,
-    innerMarginLeft = 50,
-    innerMarginRight = 10,
-    innerMarginTop = 20,
+    paddingLeft = 50,
+    paddingRight = 10,
+    paddingTop = 20,
   } = props;
 
-  const innerMargin = {
-    top: innerMarginTop,
-    right: innerMarginRight,
+  const padding = {
+    top: paddingTop,
+    right: paddingRight,
     bottom: 40,
-    left: innerMarginLeft,
+    left: paddingLeft,
   };
 
   // Take into account the margins
-  const chartWidth = width - innerMargin.left - innerMargin.right;
-  const chartHeight = height - innerMargin.top - innerMargin.bottom;
+  const plotAreaWidth = width - padding.left - padding.right;
+  const plotAreaHeight = height - padding.top - padding.bottom;
 
   // Convert our bin stats to actual values
   const binEnd = (binStart) + (binWidth * (bins.length - 1));
@@ -40,22 +40,22 @@ function visProps(props) {
   // This is a histogram, so lets use a band scale.
   const xScale = d3.scaleBand()
     .domain(xValues)
-    .range([0, chartWidth]);
+    .range([0, plotAreaWidth]);
 
   let yDomain = yExtent;
   if (!yDomain) {
     yDomain = [0, d3.max(bins)];
   }
 
-  const yScale = d3.scaleLinear().range([chartHeight, 0]).clamp(true);
+  const yScale = d3.scaleLinear().range([plotAreaHeight, 0]).clamp(true);
   if (yDomain) {
     yScale.domain(yDomain);
   }
 
   return {
-    innerMargin,
-    chartWidth,
-    chartHeight,
+    padding,
+    plotAreaWidth,
+    plotAreaHeight,
     xValues,
     xScale,
     yScale,
@@ -79,12 +79,12 @@ class Histogram extends PureComponent {
     binStart: PropTypes.number,
     binWidth: PropTypes.number,
     bins: PropTypes.array,
-    chartHeight: PropTypes.number,
-    chartWidth: PropTypes.number,
     color: PropTypes.string,
     height: PropTypes.number,
     id: PropTypes.string,
-    innerMargin: PropTypes.object,
+    padding: PropTypes.object,
+    plotAreaHeight: PropTypes.number,
+    plotAreaWidth: PropTypes.number,
     width: PropTypes.number,
     xAxisLabel: PropTypes.string,
     xAxisUnit: PropTypes.string,
@@ -131,7 +131,7 @@ class Histogram extends PureComponent {
    * Initialize the d3 chart - this is run once on mount
    */
   setup() {
-    const { width, height } = this.props;
+    const { width, height, plotAreaWidth } = this.props;
 
     // add in white background for saving as PNG
     d3.select(this.root).append('rect')
@@ -149,7 +149,7 @@ class Histogram extends PureComponent {
     this.xAxis = this.g.append('g').classed('x-axis', true);
     this.xAxis.append('line')
       .attr('x1', 0)
-      .attr('x2', innerWidth);
+      .attr('x2', plotAreaWidth);
     this.xAxisLabel = this.g.append('text')
       .attr('dy', -4)
       .attr('class', 'axis-label')
@@ -171,8 +171,8 @@ class Histogram extends PureComponent {
    * Update the d3 chart - this is the main drawing function
    */
   update() {
-    const { innerMargin } = this.props;
-    this.g.attr('transform', `translate(${innerMargin.left} ${innerMargin.top})`);
+    const { padding } = this.props;
+    this.g.attr('transform', `translate(${padding.left} ${padding.top})`);
 
     this.updateAxes();
     this.updateBars();
@@ -182,8 +182,8 @@ class Histogram extends PureComponent {
    * Render the x and y axis components
    */
   updateAxes() {
-    const { xScale, xValues, yScale, yFormatter, chartHeight, chartWidth, innerMargin } = this.props;
-    const yTicks = Math.round(chartHeight / 50);
+    const { xScale, xValues, yScale, yFormatter, plotAreaHeight, plotAreaWidth, padding } = this.props;
+    const yTicks = Math.round(plotAreaHeight / 50);
     // show the first tick, then some afterwards.
     // TODO: should be moved out of histogram?
     const xTicks = xValues.filter((t, i) => i === 0 || mod(t, 12) === 0);
@@ -195,15 +195,15 @@ class Histogram extends PureComponent {
 
     this.yAxis.call(yAxis);
     this.yAxisLabel
-      .attr('transform', `rotate(270) translate(${-chartHeight / 2} ${-innerMargin.left + 12})`)
+      .attr('transform', `rotate(270) translate(${-plotAreaHeight / 2} ${-padding.left + 12})`)
       .text('Percentage of Tests');
 
     this.xAxis
-      .attr('transform', `translate(0 ${chartHeight})`)
+      .attr('transform', `translate(0 ${plotAreaHeight})`)
       .call(xAxis);
 
     this.xAxisLabel
-      .attr('transform', `translate(${chartWidth / 2} ${chartHeight + (innerMargin.bottom)})`)
+      .attr('transform', `translate(${plotAreaWidth / 2} ${plotAreaHeight + (padding.bottom)})`)
       .text(this.getXAxisLabel());
   }
 
@@ -216,7 +216,7 @@ class Histogram extends PureComponent {
       xScale,
       xValues,
       yScale,
-      chartHeight,
+      plotAreaHeight,
       color,
     } = this.props;
 
@@ -237,7 +237,7 @@ class Histogram extends PureComponent {
       .attr('width', xScale.bandwidth)
       .transition()
         .attr('y', d => yScale(d || 0))
-        .attr('height', d => chartHeight - yScale(d || 0))
+        .attr('height', d => plotAreaHeight - yScale(d || 0))
         .style('fill', color)
         .style('stroke', color);
 

@@ -51,14 +51,14 @@ function visProps(props) {
 
   const preparedData = prepareData(props);
   const { series } = preparedData;
-  const innerMargin = {
+  const padding = {
     right: 50,
     left: 50,
   };
-  const innerWidth = width - innerMargin.left - innerMargin.right;
+  const plotAreaWidth = width - padding.left - padding.right;
 
   const xMin = 0;
-  const xMax = innerWidth;
+  const xMax = plotAreaWidth;
 
   let xDomain = xExtent;
   if (!xDomain && series) {
@@ -81,8 +81,8 @@ function visProps(props) {
 
   return {
     series: preparedData.series,
-    counts: prepareData.counts,
-    innerMargin,
+    counts: preparedData.counts,
+    padding,
     numBins,
     xScale,
     colors,
@@ -125,10 +125,10 @@ class LineChartWithCounts extends PureComponent {
     highlightDate: React.PropTypes.object,
     highlightLine: React.PropTypes.object,
     id: React.PropTypes.string,
-    innerMargin: PropTypes.object,
     numBins: React.PropTypes.number,
     onHighlightDate: React.PropTypes.func,
     onHighlightLine: React.PropTypes.func,
+    padding: PropTypes.object,
     series: PropTypes.array,
     width: React.PropTypes.number,
     xExtent: PropTypes.array,
@@ -151,7 +151,7 @@ class LineChartWithCounts extends PureComponent {
    */
   render() {
     const { id, width, xKey, annotationSeries, series, highlightLine, highlightDate,
-      onHighlightDate, counts, innerMargin, xScale, numBins, colors } = this.props;
+      onHighlightDate, counts, padding, xScale, numBins, colors } = this.props;
 
     const lineChartHeight = 350;
     const countHeight = 80;
@@ -177,20 +177,20 @@ class LineChartWithCounts extends PureComponent {
               id={undefined}
               inSvg
               height={lineChartHeight}
-              innerMarginLeft={innerMargin.left}
-              innerMarginRight={innerMargin.right}
+              paddingLeft={padding.left}
+              paddingRight={padding.right}
               xScale={xScale}
             />
           </g>
           <g transform={`translate(0 ${lineChartHeight})`}>
             <CountChart
-              data={counts} /* TODO figure out multi-series counts */
+              data={counts}
               highlightData={highlightCountData}
               highlightCount={highlightDate}
               highlightColor={highlightColor}
               height={countHeight}
-              innerMarginLeft={innerMargin.left}
-              innerMarginRight={innerMargin.right}
+              paddingLeft={padding.left}
+              paddingRight={padding.right}
               onHighlightCount={onHighlightDate}
               numBins={numBins}
               width={width}

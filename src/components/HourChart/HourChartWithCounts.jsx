@@ -73,14 +73,14 @@ function visProps(props) {
 
   const preparedData = prepareData(props);
 
-  const innerMargin = {
+  const padding = {
     right: 50,
     left: 50,
   };
-  const innerWidth = width - innerMargin.left - innerMargin.right;
+  const plotAreaWidth = width - padding.left - padding.right;
 
   const xMin = 0;
-  const xMax = innerWidth;
+  const xMax = plotAreaWidth;
 
   const xDomain = [0, 23];
   const xScale = d3.scaleLinear().domain(xDomain).range([xMin, xMax]);
@@ -88,7 +88,7 @@ function visProps(props) {
 
   return {
     ...preparedData,
-    innerMargin,
+    padding,
     numBins,
     xScale,
   };
@@ -120,10 +120,10 @@ class HourChartWithCounts extends PureComponent {
     forceZeroMin: PropTypes.bool,
     highlightHour: PropTypes.number,
     id: React.PropTypes.string,
-    innerMargin: PropTypes.object,
     numBins: PropTypes.number,
     onHighlightHour: PropTypes.func,
     overallData: PropTypes.array,
+    padding: PropTypes.object,
     threshold: PropTypes.number,
     width: PropTypes.number,
     xScale: React.PropTypes.func,
@@ -144,7 +144,7 @@ class HourChartWithCounts extends PureComponent {
    */
   render() {
     const { id, width, color, highlightHour, onHighlightHour, dataByHour, dataByDate,
-      filteredData, innerMargin, overallData, xScale, numBins } = this.props;
+      filteredData, padding, overallData, xScale, numBins } = this.props;
 
     const hourHeight = 250;
     const countHeight = 80;
@@ -170,8 +170,8 @@ class HourChartWithCounts extends PureComponent {
               id={undefined}
               inSvg
               height={hourHeight}
-              innerMarginLeft={innerMargin.left}
-              innerMarginRight={innerMargin.right}
+              paddingLeft={padding.left}
+              paddingRight={padding.right}
               xScale={xScale}
             />
           </g>
@@ -180,8 +180,8 @@ class HourChartWithCounts extends PureComponent {
               data={dataByHour}
               height={countHeight}
               highlightCount={highlightHour}
-              innerMarginLeft={innerMargin.left}
-              innerMarginRight={innerMargin.right}
+              paddingLeft={padding.left}
+              paddingRight={padding.right}
               numBins={numBins}
               onHighlightCount={onHighlightHour}
               width={width}
