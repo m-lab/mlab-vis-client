@@ -3,8 +3,117 @@ import d3 from 'd3';
 import { multiExtent, findClosestSorted } from '../../utils/array';
 import { colorsFor } from '../../utils/color';
 import { TextWithBackground } from '../../components';
+import addComputedProps from '../../hoc/addComputedProps';
 
 import './LineChartSmallMult.scss';
+
+/**
+ * Figure out what is needed to render the chart
+ * based on the props of the component
+ */
+function visProps(props) {
+  const {
+    series,
+    forceZeroMin,
+    showBaseline,
+    width,
+    xExtent,
+    xKey,
+    metrics,
+    chartHeight,
+  } = props;
+  let { xScale } = props;
+
+  const chartPadding = 45;
+  const innerMargin = {
+    top: 25,
+    right: 20,
+    bottom: 35,
+    left: 0,
+  };
+
+  const innerWidth = width - innerMargin.left - innerMargin.right;
+
+  const chartWidth = (innerWidth / metrics.length) - chartPadding;
+
+
+  let height = innerMargin.top + innerMargin.bottom;
+  if (series && series.length > 0) {
+    height += (series.length * (chartHeight + chartPadding));
+  }
+
+  const xMin = 0;
+  const xMax = chartWidth;
+  const yMin = chartHeight;
+  const yMax = 0;
+
+  // set up the domains based on extent. Use the prop if provided, otherwise calculate
+  let xDomain = xExtent;
+  if (!xDomain && series) {
+    xDomain = multiExtent(series, d => d[xKey], oneSeries => oneSeries.results);
+  }
+
+
+  // setup the y scales for all our metrics
+  let yScales = [];
+  if (metrics && series && series.length > 0) {
+    yScales = metrics.map((metric) => {
+      const yExtent = multiExtent(series, d => d[metric.dataKey], oneSeries => oneSeries.results);
+      if (yExtent && forceZeroMin) {
+        yExtent[0] = 0;
+      }
+      return d3.scaleLinear()
+        .domain(yExtent)
+        .range([yMin, yMax]);
+    });
+  }
+
+  // use the props xScale if provided, otherwise compute it
+  if (!xScale) {
+    xScale = d3.scaleTime().range([xMin, xMax]).clamp(true);
+    if (xDomain) {
+      xScale.domain(xDomain);
+    }
+  }
+
+  // get colors
+  let colors = {};
+  if (series) {
+    colors = colorsFor(series, (d) => d.meta.client_asn_number);
+  }
+
+  // create lineChunked generators for all ykeys
+  let lineGens = [];
+  if (yScales && yScales.length > 0) {
+    lineGens = yScales.map((yScale, yIndex) =>
+      // function to generate paths for each yKey
+      d3.lineChunked()
+        .x((d) => xScale(d[xKey]))
+        .y((d) => yScale(d[metrics[yIndex].dataKey]))
+        .curve(d3.curveMonotoneX)
+        .defined(d => d[metrics[yIndex].dataKey] != null)
+        .accessData(d => d.results)
+        .lineStyles({
+          // first element is baseline value
+          stroke: (d, i) => ((showBaseline && i === 0) ? '#bbb' : colors[d.meta.client_asn_number]),
+          'stroke-width': (d, i) => ((showBaseline && i === 0) ? 1 : 1.5),
+        })
+    );
+  }
+
+  return {
+    colors,
+    height,
+    innerHeight,
+    innerMargin,
+    innerWidth,
+    chartWidth,
+    chartPadding,
+    lineGens,
+    xScale,
+    yScales,
+  };
+}
 
 /**
  * A small multiple chart that uses d3 to draw. Assumes X is a time scale.
@@ -20,18 +129,27 @@ import './LineChartSmallMult.scss';
  * @prop {String} xKey="x" The key to read the x value from in the data
  * @prop {Array} metrics="y" The keys and names to read the y value from in the data
  */
-export default class LineChartSmallMult extends PureComponent {
-
+class LineChartSmallMult extends PureComponent {
   static propTypes = {
     chartHeight: PropTypes.number,
+    chartPadding: PropTypes.number,
+    chartWidth: PropTypes.number,
+    colors: PropTypes.object,
     forceZeroMin: PropTypes.bool,
+    height: PropTypes.number,
     id: PropTypes.string,
+    innerHeight: PropTypes.number,
+    innerMargin: PropTypes.object,
+    innerWidth: PropTypes.number,
+    lineGens: PropTypes.array,
     metrics: PropTypes.array,
     series: PropTypes.array,
     showBaseline: PropTypes.bool,
     width: React.PropTypes.number,
     xExtent: PropTypes.array,
     xKey: PropTypes.string,
+    xScale: PropTypes.func,
+    yScales: PropTypes.array,
   }
 
   static defaultProps = {
@@ -50,15 +168,6 @@ export default class LineChartSmallMult extends PureComponent {
       mouse: [0, 0],
     };
 
-    this.onMouseOver = this.onMouseOver.bind(this);
-    this.onMouseOut = this.onMouseOut.bind(this);
-    this.onMouseMove = this.onMouseMove.bind(this);
-  }
-
-  /**
-   * Initiailize the vis components when the component is about to mount
-   */
-  componentWillMount() {
     // Holds refs to chart nodes for line updating.
     this.chartNodes = {};
 
@@ -66,7 +175,9 @@ export default class LineChartSmallMult extends PureComponent {
     // mouseover with d3.mouse
     this.backgroundNodes = {};
 
-    this.visComponents = this.makeVisComponents(this.props);
+    this.onMouseOver = this.onMouseOver.bind(this);
+    this.onMouseOut = this.onMouseOut.bind(this);
+    this.onMouseMove = this.onMouseMove.bind(this);
   }
 
   /**
@@ -74,14 +185,6 @@ export default class LineChartSmallMult extends PureComponent {
    */
   componentDidMount() {
     this.setup();
-  }
-
-  /**
-   * When new component is updating, regenerate vis components if necessary
-   */
-  componentWillUpdate(nextProps) {
-    // regenerate the vis components if the relevant props change
-    this.visComponents = this.makeVisComponents(nextProps);
   }
 
   /**
@@ -122,192 +225,75 @@ export default class LineChartSmallMult extends PureComponent {
   }
 
   /**
-   * Figure out what is needed to render the chart
-   * based on the props of the component
-   */
-  makeVisComponents(props) {
-    const { series,
-            forceZeroMin,
-            showBaseline,
-            width,
-            xExtent,
-            xKey,
-            metrics,
-            chartHeight,
-            timeAggregation,
-            innerMarginLeft = 3, // leave enough room for circle radius
-            innerMarginRight = 20,
-            innerMarginTop = 25, // need room for column headers
-            chartPadding = 45,
-          } = props;
-
-    let { xScale } = props;
-
-    const innerMargin = {
-      top: innerMarginTop,
-      right: innerMarginRight,
-      bottom: 35,
-      left: innerMarginLeft,
-    };
-
-    const innerWidth = width - innerMargin.left - innerMargin.right;
-
-    const chartWidth = (innerWidth / metrics.length) - chartPadding;
-
-
-    let height = innerMargin.top + innerMargin.bottom;
-    if (series && series.length > 0) {
-      height += (series.length * (chartHeight + chartPadding));
-    }
-
-    const xMin = 0;
-    const xMax = chartWidth;
-    const yMin = chartHeight;
-    const yMax = 0;
-
-    // set up the domains based on extent. Use the prop if provided, otherwise calculate
-    let xDomain = xExtent;
-    if (!xDomain && series) {
-      xDomain = multiExtent(series, d => d[xKey], oneSeries => oneSeries.results);
-    }
-
-
-    // setup the y scales for all our metrics
-    let yScales = [];
-    if (metrics && series && series.length > 0) {
-      yScales = metrics.map((metric) => {
-        const yExtent = multiExtent(series, d => d[metric.dataKey], oneSeries => oneSeries.results);
-        if (yExtent && forceZeroMin) {
-          yExtent[0] = 0;
-        }
-        return d3.scaleLinear()
-          .domain(yExtent)
-          .range([yMin, yMax]);
-      });
-    }
-
-    // use the props xScale if provided, otherwise compute it
-    if (!xScale) {
-      xScale = d3.scaleTime().range([xMin, xMax]).clamp(true);
-      if (xDomain) {
-        xScale.domain(xDomain);
-      }
-    }
-
-    // get colors
-    let colors = {};
-    if (series) {
-      colors = colorsFor(series, (d) => d.meta.client_asn_number);
-    }
-
-    // create lineChunked generators for all ykeys
-    let lineGens = [];
-    if (yScales && yScales.length > 0) {
-      lineGens = yScales.map((yScale, yIndex) =>
-        // function to generate paths for each yKey
-        d3.lineChunked()
-          .x((d) => xScale(d[xKey]))
-          .y((d) => yScale(d[metrics[yIndex].dataKey]))
-          .curve(d3.curveMonotoneX)
-          .defined(d => d[metrics[yIndex].dataKey] != null)
-          .accessData(d => d.results)
-          .lineStyles({
-            // first element is baseline value
-            stroke: (d, i) => ((showBaseline && i === 0) ? '#bbb' : colors[d.meta.client_asn_number]),
-            'stroke-width': (d, i) => ((showBaseline && i === 0) ? 1 : 1.5),
-          })
-      );
-    }
-
-    return {
-      colors,
-      height,
-      innerHeight,
-      innerMargin,
-      innerWidth,
-      chartWidth,
-      chartHeight,
-      chartPadding,
-      lineGens,
-      showBaseline,
-      series,
-      width,
-      xScale,
-      xKey,
-      yScales,
-      metrics,
-      timeAggregation,
-    };
-  }
-
-  /**
    * Update the d3 chart - this is the main drawing function
    */
   update() {
-    this.updateCharts();
+    const { series, metrics } = this.props;
+
+    // Iterates through data, using line generators to update charts.
+    series.forEach((s, sIndex) => {
+      metrics.forEach((metric, keyIndex) => {
+        this.updateChart(s, sIndex, metric, keyIndex);
+      });
+    });
   }
 
   /**
-   * Iterates through data, using line generators to update charts.
+   * Renders a chart given series data and a metric
    */
-  updateCharts() {
-    const { series, lineGens, metrics, showBaseline, chartHeight, xScale } = this.visComponents;
+  updateChart(s, sIndex, metric, keyIndex) {
+    const { series, lineGens, showBaseline, chartHeight, xScale } = this.props;
+    const seriesId = s.meta.id;
+    const chartId = `${seriesId}-${metric.dataKey}`;
 
-    series.forEach((s, sIndex) => {
-      metrics.forEach((metric, keyIndex) => {
-        const seriesId = s.meta.id;
-        const chartId = `${seriesId}-${metric.dataKey}`;
+    // get appropriate chart node
+    const chart = d3.select(this.chartNodes[chartId]);
 
-        // get appropriate chart node
-        const chart = d3.select(this.chartNodes[chartId]);
+    const data = [s];
+    if (showBaseline && sIndex > 0) {
+      data.unshift(series[0]);
+    }
 
-        const data = [s];
-        if (showBaseline && sIndex > 0) {
-          data.unshift(series[0]);
-        }
+    // add in axis line
+    let axisLine = chart.select('.axis-line');
+    if (axisLine.empty()) {
+      axisLine = chart.append('line').attr('class', 'axis-line');
+    }
+    axisLine
+      .attr('x1', xScale.range()[0])
+      .attr('x2', xScale.range()[1])
+      .attr('y1', chartHeight + 3)
+      .attr('y2', chartHeight + 3);
 
-        // add in axis line
-        let axisLine = chart.select('.axis-line');
-        if (axisLine.empty()) {
-          axisLine = chart.append('line').attr('class', 'axis-line');
-        }
-        axisLine
-          .attr('x1', xScale.range()[0])
-          .attr('x2', xScale.range()[1])
-          .attr('y1', chartHeight + 3)
-          .attr('y2', chartHeight + 3);
+    // BIND
+    const binding = chart.selectAll('g').data(data);
 
-        // BIND
-        const binding = chart.selectAll('g').data(data);
+    // ENTER
+    const entering = binding.enter().append('g');
 
-        // ENTER
-        const entering = binding.enter().append('g');
+    // MERGE
+    binding.merge(entering)
+      .transition()
+      .call(lineGens[keyIndex]);
 
-        // MERGE
-        binding.merge(entering)
-          .transition()
-          .call(lineGens[keyIndex]);
+    // EXIT
+    binding.exit().remove();
 
-        // EXIT
-        binding.exit().remove();
-
-        // handle mouse over
-        const that = this;
-        d3.select(this.backgroundNodes[chartId])
-          .on('mousemove', function mouseMoveListener() {
-            that.onMouseMove(d3.mouse(this));
-          })
-          .on('mouseover', this.onMouseOver)
-          .on('mouseout', this.onMouseOut);
-      });
-    });
+    // handle mouse over
+    const that = this;
+    d3.select(this.backgroundNodes[chartId])
+      .on('mousemove', function mouseMoveListener() {
+        that.onMouseMove(d3.mouse(this));
+      })
+      .on('mouseover', this.onMouseOver)
+      .on('mouseout', this.onMouseOut);
   }
 
   /**
    * React style building of chart
    */
   renderChart(series, seriesIndex, yKey, metricIndex) {
-    const { chartWidth, chartPadding } = this.visComponents;
+    const { chartWidth, chartPadding } = this.props;
 
     const seriesId = series.meta.id;
     const chartId = `${seriesId}-${yKey}`;
@@ -334,7 +320,7 @@ export default class LineChartSmallMult extends PureComponent {
    */
   renderChartLabels(series, chartId, seriesIndex, yKey, metricIndex) {
     const { hover, mouse } = this.state;
-    const { xScale, yScales, colors, xKey, showBaseline, metrics } = this.visComponents;
+    const { xScale, yScales, colors, xKey, showBaseline, metrics } = this.props;
 
     // find the value closest to the mouse's x coordinate
     const closest = findClosestSorted(series.results, mouse[0], d => xScale(d[xKey]));
@@ -372,7 +358,7 @@ export default class LineChartSmallMult extends PureComponent {
    * React style addition of mouseover box
    */
   renderChartBackground(chartId) {
-    const { chartWidth, chartHeight, chartPadding } = this.visComponents;
+    const { chartWidth, chartHeight, chartPadding } = this.props;
     return (
       <rect
         className="small-mult-chart-background"
@@ -392,7 +378,7 @@ export default class LineChartSmallMult extends PureComponent {
    * React style building of row of data
    */
   renderSeries(series, seriesIndex) {
-    const { metrics, chartHeight, chartPadding, showBaseline } = this.visComponents;
+    const { metrics, chartHeight, chartPadding, showBaseline } = this.props;
 
     const yPos = (chartHeight + chartPadding) * seriesIndex;
     // position text below charts for now
@@ -422,7 +408,7 @@ export default class LineChartSmallMult extends PureComponent {
    * React style label creation
    */
   renderLabels() {
-    const { chartWidth, chartPadding, metrics } = this.visComponents;
+    const { chartWidth, chartPadding, metrics } = this.props;
     const labels = metrics.map((metric, index) => {
       const xPos = ((chartWidth + chartPadding) * index);
       return (
@@ -467,7 +453,7 @@ export default class LineChartSmallMult extends PureComponent {
   render() {
     const { id, series } = this.props;
 
-    const { innerMargin, width, height } = this.visComponents;
+    const { innerMargin, width, height } = this.props;
 
     return (
       <div className="LineChartSmallMult">
@@ -490,3 +476,5 @@ export default class LineChartSmallMult extends PureComponent {
     );
   }
 }
+
+export default addComputedProps(visProps)(LineChartSmallMult);
