@@ -26,6 +26,9 @@ export default class Histogram extends PureComponent {
     height: PropTypes.number,
     id: PropTypes.string,
     width: PropTypes.number,
+    xAxisLabel: React.PropTypes.string,
+    xAxisUnit: React.PropTypes.string,
+    xFormatter: PropTypes.func,
     yExtent: PropTypes.array,
     yFormatter: PropTypes.func,
   };
@@ -38,6 +41,7 @@ export default class Histogram extends PureComponent {
     id: 'histogram',
     height: 200,
     width: 200,
+    xFormatter: d => d,
     yFormatter: d => d,
   };
 
@@ -73,6 +77,11 @@ export default class Histogram extends PureComponent {
     this.update();
   }
 
+  getXAxisLabel() {
+    const { xAxisLabel, xAxisUnit } = this.props;
+    return `${xAxisLabel}${xAxisUnit ? ` (${xAxisUnit})` : ''}`;
+  }
+
   /**
    * Initialize the d3 chart - this is run once on mount
    */
@@ -93,11 +102,18 @@ export default class Histogram extends PureComponent {
 
     // add in axis groups
     this.xAxis = this.g.append('g').classed('x-axis', true);
-    this.yAxis = this.g.append('g').classed('y-axis', true);
-
     this.xAxis.append('line')
       .attr('x1', 0)
       .attr('x2', innerWidth);
+    this.xAxisLabel = this.g.append('text')
+      .attr('dy', -4)
+      .attr('class', 'axis-label')
+      .attr('text-anchor', 'middle');
+
+    this.yAxis = this.g.append('g').classed('y-axis', true);
+    this.yAxisLabel = this.g.append('text')
+      .attr('class', 'axis-label')
+      .attr('text-anchor', 'middle');
 
     // add in groups for data
     this.bars = this.g.append('g').classed('bars-group', true);
@@ -116,7 +132,7 @@ export default class Histogram extends PureComponent {
             height,
             color,
             yFormatter,
-            innerMarginLeft = 35,
+            innerMarginLeft = 50,
             innerMarginRight = 10,
             innerMarginTop = 20,
           } = props;
@@ -124,7 +140,7 @@ export default class Histogram extends PureComponent {
     const innerMargin = {
       top: innerMarginTop,
       right: innerMarginRight,
-      bottom: 35,
+      bottom: 40,
       left: innerMarginLeft,
     };
 
@@ -182,8 +198,7 @@ export default class Histogram extends PureComponent {
    * Render the x and y axis components
    */
   updateAxes() {
-    const { xScale, xValues, yScale, yFormatter, chartHeight } = this.visComponents;
-
+    const { xScale, xValues, yScale, yFormatter, chartHeight, chartWidth, innerMargin } = this.visComponents;
     const yTicks = Math.round(chartHeight / 50);
     // show the first tick, then some afterwards.
     // TODO: should be moved out of histogram?
@@ -195,10 +210,17 @@ export default class Histogram extends PureComponent {
     yAxis.tickFormat(yFormatter);
 
     this.yAxis.call(yAxis);
+    this.yAxisLabel
+      .attr('transform', `rotate(270) translate(${-chartHeight / 2} ${-innerMargin.left + 12})`)
+      .text('Percentage of Tests');
 
     this.xAxis
-      .attr('transform', `translate(0 ${chartHeight + 3})`)
+      .attr('transform', `translate(0 ${chartHeight})`)
       .call(xAxis);
+
+    this.xAxisLabel
+      .attr('transform', `translate(${chartWidth / 2} ${chartHeight + (innerMargin.bottom)})`)
+      .text(this.getXAxisLabel());
   }
   /**
    * Render the main count bars (not the highlight ones)
