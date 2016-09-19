@@ -9,23 +9,23 @@ import './HourChart.scss';
  * based on the props of the component
  */
 function visProps(props) {
-  const { data, forceZeroMin, height, innerMarginLeft = 50, innerMarginRight = 20,
+  const { data, forceZeroMin, height, paddingLeft = 50, paddingRight = 20,
     width, yExtent, yKey } = props;
   let { xScale } = props;
 
-  const innerMargin = {
+  const padding = {
     top: 20,
-    right: innerMarginRight,
+    right: paddingRight,
     bottom: 40,
-    left: innerMarginLeft,
+    left: paddingLeft,
   };
 
-  const innerWidth = width - innerMargin.left - innerMargin.right;
-  const innerHeight = height - innerMargin.top - innerMargin.bottom;
+  const plotAreaWidth = width - padding.left - padding.right;
+  const plotAreaHeight = height - padding.top - padding.bottom;
 
   const xMin = 0;
-  const xMax = innerWidth;
-  const yMin = innerHeight;
+  const xMax = plotAreaWidth;
+  const yMin = plotAreaHeight;
   const yMax = 0;
 
   // set up the domains based on extent. Use the prop if provided, otherwise calculate
@@ -55,9 +55,9 @@ function visProps(props) {
     binWidth,
     data,
     height,
-    innerHeight,
-    innerMargin,
-    innerWidth,
+    plotAreaHeight,
+    padding,
+    plotAreaWidth,
     line,
     width,
     xScale,
@@ -96,14 +96,14 @@ class HourChart extends PureComponent {
     highlightHour: PropTypes.number,
     id: React.PropTypes.string,
     inSvg: React.PropTypes.bool,
-    innerHeight: PropTypes.number,
-    innerMargin: PropTypes.object,
-    innerMarginLeft: PropTypes.number,
-    innerMarginRight: PropTypes.number,
-    innerWidth: PropTypes.number,
     line: PropTypes.func,
     onHighlightHour: PropTypes.func,
     overallData: PropTypes.array,
+    padding: PropTypes.object,
+    paddingLeft: PropTypes.number,
+    paddingRight: PropTypes.number,
+    plotAreaHeight: PropTypes.number,
+    plotAreaWidth: PropTypes.number,
     threshold: PropTypes.number,
     width: PropTypes.number,
     xScale: React.PropTypes.func,
@@ -168,7 +168,7 @@ class HourChart extends PureComponent {
    * Initialize the d3 chart - this is run once on mount
    */
   setup() {
-    const { height, innerMargin, width } = this.props;
+    const { height, padding, width } = this.props;
 
     // add in white background for saving as PNG
     d3.select(this.root).append('rect')
@@ -181,7 +181,7 @@ class HourChart extends PureComponent {
 
     this.g = d3.select(this.root)
       .append('g')
-      .attr('transform', `translate(${innerMargin.left} ${innerMargin.top})`);
+      .attr('transform', `translate(${padding.left} ${padding.top})`);
 
     // add in axis groups
     this.xAxis = this.g.append('g').classed('x-axis', true);
@@ -260,7 +260,7 @@ class HourChart extends PureComponent {
    * Render the x and y axis components
    */
   updateAxes() {
-    const { xScale, yScale, innerHeight, innerWidth, innerMargin, binWidth, yKey, yFormatter } = this.props;
+    const { xScale, yScale, plotAreaHeight, plotAreaWidth, padding, binWidth, yKey, yFormatter } = this.props;
     const xAxis = d3.axisBottom(xScale).tickSizeOuter(0);
     const yAxis = d3.axisLeft(yScale).tickSizeOuter(0);
 
@@ -271,14 +271,14 @@ class HourChart extends PureComponent {
 
     this.yAxis.call(yAxis);
     this.yAxisLabel
-      .attr('transform', `rotate(270) translate(${-innerHeight / 2} ${-innerMargin.left + 12})`)
+      .attr('transform', `rotate(270) translate(${-plotAreaHeight / 2} ${-padding.left + 12})`)
       .text(this.getFullYAxisLabel());
 
     this.xAxis
-      .attr('transform', `translate(${binWidth / 2} ${innerHeight + 3})`)
+      .attr('transform', `translate(${binWidth / 2} ${plotAreaHeight + 3})`)
       .call(xAxis);
     this.xAxisLabel
-      .attr('transform', `translate(${innerWidth / 2} ${innerHeight + (innerMargin.bottom)})`)
+      .attr('transform', `translate(${plotAreaWidth / 2} ${plotAreaHeight + (padding.bottom)})`)
       .text('Hour');
   }
 
@@ -286,7 +286,7 @@ class HourChart extends PureComponent {
    * Render some circles in the chart
    */
   updateCircles() {
-    const { dataByHour, xScale, yScale, yKey, binWidth, color, innerHeight } = this.props;
+    const { dataByHour, xScale, yScale, yKey, binWidth, color, plotAreaHeight } = this.props;
 
     const binding = this.circles
       .selectAll('g')
@@ -311,7 +311,7 @@ class HourChart extends PureComponent {
           .attr('width', Math.ceil(binWidth))
           .attr('x', 0)
           .attr('y', 0)
-          .attr('height', innerHeight + 23);
+          .attr('height', plotAreaHeight + 23);
 
         // move selection over to the correct column.
         selection.attr('transform', `translate(${xScale(hour)} 0)`);

@@ -16,8 +16,8 @@ function visProps(props) {
     series,
     forceZeroMin,
     height,
-    innerMarginLeft = 50,
-    innerMarginRight = 20,
+    paddingLeft = 50,
+    paddingRight = 20,
     width,
     xExtent,
     xKey,
@@ -42,30 +42,30 @@ function visProps(props) {
     colors = colorsFor(series, (d) => d.meta.id);
   }
 
-  const innerMargin = {
+  const padding = {
     top: 20,
-    right: innerMarginRight,
+    right: paddingRight,
     bottom: 40,
-    left: innerMarginLeft,
+    left: paddingLeft,
   };
 
-  const innerWidth = width - innerMargin.left - innerMargin.right;
+  const plotAreaWidth = width - padding.left - padding.right;
 
   // compute legend properties and make room for it at the top.
   const legend = new Legend({
     data: (series || []).concat(annotationSeries || []),
     colors,
     formatter: yFormatter,
-    width: innerWidth,
+    width: plotAreaWidth,
   });
 
-  innerMargin.top += legend.height;
+  padding.top += legend.height;
 
-  const innerHeight = height - innerMargin.top - innerMargin.bottom;
+  const plotAreaHeight = height - padding.top - padding.bottom;
 
   const xMin = 0;
-  const xMax = innerWidth;
-  const yMin = innerHeight;
+  const xMax = plotAreaWidth;
+  const yMin = plotAreaHeight;
   const yMax = 0;
 
   // set up the domains based on extent. Use the prop if provided, otherwise calculate
@@ -125,9 +125,9 @@ function visProps(props) {
     annotationLineChunked,
     annotationSeries,
     colors,
-    innerHeight,
-    innerMargin,
-    innerWidth,
+    plotAreaHeight,
+    padding,
+    plotAreaWidth,
     legend,
     lineChunked,
     xScale,
@@ -169,13 +169,13 @@ class LineChart extends PureComponent {
     highlightLine: React.PropTypes.object,
     id: React.PropTypes.string,
     inSvg: React.PropTypes.bool,
-    innerHeight: PropTypes.number,
-    innerMargin: PropTypes.object,
-    innerWidth: PropTypes.number,
     legend: React.PropTypes.object,
     lineChunked: React.PropTypes.func,
     onHighlightDate: React.PropTypes.func,
     onHighlightLine: React.PropTypes.func,
+    padding: PropTypes.object,
+    plotAreaHeight: PropTypes.number,
+    plotAreaWidth: PropTypes.number,
     series: PropTypes.array,
     width: React.PropTypes.number,
     xExtent: PropTypes.array,
@@ -264,7 +264,7 @@ class LineChart extends PureComponent {
    * Initialize the d3 chart - this is run once on mount
    */
   setup() {
-    const { height, width } = this.props;
+    const { height, width, plotAreaHeight } = this.props;
 
     // add in white background for saving as PNG
     d3.select(this.root).append('rect')
@@ -303,13 +303,13 @@ class LineChart extends PureComponent {
       .attr('x1', 0)
       .attr('x2', 0)
       .attr('y1', 0)
-      .attr('y2', innerHeight + 3)
+      .attr('y2', plotAreaHeight + 3)
       .attr('class', 'highlight-ref-line');
     // add in a rect to fill out the area beneath the hovered on X date
     this.highlightDate.append('rect')
       .attr('x', -45)
       .attr('width', 90)
-      .attr('y', 0) // should be set to innerHeight
+      .attr('y', 0) // should be set to plotAreaHeight
       .attr('height', 20)
       .style('fill', '#fff');
     this.highlightDate.append('text')
@@ -347,14 +347,14 @@ class LineChart extends PureComponent {
    * Update the d3 chart - this is the main drawing function
    */
   update() {
-    const { highlightDate, series = [], annotationSeries = [], xKey, innerMargin,
-      innerHeight, innerWidth } = this.props;
+    const { highlightDate, series = [], annotationSeries = [], xKey, padding,
+      plotAreaHeight, plotAreaWidth } = this.props;
 
     // ensure we have room for the legend
-    this.g.attr('transform', `translate(${innerMargin.left} ${innerMargin.top})`);
+    this.g.attr('transform', `translate(${padding.left} ${padding.top})`);
     this.mouseListener
-      .attr('width', innerWidth)
-      .attr('height', innerHeight + 25); // plus some to cover part of the x axis
+      .attr('width', plotAreaWidth)
+      .attr('height', plotAreaHeight + 25); // plus some to cover part of the x axis
 
     // see what the values are for the highlighted date if we have one
     let highlightValues;
@@ -375,7 +375,7 @@ class LineChart extends PureComponent {
   }
 
   updateHighlightDate(highlightValues) {
-    const { highlightDate, xScale, innerHeight, yScale, yKey, series, colors } = this.props;
+    const { highlightDate, xScale, plotAreaHeight, yScale, yKey, series, colors } = this.props;
 
     // render the x-axis marker for highlightDate
     if (highlightDate == null) {
@@ -385,13 +385,13 @@ class LineChart extends PureComponent {
         .style('display', '')
         .attr('transform', `translate(${xScale(highlightDate)} 0)`);
       this.highlightDate.select('line')
-        .attr('y2', innerHeight + 3);
+        .attr('y2', plotAreaHeight + 3);
 
       this.highlightDate.select('rect')
-        .attr('y', innerHeight + 4);
+        .attr('y', plotAreaHeight + 4);
 
       this.highlightDate.select('text')
-        .attr('y', innerHeight + 3)
+        .attr('y', plotAreaHeight + 3)
         .text(highlightDate.format('MMM D YYYY'));
 
       const points = this.highlightDate.selectAll('circle').data(highlightValues);
@@ -424,7 +424,7 @@ class LineChart extends PureComponent {
 
   updateHighlightLine() {
     // render the highlight line
-    const { highlightLine, lineChunked, innerWidth, innerHeight } = this.props;
+    const { highlightLine, lineChunked, plotAreaWidth, plotAreaHeight } = this.props;
 
     if (!highlightLine) {
       this.highlightLine.style('display', 'none');
@@ -432,8 +432,8 @@ class LineChart extends PureComponent {
       this.highlightLine.style('display', '');
       this.highlightLine.select('g').datum(highlightLine).call(lineChunked);
       this.highlightLine.select('.series-overlay')
-        .attr('width', innerWidth)
-        .attr('height', innerHeight);
+        .attr('width', plotAreaWidth)
+        .attr('height', plotAreaHeight);
     }
   }
 
@@ -452,7 +452,7 @@ class LineChart extends PureComponent {
    * Render the x and y axis components
    */
   updateAxes() {
-    const { xScale, yScale, innerHeight, innerMargin, innerWidth, yKey, yFormatter } = this.props;
+    const { xScale, yScale, plotAreaHeight, padding, plotAreaWidth, yKey, yFormatter } = this.props;
     const xAxis = d3.axisBottom(xScale).tickSizeOuter(0);
     const yAxis = d3.axisLeft(yScale).tickSizeOuter(0);
 
@@ -463,15 +463,15 @@ class LineChart extends PureComponent {
 
     this.yAxis.call(yAxis);
     this.yAxisLabel
-      .attr('transform', `rotate(270) translate(${-innerHeight / 2} ${-innerMargin.left + 12})`)
+      .attr('transform', `rotate(270) translate(${-plotAreaHeight / 2} ${-padding.left + 12})`)
       .text(this.getYAxisLabel());
 
     this.xAxis
-      .attr('transform', `translate(0 ${innerHeight + 3})`)
+      .attr('transform', `translate(0 ${plotAreaHeight + 3})`)
       .call(xAxis);
 
     this.xAxisLabel
-      .attr('transform', `translate(${innerWidth / 2} ${innerHeight + (innerMargin.bottom)})`)
+      .attr('transform', `translate(${plotAreaWidth / 2} ${plotAreaHeight + (padding.bottom)})`)
       .text('Time');
   }
 

@@ -11,8 +11,8 @@ import './CountChart.scss';
 function visProps(props) {
   const {
     height,
-    innerMarginLeft = 50,
-    innerMarginRight = 20,
+    paddingLeft = 50,
+    paddingRight = 20,
     width,
     xKey,
     xExtent,
@@ -24,19 +24,19 @@ function visProps(props) {
   } = props;
   let { xScale } = props;
 
-  const innerMargin = {
+  const padding = {
     top: 15,
-    right: innerMarginRight,
+    right: paddingRight,
     bottom: 10,
-    left: innerMarginLeft,
+    left: paddingLeft,
   };
 
-  const innerWidth = width - innerMargin.left - innerMargin.right;
-  const innerHeight = height - innerMargin.top - innerMargin.bottom;
+  const plotAreaWidth = width - padding.left - padding.right;
+  const plotAreaHeight = height - padding.top - padding.bottom;
 
   const xMin = 0;
-  const xMax = innerWidth;
-  const yMin = innerHeight;
+  const xMax = plotAreaWidth;
+  const yMin = plotAreaHeight;
   const yMax = 0;
 
   // set up the domains based on extent. Use the prop if provided, otherwise calculate
@@ -62,9 +62,9 @@ function visProps(props) {
 
   return {
     binWidth,
-    innerHeight,
-    innerMargin,
-    innerWidth,
+    plotAreaHeight,
+    padding,
+    plotAreaWidth,
     xScale,
     yScale,
   };
@@ -88,12 +88,12 @@ class CountChart extends PureComponent {
     highlightColor: PropTypes.string,
     highlightCount: PropTypes.any,
     highlightData: PropTypes.array,
-    innerHeight: PropTypes.number,
-    innerMargin: PropTypes.object,
-    innerWidth: PropTypes.number,
     maxBinWidth: React.PropTypes.number,
     numBins: PropTypes.number,
     onHighlightCount: PropTypes.func,
+    padding: PropTypes.object,
+    plotAreaHeight: PropTypes.number,
+    plotAreaWidth: PropTypes.number,
     width: PropTypes.number,
     xExtent: PropTypes.array,
     xKey: React.PropTypes.string,
@@ -139,7 +139,7 @@ class CountChart extends PureComponent {
    * Initialize the d3 chart - this is run once on mount
    */
   setup() {
-    const { width, height, innerMargin, innerHeight, innerWidth } = this.props;
+    const { width, height, padding, plotAreaHeight, plotAreaWidth } = this.props;
 
     // add in white background for saving as PNG
     d3.select(this.root).append('rect')
@@ -152,7 +152,7 @@ class CountChart extends PureComponent {
 
     this.g = d3.select(this.root)
       .append('g')
-      .attr('transform', `translate(${innerMargin.left} ${innerMargin.top})`);
+      .attr('transform', `translate(${padding.left} ${padding.top})`);
 
     // add in axis groups
     this.yAxis = this.g.append('g').classed('y-axis', true);
@@ -162,11 +162,11 @@ class CountChart extends PureComponent {
 
     // render a line for the x-axis (no ticks)
     this.xAxis = this.g.append('g').classed('x-axis', true)
-      .attr('transform', `translate(0 ${innerHeight})`);
+      .attr('transform', `translate(0 ${plotAreaHeight})`);
 
     this.xAxis.append('line')
       .attr('x1', 0)
-      .attr('x2', innerWidth);
+      .attr('x2', plotAreaWidth);
 
     // add in groups for data
     this.bars = this.g.append('g').classed('bars-group', true);
@@ -195,12 +195,12 @@ class CountChart extends PureComponent {
    * Render the x and y axis components
    */
   updateAxes() {
-    const { yScale, innerHeight, innerMargin } = this.props;
+    const { yScale, plotAreaHeight, padding } = this.props;
     const yAxis = d3.axisLeft(yScale).ticks(4).tickSizeOuter(0);
 
     this.yAxis.call(yAxis);
     this.yAxisLabel
-      .attr('transform', `rotate(270) translate(${-innerHeight / 2} ${-innerMargin.left + 12})`)
+      .attr('transform', `rotate(270) translate(${-plotAreaHeight / 2} ${-padding.left + 12})`)
       .text('Test Count');
   }
 
@@ -232,7 +232,7 @@ class CountChart extends PureComponent {
       yKey,
       yScale,
       binWidth,
-      innerHeight,
+      plotAreaHeight,
     } = this.props;
 
     const d3Color = d3.color(color);
@@ -263,7 +263,7 @@ class CountChart extends PureComponent {
       .attr('width', binWidth)
       .transition()
         .attr('y', d => yScale(d[yKey] || 0))
-        .attr('height', d => innerHeight - yScale(d[yKey] || 0))
+        .attr('height', d => plotAreaHeight - yScale(d[yKey] || 0))
         .style('fill', d => (d.belowThreshold ? '#fff' : lighterColor))
         .style('stroke', d => (d.belowThreshold ? '#ddd' : color));
 
@@ -285,7 +285,7 @@ class CountChart extends PureComponent {
       yKey,
       yScale,
       binWidth,
-      innerHeight,
+      plotAreaHeight,
     } = this.props;
 
     if (highlightCount == null) {
@@ -296,7 +296,7 @@ class CountChart extends PureComponent {
         .style('display', '')
         .attr('transform', `translate(${xScale(d[xKey])} ${yScale(d[yKey] || 0)})`);
 
-      const barHeight = innerHeight - yScale(d[yKey] || 0);
+      const barHeight = plotAreaHeight - yScale(d[yKey] || 0);
       this.highlightCountBar.select('rect')
         .attr('width', binWidth)
         .attr('height', barHeight)

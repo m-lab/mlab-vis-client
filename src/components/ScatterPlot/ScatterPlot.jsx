@@ -22,16 +22,16 @@ function visProps(props) {
   } = props;
 
   const colors = colorsFor(data, (d) => d.id);
-  const innerMargin = {
+  const padding = {
     top: 40,
     right: 20,
     bottom: 40,
     left: 50,
   };
 
-  const chartWidth = width - innerMargin.left - innerMargin.right;
+  const plotAreaWidth = width - padding.left - padding.right;
 
-  const chartHeight = height - innerMargin.top - innerMargin.bottom;
+  const plotAreaHeight = height - padding.top - padding.bottom;
 
   let xDomain = xExtent;
   if (!xDomain && data) {
@@ -48,21 +48,21 @@ function visProps(props) {
     xDomain[0] = 0;
   }
 
-  const xScale = d3.scaleLinear().range([0, chartWidth]).clamp(true);
+  const xScale = d3.scaleLinear().range([0, plotAreaWidth]).clamp(true);
   if (xDomain) {
     xScale.domain(xDomain);
   }
 
-  const yScale = d3.scaleLinear().range([chartHeight, 0]).clamp(true);
+  const yScale = d3.scaleLinear().range([plotAreaHeight, 0]).clamp(true);
   if (yDomain) {
     yScale.domain(yDomain);
   }
 
   return {
     colors,
-    innerMargin,
-    chartWidth,
-    chartHeight,
+    padding,
+    plotAreaWidth,
+    plotAreaHeight,
     xScale,
     yScale,
   };
@@ -82,14 +82,14 @@ function visProps(props) {
  */
 class ScatterPlot extends PureComponent {
   static propTypes = {
-    chartHeight: PropTypes.number,
-    chartWidth: PropTypes.number,
     colors: PropTypes.object,
     data: PropTypes.array,
     height: PropTypes.number,
     id: React.PropTypes.string,
-    innerMargin: PropTypes.object,
     onHover: PropTypes.func,
+    padding: PropTypes.object,
+    plotAreaHeight: PropTypes.number,
+    plotAreaWidth: PropTypes.number,
     width: PropTypes.number,
     xAxisLabel: React.PropTypes.string,
     xAxisUnit: React.PropTypes.string,
@@ -177,7 +177,7 @@ class ScatterPlot extends PureComponent {
   updateChart() {
     const {
       data,
-      innerMargin,
+      padding,
       colors,
       xKey,
       xScale,
@@ -185,7 +185,7 @@ class ScatterPlot extends PureComponent {
       yScale,
     } = this.props;
 
-    this.g.attr('transform', `translate(${innerMargin.left} ${innerMargin.top})`);
+    this.g.attr('transform', `translate(${padding.left} ${padding.top})`);
 
     const binding = this.g.selectAll('.data-point').data(data, d => d.id);
     binding.exit().remove();
@@ -204,23 +204,23 @@ class ScatterPlot extends PureComponent {
    * Render the x and y axis components
    */
   updateAxes() {
-    const { xScale, yScale, chartHeight, chartWidth, innerMargin } = this.props;
+    const { xScale, yScale, plotAreaHeight, plotAreaWidth, padding } = this.props;
 
-    const xTicks = Math.round(chartWidth / 50);
-    const yTicks = Math.round(chartHeight / 50);
+    const xTicks = Math.round(plotAreaWidth / 50);
+    const yTicks = Math.round(plotAreaHeight / 50);
     const xAxis = d3.axisBottom(xScale).ticks(xTicks).tickSizeOuter(0);
     const yAxis = d3.axisLeft(yScale).ticks(yTicks).tickSizeOuter(0);
 
     this.yAxis.call(yAxis);
     this.yAxisLabel
-      .attr('transform', `rotate(270) translate(${-chartHeight / 2} ${-innerMargin.left + 12})`)
+      .attr('transform', `rotate(270) translate(${-plotAreaHeight / 2} ${-padding.left + 12})`)
       .text(this.getYAxisLabel());
 
     this.xAxis
-      .attr('transform', `translate(0 ${chartHeight + 3})`)
+      .attr('transform', `translate(0 ${plotAreaHeight + 3})`)
       .call(xAxis);
     this.xAxisLabel
-      .attr('transform', `translate(${chartWidth / 2} ${chartHeight + (innerMargin.bottom)})`)
+      .attr('transform', `translate(${plotAreaWidth / 2} ${plotAreaHeight + (padding.bottom)})`)
       .text(this.getXAxisLabel());
   }
 

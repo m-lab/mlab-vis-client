@@ -20,31 +20,40 @@ function visProps(props) {
     xExtent,
     xKey,
     metrics,
-    chartHeight,
+    smallMultHeight,
   } = props;
   let { xScale } = props;
 
-  const chartPadding = 45;
-  const innerMargin = {
+  // padding inside the component
+  const padding = {
     top: 25,
     right: 20,
     bottom: 35,
     left: 0,
   };
 
-  const innerWidth = width - innerMargin.left - innerMargin.right;
+  // spacing around each small multiple
+  const smallMultMargin = 45;
 
-  const chartWidth = (innerWidth / metrics.length) - chartPadding;
+  // width for the whole drawing area
+  const plotAreaWidth = width - padding.left - padding.right;
 
+  // width for an individual small multiple
+  const smallMultWidth = Math.floor(plotAreaWidth / metrics.length) - smallMultMargin;
 
-  let height = innerMargin.top + innerMargin.bottom;
+  // height for the whole component (add enough height for each row)
+  let height = padding.top + padding.bottom;
   if (series && series.length > 0) {
-    height += (series.length * (chartHeight + chartPadding));
+    height += (series.length * (smallMultHeight + smallMultMargin));
   }
 
+  // height for the whole drawing area
+  const plotAreaHeight = height - padding.top - padding.bottom;
+
+  // scales are defined for individual small multiple dimensions
   const xMin = 0;
-  const xMax = chartWidth;
-  const yMin = chartHeight;
+  const xMax = smallMultWidth;
+  const yMin = smallMultHeight;
   const yMax = 0;
 
   // set up the domains based on extent. Use the prop if provided, otherwise calculate
@@ -52,7 +61,6 @@ function visProps(props) {
   if (!xDomain && series) {
     xDomain = multiExtent(series, d => d[xKey], oneSeries => oneSeries.results);
   }
-
 
   // setup the y scales for all our metrics
   let yScales = [];
@@ -105,10 +113,11 @@ function visProps(props) {
     colors,
     height,
     innerHeight,
-    innerMargin,
-    innerWidth,
-    chartWidth,
-    chartPadding,
+    padding,
+    plotAreaHeight,
+    plotAreaWidth,
+    smallMultWidth,
+    smallMultMargin,
     lineGens,
     xScale,
     yScales,
@@ -119,7 +128,7 @@ function visProps(props) {
  * A small multiple chart that uses d3 to draw. Assumes X is a time scale.
  *
  * @prop {Boolean} forceZeroMin=true Whether the min y value should always be 0.
- * @prop {Number} chartHeight The height in pixels an individual chart
+ * @prop {Number} smallMultHeight The height in pixels an individual chart
  * @prop {String} id The ID of the SVG chart (needed for PNG export)
  * @prop {Boolean} inSvg Whether this is being nested inside an SVG, if true renders a <g>
  * @prop {Array} series The array of series data (e.g., [{ meta, results }, ...])
@@ -131,20 +140,20 @@ function visProps(props) {
  */
 class LineChartSmallMult extends PureComponent {
   static propTypes = {
-    chartHeight: PropTypes.number,
-    chartPadding: PropTypes.number,
-    chartWidth: PropTypes.number,
     colors: PropTypes.object,
     forceZeroMin: PropTypes.bool,
     height: PropTypes.number,
     id: PropTypes.string,
     innerHeight: PropTypes.number,
-    innerMargin: PropTypes.object,
-    innerWidth: PropTypes.number,
     lineGens: PropTypes.array,
     metrics: PropTypes.array,
+    padding: PropTypes.object,
+    plotAreaWidth: PropTypes.number,
     series: PropTypes.array,
     showBaseline: PropTypes.bool,
+    smallMultHeight: PropTypes.number,
+    smallMultMargin: PropTypes.number,
+    smallMultWidth: PropTypes.number,
     width: React.PropTypes.number,
     xExtent: PropTypes.array,
     xKey: PropTypes.string,
@@ -153,7 +162,7 @@ class LineChartSmallMult extends PureComponent {
   }
 
   static defaultProps = {
-    chartHeight: 110,
+    smallMultHeight: 110,
     forceZeroMin: true,
     showBaseline: true,
     xKey: 'date',
@@ -242,7 +251,7 @@ class LineChartSmallMult extends PureComponent {
    * Renders a chart given series data and a metric
    */
   updateChart(s, sIndex, metric, keyIndex) {
-    const { series, lineGens, showBaseline, chartHeight, xScale } = this.props;
+    const { series, lineGens, showBaseline, smallMultHeight, xScale } = this.props;
     const seriesId = s.meta.id;
     const chartId = `${seriesId}-${metric.dataKey}`;
 
@@ -262,8 +271,8 @@ class LineChartSmallMult extends PureComponent {
     axisLine
       .attr('x1', xScale.range()[0])
       .attr('x2', xScale.range()[1])
-      .attr('y1', chartHeight + 3)
-      .attr('y2', chartHeight + 3);
+      .attr('y1', smallMultHeight + 3)
+      .attr('y2', smallMultHeight + 3);
 
     // BIND
     const binding = chart.selectAll('g').data(data);
@@ -293,14 +302,14 @@ class LineChartSmallMult extends PureComponent {
    * React style building of chart
    */
   renderChart(series, seriesIndex, yKey, metricIndex) {
-    const { chartWidth, chartPadding } = this.props;
+    const { smallMultWidth, smallMultMargin } = this.props;
 
     const seriesId = series.meta.id;
     const chartId = `${seriesId}-${yKey}`;
 
     // offset by circle radius so it doesn't get clipped
     const circleRadius = 3;
-    const xPos = ((chartWidth + chartPadding) * metricIndex) + circleRadius;
+    const xPos = ((smallMultWidth + smallMultMargin) * metricIndex) + circleRadius;
     const chartHeaderHeight = 27;
 
     return (
@@ -358,7 +367,7 @@ class LineChartSmallMult extends PureComponent {
    * React style addition of mouseover box
    */
   renderChartBackground(chartId) {
-    const { chartWidth, chartHeight, chartPadding } = this.props;
+    const { smallMultWidth, smallMultHeight, smallMultMargin } = this.props;
     return (
       <rect
         className="small-mult-chart-background"
@@ -366,8 +375,8 @@ class LineChartSmallMult extends PureComponent {
         ref={node => { this.backgroundNodes[chartId] = node; }}
         x={0}
         y={0}
-        width={chartWidth + chartPadding}
-        height={chartHeight}
+        width={smallMultWidth + smallMultMargin}
+        height={smallMultHeight}
         fill="none"
         pointerEvents="all"
       />
@@ -378,9 +387,9 @@ class LineChartSmallMult extends PureComponent {
    * React style building of row of data
    */
   renderSeries(series, seriesIndex) {
-    const { metrics, chartHeight, chartPadding, showBaseline } = this.props;
+    const { metrics, smallMultHeight, smallMultMargin, showBaseline } = this.props;
 
-    const yPos = (chartHeight + chartPadding) * seriesIndex;
+    const yPos = (smallMultHeight + smallMultMargin) * seriesIndex;
     // position text below charts for now
     const yPosText = 0;
     const seriesKey = series.meta.id;
@@ -408,9 +417,9 @@ class LineChartSmallMult extends PureComponent {
    * React style label creation
    */
   renderLabels() {
-    const { chartWidth, chartPadding, metrics } = this.props;
+    const { smallMultWidth, smallMultMargin, metrics } = this.props;
     const labels = metrics.map((metric, index) => {
-      const xPos = ((chartWidth + chartPadding) * index);
+      const xPos = ((smallMultWidth + smallMultMargin) * index);
       return (
         <text
           key={metric.dataKey}
@@ -453,7 +462,7 @@ class LineChartSmallMult extends PureComponent {
   render() {
     const { id, series } = this.props;
 
-    const { innerMargin, width, height } = this.props;
+    const { padding, width, height } = this.props;
 
     return (
       <div className="LineChartSmallMult">
@@ -467,7 +476,7 @@ class LineChartSmallMult extends PureComponent {
           {this.renderBackground(width, height)}
           {this.renderLabels()}
           <g
-            transform={`translate(0,${innerMargin.top})`}
+            transform={`translate(0,${padding.top})`}
           >
             {series.map((s, i) => this.renderSeries(s, i))}
           </g>
