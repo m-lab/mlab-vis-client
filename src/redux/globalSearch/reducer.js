@@ -18,12 +18,20 @@ function locationSearch(state = initialState.locationSearch, action = {}) {
   switch (action.type) {
     case Actions.FETCH_LOCATION_SEARCH:
       return {
+        // TODO: ideally this ensured that the data was filtered what query is.
+        // We want to keep results from "new" when going from "new" to "newyo",
+        // but not when going from "new" to "sea" or anything not matching "new".
         data: state.data,
         query: action.searchQuery,
         isFetching: true,
         isFetched: false,
       };
     case Actions.FETCH_LOCATION_SEARCH_SUCCESS:
+      // if the query has changed since, ignore this
+      if (state.query !== action.searchQuery) {
+        return state;
+      }
+      // query hasn't changed, so update results
       return {
         ...state,
         data: action.result.results,
