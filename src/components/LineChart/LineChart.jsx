@@ -347,7 +347,8 @@ class LineChart extends PureComponent {
    * Update the d3 chart - this is the main drawing function
    */
   update() {
-    const { highlightDate, series = [], annotationSeries = [], xKey, innerMargin, innerHeight, innerWidth } = this.props;
+    const { highlightDate, series = [], annotationSeries = [], xKey, innerMargin,
+      innerHeight, innerWidth } = this.props;
 
     // ensure we have room for the legend
     this.g.attr('transform', `translate(${innerMargin.left} ${innerMargin.top})`);
