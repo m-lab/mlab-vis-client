@@ -4,6 +4,91 @@ import d3 from 'd3';
 import { colorsFor } from '../../utils/color';
 import { LineChart, CountChart } from '../../components';
 import { multiExtent } from '../../utils/array';
+import addComputedProps from '../../hoc/addComputedProps';
+
+/**
+ * Filter the data
+ * @param {Object} props the component props
+ * @return {Array} the prepared data
+ */
+function prepareData(props) {
+  const { series } = props;
+
+  if (!series) {
+    return {};
+  }
+
+  // create counts
+  const countsByDate = series.reduce((countsByDate, oneSeries) => {
+    oneSeries.results.forEach(d => {
+      const { count = 0, date } = d;
+      if (!countsByDate[date]) {
+        countsByDate[date] = {
+          count,
+          date,
+        };
+      } else {
+        countsByDate[date].count += count;
+      }
+    });
+
+    return countsByDate;
+  }, {});
+  const counts = Object.keys(countsByDate).map(key => countsByDate[key]);
+
+  return {
+    series,
+    counts,
+  };
+}
+
+
+/**
+ * Figure out what is needed for both charts
+ */
+function visProps(props) {
+  const { width, xExtent, xKey } = props;
+
+  const preparedData = prepareData(props);
+  const { series } = preparedData;
+  const innerMargin = {
+    right: 50,
+    left: 50,
+  };
+  const innerWidth = width - innerMargin.left - innerMargin.right;
+
+  const xMin = 0;
+  const xMax = innerWidth;
+
+  let xDomain = xExtent;
+  if (!xDomain && series) {
+    xDomain = multiExtent(series, d => d[xKey], oneSeries => oneSeries.results);
+  }
+
+  const xScale = d3.scaleTime().range([xMin, xMax]);
+  if (xDomain) {
+    xScale.domain(xDomain);
+  }
+
+  // initialize a color scale
+  let colors = {};
+  if (series) {
+    colors = colorsFor(series, (d) => d.meta.id);
+  }
+
+  // assumes the first series has the max length
+  const numBins = series && series.length ? series[0].length : 1;
+
+  return {
+    series: preparedData.series,
+    counts: prepareData.counts,
+    innerMargin,
+    numBins,
+    xScale,
+    colors,
+  };
+}
+
 
 /**
  * Chart for showing line and count together.
@@ -29,21 +114,26 @@ import { multiExtent } from '../../utils/array';
  * @prop {String} yAxisLabel The label to show on the Y axis
  * @prop {String} yAxisUnit The unit to show on the Y axis label
  */
-export default class LineChartWithCounts extends PureComponent {
+class LineChartWithCounts extends PureComponent {
   static propTypes = {
     annotationSeries: PropTypes.oneOfType([PropTypes.array, PropTypes.object]),
+    colors: PropTypes.object,
+    counts: PropTypes.array,
     data: PropTypes.array,
     forceZeroMin: PropTypes.bool,
     height: React.PropTypes.number,
     highlightDate: React.PropTypes.object,
     highlightLine: React.PropTypes.object,
     id: React.PropTypes.string,
+    innerMargin: PropTypes.object,
+    numBins: React.PropTypes.number,
     onHighlightDate: React.PropTypes.func,
     onHighlightLine: React.PropTypes.func,
     series: PropTypes.array,
     width: React.PropTypes.number,
     xExtent: PropTypes.array,
     xKey: React.PropTypes.string,
+    xScale: React.PropTypes.func,
     yAxisLabel: React.PropTypes.string,
     yAxisUnit: React.PropTypes.string,
     yExtent: PropTypes.array,
@@ -56,111 +146,12 @@ export default class LineChartWithCounts extends PureComponent {
   }
 
   /**
-   * Initiailize the vis components when the component is about to mount
-   */
-  componentWillMount() {
-    this.visComponents = this.makeSharedVisComponents(this.props);
-  }
-
-  /**
-   * When new component is updating, regenerate vis components if necessary
-   */
-  componentWillUpdate(nextProps) {
-    // regenerate the vis components if the relevant props change
-    this.visComponents = this.makeSharedVisComponents(nextProps);
-  }
-
-  /**
-   * Filter the data
-   * @param {Object} props the component props
-   * @return {Array} the prepared data
-   */
-  prepareData(props) {
-    const { series } = props;
-
-    if (!series) {
-      return {};
-    }
-
-    // create counts
-    const countsByDate = series.reduce((countsByDate, oneSeries) => {
-      oneSeries.results.forEach(d => {
-        const { count = 0, date } = d;
-        if (!countsByDate[date]) {
-          countsByDate[date] = {
-            count,
-            date,
-          };
-        } else {
-          countsByDate[date].count += count;
-        }
-      });
-
-      return countsByDate;
-    }, {});
-    const counts = Object.keys(countsByDate).map(key => countsByDate[key]);
-
-    return {
-      series,
-      counts,
-    };
-  }
-
-
-  /**
-   * Figure out what is needed for both charts
-   */
-  makeSharedVisComponents(props) {
-    const { width, xExtent, xKey } = props;
-
-    const preparedData = this.prepareData(props);
-    const { series } = preparedData;
-    const innerMargin = {
-      right: 50,
-      left: 50,
-    };
-    const innerWidth = width - innerMargin.left - innerMargin.right;
-
-    const xMin = 0;
-    const xMax = innerWidth;
-
-    let xDomain = xExtent;
-    if (!xDomain && series) {
-      xDomain = multiExtent(series, d => d[xKey], oneSeries => oneSeries.results);
-    }
-
-    const xScale = d3.scaleTime().range([xMin, xMax]);
-    if (xDomain) {
-      xScale.domain(xDomain);
-    }
-
-    // initialize a color scale
-    let colors = {};
-    if (series) {
-      colors = colorsFor(series, (d) => d.meta.id);
-    }
-
-    // TODO - this is incorrect in the event that there is missing data.
-    // e.g. Jan 1, Jan 2, Jan 4, Jan 5, Jan 6. = 5 bins, but should be 6.
-    // also currently only looks at the first series.
-    const numBins = series && series.length ? series[0].length : 1;
-
-    return {
-      ...preparedData,
-      innerMargin,
-      numBins,
-      xScale,
-      colors,
-    };
-  }
-
-  /**
    * The main render method. Defers chart rendering to d3 in `update` and `setup`
    * @return {React.Component} The rendered container
    */
   render() {
-    const { id, width, xKey, annotationSeries, series, highlightLine, highlightDate, onHighlightDate } = this.props;
-    const { counts, innerMargin, xScale, numBins, colors } = this.visComponents;
+    const { id, width, xKey, annotationSeries, series, highlightLine, highlightDate,
+      onHighlightDate, counts, innerMargin, xScale, numBins, colors } = this.props;
 
     const lineChartHeight = 350;
     const countHeight = 80;
@@ -211,5 +202,6 @@ export default class LineChartWithCounts extends PureComponent {
       </div>
     );
   }
-
 }
+
+export default addComputedProps(visProps)(LineChartWithCounts);
