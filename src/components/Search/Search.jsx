@@ -1,6 +1,7 @@
 import React, { PureComponent, PropTypes } from 'react';
 import Autosuggest from 'react-autosuggest';
 import d3 from 'd3';
+import classNames from 'classnames';
 
 import { formatNumber, stringToKey } from '../../utils/format';
 
@@ -12,6 +13,7 @@ import './Search.scss';
  */
 class Search extends PureComponent {
   static propTypes = {
+    className: PropTypes.string,
     onSearchChange: PropTypes.func,
     onSuggestionSelected: PropTypes.func,
     placeholder: PropTypes.string,
@@ -162,29 +164,31 @@ class Search extends PureComponent {
    * @return {ReactElement} JSX markup.
    */
   render() {
-    const { placeholder } = this.props;
+    const { placeholder, className } = this.props;
     const { value, suggestions } = this.state;
 
     const inputProps = {
-      placeholder: placeholder,
+      placeholder,
       value,
       onChange: this.onChange,
     };
 
     return (
-      <Autosuggest
-        suggestions={suggestions}
-        onSuggestionsFetchRequested={this.onSuggestionsFetchRequested}
-        onSuggestionsClearRequested={this.onSuggestionsClearRequested}
-        getSuggestionValue={this.getSuggestionValue}
-        renderSuggestion={this.renderSuggestion}
-        inputProps={inputProps}
-        multiSection
-        focusInputOnSuggestionClick={false}
-        renderSectionTitle={this.renderSectionTitle}
-        getSectionSuggestions={this.getSectionSuggestions}
-        onSuggestionSelected={this.onSuggestionSelected}
-      />
+      <div className={classNames('Search', className)}>
+        <Autosuggest
+          suggestions={suggestions}
+          onSuggestionsFetchRequested={this.onSuggestionsFetchRequested}
+          onSuggestionsClearRequested={this.onSuggestionsClearRequested}
+          getSuggestionValue={this.getSuggestionValue}
+          renderSuggestion={this.renderSuggestion}
+          inputProps={inputProps}
+          multiSection
+          focusInputOnSuggestionClick={false}
+          renderSectionTitle={this.renderSectionTitle}
+          getSectionSuggestions={this.getSectionSuggestions}
+          onSuggestionSelected={this.onSuggestionSelected}
+        />
+      </div>
     );
   }
 }

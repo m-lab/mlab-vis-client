@@ -18,6 +18,7 @@ import {
   SelectableList,
   MetricSelector,
   TimeAggregationSelector,
+  SearchSelect,
 } from '../../components';
 
 import {
@@ -39,12 +40,14 @@ const urlQueryConfig = {
   startDate: { type: 'date', urlKey: 'start', defaultValue: moment('2015-10-1') },
   endDate: { type: 'date', urlKey: 'end', defaultValue: moment('2015-11-1') },
   timeAggregation: { type: 'string', defaultValue: 'day', urlKey: 'aggr' },
+  facetLocationIds: { type: 'array', urlKey: 'locations' },
 };
 const urlHandler = new UrlHandler(urlQueryConfig, browserHistory);
 
 function mapStateToProps(state, propsWithUrl) {
   return {
     ...propsWithUrl,
+    facetLocationInfos: ComparePageSelectors.getFacetLocationInfo(state, propsWithUrl),
     facetType: ComparePageSelectors.getFacetType(state, propsWithUrl),
     viewMetric: ComparePageSelectors.getViewMetric(state, propsWithUrl),
   };
@@ -55,6 +58,8 @@ class ComparePage extends PureComponent {
   static propTypes = {
     dispatch: PropTypes.func,
     endDate: momentPropTypes.momentObj,
+    facetLocationIds: PropTypes.array,
+    facetLocationInfos: PropTypes.array,
     facetType: PropTypes.object,
     startDate: momentPropTypes.momentObj,
     timeAggregation: PropTypes.string,
@@ -67,7 +72,7 @@ class ComparePage extends PureComponent {
     // bind handlers
     this.onFacetTypeChange = this.onFacetTypeChange.bind(this);
     this.onDateRangeChange = this.onDateRangeChange.bind(this);
-    this.onLocationSearchResultSelected = this.onLocationSearchResultSelected.bind(this);
+    this.onFacetLocationsChange = this.onFacetLocationsChange.bind(this);
     this.onTimeAggregationChange = this.onTimeAggregationChange.bind(this);
     this.onViewMetricChange = this.onViewMetricChange.bind(this);
   }
@@ -126,8 +131,9 @@ class ComparePage extends PureComponent {
     }
   }
 
-  onLocationSearchResultSelected(suggestion) {
-    console.log('You selected', suggestion);
+  onFacetLocationsChange(facetLocations) {
+    const { dispatch } = this.props;
+    dispatch(ComparePageActions.changeFacetLocations(facetLocations, dispatch));
   }
 
   renderTimeRangeSelector() {
@@ -170,12 +176,16 @@ class ComparePage extends PureComponent {
   }
 
   renderLocationInputs() {
+    const { facetLocationInfos } = this.props;
+
     return (
       <div className="input-section subsection">
         <div>
-          <h3>Locations</h3>
+          <header>
+            <h3>Locations</h3>
+          </header>
           <p>Select one or more locations to explore measurements in. Each location will get its own chart.</p>
-          <LocationSearch onSuggestionSelected={this.onLocationSearchResultSelected} />
+          <SearchSelect type="location" onChange={this.onFacetLocationsChange} selected={facetLocationInfos} />
         </div>
         <Row>
           <Col md={6}>
@@ -216,7 +226,9 @@ class ComparePage extends PureComponent {
         </Col>
         <Col md={9}>
           <div className="subsection">
-            <h3>{`Compare ${facetType.label}s`}</h3>
+            <header>
+              <h3>{`Compare ${facetType.label}s`}</h3>
+            </header>
           </div>
         </Col>
       </Row>
@@ -231,7 +243,9 @@ class ComparePage extends PureComponent {
         </Col>
         <Col md={9}>
           <div className="subsection">
-            <h3>Breakdown</h3>
+            <header>
+              <h3>Breakdown</h3>
+            </header>
           </div>
         </Col>
       </Row>

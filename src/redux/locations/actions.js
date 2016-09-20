@@ -7,6 +7,38 @@ import createFetchAction from '../createFetchAction';
  * Action Creators
  */
 
+/**
+ * When receiving partial location info, save it to the store if it isn't already there.
+ * This is typically done when using a value from a search result that hasn't yet been
+ * populated in the location store.
+ */
+export const SAVE_LOCATION_INFO = 'locations/SAVE_LOCATION_INFO';
+export function shouldSaveLocationInfo(state, location) {
+  const locationState = state.locations[location.id];
+  if (!locationState) {
+    return true;
+  }
+
+  return !locationState.info.isFetched;
+}
+
+export function saveLocationInfo(locationInfo) {
+  return {
+    type: SAVE_LOCATION_INFO,
+    locationId: locationInfo.id,
+    result: { meta: locationInfo },
+  };
+}
+
+export function saveLocationInfoIfNeeded(locationInfo) {
+  return (dispatch, getState) => {
+    const state = getState();
+    if (shouldSaveLocationInfo(state, locationInfo)) {
+      dispatch(saveLocationInfo(locationInfo));
+    }
+  };
+}
+
 // ---------------------
 // Fetch Time Series
 // ---------------------

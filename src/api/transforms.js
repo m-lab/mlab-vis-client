@@ -122,6 +122,7 @@ export function transformHourly(body) {
   return body;
 }
 
+console.warn('TODO - temporarily adding in ID in transform search results');
 
 /**
  * Transforms the response from search before rest of application uses it.
@@ -146,6 +147,8 @@ export function transformSearchResults(body) {
         d.name += `, ${d.meta.client_country}`;
       }
       d.id = d.meta.location_key;
+      d.meta.label = d.name;
+      d.meta.id = d.meta.location_key;
     });
 
     // add new entries to the body object

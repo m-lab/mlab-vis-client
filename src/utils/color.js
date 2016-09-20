@@ -54,6 +54,18 @@ export function hashAsn(asnNumber, maxCount) {
 }
 
 /**
+ * Converts a string to a number from 0 to maxCount.
+ *
+ * @param {String} string string to hash
+ * @param {Integer} maxCount Largest number to allow.
+ * @return {Integer} value between 0 and maxCount
+ */
+export function hashString(string, maxCount) {
+  const sum = d3.sum(string.split('').map(ch => ch.charCodeAt(0)));
+  return mod(sum, maxCount);
+}
+
+/**
  * Change brightness of overlapping colors.
  * @param {Array} colors Array of d3.color values
  * @param {Array} Array of overlap objects. Overlap created using d3.nest

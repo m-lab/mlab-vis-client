@@ -2,9 +2,7 @@
  * Selectors for locationPage
  */
 import { createSelector } from 'reselect';
-import { initialLocationState } from '../locations/initialState';
 import { metrics, facetTypes } from '../../constants';
-import { mergeStatuses, status } from '../status';
 
 // ----------------------
 // Input Selectors
@@ -66,7 +64,42 @@ export function getFacetType(state, props) {
   return extractFacetType(value);
 }
 
+/**
+ * Input selector to get the selected facet location IDs
+ */
+function getFacetLocationIds(state, props) {
+  return props.facetLocationIds;
+}
+
+
+function getLocations(state) {
+  return state.locations;
+}
 
 // ----------------------
 // Selectors
 // ----------------------
+
+/**
+ * Inflates facet location IDs into location values
+ */
+export const getFacetLocations = createSelector(
+  getLocations, getFacetLocationIds,
+  (locations, facetLocationIds) => {
+    if (facetLocationIds) {
+      const facetLocations = facetLocationIds.map(id => locations[id]).filter(d => d != null);
+      return facetLocations;
+    }
+
+    return [];
+  }
+);
+
+
+/**
+ * Gets the location info for each facet location
+ */
+export const getFacetLocationInfo = createSelector(
+  getFacetLocations,
+  (facetLocations) => facetLocations.map(facetLocation => facetLocation.info.data)
+    .filter(d => d != null));

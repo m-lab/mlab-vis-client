@@ -16,8 +16,8 @@ class LocationSearch extends PureComponent {
   static propTypes = {
     dispatch: PropTypes.func,
     locationSearchResults: PropTypes.array,
-    router: PropTypes.object,
     onSuggestionSelected: PropTypes.func,
+    router: PropTypes.object,
   }
 
   constructor(props) {
@@ -52,6 +52,7 @@ class LocationSearch extends PureComponent {
     const { locationSearchResults, onSuggestionSelected } = this.props;
     return (
       <Search
+        className="LocationSearch"
         placeholder="Search for a location"
         searchResults={locationSearchResults}
         onSearchChange={this.onSearchQueryChange}
