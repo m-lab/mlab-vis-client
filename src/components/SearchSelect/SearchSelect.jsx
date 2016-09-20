@@ -3,9 +3,9 @@ import Row from 'react-bootstrap/lib/Row';
 import Col from 'react-bootstrap/lib/Col';
 
 import { Icon } from '../../components';
-import { LocationSearch } from '../../containers';
+import { LocationSearch, ClientIspSearch } from '../../containers';
 
-import { colorsFor, hashString } from '../../utils/color';
+import { colorsFor, hashAsn, hashString } from '../../utils/color';
 
 import '../../assets/react-select.scss';
 import './SearchSelect.scss';
@@ -18,11 +18,13 @@ import './SearchSelect.scss';
 export default class SearchSelect extends PureComponent {
   static propTypes = {
     onChange: PropTypes.func,
+    orientation: PropTypes.oneOf(['horizontal', 'vertical']),
     selected: PropTypes.array,
-    type: PropTypes.string,
+    type: PropTypes.oneOf(['location', 'clientIsp', 'transitIsp']),
   }
 
   static defaultProps = {
+    orientation: 'horizontal',
     selected: [],
   }
 
@@ -59,6 +61,12 @@ export default class SearchSelect extends PureComponent {
     }
   }
 
+  getColors(selected) {
+    const { type } = this.props;
+    const hash = type === 'clientIsp' ? hashAsn : hashString;
+    return colorsFor(selected, (d) => d.id, hash);
+  }
+
   /**
    * Render individual selected item
    * @return {React.Component}
@@ -82,7 +90,7 @@ export default class SearchSelect extends PureComponent {
    * @return {React.Component}
    */
   renderSelectedItems(selected) {
-    const colors = colorsFor(selected, (d) => d.id, hashString);
+    const colors = this.getColors(selected);
     return (
       <div className="active-items">
         {selected.map((item) =>
@@ -97,15 +105,24 @@ export default class SearchSelect extends PureComponent {
    * @return {React.Component} The rendered component
    */
   render() {
-    const { selected } = this.props;
+    const { type, selected, orientation } = this.props;
+    const colSize = orientation === 'vertical' ? 12 : 6;
+
+    // decide which search component to use based on type
+    let SearchComponent;
+    if (type === 'clientIsp') {
+      SearchComponent = ClientIspSearch;
+    } else {
+      SearchComponent = LocationSearch;
+    }
 
     return (
       <div className="SearchSelect">
         <Row>
-          <Col md={6}>
-            <LocationSearch onSuggestionSelected={this.onAdd} />
+          <Col md={colSize}>
+            <SearchComponent onSuggestionSelected={this.onAdd} />
           </Col>
-          <Col md={6}>
+          <Col md={colSize}>
             {this.renderSelectedItems(selected)}
           </Col>
         </Row>

@@ -3,7 +3,8 @@ import {
   transform,
   transformTimeSeries,
   transformHourly,
-  transformSearchResults,
+  transformLocationSearchResults,
+  transformClientIspSearchResults,
   transformClientIspLabel,
   transformLocationInfo,
   transformLocationLabel,
@@ -136,7 +137,7 @@ export function getLocationTopClientIsps(locationId) {
  */
 export function getLocationSearch(searchQuery) {
   return get(`/locations/search/${searchQuery}`)
-    .then(transform(transformSearchResults));
+    .then(transform(transformLocationSearchResults));
 }
 
 /**
@@ -149,4 +150,16 @@ export function getLocationSearch(searchQuery) {
 export function getLocationClientIspInfo(locationId, clientIspId) {
   return get(`/locations/${locationId}/clientisps/${clientIspId}/info`)
     .then(transform(transformFixedData));
+}
+
+
+/**
+ * Get Search results for a client ISP
+ *
+ * @param {String} searchQuery search to search for.
+ * @return {Promise} A promise after the get request was made
+ */
+export function getClientIspSearch(searchQuery) {
+  return get(`/client_asns/search/${searchQuery}`)
+    .then(transform(transformClientIspSearchResults));
 }

@@ -1,5 +1,5 @@
 /**
- * Selectors for locationPage
+ * Selectors for comparePage
  */
 import { createSelector } from 'reselect';
 import { metrics, facetTypes } from '../../constants';
@@ -76,6 +76,18 @@ function getLocations(state) {
   return state.locations;
 }
 
+
+/**
+ * Input selector to get the selected filter client ISP IDs
+ */
+function getFilterClientIspIds(state, props) {
+  return props.filterClientIspIds;
+}
+
+function getClientIsps(state) {
+  return state.clientIsps;
+}
+
 // ----------------------
 // Selectors
 // ----------------------
@@ -99,7 +111,33 @@ export const getFacetLocations = createSelector(
 /**
  * Gets the location info for each facet location
  */
-export const getFacetLocationInfo = createSelector(
+export const getFacetLocationInfos = createSelector(
   getFacetLocations,
   (facetLocations) => facetLocations.map(facetLocation => facetLocation.info.data)
     .filter(d => d != null));
+
+
+/**
+ * Inflates facet location IDs into location values
+ */
+export const getFilterClientIsps = createSelector(
+  getClientIsps, getFilterClientIspIds,
+  (clientIsps, filterClientIspIds) => {
+    if (filterClientIspIds) {
+      const facetLocations = filterClientIspIds.map(id => clientIsps[id]).filter(d => d != null);
+      return facetLocations;
+    }
+
+    return [];
+  }
+);
+
+
+/**
+ * Gets the location info for each facet location
+ */
+export const getFilterClientIspInfos = createSelector(
+  getFilterClientIsps,
+  (filterClientIsps) => filterClientIsps.map(filterClientIsp => filterClientIsp.info.data)
+    .filter(d => d != null));
+

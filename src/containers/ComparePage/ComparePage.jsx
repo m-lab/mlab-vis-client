@@ -41,14 +41,16 @@ const urlQueryConfig = {
   endDate: { type: 'date', urlKey: 'end', defaultValue: moment('2015-11-1') },
   timeAggregation: { type: 'string', defaultValue: 'day', urlKey: 'aggr' },
   facetLocationIds: { type: 'array', urlKey: 'locations' },
+  filterClientIspIds: { type: 'array', urlKey: 'filterClientIsps' },
 };
 const urlHandler = new UrlHandler(urlQueryConfig, browserHistory);
 
 function mapStateToProps(state, propsWithUrl) {
   return {
     ...propsWithUrl,
-    facetLocationInfos: ComparePageSelectors.getFacetLocationInfo(state, propsWithUrl),
+    facetLocationInfos: ComparePageSelectors.getFacetLocationInfos(state, propsWithUrl),
     facetType: ComparePageSelectors.getFacetType(state, propsWithUrl),
+    filterClientIspInfos: ComparePageSelectors.getFilterClientIspInfos(state, propsWithUrl),
     viewMetric: ComparePageSelectors.getViewMetric(state, propsWithUrl),
   };
 }
@@ -61,6 +63,8 @@ class ComparePage extends PureComponent {
     facetLocationIds: PropTypes.array,
     facetLocationInfos: PropTypes.array,
     facetType: PropTypes.object,
+    filterClientIspIds: PropTypes.array,
+    filterClientIspInfos: PropTypes.array,
     startDate: momentPropTypes.momentObj,
     timeAggregation: PropTypes.string,
     viewMetric: PropTypes.object,
@@ -70,9 +74,10 @@ class ComparePage extends PureComponent {
     super(props);
 
     // bind handlers
-    this.onFacetTypeChange = this.onFacetTypeChange.bind(this);
     this.onDateRangeChange = this.onDateRangeChange.bind(this);
+    this.onFacetTypeChange = this.onFacetTypeChange.bind(this);
     this.onFacetLocationsChange = this.onFacetLocationsChange.bind(this);
+    this.onFilterClientIspsChange = this.onFilterClientIspsChange.bind(this);
     this.onTimeAggregationChange = this.onTimeAggregationChange.bind(this);
     this.onViewMetricChange = this.onViewMetricChange.bind(this);
   }
@@ -131,9 +136,22 @@ class ComparePage extends PureComponent {
     }
   }
 
+  /**
+   * Callback when the facet location list changes
+   * @param {Array} facetLocations array of location info objects
+   */
   onFacetLocationsChange(facetLocations) {
     const { dispatch } = this.props;
     dispatch(ComparePageActions.changeFacetLocations(facetLocations, dispatch));
+  }
+
+  /**
+   * Callback when the filter client ISP list changes
+   * @param {Array} clientIsps array of client ISP info objects
+   */
+  onFilterClientIspsChange(clientIsps) {
+    const { dispatch } = this.props;
+    dispatch(ComparePageActions.changeFilterClientIsps(clientIsps, dispatch));
   }
 
   renderTimeRangeSelector() {
@@ -176,7 +194,7 @@ class ComparePage extends PureComponent {
   }
 
   renderLocationInputs() {
-    const { facetLocationInfos } = this.props;
+    const { facetLocationInfos, filterClientIspInfos } = this.props;
 
     return (
       <div className="input-section subsection">
@@ -191,7 +209,12 @@ class ComparePage extends PureComponent {
           <Col md={6}>
             <h4>Filter by Client ISP</h4>
             <p>Select one or more Client ISPs to filter the measurements by.</p>
-            <input className="form-control" type="text" />
+            <SearchSelect
+              type="clientIsp"
+              orientation="vertical"
+              onChange={this.onFilterClientIspsChange}
+              selected={filterClientIspInfos}
+            />
           </Col>
           <Col md={6}>
             <h4>Filter by Transit ISP</h4>

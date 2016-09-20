@@ -125,12 +125,12 @@ export function transformHourly(body) {
 console.warn('TODO - temporarily adding in ID in transform search results');
 
 /**
- * Transforms the response from search before rest of application uses it.
+ * Transforms the response from location search before rest of application uses it.
  *
  * @param {Object} body The response body
  * @return {Object} The transformed response body
  */
-export function transformSearchResults(body) {
+export function transformLocationSearchResults(body) {
   // NOTE: modifying body directly means it modifies what is stored in the API cache
   if (body.results) {
     const results = body.results;
@@ -152,13 +152,34 @@ export function transformSearchResults(body) {
     });
 
     // add new entries to the body object
-    Object.assign(body, {
-      results,
-    });
+    body.results = results;
   } else {
-    Object.assign(body, {
-      results: [],
+    body.resuts = [];
+  }
+
+  return body;
+}
+
+/**
+ * Transforms the response from clientIsp search before rest of application uses it.
+ *
+ * @param {Object} body The response body
+ * @return {Object} The transformed response body
+ */
+export function transformClientIspSearchResults(body) {
+  // NOTE: modifying body directly means it modifies what is stored in the API cache
+  if (body.results) {
+    const results = body.results;
+    results.forEach(d => {
+      console.log('setting label on ', d);
+      d.meta.label = d.meta.client_asn_name;
+      d.meta.id = d.meta.client_asn_number;
     });
+
+    // add new entries to the body object
+    body.results = results;
+  } else {
+    body.resuts = [];
   }
 
   return body;

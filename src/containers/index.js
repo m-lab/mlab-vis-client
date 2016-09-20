@@ -5,3 +5,4 @@ export ComparePage from './ComparePage/ComparePage';
 export NotFoundPage from './NotFoundPage/NotFoundPage';
 
 export LocationSearch from './LocationSearch/LocationSearch';
+export ClientIspSearch from './ClientIspSearch/ClientIspSearch';

@@ -122,7 +122,7 @@ class Search extends PureComponent {
   * @param {Object} suggestion Suggestion selected
   */
   getSuggestionValue(suggestion) {
-    return suggestion.name;
+    return suggestion.meta.label;
   }
 
   /**
@@ -154,7 +154,7 @@ class Search extends PureComponent {
     return (
       <div>
         <span className="suggestion-count">{formatNumber(suggestion.data.test_count)}</span>
-        <span className="suggestion-name">{suggestion.name}</span>
+        <span className="suggestion-name">{suggestion.meta.label}</span>
       </div>
     );
   }

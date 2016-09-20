@@ -8,11 +8,11 @@ import { Search } from '../../components';
 
 function mapStateToProps(state) {
   return {
-    searchResults: GlobalSearchSelectors.getLocationSearchResults(state),
+    searchResults: GlobalSearchSelectors.getClientIspSearchResults(state),
   };
 }
 
-class LocationSearch extends PureComponent {
+class ClientIspSearch extends PureComponent {
   static propTypes = {
     dispatch: PropTypes.func,
     onSuggestionSelected: PropTypes.func,
@@ -25,19 +25,6 @@ class LocationSearch extends PureComponent {
 
     // bind handlers
     this.onSearchQueryChange = this.onSearchQueryChange.bind(this);
-    this.onSuggestionSelected = this.onSuggestionSelected.bind(this);
-  }
-
-  /**
-   * Default is to navigate to the location page. This is only used
-   * if no `onSuggestionSelected` prop is passed in.
-   */
-  onSuggestionSelected(suggestion) {
-    const { router } = this.props;
-
-    const suggestionId = suggestion.id;
-    const path = `/location/${suggestionId}`;
-    router.push(path);
   }
 
   /**
@@ -45,21 +32,22 @@ class LocationSearch extends PureComponent {
    */
   onSearchQueryChange(query) {
     const { dispatch } = this.props;
-    dispatch(GlobalSearchActions.fetchLocationSearchIfNeeded(query));
+    dispatch(GlobalSearchActions.fetchClientIspSearchIfNeeded(query));
   }
 
   render() {
     const { searchResults, onSuggestionSelected } = this.props;
+
     return (
       <Search
-        className="LocationSearch"
-        placeholder="Search for a location"
+        className="ClientIspSearch"
+        placeholder="Search for a client ISP"
         searchResults={searchResults}
         onSearchChange={this.onSearchQueryChange}
-        onSuggestionSelected={onSuggestionSelected || this.onSuggestionSelected}
+        onSuggestionSelected={onSuggestionSelected}
       />
     );
   }
 }
 
-export default connect(mapStateToProps)(withRouter(LocationSearch));
+export default connect(mapStateToProps)(withRouter(ClientIspSearch));
