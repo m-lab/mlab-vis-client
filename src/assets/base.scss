@@ -27,3 +27,21 @@ body {
     }
   }
 }
+
+.section:first-child {
+  border-top: none;
+}
+
+
+.facet-by-selector,
+.metric-selector,
+.time-aggregation-selector,
+.client-isp-selector {
+  margin-bottom: 40px;
+}
+
+.client-isp-selector {
+  .IspSelect {
+    margin-bottom: 0;
+  }
+}

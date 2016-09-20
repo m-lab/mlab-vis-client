@@ -107,6 +107,7 @@ function info(state = initialLocationState.info, action = {}) {
         isFetching: true,
         isFetched: false,
       };
+    case Actions.SAVE_LOCATION_INFO:
     case Actions.FETCH_INFO_SUCCESS:
       return {
         // store the meta info directly

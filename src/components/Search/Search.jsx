@@ -1,26 +1,28 @@
 import React, { PureComponent, PropTypes } from 'react';
-import { withRouter } from 'react-router';
 import Autosuggest from 'react-autosuggest';
 import d3 from 'd3';
+import classNames from 'classnames';
 
 import { formatNumber, stringToKey } from '../../utils/format';
 
-import './OmniSearch.scss';
+import './Search.scss';
 
 /**
- * Omni Search component.
+ * Search component.
  * Allows for auto completing Location Searches
  */
-class OmniSearch extends PureComponent {
-
+class Search extends PureComponent {
   static propTypes = {
+    className: PropTypes.string,
     onSearchChange: PropTypes.func,
-    router: PropTypes.object,
+    onSuggestionSelected: PropTypes.func,
+    placeholder: PropTypes.string,
     searchQuery: PropTypes.string,
     searchResults: PropTypes.array,
   }
 
   static defaultProps = {
+    placeholder: 'Search',
     searchQuery: '',
     searchResults: [],
   }
@@ -74,11 +76,12 @@ class OmniSearch extends PureComponent {
   * @param {String} suggestion The suggestion object selected
   */
   onSuggestionSelected(event, { suggestion }) {
-    const { router } = this.props;
+    const { onSuggestionSelected } = this.props;
     this.setState({ value: '' });
-    const suggestionId = suggestion.id;
-    const path = `/location/${suggestionId}`;
-    router.push(path);
+
+    if (onSuggestionSelected) {
+      onSuggestionSelected(suggestion);
+    }
   }
 
   /**
@@ -88,15 +91,10 @@ class OmniSearch extends PureComponent {
   onSuggestionsFetchRequested({ value }) {
     const { onSearchChange } = this.props;
 
-    // TODO: should this be in a different location?
     const search = stringToKey(value);
 
     if (search.length > 2) {
       onSearchChange(search);
-    } else {
-      // this.setState({
-      //   suggestions: this.formatSuggestions([]),
-      // });
     }
   }
 
@@ -154,7 +152,10 @@ class OmniSearch extends PureComponent {
   */
   renderSuggestion(suggestion) {
     return (
-      <span>{suggestion.name} <span className="text-muted">{formatNumber(suggestion.data.test_count)}</span></span>
+      <div>
+        <span className="suggestion-count">{formatNumber(suggestion.data.test_count)}</span>
+        <span className="suggestion-name">{suggestion.name}</span>
+      </div>
     );
   }
 
@@ -163,32 +164,33 @@ class OmniSearch extends PureComponent {
    * @return {ReactElement} JSX markup.
    */
   render() {
-    // const { searchQuery, searchResults } = this.props;
+    const { placeholder, className } = this.props;
     const { value, suggestions } = this.state;
-    // const { value, suggestions } = this.state;
-    // const suggestions = this.getSuggestions(value);
+
     const inputProps = {
-      placeholder: 'Search for a Location',
+      placeholder,
       value,
       onChange: this.onChange,
     };
 
     return (
-      <Autosuggest
-        suggestions={suggestions}
-        onSuggestionsFetchRequested={this.onSuggestionsFetchRequested}
-        onSuggestionsClearRequested={this.onSuggestionsClearRequested}
-        getSuggestionValue={this.getSuggestionValue}
-        renderSuggestion={this.renderSuggestion}
-        inputProps={inputProps}
-        multiSection
-        focusInputOnSuggestionClick={false}
-        renderSectionTitle={this.renderSectionTitle}
-        getSectionSuggestions={this.getSectionSuggestions}
-        onSuggestionSelected={this.onSuggestionSelected}
-      />
+      <div className={classNames('Search', className)}>
+        <Autosuggest
+          suggestions={suggestions}
+          onSuggestionsFetchRequested={this.onSuggestionsFetchRequested}
+          onSuggestionsClearRequested={this.onSuggestionsClearRequested}
+          getSuggestionValue={this.getSuggestionValue}
+          renderSuggestion={this.renderSuggestion}
+          inputProps={inputProps}
+          multiSection
+          focusInputOnSuggestionClick={false}
+          renderSectionTitle={this.renderSectionTitle}
+          getSectionSuggestions={this.getSectionSuggestions}
+          onSuggestionSelected={this.onSuggestionSelected}
+        />
+      </div>
     );
   }
 }
 
-export default withRouter(OmniSearch);
+export default Search;

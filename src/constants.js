@@ -43,3 +43,9 @@ export const metrics = [
     formatter: d3.format('.1p'),
   },
 ];
+
+export const facetTypes = [
+  { value: 'location', label: 'Location' },
+  { value: 'clientIsp', label: 'Client ISP' },
+  { value: 'transitIsp', label: 'Transit ISP' },
+];

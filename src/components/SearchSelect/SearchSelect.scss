@@ -1,0 +1,30 @@
+@import "../../assets/variables";
+
+.SearchSelect {
+  .active-items,.Search {
+    margin-bottom: 10px;
+  }
+
+  .selected-item {
+    display: inline-block;
+    padding: 2px 0px 2px 8px;
+    background-color: $brand-primary;
+    color: #fff;
+    margin: 0 4px 4px 0;
+    border-radius: 4px;
+    white-space: nowrap;
+
+
+    .item-remove-control {
+      padding: 0 6px;
+      line-height: 2;
+      margin: -2px 0;
+      border-radius: 0 4px 4px 0;
+      cursor: pointer;
+
+      &:hover {
+        background: rgba(0, 0, 0, 0.1);
+      }
+    }
+  }
+}

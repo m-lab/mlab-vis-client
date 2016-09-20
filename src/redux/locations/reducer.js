@@ -2,6 +2,7 @@
  * Reducer for locations
  */
 import * as Actions from './actions';
+import * as GlobalSearchActions from '../globalSearch/actions';
 import { initialState } from './initialState';
 import location from './reducers/location';
 
@@ -26,6 +27,7 @@ function locations(state = initialState, action = {}) {
     case Actions.FETCH_INFO:
     case Actions.FETCH_INFO_SUCCESS:
     case Actions.FETCH_INFO_FAIL:
+    case Actions.SAVE_LOCATION_INFO:
     case Actions.FETCH_CLIENT_ISP_INFO:
     case Actions.FETCH_CLIENT_ISP_INFO_SUCCESS:
     case Actions.FETCH_CLIENT_ISP_INFO_FAIL: {
@@ -36,6 +38,9 @@ function locations(state = initialState, action = {}) {
         [locationId]: location(state[locationId], action),
       };
     }
+    // case GlobalSearchActions.FETCH_LOCATION_SEARCH_SUCCESS: {
+    //   return state;
+    // }
     default:
       return state;
   }
