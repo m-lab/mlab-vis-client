@@ -276,8 +276,8 @@ class ComparePage extends PureComponent {
   }
 
   renderLocationInputs() {
-    const { facetLocationInfos, filterClientIspInfos, filterTransitIspInfos } = this.props;
-
+    const { facetLocationIds, facetLocationInfos, filterClientIspInfos, filterTransitIspInfos } = this.props;
+    const hasFacetLocations = facetLocationIds.length;
     return (
       <div className="input-section subsection">
         <div>
@@ -294,6 +294,7 @@ class ComparePage extends PureComponent {
             <SearchSelect
               type="clientIsp"
               orientation="vertical"
+              disabled={!hasFacetLocations}
               onChange={this.onFilterClientIspsChange}
               selected={filterClientIspInfos}
             />
@@ -304,6 +305,7 @@ class ComparePage extends PureComponent {
             <SearchSelect
               type="transitIsp"
               orientation="vertical"
+              disabled={!hasFacetLocations}
               onChange={this.onFilterTransitIspsChange}
               selected={filterTransitIspInfos}
             />

@@ -17,6 +17,7 @@ import './SearchSelect.scss';
  */
 export default class SearchSelect extends PureComponent {
   static propTypes = {
+    disabled: PropTypes.bool,
     onChange: PropTypes.func,
     orientation: PropTypes.oneOf(['horizontal', 'vertical']),
     selected: PropTypes.array,
@@ -24,6 +25,7 @@ export default class SearchSelect extends PureComponent {
   }
 
   static defaultProps = {
+    disabled: false,
     orientation: 'horizontal',
     selected: [],
   }
@@ -103,7 +105,7 @@ export default class SearchSelect extends PureComponent {
    * @return {React.Component} The rendered component
    */
   render() {
-    const { type, selected, orientation } = this.props;
+    const { disabled, type, selected, orientation } = this.props;
     const colSize = orientation === 'vertical' ? 12 : 6;
 
     // decide which search component to use based on type
@@ -120,7 +122,7 @@ export default class SearchSelect extends PureComponent {
       <div className="SearchSelect">
         <Row>
           <Col md={colSize}>
-            <SearchComponent onSuggestionSelected={this.onAdd} exclude={selected} />
+            <SearchComponent disabled={disabled} onSuggestionSelected={this.onAdd} exclude={selected} />
           </Col>
           <Col md={colSize}>
             {this.renderSelectedItems(selected)}
