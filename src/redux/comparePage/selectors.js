@@ -88,6 +88,18 @@ function getClientIsps(state) {
   return state.clientIsps;
 }
 
+
+/**
+ * Input selector to get the selected filter transit ISP IDs
+ */
+function getFilterTransitIspIds(state, props) {
+  return props.filterTransitIspIds;
+}
+
+function getTransitIsps(state) {
+  return state.transitIsps;
+}
+
 // ----------------------
 // Selectors
 // ----------------------
@@ -118,7 +130,7 @@ export const getFacetLocationInfos = createSelector(
 
 
 /**
- * Inflates facet location IDs into location values
+ * Inflates facet client ISP IDs into client ISP values
  */
 export const getFilterClientIsps = createSelector(
   getClientIsps, getFilterClientIspIds,
@@ -134,10 +146,36 @@ export const getFilterClientIsps = createSelector(
 
 
 /**
- * Gets the location info for each facet location
+ * Gets the client ISP info for each facet client ISP
  */
 export const getFilterClientIspInfos = createSelector(
   getFilterClientIsps,
   (filterClientIsps) => filterClientIsps.map(filterClientIsp => filterClientIsp.info.data)
     .filter(d => d != null));
+
+
+/**
+ * Inflates facet transit ISP IDs into transit ISP values
+ */
+export const getFilterTransitIsps = createSelector(
+  getTransitIsps, getFilterTransitIspIds,
+  (transitIsps, filterTransitIspIds) => {
+    if (filterTransitIspIds) {
+      const facetLocations = filterTransitIspIds.map(id => transitIsps[id]).filter(d => d != null);
+      return facetLocations;
+    }
+
+    return [];
+  }
+);
+
+
+/**
+ * Gets the transit ISP info for each facet transit ISP
+ */
+export const getFilterTransitIspInfos = createSelector(
+  getFilterTransitIsps,
+  (filterTransitIsps) => filterTransitIsps.map(filterTransitIsp => filterTransitIsp.info.data)
+    .filter(d => d != null));
+
 

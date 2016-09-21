@@ -6,3 +6,4 @@ export NotFoundPage from './NotFoundPage/NotFoundPage';
 
 export LocationSearch from './LocationSearch/LocationSearch';
 export ClientIspSearch from './ClientIspSearch/ClientIspSearch';
+export TransitIspSearch from './TransitIspSearch/TransitIspSearch';

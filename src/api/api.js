@@ -11,6 +11,8 @@ import {
   transformLocationLabel,
   transformFixedData,
   transformMapMeta,
+  transformTransitIspSearchResults,
+  transformTransitIspInfo,
 } from './transforms';
 
 const DATE_FORMATS = {
@@ -175,5 +177,30 @@ export function getClientIspInfo(clientIspId) {
   // return get(`/client_asns/${clientIspId}/info`)
   return get('/locations/nauswa/info')
     .then(transform(transformClientIspInfo(clientIspId)));
+}
+
+
+/**
+ * Get Search results for a transit ISP
+ *
+ * @param {String} searchQuery search to search for. (e.g. comcas)
+ * @return {Promise} A promise after the get request was made
+ */
+export function getTransitIspSearch(searchQuery) {
+  // return get(`/server_asns/search/${searchQuery}`)
+  return get(`/client_asns/search/${searchQuery}`)
+    .then(transform(transformTransitIspSearchResults));
+}
+
+/**
+ * Get information for a transit ISP
+ *
+ * @param {String} transitIspId The transit ISP to query (e.g., AS7922)
+ * @return {Promise} A promise after the get request was made
+ */
+export function getTransitIspInfo(transitIspId) {
+  // return get(`/server_asns/${clientIspId}/info`)
+  return get('/locations/nauswa/info')
+    .then(transform(transformTransitIspInfo(transitIspId)));
 }
 

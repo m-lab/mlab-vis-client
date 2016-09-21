@@ -4,6 +4,7 @@
 import { urlReplaceAction } from '../../url/actions';
 import { saveLocationInfoIfNeeded } from '../locations/actions';
 import { saveClientIspInfoIfNeeded } from '../clientIsps/actions';
+import { saveTransitIspInfoIfNeeded } from '../transitIsps/actions';
 
 /** Actions that replace values in the URL */
 export const changeTimeAggregation = urlReplaceAction('timeAggregation');
@@ -37,5 +38,19 @@ export function changeFilterClientIsps(newFilterClientIsps, urlConnectDispatch) 
 
     // update the IDs in the URL
     urlConnectDispatch(changeFilterClientIspIds(newFilterClientIsps.map(d => d.id)));
+  };
+}
+
+// handle Filter transit ISPs
+const changeFilterTransitIspIds = urlReplaceAction('filterTransitIspIds');
+export function changeFilterTransitIsps(newFilterTransitIsps, urlConnectDispatch) {
+  return () => {
+    // ensure these locations are all saved in the location map
+    newFilterTransitIsps.forEach(transitIspInfo => {
+      urlConnectDispatch(saveTransitIspInfoIfNeeded(transitIspInfo));
+    });
+
+    // update the IDs in the URL
+    urlConnectDispatch(changeFilterTransitIspIds(newFilterTransitIsps.map(d => d.id)));
   };
 }

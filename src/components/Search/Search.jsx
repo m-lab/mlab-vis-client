@@ -14,6 +14,7 @@ import './Search.scss';
 class Search extends PureComponent {
   static propTypes = {
     className: PropTypes.string,
+    defaultSectionName: PropTypes.string,
     onSearchChange: PropTypes.func,
     onSuggestionSelected: PropTypes.func,
     placeholder: PropTypes.string,
@@ -25,6 +26,7 @@ class Search extends PureComponent {
     placeholder: 'Search',
     searchQuery: '',
     searchResults: [],
+    defaultSectionName: 'Other',
   }
 
   /**
@@ -130,8 +132,10 @@ class Search extends PureComponent {
   * @return {String} search term we are searching for
   */
   formatSuggestions(results) {
+    const { defaultSectionName } = this.props;
+
     const nest = d3.nest()
-      .key((d) => d.meta.type)
+      .key((d) => d.meta.type || defaultSectionName)
       .entries(results);
     return nest;
   }
@@ -154,7 +158,7 @@ class Search extends PureComponent {
     return (
       <div>
         <span className="suggestion-count">{formatNumber(suggestion.data.test_count)}</span>
-        <span className="suggestion-name">{suggestion.meta.label}</span>
+        <span className="suggestion-name">{suggestion.meta.longLabel || suggestion.meta.label}</span>
       </div>
     );
   }

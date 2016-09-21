@@ -3,7 +3,7 @@ import Row from 'react-bootstrap/lib/Row';
 import Col from 'react-bootstrap/lib/Col';
 
 import { Icon } from '../../components';
-import { LocationSearch, ClientIspSearch } from '../../containers';
+import { LocationSearch, ClientIspSearch, TransitIspSearch } from '../../containers';
 
 import { colorsFor, hashAsn, hashString } from '../../utils/color';
 
@@ -112,6 +112,8 @@ export default class SearchSelect extends PureComponent {
     let SearchComponent;
     if (type === 'clientIsp') {
       SearchComponent = ClientIspSearch;
+    } else if (type === 'transitIsp') {
+      SearchComponent = TransitIspSearch;
     } else {
       SearchComponent = LocationSearch;
     }

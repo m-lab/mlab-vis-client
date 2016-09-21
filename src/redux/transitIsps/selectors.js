@@ -1,5 +1,5 @@
 /**
- * Selectors for client ISPs
+ * Selectors for transit ISPs
  */
 
 // import { createSelector } from 'reselect';

@@ -206,6 +206,33 @@ export function transformClientIspSearchResults(body) {
 }
 
 /**
+ * Transforms the response from transitIsp search before rest of application uses it.
+ *
+ * @param {Object} body The response body
+ * @return {Object} The transformed response body
+ */
+export function transformTransitIspSearchResults(body) {
+  // NOTE: modifying body directly means it modifies what is stored in the API cache
+  if (body.results) {
+    const results = body.results;
+    results.forEach(d => {
+      d.meta.server_asn_name = d.meta.client_asn_name; // TODO should not be using clients
+      d.meta.id = d.meta.server_asn_name.toLowerCase().replace(/ /g, ''); // TODO should have ID...
+
+      d.meta.label = d.meta.server_asn_name;
+      d.meta.id = d.meta.id;
+    });
+
+    // add new entries to the body object
+    body.results = results;
+  } else {
+    body.resuts = [];
+  }
+
+  return body;
+}
+
+/**
  * Transforms client ISP meta to have label
  *
  * - adds in a `label` property to meta
@@ -388,6 +415,29 @@ export function transformClientIspInfo(clientIspId) {
         client_asn_number: clientIspId,
         id: clientIspId,
         label: 'Client ISP Name',
+      };
+    }
+
+    return body;
+  };
+}
+
+
+/**
+ * Transforms the response from transit ISP info before passing it into
+ * the application.
+ *
+ * @param {Object} body The response body
+ * @return {Object} The transformed response body
+ */
+export function transformTransitIspInfo(transitIspId) {
+  // NOTE: modifying body directly means it modifies what is stored in the API cache
+  return function fakeTransform(body) {
+    if (body.meta) {
+      body.meta = {
+        server_asn_name: 'Transit ISP Name',
+        id: transitIspId,
+        label: 'Transit ISP Name',
       };
     }
 

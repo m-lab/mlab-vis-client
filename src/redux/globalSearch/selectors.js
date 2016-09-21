@@ -2,47 +2,48 @@
  * Selectors for globalSearch
  */
 
+// helper function for filtering search results
+function getSearchResults(results, exclude) {
+  if (exclude) {
+    results = results.filter(result => !exclude.find(ex => ex.id === result.meta.id));
+  }
+
+  return results;
+}
+
+// -----------------------
 // Location Search
+// -----------------------
 export function getLocationSearch(state) {
   return state.globalSearch.locationSearch;
 }
 
 export function getLocationSearchResults(state, props) {
   const locationSearch = getLocationSearch(state);
-
-  let results = locationSearch.data;
-  if (props.exclude) {
-    results = results.filter(location => !props.exclude.find(ex => ex.id === location.meta.id));
-  }
-
-  return results;
+  return getSearchResults(locationSearch.data, props.exclude);
 }
 
-export function getLocationSearchQuery(state) {
-  const locationSearch = getLocationSearch(state);
-
-  return locationSearch.query;
-}
-
-
+// -----------------------
 // Client ISP Search
+// -----------------------
 export function getClientIspSearch(state) {
   return state.globalSearch.clientIspSearch;
 }
 
 export function getClientIspSearchResults(state, props) {
   const clientIspSearch = getClientIspSearch(state);
-
-  let results = clientIspSearch.data;
-  if (props.exclude) {
-    results = results.filter(clientIsp => !props.exclude.find(ex => ex.id === clientIsp.meta.id));
-  }
-
-  return results;
+  return getSearchResults(clientIspSearch.data, props.exclude);
 }
 
-export function getClientIspSearchQuery(state) {
-  const clientIspSearch = getClientIspSearch(state);
 
-  return clientIspSearch.query;
+// -----------------------
+// Transit ISP Search
+// -----------------------
+export function getTransitIspSearch(state) {
+  return state.globalSearch.transitIspSearch;
+}
+
+export function getTransitIspSearchResults(state, props) {
+  const transitIspSearch = getTransitIspSearch(state);
+  return getSearchResults(transitIspSearch.data, props.exclude);
 }

@@ -75,3 +75,38 @@ export const FETCH_CLIENT_ISP_SEARCH_FAIL = clientIspSearchFetch.types.fail;
 export const shouldFetchClientIspSearch = clientIspSearchFetch.shouldFetch;
 export const fetchClientIspSearch = clientIspSearchFetch.fetch;
 export const fetchClientIspSearchIfNeeded = clientIspSearchFetch.fetchIfNeeded;
+
+
+// ---------------------
+// Fetch Transit ISP Search
+// ---------------------
+const transitIspSearchFetch = createFetchAction({
+  typePrefix: 'globalSearch/',
+  key: 'TRANSIT_ISP_SEARCH',
+  args: ['searchQuery'],
+  shouldFetch(state, searchQuery) {
+    // ignore empty queries
+    if (searchQuery.length === 0) {
+      return false;
+    }
+
+    // is it a different query than what we had before?
+    const transitIspSearchState = state.globalSearch.transitIspSearch;
+    if (transitIspSearchState.query !== searchQuery) {
+      return true;
+    }
+
+    // query matches what is currently there.
+    return !(transitIspSearchState.isFetched || transitIspSearchState.isFetching);
+  },
+  promise(searchQuery) {
+    return api => api.getTransitIspSearch(searchQuery);
+  },
+});
+
+export const FETCH_TRANSIT_ISP_SEARCH = transitIspSearchFetch.types.fetch;
+export const FETCH_TRANSIT_ISP_SEARCH_SUCCESS = transitIspSearchFetch.types.success;
+export const FETCH_TRANSIT_ISP_SEARCH_FAIL = transitIspSearchFetch.types.fail;
+export const shouldFetchTransitIspSearch = transitIspSearchFetch.shouldFetch;
+export const fetchTransitIspSearch = transitIspSearchFetch.fetch;
+export const fetchTransitIspSearchIfNeeded = transitIspSearchFetch.fetchIfNeeded;

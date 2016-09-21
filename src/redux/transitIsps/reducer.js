@@ -1,5 +1,5 @@
 /**
- * Reducer for clientIsps
+ * Reducer for transitIsps
  */
 import { combineReducers } from 'redux';
 import * as Actions from './actions';
@@ -7,7 +7,7 @@ import * as Actions from './actions';
 const initialState = {
 };
 
-export const initialClientIspState = {
+export const initialTransitIspState = {
   id: null,
 
   info: {
@@ -16,8 +16,8 @@ export const initialClientIspState = {
   },
 };
 
-// reducer for client ISP info
-function info(state = initialClientIspState.info, action = {}) {
+// reducer for transit ISP info
+function info(state = initialTransitIspState.info, action = {}) {
   switch (action.type) {
     case Actions.FETCH_INFO:
       return {
@@ -25,7 +25,7 @@ function info(state = initialClientIspState.info, action = {}) {
         isFetching: true,
         isFetched: false,
       };
-    case Actions.SAVE_CLIENT_ISP_INFO:
+    case Actions.SAVE_TRANSIT_ISP_INFO:
     case Actions.FETCH_INFO_SUCCESS:
       return {
         // store the meta info directly
@@ -46,26 +46,26 @@ function info(state = initialClientIspState.info, action = {}) {
 
 
 // reducer to get the ID
-function id(state = initialClientIspState.id, action = {}) {
-  return action.clientIspId || state;
+function id(state = initialTransitIspState.id, action = {}) {
+  return action.transitIspId || state;
 }
 
-const clientIsp = combineReducers({
+const transitIsp = combineReducers({
   id,
   info,
 });
 
 // The root reducer
-function clientIsps(state = initialState, action = {}) {
-  const { clientIspId } = action;
+function transitIsps(state = initialState, action = {}) {
+  const { transitIspId } = action;
   switch (action.type) {
-    case Actions.SAVE_CLIENT_ISP_INFO:
+    case Actions.SAVE_TRANSIT_ISP_INFO:
     case Actions.FETCH_INFO:
     case Actions.FETCH_INFO_SUCCESS:
     case Actions.FETCH_INFO_FAIL:
       return {
         ...state,
-        [clientIspId]: clientIsp(state[clientIspId], action),
+        [transitIspId]: transitIsp(state[transitIspId], action),
       };
     default:
       return state;
@@ -74,4 +74,4 @@ function clientIsps(state = initialState, action = {}) {
 
 
 // Export the reducer
-export default clientIsps;
+export default transitIsps;

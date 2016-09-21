@@ -8,11 +8,11 @@ import { Search } from '../../components';
 
 function mapStateToProps(state, props) {
   return {
-    searchResults: GlobalSearchSelectors.getClientIspSearchResults(state, props),
+    searchResults: GlobalSearchSelectors.getTransitIspSearchResults(state, props),
   };
 }
 
-class ClientIspSearch extends PureComponent {
+class TransitIspSearch extends PureComponent {
   static propTypes = {
     dispatch: PropTypes.func,
     exclude: PropTypes.array,
@@ -33,7 +33,7 @@ class ClientIspSearch extends PureComponent {
    */
   onSearchQueryChange(query) {
     const { dispatch } = this.props;
-    dispatch(GlobalSearchActions.fetchClientIspSearchIfNeeded(query));
+    dispatch(GlobalSearchActions.fetchTransitIspSearchIfNeeded(query));
   }
 
   render() {
@@ -41,9 +41,9 @@ class ClientIspSearch extends PureComponent {
 
     return (
       <Search
-        className="ClientIspSearch"
-        defaultSectionName="Client ISPs"
-        placeholder="Search for a client ISP"
+        className="TransitIspSearch"
+        defaultSectionName="Transit ISPs"
+        placeholder="Search for a transit ISP"
         searchResults={searchResults}
         onSearchChange={this.onSearchQueryChange}
         onSuggestionSelected={onSuggestionSelected}
@@ -52,4 +52,4 @@ class ClientIspSearch extends PureComponent {
   }
 }
 
-export default connect(mapStateToProps)(withRouter(ClientIspSearch));
+export default connect(mapStateToProps)(withRouter(TransitIspSearch));

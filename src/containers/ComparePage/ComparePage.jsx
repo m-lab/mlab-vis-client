@@ -10,9 +10,10 @@ import * as ComparePageSelectors from '../../redux/comparePage/selectors';
 import * as ComparePageActions from '../../redux/comparePage/actions';
 import * as LocationsActions from '../../redux/locations/actions';
 import * as ClientIspsActions from '../../redux/clientIsps/actions';
+import * as TransitIspsActions from '../../redux/transitIsps/actions';
 
-import { colorsFor } from '../../utils/color';
-import { metrics, facetTypes } from '../../constants';
+// import { colorsFor } from '../../utils/color';
+import { facetTypes } from '../../constants';
 
 import {
   DateRangeSelector,
@@ -39,6 +40,7 @@ const urlQueryConfig = {
   timeAggregation: { type: 'string', defaultValue: 'day', urlKey: 'aggr' },
   facetLocationIds: { type: 'array', urlKey: 'locations' },
   filterClientIspIds: { type: 'array', urlKey: 'filterClientIsps' },
+  filterTransitIspIds: { type: 'array', urlKey: 'filterTransitIsps' },
 };
 const urlHandler = new UrlHandler(urlQueryConfig, browserHistory);
 
@@ -48,6 +50,7 @@ function mapStateToProps(state, propsWithUrl) {
     facetLocationInfos: ComparePageSelectors.getFacetLocationInfos(state, propsWithUrl),
     facetType: ComparePageSelectors.getFacetType(state, propsWithUrl),
     filterClientIspInfos: ComparePageSelectors.getFilterClientIspInfos(state, propsWithUrl),
+    filterTransitIspInfos: ComparePageSelectors.getFilterTransitIspInfos(state, propsWithUrl),
     viewMetric: ComparePageSelectors.getViewMetric(state, propsWithUrl),
   };
 }
@@ -62,6 +65,8 @@ class ComparePage extends PureComponent {
     facetType: PropTypes.object,
     filterClientIspIds: PropTypes.array,
     filterClientIspInfos: PropTypes.array,
+    filterTransitIspIds: PropTypes.array,
+    filterTransitIspInfos: PropTypes.array,
     startDate: momentPropTypes.momentObj,
     timeAggregation: PropTypes.string,
     viewMetric: PropTypes.object,
@@ -75,6 +80,7 @@ class ComparePage extends PureComponent {
     this.onFacetTypeChange = this.onFacetTypeChange.bind(this);
     this.onFacetLocationsChange = this.onFacetLocationsChange.bind(this);
     this.onFilterClientIspsChange = this.onFilterClientIspsChange.bind(this);
+    this.onFilterTransitIspsChange = this.onFilterTransitIspsChange.bind(this);
     this.onTimeAggregationChange = this.onTimeAggregationChange.bind(this);
     this.onViewMetricChange = this.onViewMetricChange.bind(this);
   }
@@ -91,7 +97,7 @@ class ComparePage extends PureComponent {
    * Fetch the data for the page if needed
    */
   fetchData(props) {
-    const { dispatch, facetLocationIds, filterClientIspIds } = props;
+    const { dispatch, facetLocationIds, filterClientIspIds, filterTransitIspIds } = props;
 
     // get facet location info if needed
     if (facetLocationIds) {
@@ -104,6 +110,13 @@ class ComparePage extends PureComponent {
     if (filterClientIspIds) {
       filterClientIspIds.forEach(filterClientIspId => {
         dispatch(ClientIspsActions.fetchInfoIfNeeded(filterClientIspId));
+      });
+    }
+
+    // get filter transit ISP info if needed
+    if (filterTransitIspIds) {
+      filterTransitIspIds.forEach(filterTransitIspId => {
+        dispatch(TransitIspsActions.fetchInfoIfNeeded(filterTransitIspId));
       });
     }
   }
@@ -165,6 +178,15 @@ class ComparePage extends PureComponent {
     dispatch(ComparePageActions.changeFilterClientIsps(clientIsps, dispatch));
   }
 
+  /**
+   * Callback when the filter transit ISP list changes
+   * @param {Array} transitIsps array of transit ISP info objects
+   */
+  onFilterTransitIspsChange(transitIsps) {
+    const { dispatch } = this.props;
+    dispatch(ComparePageActions.changeFilterTransitIsps(transitIsps, dispatch));
+  }
+
   renderTimeRangeSelector() {
     const { startDate, endDate } = this.props;
 
@@ -205,7 +227,7 @@ class ComparePage extends PureComponent {
   }
 
   renderLocationInputs() {
-    const { facetLocationInfos, filterClientIspInfos } = this.props;
+    const { facetLocationInfos, filterClientIspInfos, filterTransitIspInfos } = this.props;
 
     return (
       <div className="input-section subsection">
@@ -230,7 +252,12 @@ class ComparePage extends PureComponent {
           <Col md={6}>
             <h4>Filter by Transit ISP</h4>
             <p>Select one or more Transit ISPs to filter the measurements by.</p>
-            <input className="form-control" type="text" />
+            <SearchSelect
+              type="transitIsp"
+              orientation="vertical"
+              onChange={this.onFilterTransitIspsChange}
+              selected={filterTransitIspInfos}
+            />
           </Col>
         </Row>
       </div>
