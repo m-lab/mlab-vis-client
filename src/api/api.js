@@ -187,8 +187,7 @@ export function getClientIspInfo(clientIspId) {
  * @return {Promise} A promise after the get request was made
  */
 export function getTransitIspSearch(searchQuery) {
-  // return get(`/server_asns/search/${searchQuery}`)
-  return get(`/client_asns/search/${searchQuery}`)
+  return get(`/server_asns/search/${searchQuery}`)
     .then(transform(transformTransitIspSearchResults));
 }
 

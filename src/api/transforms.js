@@ -216,11 +216,8 @@ export function transformTransitIspSearchResults(body) {
   if (body.results) {
     const results = body.results;
     results.forEach(d => {
-      d.meta.server_asn_name = d.meta.client_asn_name; // TODO should not be using clients
-      d.meta.id = d.meta.server_asn_name.toLowerCase().replace(/ /g, ''); // TODO should have ID...
-
+      d.meta.id = d.meta.server_asn_name_lookup; // TODO - this should eventually be provided as `id`
       d.meta.label = d.meta.server_asn_name;
-      d.meta.id = d.meta.id;
     });
 
     // add new entries to the body object
