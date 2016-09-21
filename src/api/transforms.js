@@ -122,6 +122,36 @@ export function transformHourly(body) {
   return body;
 }
 
+/**
+ * Transforms location meta to have label
+ *
+ * - adds in a `label` property to meta
+ *
+ * @param {Object} body The response body
+ * @return {Object} The transformed response body
+ */
+export function transformLocationLabel(body) {
+  // NOTE: modifying body directly means it modifies what is stored in the API cache
+  if (body.meta) {
+    const { meta } = body;
+
+    meta.label = meta.client_city || meta.client_region || meta.client_country || meta.client_continent;
+    meta.longLabel = meta.label;
+    // Create a display name for locations.
+    if (meta.type === 'city') {
+      if (meta.client_country === 'United States') {
+        meta.longLabel += `, ${meta.client_region}`;
+      } else {
+        meta.longLabel += `, ${meta.client_country}`;
+      }
+    } else if (meta.type === 'region') {
+      meta.longLabel += `, ${meta.client_country}`;
+    }
+  }
+
+  return body;
+}
+
 console.warn('TODO - temporarily adding in ID in transform search results');
 
 /**
@@ -136,18 +166,9 @@ export function transformLocationSearchResults(body) {
     const results = body.results;
     results.forEach(d => {
       // Create a display name for cities.
-      d.name = d.meta.location;
-      if (d.meta.type === 'city') {
-        if (d.meta.client_country === 'United States') {
-          d.name += `, ${d.meta.client_region}`;
-        } else {
-          d.name += `, ${d.meta.client_country}`;
-        }
-      } else if (d.meta.type === 'region') {
-        d.name += `, ${d.meta.client_country}`;
-      }
+      transformLocationLabel(d);
+      d.name = d.meta.longLabel;
       d.id = d.meta.location_key;
-      d.meta.label = d.name;
       d.meta.id = d.meta.location_key;
     });
 
@@ -183,27 +204,6 @@ export function transformClientIspSearchResults(body) {
 
   return body;
 }
-
-
-/**
- * Transforms location meta to have label
- *
- * - adds in a `label` property to meta
- *
- * @param {Object} body The response body
- * @return {Object} The transformed response body
- */
-export function transformLocationLabel(body) {
-  // NOTE: modifying body directly means it modifies what is stored in the API cache
-  if (body.meta) {
-    const { meta } = body;
-
-    meta.label = meta.client_city || meta.client_region || meta.client_country || meta.client_continent;
-  }
-
-  return body;
-}
-
 
 /**
  * Transforms client ISP meta to have label
