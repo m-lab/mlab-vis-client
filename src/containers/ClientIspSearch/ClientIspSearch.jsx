@@ -6,15 +6,16 @@ import * as GlobalSearchSelectors from '../../redux/globalSearch/selectors';
 
 import { Search } from '../../components';
 
-function mapStateToProps(state) {
+function mapStateToProps(state, props) {
   return {
-    searchResults: GlobalSearchSelectors.getClientIspSearchResults(state),
+    searchResults: GlobalSearchSelectors.getClientIspSearchResults(state, props),
   };
 }
 
 class ClientIspSearch extends PureComponent {
   static propTypes = {
     dispatch: PropTypes.func,
+    exclude: PropTypes.array,
     onSuggestionSelected: PropTypes.func,
     router: PropTypes.object,
     searchResults: PropTypes.array,

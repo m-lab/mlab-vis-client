@@ -120,7 +120,7 @@ export default class SearchSelect extends PureComponent {
       <div className="SearchSelect">
         <Row>
           <Col md={colSize}>
-            <SearchComponent onSuggestionSelected={this.onAdd} />
+            <SearchComponent onSuggestionSelected={this.onAdd} exclude={selected} />
           </Col>
           <Col md={colSize}>
             {this.renderSelectedItems(selected)}
