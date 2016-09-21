@@ -122,49 +122,6 @@ export function transformHourly(body) {
   return body;
 }
 
-console.warn('TODO - temporarily adding in ID in transform search results');
-
-/**
- * Transforms the response from search before rest of application uses it.
- *
- * @param {Object} body The response body
- * @return {Object} The transformed response body
- */
-export function transformSearchResults(body) {
-  // NOTE: modifying body directly means it modifies what is stored in the API cache
-  if (body.results) {
-    const results = body.results;
-    results.forEach(d => {
-      // Create a display name for cities.
-      d.name = d.meta.location;
-      if (d.meta.type === 'city') {
-        if (d.meta.client_country === 'United States') {
-          d.name += `, ${d.meta.client_region}`;
-        } else {
-          d.name += `, ${d.meta.client_country}`;
-        }
-      } else if (d.meta.type === 'region') {
-        d.name += `, ${d.meta.client_country}`;
-      }
-      d.id = d.meta.location_key;
-      d.meta.label = d.name;
-      d.meta.id = d.meta.location_key;
-    });
-
-    // add new entries to the body object
-    Object.assign(body, {
-      results,
-    });
-  } else {
-    Object.assign(body, {
-      results: [],
-    });
-  }
-
-  return body;
-}
-
-
 /**
  * Transforms location meta to have label
  *
@@ -179,11 +136,98 @@ export function transformLocationLabel(body) {
     const { meta } = body;
 
     meta.label = meta.client_city || meta.client_region || meta.client_country || meta.client_continent;
+    meta.longLabel = meta.label;
+    // Create a display name for locations.
+    if (meta.type === 'city') {
+      if (meta.client_country === 'United States') {
+        meta.longLabel += `, ${meta.client_region}`;
+      } else {
+        meta.longLabel += `, ${meta.client_country}`;
+      }
+    } else if (meta.type === 'region') {
+      meta.longLabel += `, ${meta.client_country}`;
+    }
   }
 
   return body;
 }
 
+console.warn('TODO - temporarily adding in ID in transform search results');
+
+/**
+ * Transforms the response from location search before rest of application uses it.
+ *
+ * @param {Object} body The response body
+ * @return {Object} The transformed response body
+ */
+export function transformLocationSearchResults(body) {
+  // NOTE: modifying body directly means it modifies what is stored in the API cache
+  if (body.results) {
+    const results = body.results;
+    results.forEach(d => {
+      // Create a display name for cities.
+      transformLocationLabel(d);
+      d.name = d.meta.longLabel;
+      d.id = d.meta.location_key;
+      d.meta.id = d.meta.location_key;
+    });
+
+    // add new entries to the body object
+    body.results = results;
+  } else {
+    body.resuts = [];
+  }
+
+  return body;
+}
+
+/**
+ * Transforms the response from clientIsp search before rest of application uses it.
+ *
+ * @param {Object} body The response body
+ * @return {Object} The transformed response body
+ */
+export function transformClientIspSearchResults(body) {
+  // NOTE: modifying body directly means it modifies what is stored in the API cache
+  if (body.results) {
+    const results = body.results;
+    results.forEach(d => {
+      d.meta.label = d.meta.client_asn_name;
+      d.meta.id = d.meta.client_asn_number;
+    });
+
+    // add new entries to the body object
+    body.results = results;
+  } else {
+    body.resuts = [];
+  }
+
+  return body;
+}
+
+/**
+ * Transforms the response from transitIsp search before rest of application uses it.
+ *
+ * @param {Object} body The response body
+ * @return {Object} The transformed response body
+ */
+export function transformTransitIspSearchResults(body) {
+  // NOTE: modifying body directly means it modifies what is stored in the API cache
+  if (body.results) {
+    const results = body.results;
+    results.forEach(d => {
+      d.meta.id = d.meta.server_asn_name_lookup; // TODO - this should eventually be provided as `id`
+      d.meta.label = d.meta.server_asn_name;
+    });
+
+    // add new entries to the body object
+    body.results = results;
+  } else {
+    body.resuts = [];
+  }
+
+  return body;
+}
 
 /**
  * Transforms client ISP meta to have label
@@ -350,4 +394,50 @@ export function transformMapMeta(body) {
   }
 
   return body;
+}
+
+/**
+ * Transforms the response from client ISP info before passing it into
+ * the application.
+ *
+ * @param {Object} body The response body
+ * @return {Object} The transformed response body
+ */
+export function transformClientIspInfo(clientIspId) {
+  // NOTE: modifying body directly means it modifies what is stored in the API cache
+  return function fakeTransform(body) {
+    if (body.meta) {
+      body.meta = {
+        client_asn_name: 'Client ISP Name',
+        client_asn_number: clientIspId,
+        id: clientIspId,
+        label: 'Client ISP Name',
+      };
+    }
+
+    return body;
+  };
+}
+
+
+/**
+ * Transforms the response from transit ISP info before passing it into
+ * the application.
+ *
+ * @param {Object} body The response body
+ * @return {Object} The transformed response body
+ */
+export function transformTransitIspInfo(transitIspId) {
+  // NOTE: modifying body directly means it modifies what is stored in the API cache
+  return function fakeTransform(body) {
+    if (body.meta) {
+      body.meta = {
+        server_asn_name: 'Transit ISP Name',
+        id: transitIspId,
+        label: 'Transit ISP Name',
+      };
+    }
+
+    return body;
+  };
 }

@@ -3,12 +3,16 @@ import {
   transform,
   transformTimeSeries,
   transformHourly,
-  transformSearchResults,
+  transformLocationSearchResults,
+  transformClientIspSearchResults,
   transformClientIspLabel,
+  transformClientIspInfo,
   transformLocationInfo,
   transformLocationLabel,
   transformFixedData,
   transformMapMeta,
+  transformTransitIspSearchResults,
+  transformTransitIspInfo,
 } from './transforms';
 
 const DATE_FORMATS = {
@@ -136,7 +140,7 @@ export function getLocationTopClientIsps(locationId) {
  */
 export function getLocationSearch(searchQuery) {
   return get(`/locations/search/${searchQuery}`)
-    .then(transform(transformSearchResults));
+    .then(transform(transformLocationSearchResults));
 }
 
 /**
@@ -150,3 +154,52 @@ export function getLocationClientIspInfo(locationId, clientIspId) {
   return get(`/locations/${locationId}/clientisps/${clientIspId}/info`)
     .then(transform(transformFixedData));
 }
+
+
+/**
+ * Get Search results for a client ISP
+ *
+ * @param {String} searchQuery search to search for. (e.g. comcas)
+ * @return {Promise} A promise after the get request was made
+ */
+export function getClientIspSearch(searchQuery) {
+  return get(`/client_asns/search/${searchQuery}`)
+    .then(transform(transformClientIspSearchResults));
+}
+
+/**
+ * Get information for a client ISP
+ *
+ * @param {String} clientIspId The client ISP to query (e.g., AS7922)
+ * @return {Promise} A promise after the get request was made
+ */
+export function getClientIspInfo(clientIspId) {
+  // return get(`/client_asns/${clientIspId}/info`)
+  return get('/locations/nauswa/info')
+    .then(transform(transformClientIspInfo(clientIspId)));
+}
+
+
+/**
+ * Get Search results for a transit ISP
+ *
+ * @param {String} searchQuery search to search for. (e.g. comcas)
+ * @return {Promise} A promise after the get request was made
+ */
+export function getTransitIspSearch(searchQuery) {
+  return get(`/server_asns/search/${searchQuery}`)
+    .then(transform(transformTransitIspSearchResults));
+}
+
+/**
+ * Get information for a transit ISP
+ *
+ * @param {String} transitIspId The transit ISP to query (e.g., AS7922)
+ * @return {Promise} A promise after the get request was made
+ */
+export function getTransitIspInfo(transitIspId) {
+  // return get(`/server_asns/${clientIspId}/info`)
+  return get('/locations/nauswa/info')
+    .then(transform(transformTransitIspInfo(transitIspId)));
+}
+

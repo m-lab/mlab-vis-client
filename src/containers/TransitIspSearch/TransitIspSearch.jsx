@@ -8,11 +8,11 @@ import { Search } from '../../components';
 
 function mapStateToProps(state, props) {
   return {
-    searchResults: GlobalSearchSelectors.getLocationSearchResults(state, props),
+    searchResults: GlobalSearchSelectors.getTransitIspSearchResults(state, props),
   };
 }
 
-class LocationSearch extends PureComponent {
+class TransitIspSearch extends PureComponent {
   static propTypes = {
     dispatch: PropTypes.func,
     exclude: PropTypes.array,
@@ -26,19 +26,6 @@ class LocationSearch extends PureComponent {
 
     // bind handlers
     this.onSearchQueryChange = this.onSearchQueryChange.bind(this);
-    this.onSuggestionSelected = this.onSuggestionSelected.bind(this);
-  }
-
-  /**
-   * Default is to navigate to the location page. This is only used
-   * if no `onSuggestionSelected` prop is passed in.
-   */
-  onSuggestionSelected(suggestion) {
-    const { router } = this.props;
-
-    const suggestionId = suggestion.id;
-    const path = `/location/${suggestionId}`;
-    router.push(path);
   }
 
   /**
@@ -46,21 +33,23 @@ class LocationSearch extends PureComponent {
    */
   onSearchQueryChange(query) {
     const { dispatch } = this.props;
-    dispatch(GlobalSearchActions.fetchLocationSearchIfNeeded(query));
+    dispatch(GlobalSearchActions.fetchTransitIspSearchIfNeeded(query));
   }
 
   render() {
     const { searchResults, onSuggestionSelected } = this.props;
+
     return (
       <Search
-        className="LocationSearch"
-        placeholder="Search for a location"
+        className="TransitIspSearch"
+        defaultSectionName="Transit ISPs"
+        placeholder="Search for a transit ISP"
         searchResults={searchResults}
         onSearchChange={this.onSearchQueryChange}
-        onSuggestionSelected={onSuggestionSelected || this.onSuggestionSelected}
+        onSuggestionSelected={onSuggestionSelected}
       />
     );
   }
 }
 
-export default connect(mapStateToProps)(withRouter(LocationSearch));
+export default connect(mapStateToProps)(withRouter(TransitIspSearch));

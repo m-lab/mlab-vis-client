@@ -8,10 +8,12 @@ import Col from 'react-bootstrap/lib/Col';
 
 import * as ComparePageSelectors from '../../redux/comparePage/selectors';
 import * as ComparePageActions from '../../redux/comparePage/actions';
-// import * as LocationsActions from '../../redux/locations/actions';
+import * as LocationsActions from '../../redux/locations/actions';
+import * as ClientIspsActions from '../../redux/clientIsps/actions';
+import * as TransitIspsActions from '../../redux/transitIsps/actions';
 
-import { colorsFor } from '../../utils/color';
-import { metrics, facetTypes } from '../../constants';
+// import { colorsFor } from '../../utils/color';
+import { facetTypes } from '../../constants';
 
 import {
   DateRangeSelector,
@@ -20,10 +22,6 @@ import {
   TimeAggregationSelector,
   SearchSelect,
 } from '../../components';
-
-import {
-  LocationSearch,
-} from '../../containers';
 
 import UrlHandler from '../../url/UrlHandler';
 import urlConnect from '../../url/urlConnect';
@@ -41,14 +39,18 @@ const urlQueryConfig = {
   endDate: { type: 'date', urlKey: 'end', defaultValue: moment('2015-11-1') },
   timeAggregation: { type: 'string', defaultValue: 'day', urlKey: 'aggr' },
   facetLocationIds: { type: 'array', urlKey: 'locations' },
+  filterClientIspIds: { type: 'array', urlKey: 'filterClientIsps' },
+  filterTransitIspIds: { type: 'array', urlKey: 'filterTransitIsps' },
 };
 const urlHandler = new UrlHandler(urlQueryConfig, browserHistory);
 
 function mapStateToProps(state, propsWithUrl) {
   return {
     ...propsWithUrl,
-    facetLocationInfos: ComparePageSelectors.getFacetLocationInfo(state, propsWithUrl),
+    facetLocationInfos: ComparePageSelectors.getFacetLocationInfos(state, propsWithUrl),
     facetType: ComparePageSelectors.getFacetType(state, propsWithUrl),
+    filterClientIspInfos: ComparePageSelectors.getFilterClientIspInfos(state, propsWithUrl),
+    filterTransitIspInfos: ComparePageSelectors.getFilterTransitIspInfos(state, propsWithUrl),
     viewMetric: ComparePageSelectors.getViewMetric(state, propsWithUrl),
   };
 }
@@ -61,6 +63,10 @@ class ComparePage extends PureComponent {
     facetLocationIds: PropTypes.array,
     facetLocationInfos: PropTypes.array,
     facetType: PropTypes.object,
+    filterClientIspIds: PropTypes.array,
+    filterClientIspInfos: PropTypes.array,
+    filterTransitIspIds: PropTypes.array,
+    filterTransitIspInfos: PropTypes.array,
     startDate: momentPropTypes.momentObj,
     timeAggregation: PropTypes.string,
     viewMetric: PropTypes.object,
@@ -70,9 +76,11 @@ class ComparePage extends PureComponent {
     super(props);
 
     // bind handlers
-    this.onFacetTypeChange = this.onFacetTypeChange.bind(this);
     this.onDateRangeChange = this.onDateRangeChange.bind(this);
+    this.onFacetTypeChange = this.onFacetTypeChange.bind(this);
     this.onFacetLocationsChange = this.onFacetLocationsChange.bind(this);
+    this.onFilterClientIspsChange = this.onFilterClientIspsChange.bind(this);
+    this.onFilterTransitIspsChange = this.onFilterTransitIspsChange.bind(this);
     this.onTimeAggregationChange = this.onTimeAggregationChange.bind(this);
     this.onViewMetricChange = this.onViewMetricChange.bind(this);
   }
@@ -89,7 +97,28 @@ class ComparePage extends PureComponent {
    * Fetch the data for the page if needed
    */
   fetchData(props) {
-    // const { dispatch } = props;
+    const { dispatch, facetLocationIds, filterClientIspIds, filterTransitIspIds } = props;
+
+    // get facet location info if needed
+    if (facetLocationIds) {
+      facetLocationIds.forEach(facetLocationId => {
+        dispatch(LocationsActions.fetchInfoIfNeeded(facetLocationId));
+      });
+    }
+
+    // get filter client ISP info if needed
+    if (filterClientIspIds) {
+      filterClientIspIds.forEach(filterClientIspId => {
+        dispatch(ClientIspsActions.fetchInfoIfNeeded(filterClientIspId));
+      });
+    }
+
+    // get filter transit ISP info if needed
+    if (filterTransitIspIds) {
+      filterTransitIspIds.forEach(filterTransitIspId => {
+        dispatch(TransitIspsActions.fetchInfoIfNeeded(filterTransitIspId));
+      });
+    }
   }
 
   /**
@@ -131,9 +160,31 @@ class ComparePage extends PureComponent {
     }
   }
 
+  /**
+   * Callback when the facet location list changes
+   * @param {Array} facetLocations array of location info objects
+   */
   onFacetLocationsChange(facetLocations) {
     const { dispatch } = this.props;
     dispatch(ComparePageActions.changeFacetLocations(facetLocations, dispatch));
+  }
+
+  /**
+   * Callback when the filter client ISP list changes
+   * @param {Array} clientIsps array of client ISP info objects
+   */
+  onFilterClientIspsChange(clientIsps) {
+    const { dispatch } = this.props;
+    dispatch(ComparePageActions.changeFilterClientIsps(clientIsps, dispatch));
+  }
+
+  /**
+   * Callback when the filter transit ISP list changes
+   * @param {Array} transitIsps array of transit ISP info objects
+   */
+  onFilterTransitIspsChange(transitIsps) {
+    const { dispatch } = this.props;
+    dispatch(ComparePageActions.changeFilterTransitIsps(transitIsps, dispatch));
   }
 
   renderTimeRangeSelector() {
@@ -176,7 +227,7 @@ class ComparePage extends PureComponent {
   }
 
   renderLocationInputs() {
-    const { facetLocationInfos } = this.props;
+    const { facetLocationInfos, filterClientIspInfos, filterTransitIspInfos } = this.props;
 
     return (
       <div className="input-section subsection">
@@ -191,12 +242,22 @@ class ComparePage extends PureComponent {
           <Col md={6}>
             <h4>Filter by Client ISP</h4>
             <p>Select one or more Client ISPs to filter the measurements by.</p>
-            <input className="form-control" type="text" />
+            <SearchSelect
+              type="clientIsp"
+              orientation="vertical"
+              onChange={this.onFilterClientIspsChange}
+              selected={filterClientIspInfos}
+            />
           </Col>
           <Col md={6}>
             <h4>Filter by Transit ISP</h4>
             <p>Select one or more Transit ISPs to filter the measurements by.</p>
-            <input className="form-control" type="text" />
+            <SearchSelect
+              type="transitIsp"
+              orientation="vertical"
+              onChange={this.onFilterTransitIspsChange}
+              selected={filterTransitIspInfos}
+            />
           </Col>
         </Row>
       </div>
