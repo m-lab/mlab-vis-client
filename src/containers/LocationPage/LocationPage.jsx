@@ -412,7 +412,6 @@ class LocationPage extends PureComponent {
     const { clientIspTimeSeries, highlightTimeSeriesDate, highlightTimeSeriesLine,
       locationId, locationTimeSeries, timeSeriesStatus, viewMetric } = this.props;
     const chartId = 'providers-time-series';
-    const chartData = locationTimeSeries && locationTimeSeries.results;
     return (
       <div className="subsection">
         <header>
@@ -421,7 +420,6 @@ class LocationPage extends PureComponent {
         <StatusWrapper status={timeSeriesStatus}>
           <LineChartWithCounts
             id={chartId}
-            data={chartData}
             series={clientIspTimeSeries}
             annotationSeries={locationTimeSeries}
             onHighlightDate={this.onHighlightTimeSeriesDate}
@@ -437,7 +435,7 @@ class LocationPage extends PureComponent {
           />
           <ChartExportControls
             chartId={chartId}
-            data={chartData}
+            data={locationTimeSeries && locationTimeSeries.results}
             filename={`${locationId}_${viewMetric.value}_${chartId}`}
           />
         </StatusWrapper>

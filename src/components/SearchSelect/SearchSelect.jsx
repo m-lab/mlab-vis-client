@@ -5,7 +5,7 @@ import Col from 'react-bootstrap/lib/Col';
 import { Icon } from '../../components';
 import { LocationSearch, ClientIspSearch, TransitIspSearch } from '../../containers';
 
-import { colorsFor, hashAsn, hashString } from '../../utils/color';
+import { colorsFor, hashString } from '../../utils/color';
 
 import '../../assets/react-select.scss';
 import './SearchSelect.scss';
@@ -62,9 +62,7 @@ export default class SearchSelect extends PureComponent {
   }
 
   getColors(selected) {
-    const { type } = this.props;
-    const hash = type === 'clientIsp' ? hashAsn : hashString;
-    return colorsFor(selected, (d) => d.id, hash);
+    return colorsFor(selected, (d) => d.id);
   }
 
   /**

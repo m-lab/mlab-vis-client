@@ -95,7 +95,6 @@ function visProps(props) {
  *
  * @prop {Array|Object} annotationSeries The array of series data not included in count (e.g., [{ meta, results }, ...])
  *   or just a single object of series data.
- * @prop {Array} data The array of data points to render (e.g., [{x: Date, y: Number}, ...])
  * @prop {Boolean} forceZeroMin=true Whether the min y value should always be 0.
  * @prop {Number} height The height in pixels of the SVG chart
  * @prop {Object} highlightDate The date being highlighted in the chart
@@ -119,7 +118,6 @@ class LineChartWithCounts extends PureComponent {
     annotationSeries: PropTypes.oneOfType([PropTypes.array, PropTypes.object]),
     colors: PropTypes.object,
     counts: PropTypes.array,
-    data: PropTypes.array,
     forceZeroMin: PropTypes.bool,
     height: React.PropTypes.number,
     highlightDate: React.PropTypes.object,

@@ -3,10 +3,26 @@
  */
 import { createSelector } from 'reselect';
 import { metrics, facetTypes } from '../../constants';
+import { mergeStatuses, status } from '../status';
 
 // ----------------------
 // Input Selectors
 // ----------------------
+
+
+export function getHighlightHourly(state) {
+  return state.comparePage.highlightHourly;
+}
+
+export function getHighlightTimeSeriesDate(state) {
+  return state.comparePage.highlightTimeSeriesDate;
+}
+
+export function getHighlightTimeSeriesLine(state) {
+  return state.comparePage.highlightTimeSeriesLine;
+}
+
+
 /**
  * Extract a particular metric from metrics array using its value
  * @param {String} metricValue the value of the metric to search for.
@@ -177,5 +193,44 @@ export const getFilterTransitIspInfos = createSelector(
   getFilterTransitIsps,
   (filterTransitIsps) => filterTransitIsps.map(filterTransitIsp => filterTransitIsp.info.data)
     .filter(d => d != null));
+
+
+/**
+ * Selector to get the data objects for the overall time series data
+ */
+export const getOverallTimeSeriesObjects = createSelector(
+  getFacetLocations,
+  (facetLocations) => {
+    if (!facetLocations) {
+      return undefined;
+    }
+
+    return facetLocations.map(facetLocation => facetLocation.time.timeSeries);
+  }
+);
+
+/**
+ * Selector to get the location+client ISP time series data
+ * for the selected client ISPs
+ */
+export const getOverallTimeSeries = createSelector(
+  getOverallTimeSeriesObjects,
+  (timeSeriesObjects) => {
+    if (!timeSeriesObjects) {
+      return undefined;
+    }
+
+    return timeSeriesObjects.map(timeSeries => timeSeries && timeSeries.data)
+      .filter(timeSeries => timeSeries != null);
+  }
+);
+
+/**
+ * Selector to get the status of the location+client ISP time series data
+ * for the selected client ISPs
+ */
+export const getOverallTimeSeriesStatus = createSelector(
+  getOverallTimeSeriesObjects,
+  (timeSeriesObjects) => status(timeSeriesObjects));
 
 

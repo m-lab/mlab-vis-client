@@ -16,11 +16,14 @@ import * as TransitIspsActions from '../../redux/transitIsps/actions';
 import { facetTypes } from '../../constants';
 
 import {
+  ChartExportControls,
   DateRangeSelector,
-  SelectableList,
+  LineChartWithCounts,
   MetricSelector,
-  TimeAggregationSelector,
   SearchSelect,
+  SelectableList,
+  StatusWrapper,
+  TimeAggregationSelector,
 } from '../../components';
 
 import UrlHandler from '../../url/UrlHandler';
@@ -51,6 +54,10 @@ function mapStateToProps(state, propsWithUrl) {
     facetType: ComparePageSelectors.getFacetType(state, propsWithUrl),
     filterClientIspInfos: ComparePageSelectors.getFilterClientIspInfos(state, propsWithUrl),
     filterTransitIspInfos: ComparePageSelectors.getFilterTransitIspInfos(state, propsWithUrl),
+    highlightTimeSeriesDate: ComparePageSelectors.getHighlightTimeSeriesDate(state, propsWithUrl),
+    highlightTimeSeriesLine: ComparePageSelectors.getHighlightTimeSeriesLine(state, propsWithUrl),
+    overallTimeSeries: ComparePageSelectors.getOverallTimeSeries(state, propsWithUrl),
+    overallTimeSeriesStatus: ComparePageSelectors.getOverallTimeSeriesStatus(state, propsWithUrl),
     viewMetric: ComparePageSelectors.getViewMetric(state, propsWithUrl),
   };
 }
@@ -67,9 +74,17 @@ class ComparePage extends PureComponent {
     filterClientIspInfos: PropTypes.array,
     filterTransitIspIds: PropTypes.array,
     filterTransitIspInfos: PropTypes.array,
+    highlightTimeSeriesDate: PropTypes.object,
+    highlightTimeSeriesLine: PropTypes.object,
+    overallTimeSeries: PropTypes.array,
+    overallTimeSeriesStatus: PropTypes.string,
     startDate: momentPropTypes.momentObj,
     timeAggregation: PropTypes.string,
     viewMetric: PropTypes.object,
+  }
+
+  static defaultProps = {
+    facetLocationIds: [],
   }
 
   constructor(props) {
@@ -81,6 +96,8 @@ class ComparePage extends PureComponent {
     this.onFacetLocationsChange = this.onFacetLocationsChange.bind(this);
     this.onFilterClientIspsChange = this.onFilterClientIspsChange.bind(this);
     this.onFilterTransitIspsChange = this.onFilterTransitIspsChange.bind(this);
+    this.onHighlightTimeSeriesDate = this.onHighlightTimeSeriesDate.bind(this);
+    this.onHighlightTimeSeriesLine = this.onHighlightTimeSeriesLine.bind(this);
     this.onTimeAggregationChange = this.onTimeAggregationChange.bind(this);
     this.onViewMetricChange = this.onViewMetricChange.bind(this);
   }
@@ -97,6 +114,22 @@ class ComparePage extends PureComponent {
    * Fetch the data for the page if needed
    */
   fetchData(props) {
+    const { dispatch, facetLocationIds, timeAggregation, startDate, endDate } = props;
+    const options = { startDate, endDate };
+
+    this.fetchInfo(props);
+
+    // fetch the time series and hourly data for facet locations (unfiltered)
+    facetLocationIds.forEach(locationId => {
+      dispatch(LocationsActions.fetchTimeSeriesIfNeeded(timeAggregation, locationId, options));
+      dispatch(LocationsActions.fetchHourlyIfNeeded(timeAggregation, locationId, options));
+    });
+  }
+
+  /**
+   * Fetch info for the selected ISPs and locations (used in labels)
+   */
+  fetchInfo(props) {
     const { dispatch, facetLocationIds, filterClientIspIds, filterTransitIspIds } = props;
 
     // get facet location info if needed
@@ -185,6 +218,22 @@ class ComparePage extends PureComponent {
   onFilterTransitIspsChange(transitIsps) {
     const { dispatch } = this.props;
     dispatch(ComparePageActions.changeFilterTransitIsps(transitIsps, dispatch));
+  }
+
+  /**
+   * Callback for when a date is highlighted in time series
+   */
+  onHighlightTimeSeriesDate(date) {
+    const { dispatch } = this.props;
+    dispatch(ComparePageActions.highlightTimeSeriesDate(date));
+  }
+
+  /**
+   * Callback for when a line is highlighted in time series
+   */
+  onHighlightTimeSeriesLine(series) {
+    const { dispatch } = this.props;
+    dispatch(ComparePageActions.highlightTimeSeriesLine(series));
   }
 
   renderTimeRangeSelector() {
@@ -290,9 +339,47 @@ class ComparePage extends PureComponent {
             <header>
               <h3>{`Compare ${facetType.label}s`}</h3>
             </header>
+            {this.renderOverallTimeSeries()}
           </div>
         </Col>
       </Row>
+    );
+  }
+
+  renderOverallTimeSeries() {
+    const {
+      highlightTimeSeriesDate,
+      highlightTimeSeriesLine,
+      overallTimeSeries,
+      overallTimeSeriesStatus,
+      viewMetric,
+    } = this.props;
+    const chartId = 'overall-time-series';
+    if (!overallTimeSeries || !overallTimeSeries.length) {
+      return null;
+    }
+    return (
+      <StatusWrapper status={overallTimeSeriesStatus}>
+        <LineChartWithCounts
+          id={chartId}
+          series={overallTimeSeries}
+          onHighlightDate={this.onHighlightTimeSeriesDate}
+          highlightDate={highlightTimeSeriesDate}
+          onHighlightLine={this.onHighlightTimeSeriesLine}
+          highlightLine={highlightTimeSeriesLine}
+          yFormatter={viewMetric.formatter}
+          width={840}
+          xKey="date"
+          yAxisLabel={viewMetric.label}
+          yAxisUnit={viewMetric.unit}
+          yKey={viewMetric.dataKey}
+        />
+        <ChartExportControls
+          chartId={chartId}
+          data={overallTimeSeries}
+          filename={`compare_${viewMetric.value}_${chartId}`}
+        />
+      </StatusWrapper>
     );
   }
 

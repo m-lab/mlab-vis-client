@@ -104,7 +104,7 @@ function visProps(props) {
     .defined(d => d[yKey] != null)
     .accessData(d => d.results)
     .lineStyles({
-      stroke: (d) => colors[d.meta.client_asn_number] || '#aaa',
+      stroke: (d) => colors[d.meta.id] || '#aaa',
       'stroke-width': 1.5,
     });
 
