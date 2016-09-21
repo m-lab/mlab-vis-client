@@ -9,6 +9,7 @@ import Col from 'react-bootstrap/lib/Col';
 import * as ComparePageSelectors from '../../redux/comparePage/selectors';
 import * as ComparePageActions from '../../redux/comparePage/actions';
 import * as LocationsActions from '../../redux/locations/actions';
+import * as ClientIspsActions from '../../redux/clientIsps/actions';
 
 import { colorsFor } from '../../utils/color';
 import { metrics, facetTypes } from '../../constants';
@@ -90,12 +91,19 @@ class ComparePage extends PureComponent {
    * Fetch the data for the page if needed
    */
   fetchData(props) {
-    const { dispatch, facetLocationIds } = props;
+    const { dispatch, facetLocationIds, filterClientIspIds } = props;
 
-    // get location info if needed
+    // get facet location info if needed
     if (facetLocationIds) {
       facetLocationIds.forEach(facetLocationId => {
         dispatch(LocationsActions.fetchInfoIfNeeded(facetLocationId));
+      });
+    }
+
+    // get filter client ISP info if needed
+    if (filterClientIspIds) {
+      filterClientIspIds.forEach(filterClientIspId => {
+        dispatch(ClientIspsActions.fetchInfoIfNeeded(filterClientIspId));
       });
     }
   }

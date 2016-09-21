@@ -6,6 +6,7 @@ import {
   transformLocationSearchResults,
   transformClientIspSearchResults,
   transformClientIspLabel,
+  transformClientIspInfo,
   transformLocationInfo,
   transformLocationLabel,
   transformFixedData,
@@ -171,6 +172,8 @@ export function getClientIspSearch(searchQuery) {
  * @return {Promise} A promise after the get request was made
  */
 export function getClientIspInfo(clientIspId) {
-  return get(`/client_asns/${clientIspId}/info`);
+  // return get(`/client_asns/${clientIspId}/info`)
+  return get('/locations/nauswa/info')
+    .then(transform(transformClientIspInfo(clientIspId)));
 }
 

@@ -136,6 +136,9 @@ function clientIsps(state = initialState, action = {}) {
   const { clientIspId } = action;
   switch (action.type) {
     case Actions.SAVE_CLIENT_ISP_INFO:
+    case Actions.FETCH_INFO:
+    case Actions.FETCH_INFO_SUCCESS:
+    case Actions.FETCH_INFO_FAIL:
     case Actions.FETCH_TIME_SERIES:
     case Actions.FETCH_TIME_SERIES_SUCCESS:
     case Actions.FETCH_TIME_SERIES_FAIL:

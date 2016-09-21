@@ -371,3 +371,26 @@ export function transformMapMeta(body) {
 
   return body;
 }
+
+/**
+ * Transforms the response from client ISP info before passing it into
+ * the application.
+ *
+ * @param {Object} body The response body
+ * @return {Object} The transformed response body
+ */
+export function transformClientIspInfo(clientIspId) {
+  // NOTE: modifying body directly means it modifies what is stored in the API cache
+  return function fakeTransform(body) {
+    if (body.meta) {
+      body.meta = {
+        client_asn_name: 'Client ISP Name',
+        client_asn_number: clientIspId,
+        id: clientIspId,
+        label: 'Client ISP Name',
+      };
+    }
+
+    return body;
+  };
+}
