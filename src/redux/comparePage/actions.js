@@ -3,6 +3,7 @@
  */
 import { urlReplaceAction } from '../../url/actions';
 import { saveLocationInfoIfNeeded } from '../locations/actions';
+import { saveClientIspInfoIfNeeded } from '../clientIsps/actions';
 
 /** Actions that replace values in the URL */
 export const changeTimeAggregation = urlReplaceAction('timeAggregation');
@@ -31,8 +32,7 @@ export function changeFilterClientIsps(newFilterClientIsps, urlConnectDispatch) 
   return () => {
     // ensure these locations are all saved in the location map
     newFilterClientIsps.forEach(clientIspInfo => {
-      // TODO: save info if needed
-      // urlConnectDispatch(saveClientIspInfoIfNeeded(clientIspInfo));
+      urlConnectDispatch(saveClientIspInfoIfNeeded(clientIspInfo));
     });
 
     // update the IDs in the URL

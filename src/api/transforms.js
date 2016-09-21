@@ -171,7 +171,6 @@ export function transformClientIspSearchResults(body) {
   if (body.results) {
     const results = body.results;
     results.forEach(d => {
-      console.log('setting label on ', d);
       d.meta.label = d.meta.client_asn_name;
       d.meta.id = d.meta.client_asn_number;
     });

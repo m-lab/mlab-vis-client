@@ -156,10 +156,21 @@ export function getLocationClientIspInfo(locationId, clientIspId) {
 /**
  * Get Search results for a client ISP
  *
- * @param {String} searchQuery search to search for.
+ * @param {String} searchQuery search to search for. (e.g. comcas)
  * @return {Promise} A promise after the get request was made
  */
 export function getClientIspSearch(searchQuery) {
   return get(`/client_asns/search/${searchQuery}`)
     .then(transform(transformClientIspSearchResults));
 }
+
+/**
+ * Get information for a client ISP
+ *
+ * @param {String} clientIspId The client ISP to query (e.g., AS7922)
+ * @return {Promise} A promise after the get request was made
+ */
+export function getClientIspInfo(clientIspId) {
+  return get(`/client_asns/${clientIspId}/info`);
+}
+

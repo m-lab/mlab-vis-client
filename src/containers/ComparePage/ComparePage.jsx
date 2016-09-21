@@ -8,7 +8,6 @@ import Col from 'react-bootstrap/lib/Col';
 
 import * as ComparePageSelectors from '../../redux/comparePage/selectors';
 import * as ComparePageActions from '../../redux/comparePage/actions';
-// import * as LocationsActions from '../../redux/locations/actions';
 
 import { colorsFor } from '../../utils/color';
 import { metrics, facetTypes } from '../../constants';
@@ -20,10 +19,6 @@ import {
   TimeAggregationSelector,
   SearchSelect,
 } from '../../components';
-
-import {
-  LocationSearch,
-} from '../../containers';
 
 import UrlHandler from '../../url/UrlHandler';
 import urlConnect from '../../url/urlConnect';

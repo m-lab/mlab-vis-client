@@ -1,6 +1,7 @@
 /**
  * Reducer for clientIsps
  */
+import { combineReducers } from 'redux';
 import * as Actions from './actions';
 
 /**
@@ -28,6 +29,13 @@ const initialState = {
 };
 
 export const initialClientIspState = {
+  id: null,
+
+  info: {
+    isFetching: false,
+    isFetched: false,
+  },
+
   time: {
     timeSeries: {
       isFetching: false,
@@ -83,27 +91,51 @@ function time(state = initialClientIspState.time, action = {}) {
 }
 
 
-// reducer for each clientIsp
-function clientIsp(state = initialClientIspState, action = {}) {
-  const { clientIspId } = action;
+// reducer for client ISP info
+function info(state = initialClientIspState.info, action = {}) {
   switch (action.type) {
-    case Actions.FETCH_TIME_SERIES:
-    case Actions.FETCH_TIME_SERIES_SUCCESS:
-    case Actions.FETCH_TIME_SERIES_FAIL:
+    case Actions.FETCH_INFO:
       return {
-        ...state,
-        clientIspId,
-        time: time(state.time, action),
+        data: state.data,
+        isFetching: true,
+        isFetched: false,
+      };
+    case Actions.SAVE_CLIENT_ISP_INFO:
+    case Actions.FETCH_INFO_SUCCESS:
+      return {
+        // store the meta info directly
+        data: action.result.meta,
+        isFetching: false,
+        isFetched: true,
+      };
+    case Actions.FETCH_INFO_FAIL:
+      return {
+        isFetching: false,
+        isFetched: false,
+        error: action.error,
       };
     default:
       return state;
   }
 }
 
+
+// reducer to get the ID
+function id(state = initialClientIspState.id, action = {}) {
+  return action.clientIspId || state;
+}
+
+const clientIsp = combineReducers({
+  id,
+  info,
+  time,
+});
+
 // The root reducer
 function clientIsps(state = initialState, action = {}) {
   const { clientIspId } = action;
   switch (action.type) {
+    case Actions.SAVE_CLIENT_ISP_INFO:
     case Actions.FETCH_TIME_SERIES:
     case Actions.FETCH_TIME_SERIES_SUCCESS:
     case Actions.FETCH_TIME_SERIES_FAIL:
