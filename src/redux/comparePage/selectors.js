@@ -210,8 +210,7 @@ export const getOverallTimeSeriesObjects = createSelector(
 );
 
 /**
- * Selector to get the location+client ISP time series data
- * for the selected client ISPs
+ * Selector to get the overall time series data
  */
 export const getOverallTimeSeries = createSelector(
   getOverallTimeSeriesObjects,
@@ -226,11 +225,44 @@ export const getOverallTimeSeries = createSelector(
 );
 
 /**
- * Selector to get the status of the location+client ISP time series data
- * for the selected client ISPs
+ * Selector to get the status of the overall time series data
  */
 export const getOverallTimeSeriesStatus = createSelector(
   getOverallTimeSeriesObjects,
   (timeSeriesObjects) => status(timeSeriesObjects));
 
+
+/**
+ * Selector to get the data objects for the single filtered time series data
+ */
+export const getSingleFilterTimeSeriesObjects = createSelector(
+  getFacetLocations, getFilterClientIsps,
+  (facetLocations, clientIsps) => {
+    if (!facetLocations) {
+      return undefined;
+    }
+
+    return facetLocations.reduce((byLocation, facetLocation) => {
+      const timeSeriesObjects = clientIsps
+        .map(filterClientIsp => {
+          if (!facetLocation.clientIsps[filterClientIsp.id]) {
+            return null;
+          }
+          return facetLocation.clientIsps[filterClientIsp.id].time.timeSeries;
+        })
+        .filter(d => d != null);
+
+      // group them together
+      byLocation[facetLocation.id] = timeSeriesObjects.reduce((combined, timeSeriesObject) => {
+        combined.statuses.push(status(timeSeriesObject));
+        combined.data.push(timeSeriesObject.data);
+        return combined;
+      }, { statuses: [], data: [] });
+
+      byLocation[facetLocation.id].status = mergeStatuses(byLocation[facetLocation.id].statuses);
+
+      return byLocation;
+    }, {});
+  }
+);
 

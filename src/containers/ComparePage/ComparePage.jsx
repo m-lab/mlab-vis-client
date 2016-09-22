@@ -58,6 +58,7 @@ function mapStateToProps(state, propsWithUrl) {
     highlightTimeSeriesLine: ComparePageSelectors.getHighlightTimeSeriesLine(state, propsWithUrl),
     overallTimeSeries: ComparePageSelectors.getOverallTimeSeries(state, propsWithUrl),
     overallTimeSeriesStatus: ComparePageSelectors.getOverallTimeSeriesStatus(state, propsWithUrl),
+    singleFilterTimeSeriesObjects: ComparePageSelectors.getSingleFilterTimeSeriesObjects(state, propsWithUrl),
     viewMetric: ComparePageSelectors.getViewMetric(state, propsWithUrl),
   };
 }
@@ -78,6 +79,7 @@ class ComparePage extends PureComponent {
     highlightTimeSeriesLine: PropTypes.object,
     overallTimeSeries: PropTypes.array,
     overallTimeSeriesStatus: PropTypes.string,
+    singleFilterTimeSeriesObjects: PropTypes.object,
     startDate: momentPropTypes.momentObj,
     timeAggregation: PropTypes.string,
     viewMetric: PropTypes.object,
@@ -411,22 +413,21 @@ class ComparePage extends PureComponent {
   }
 
   // if one filter has items, show the lines for those filter items in the chart
-  renderBreakdownGroupOneFilter(facetItemInfo, filterInfos) {
+  renderBreakdownGroupSingleFilter(facetItemInfo) {
     const {
-      overallTimeSeries,
-      overallTimeSeriesStatus,
+      singleFilterTimeSeriesObjects,
     } = this.props;
 
-    const chartId = `facet-filtered-time-series-${facetItemInfo.id}`;
+    const chartId = `facet-single-filtered-time-series-${facetItemInfo.id}`;
 
     // TODO: use time series data based on filterInfos in facetItemInfo
-    const timeSeries = overallTimeSeries.find(seriesData => seriesData.meta.id === facetItemInfo.id);
-
-    return this.renderTimeSeries(chartId, overallTimeSeriesStatus, timeSeries);
+    // const timeSeries = singleFilterTimeSeries.find(seriesData => seriesData.meta.id === facetItemInfo.id);
+    const timeSeriesObject = singleFilterTimeSeriesObjects[facetItemInfo.id];
+    return this.renderTimeSeries(chartId, timeSeriesObject.status, timeSeriesObject.data);
   }
 
   // if both filters have items, group by `breakdownBy` filter and have the other filter items have lines in those charts
-  renderBreakdownGroupBothFilters(facetItemInfo, filter1Infos, filter2Infos) {
+  renderBreakdownGroupBothFilters(facetItemInfo) {
     const {
       overallTimeSeries,
       overallTimeSeriesStatus,
@@ -453,11 +454,11 @@ class ComparePage extends PureComponent {
 
     // only one filter (client ISPs)
     } else if (filterClientIspIds.length && !filterTransitIspIds.length) {
-      groupCharts = this.renderBreakdownGroupOneFilter(facetItemInfo, filterClientIspInfos);
+      groupCharts = this.renderBreakdownGroupSingleFilter(facetItemInfo, filterClientIspInfos);
 
     // only one filter (transit ISPs)
     } else if (!filterClientIspIds.length && filterTransitIspIds.length) {
-      groupCharts = this.renderBreakdownGroupOneFilter(facetItemInfo, filterTransitIspInfos);
+      groupCharts = this.renderBreakdownGroupSingleFilter(facetItemInfo, filterTransitIspInfos);
 
     // else two filters
     } else {
