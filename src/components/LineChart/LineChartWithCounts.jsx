@@ -12,11 +12,13 @@ import addComputedProps from '../../hoc/addComputedProps';
  * @return {Array} the prepared data
  */
 function prepareData(props) {
-  const { series } = props;
+  let { series } = props;
 
   if (!series) {
     return {};
   }
+
+  series = Array.isArray(series) ? series : [series];
 
   // create counts
   const countsByDate = series.reduce((countsByDate, oneSeries) => {
@@ -48,9 +50,11 @@ function prepareData(props) {
  */
 function visProps(props) {
   const { width, xExtent, xKey } = props;
+  let { highlightLine } = props;
 
   const preparedData = prepareData(props);
   const { series } = preparedData;
+
   const padding = {
     right: 50,
     left: 50,
@@ -76,9 +80,13 @@ function visProps(props) {
     colors = colorsFor(series, (d) => d.meta.id);
   }
 
+  // ensure we have the series for the highlighted line
+  if (highlightLine && !series.includes(highlightLine)) {
+    highlightLine = null;
+  }
+
   // assumes the first series has the max length
   const numBins = series && series.length ? series[0].length : 1;
-
   return {
     series: preparedData.series,
     counts: preparedData.counts,
@@ -86,6 +94,7 @@ function visProps(props) {
     numBins,
     xScale,
     colors,
+    highlightLine,
   };
 }
 
@@ -127,7 +136,7 @@ class LineChartWithCounts extends PureComponent {
     onHighlightDate: React.PropTypes.func,
     onHighlightLine: React.PropTypes.func,
     padding: PropTypes.object,
-    series: PropTypes.array,
+    series: PropTypes.oneOfType([PropTypes.array, PropTypes.object]),
     width: React.PropTypes.number,
     xExtent: PropTypes.array,
     xKey: React.PropTypes.string,

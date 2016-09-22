@@ -75,7 +75,7 @@ export default class SearchSelect extends PureComponent {
     const style = { backgroundColor: color };
     return (
       <div key={item.id} className="selected-item" style={style}>
-        <span className="item-label">{item.longLabel || item.label}</span>
+        <span className="item-label">{item.label}</span>
         <Icon
           name="close"
           className="item-remove-control"

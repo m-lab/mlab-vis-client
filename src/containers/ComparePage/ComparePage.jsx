@@ -85,6 +85,8 @@ class ComparePage extends PureComponent {
 
   static defaultProps = {
     facetLocationIds: [],
+    filterClientIspIds: [],
+    filterTransitIspIds: [],
   }
 
   constructor(props) {
@@ -114,7 +116,7 @@ class ComparePage extends PureComponent {
    * Fetch the data for the page if needed
    */
   fetchData(props) {
-    const { dispatch, facetLocationIds, timeAggregation, startDate, endDate } = props;
+    const { dispatch, facetLocationIds, filterClientIspIds, timeAggregation, startDate, endDate } = props;
     const options = { startDate, endDate };
 
     this.fetchInfo(props);
@@ -123,6 +125,14 @@ class ComparePage extends PureComponent {
     facetLocationIds.forEach(locationId => {
       dispatch(LocationsActions.fetchTimeSeriesIfNeeded(timeAggregation, locationId, options));
       dispatch(LocationsActions.fetchHourlyIfNeeded(timeAggregation, locationId, options));
+
+      // fetch the data for each of the filter client ISPs
+      filterClientIspIds.forEach(clientIspId => {
+        dispatch(LocationsActions.fetchClientIspLocationTimeSeriesIfNeeded(timeAggregation, locationId,
+          clientIspId, options));
+        dispatch(LocationsActions.fetchClientIspLocationHourlyIfNeeded(timeAggregation, locationId,
+          clientIspId, options));
+      });
     });
   }
 
@@ -133,25 +143,19 @@ class ComparePage extends PureComponent {
     const { dispatch, facetLocationIds, filterClientIspIds, filterTransitIspIds } = props;
 
     // get facet location info if needed
-    if (facetLocationIds) {
-      facetLocationIds.forEach(facetLocationId => {
-        dispatch(LocationsActions.fetchInfoIfNeeded(facetLocationId));
-      });
-    }
+    facetLocationIds.forEach(facetLocationId => {
+      dispatch(LocationsActions.fetchInfoIfNeeded(facetLocationId));
+    });
 
     // get filter client ISP info if needed
-    if (filterClientIspIds) {
-      filterClientIspIds.forEach(filterClientIspId => {
-        dispatch(ClientIspsActions.fetchInfoIfNeeded(filterClientIspId));
-      });
-    }
+    filterClientIspIds.forEach(filterClientIspId => {
+      dispatch(ClientIspsActions.fetchInfoIfNeeded(filterClientIspId));
+    });
 
     // get filter transit ISP info if needed
-    if (filterTransitIspIds) {
-      filterTransitIspIds.forEach(filterTransitIspId => {
-        dispatch(TransitIspsActions.fetchInfoIfNeeded(filterTransitIspId));
-      });
-    }
+    filterTransitIspIds.forEach(filterTransitIspId => {
+      dispatch(TransitIspsActions.fetchInfoIfNeeded(filterTransitIspId));
+    });
   }
 
   /**
@@ -348,23 +352,22 @@ class ComparePage extends PureComponent {
     );
   }
 
-  renderOverallTimeSeries() {
+  renderTimeSeries(chartId, status, seriesData) {
     const {
       highlightTimeSeriesDate,
       highlightTimeSeriesLine,
-      overallTimeSeries,
-      overallTimeSeriesStatus,
       viewMetric,
     } = this.props;
-    const chartId = 'overall-time-series';
-    if (!overallTimeSeries || !overallTimeSeries.length) {
+
+    if (!seriesData || seriesData.length === 0) {
       return null;
     }
+
     return (
-      <StatusWrapper status={overallTimeSeriesStatus}>
+      <StatusWrapper status={status}>
         <LineChartWithCounts
           id={chartId}
-          series={overallTimeSeries}
+          series={seriesData}
           onHighlightDate={this.onHighlightTimeSeriesDate}
           highlightDate={highlightTimeSeriesDate}
           onHighlightLine={this.onHighlightTimeSeriesLine}
@@ -378,24 +381,119 @@ class ComparePage extends PureComponent {
         />
         <ChartExportControls
           chartId={chartId}
-          data={overallTimeSeries}
+          data={seriesData}
           filename={`compare_${viewMetric.value}_${chartId}`}
         />
       </StatusWrapper>
     );
   }
 
+  renderOverallTimeSeries() {
+    const {
+      overallTimeSeries,
+      overallTimeSeriesStatus,
+    } = this.props;
+
+    return this.renderTimeSeries('overall-time-series', overallTimeSeriesStatus, overallTimeSeries);
+  }
+
+  // if filters are empty, show the facet item line in the chart
+  renderBreakdownGroupNoFilters(facetItemInfo) {
+    const {
+      overallTimeSeries,
+      overallTimeSeriesStatus,
+    } = this.props;
+
+    const chartId = `facet-time-series-${facetItemInfo.id}`;
+    const timeSeries = overallTimeSeries.find(seriesData => seriesData.meta.id === facetItemInfo.id);
+
+    return this.renderTimeSeries(chartId, overallTimeSeriesStatus, timeSeries);
+  }
+
+  // if one filter has items, show the lines for those filter items in the chart
+  renderBreakdownGroupOneFilter(facetItemInfo, filterInfos) {
+    const {
+      overallTimeSeries,
+      overallTimeSeriesStatus,
+    } = this.props;
+
+    const chartId = `facet-filtered-time-series-${facetItemInfo.id}`;
+
+    // TODO: use time series data based on filterInfos in facetItemInfo
+    const timeSeries = overallTimeSeries.find(seriesData => seriesData.meta.id === facetItemInfo.id);
+
+    return this.renderTimeSeries(chartId, overallTimeSeriesStatus, timeSeries);
+  }
+
+  // if both filters have items, group by `breakdownBy` filter and have the other filter items have lines in those charts
+  renderBreakdownGroupBothFilters(facetItemInfo, filter1Infos, filter2Infos) {
+    const {
+      overallTimeSeries,
+      overallTimeSeriesStatus,
+    } = this.props;
+
+    const chartId = `facet-double-filtered-time-series-${facetItemInfo.id}`;
+
+    // TODO: produce a number of time series based on filter1 -> filter2
+    const timeSeries = overallTimeSeries.find(seriesData => seriesData.meta.id === facetItemInfo.id);
+
+    return this.renderTimeSeries(chartId, overallTimeSeriesStatus, timeSeries);
+  }
+
+  renderBreakdownGroup(facetItemInfo) {
+    const { filterClientIspIds, filterClientIspInfos, filterTransitIspIds, filterTransitIspInfos } = this.props;
+    // if filters are empty, show the facet item line in the chart
+    // if one filter has items, show the lines for those filter items in the chart
+    // if both filters have items, group by `breakdownBy` filter and have the other filter items have lines in those charts
+    let groupCharts;
+
+    // no filters
+    if (!filterClientIspIds.length && !filterTransitIspIds.length) {
+      groupCharts = this.renderBreakdownGroupNoFilters(facetItemInfo);
+
+    // only one filter (client ISPs)
+    } else if (filterClientIspIds.length && !filterTransitIspIds.length) {
+      groupCharts = this.renderBreakdownGroupOneFilter(facetItemInfo, filterClientIspInfos);
+
+    // only one filter (transit ISPs)
+    } else if (!filterClientIspIds.length && filterTransitIspIds.length) {
+      groupCharts = this.renderBreakdownGroupOneFilter(facetItemInfo, filterTransitIspInfos);
+
+    // else two filters
+    } else {
+      // TODO: order filter1, filter2 based on breakdownBy
+      groupCharts = this.renderBreakdownGroupBothFilters(facetItemInfo, filterClientIspInfos, filterTransitIspInfos);
+    }
+
+    return (
+      <div key={facetItemInfo.id}>
+        <h4>{facetItemInfo.label}</h4>
+        {groupCharts}
+      </div>
+    );
+  }
+
+  renderBreakdownOptions() {
+    return (<div />);
+  }
+
   renderBreakdown() {
+    const { facetLocationInfos } = this.props;
+    // if filters are empty, show the facet item line in the chart
+    // if one filter has items, show the lines for those filter items in the chart
+    // if both filters have items, group by `breakdownBy` filter and have the other filter items have lines in those charts
+
     return (
       <Row>
         <Col md={3}>
-          <div />
+          {this.renderBreakdownOptions()}
         </Col>
         <Col md={9}>
           <div className="subsection">
             <header>
               <h3>Breakdown</h3>
             </header>
+            {facetLocationInfos.map((facetItemInfo) => this.renderBreakdownGroup(facetItemInfo))}
           </div>
         </Col>
       </Row>

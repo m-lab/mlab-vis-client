@@ -135,17 +135,18 @@ export function transformLocationLabel(body) {
   if (body.meta) {
     const { meta } = body;
 
-    meta.label = meta.client_city || meta.client_region || meta.client_country || meta.client_continent;
-    meta.longLabel = meta.label;
+    meta.shortLabel = meta.client_city || meta.client_region || meta.client_country || meta.client_continent;
+    meta.label = meta.shortLabel;
+
     // Create a display name for locations.
     if (meta.type === 'city') {
       if (meta.client_country === 'United States') {
-        meta.longLabel += `, ${meta.client_region}`;
+        meta.label += `, ${meta.client_region}`;
       } else {
-        meta.longLabel += `, ${meta.client_country}`;
+        meta.label += `, ${meta.client_country}`;
       }
     } else if (meta.type === 'region') {
-      meta.longLabel += `, ${meta.client_country}`;
+      meta.label += `, ${meta.client_country}`;
     }
   }
 
@@ -167,7 +168,7 @@ export function transformLocationSearchResults(body) {
     results.forEach(d => {
       // Create a display name for cities.
       transformLocationLabel(d);
-      d.name = d.meta.longLabel;
+      d.name = d.meta.label;
       d.id = d.meta.location_key;
       d.meta.id = d.meta.location_key;
     });

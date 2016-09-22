@@ -298,7 +298,7 @@ class LocationPage extends PureComponent {
 
   renderCityProviders() {
     const { locationInfo } = this.props;
-    const locationName = (locationInfo && locationInfo.label) || 'Loading...';
+    const locationName = (locationInfo && (locationInfo.shortLabel || locationInfo.label)) || 'Loading...';
     return (
       <div className="section">
         <header>
@@ -621,7 +621,7 @@ class LocationPage extends PureComponent {
 
   render() {
     const { locationInfo } = this.props;
-    const locationName = (locationInfo && locationInfo.label) || 'Location';
+    const locationName = (locationInfo && (locationInfo.shortLabel || locationInfo.label)) || 'Location';
 
     return (
       <div className="location-page">

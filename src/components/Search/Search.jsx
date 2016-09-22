@@ -159,7 +159,7 @@ class Search extends PureComponent {
     return (
       <div>
         <span className="suggestion-count">{formatNumber(suggestion.data.test_count)}</span>
-        <span className="suggestion-name">{suggestion.meta.longLabel || suggestion.meta.label}</span>
+        <span className="suggestion-name">{suggestion.meta.label}</span>
       </div>
     );
   }
