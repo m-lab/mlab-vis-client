@@ -197,41 +197,40 @@ export const getFilterTransitIspInfos = createSelector(
 
 
 /**
- * Selector to get the data objects for the overall time series data
+ * Selector to get the data objects for the main facet items time series data
  */
-export const getOverallTimeSeriesObjects = createSelector(
+export const getFacetItemTimeSeries = createSelector(
   getFacetLocations,
   (facetLocations) => {
     if (!facetLocations) {
       return undefined;
     }
 
-    return facetLocations.map(facetLocation => facetLocation.time.timeSeries);
+    const timeSeries = facetLocations
+      .map(facetLocation => {
+        const timeSeries = facetLocation.time.timeSeries;
+        if (!timeSeries) {
+          return null;
+        }
+
+        return { id: facetLocation.id, status: status(timeSeries), data: timeSeries.data };
+      })
+      .filter(d => d != null);
+
+    const combined = timeSeries
+      .reduce((combined, timeSeries) => {
+        combined.statuses.push(timeSeries.status);
+        if (timeSeries.data) {
+          combined.data.push(timeSeries.data);
+        }
+        return combined;
+      }, { statuses: [], data: [] });
+
+    combined.status = mergeStatuses(combined.statuses);
+
+    return { combined, timeSeries };
   }
 );
-
-/**
- * Selector to get the overall time series data
- */
-export const getOverallTimeSeries = createSelector(
-  getOverallTimeSeriesObjects,
-  (timeSeriesObjects) => {
-    if (!timeSeriesObjects) {
-      return undefined;
-    }
-
-    return timeSeriesObjects.map(timeSeries => timeSeries && timeSeries.data)
-      .filter(timeSeries => timeSeries != null);
-  }
-);
-
-/**
- * Selector to get the status of the overall time series data
- */
-export const getOverallTimeSeriesStatus = createSelector(
-  getOverallTimeSeriesObjects,
-  (timeSeriesObjects) => status(timeSeriesObjects));
-
 
 /**
  * Selector to get the data objects for the overall hourly data
@@ -254,7 +253,7 @@ export const getFacetItemHourly = createSelector(
 /**
  * Selector to get the data objects for the single filtered time series data
  */
-export const getSingleFilterTimeSeriesObjects = createSelector(
+export const getSingleFilterTimeSeries = createSelector(
   getFacetLocations, getFilterClientIsps,
   (facetLocations, clientIsps) => {
     if (!facetLocations) {
@@ -274,11 +273,43 @@ export const getSingleFilterTimeSeriesObjects = createSelector(
       // group them together
       byLocation[facetLocation.id] = timeSeriesObjects.reduce((combined, timeSeriesObject) => {
         combined.statuses.push(status(timeSeriesObject));
-        combined.data.push(timeSeriesObject.data);
+        if (timeSeriesObject.data) {
+          combined.data.push(timeSeriesObject.data);
+        }
         return combined;
       }, { statuses: [], data: [] });
 
       byLocation[facetLocation.id].status = mergeStatuses(byLocation[facetLocation.id].statuses);
+
+      return byLocation;
+    }, {});
+  }
+);
+
+/**
+ * Selector to get the data objects for the single filtered hourly data
+ */
+export const getSingleFilterHourly = createSelector(
+  getFacetLocations, getFilterClientIsps,
+  (facetLocations, clientIsps) => {
+    if (!facetLocations) {
+      return undefined;
+    }
+
+    return facetLocations.reduce((byLocation, facetLocation) => {
+      const hourlyObjects = clientIsps
+        .map(filterClientIsp => {
+          if (!facetLocation.clientIsps[filterClientIsp.id]) {
+            return null;
+          }
+
+          const hourly = facetLocation.clientIsps[filterClientIsp.id].time.hourly;
+          return { id: filterClientIsp.id, data: hourly.data, status: status(hourly) };
+        })
+        .filter(d => d != null);
+
+      // group them together
+      byLocation[facetLocation.id] = hourlyObjects;
 
       return byLocation;
     }, {});
