@@ -18,6 +18,7 @@ import { facetTypes } from '../../constants';
 import {
   ChartExportControls,
   DateRangeSelector,
+  HourChartWithCounts,
   LineChartWithCounts,
   MetricSelector,
   SearchSelect,
@@ -50,10 +51,13 @@ const urlHandler = new UrlHandler(urlQueryConfig, browserHistory);
 function mapStateToProps(state, propsWithUrl) {
   return {
     ...propsWithUrl,
+    colors: ComparePageSelectors.getColors(state, propsWithUrl),
+    facetItemHourly: ComparePageSelectors.getFacetItemHourly(state, propsWithUrl),
     facetLocationInfos: ComparePageSelectors.getFacetLocationInfos(state, propsWithUrl),
     facetType: ComparePageSelectors.getFacetType(state, propsWithUrl),
     filterClientIspInfos: ComparePageSelectors.getFilterClientIspInfos(state, propsWithUrl),
     filterTransitIspInfos: ComparePageSelectors.getFilterTransitIspInfos(state, propsWithUrl),
+    highlightHourly: ComparePageSelectors.getHighlightHourly(state, propsWithUrl),
     highlightTimeSeriesDate: ComparePageSelectors.getHighlightTimeSeriesDate(state, propsWithUrl),
     highlightTimeSeriesLine: ComparePageSelectors.getHighlightTimeSeriesLine(state, propsWithUrl),
     overallTimeSeries: ComparePageSelectors.getOverallTimeSeries(state, propsWithUrl),
@@ -66,8 +70,10 @@ function mapStateToProps(state, propsWithUrl) {
 const pageTitle = 'Compare';
 class ComparePage extends PureComponent {
   static propTypes = {
+    colors: PropTypes.object,
     dispatch: PropTypes.func,
     endDate: momentPropTypes.momentObj,
+    facetItemHourly: PropTypes.array,
     facetLocationIds: PropTypes.array,
     facetLocationInfos: PropTypes.array,
     facetType: PropTypes.object,
@@ -75,6 +81,7 @@ class ComparePage extends PureComponent {
     filterClientIspInfos: PropTypes.array,
     filterTransitIspIds: PropTypes.array,
     filterTransitIspInfos: PropTypes.array,
+    highlightHourly: PropTypes.number,
     highlightTimeSeriesDate: PropTypes.object,
     highlightTimeSeriesLine: PropTypes.object,
     overallTimeSeries: PropTypes.array,
@@ -100,6 +107,7 @@ class ComparePage extends PureComponent {
     this.onFacetLocationsChange = this.onFacetLocationsChange.bind(this);
     this.onFilterClientIspsChange = this.onFilterClientIspsChange.bind(this);
     this.onFilterTransitIspsChange = this.onFilterTransitIspsChange.bind(this);
+    this.onHighlightHourly = this.onHighlightHourly.bind(this);
     this.onHighlightTimeSeriesDate = this.onHighlightTimeSeriesDate.bind(this);
     this.onHighlightTimeSeriesLine = this.onHighlightTimeSeriesLine.bind(this);
     this.onTimeAggregationChange = this.onTimeAggregationChange.bind(this);
@@ -224,6 +232,14 @@ class ComparePage extends PureComponent {
   onFilterTransitIspsChange(transitIsps) {
     const { dispatch } = this.props;
     dispatch(ComparePageActions.changeFilterTransitIsps(transitIsps, dispatch));
+  }
+
+  /**
+   * Callback for when a point is highlighted in hourly
+   */
+  onHighlightHourly(d) {
+    const { dispatch } = this.props;
+    dispatch(ComparePageActions.highlightHourly(d));
   }
 
   /**
@@ -420,14 +436,12 @@ class ComparePage extends PureComponent {
 
     const chartId = `facet-single-filtered-time-series-${facetItemInfo.id}`;
 
-    // TODO: use time series data based on filterInfos in facetItemInfo
-    // const timeSeries = singleFilterTimeSeries.find(seriesData => seriesData.meta.id === facetItemInfo.id);
     const timeSeriesObject = singleFilterTimeSeriesObjects[facetItemInfo.id];
     return this.renderTimeSeries(chartId, timeSeriesObject.status, timeSeriesObject.data);
   }
 
   // if both filters have items, group by `breakdownBy` filter and have the other filter items have lines in those charts
-  renderBreakdownGroupBothFilters(facetItemInfo) {
+  renderBreakdownGroupBothFilters(facetItemInfo, filter1Infos, filter2Infos) {
     const {
       overallTimeSeries,
       overallTimeSeriesStatus,
@@ -474,7 +488,121 @@ class ComparePage extends PureComponent {
     );
   }
 
+  renderHourly(chartId, status, hourlyData) {
+    const {
+      highlightHourly,
+      viewMetric,
+      colors,
+    } = this.props;
+
+    if (!hourlyData || hourlyData.length === 0) {
+      return null;
+    }
+
+    const color = colors[hourlyData.meta.id];
+
+    return (
+      <StatusWrapper status={status}>
+        <HourChartWithCounts
+          color={color}
+          data={hourlyData.results}
+          highlightHour={highlightHourly}
+          id={chartId}
+          onHighlightHour={this.onHighlightHourly}
+          threshold={30}
+          width={400}
+          yAxisLabel={viewMetric.label}
+          yAxisUnit={viewMetric.unit}
+          yExtent={hourlyData.extents[viewMetric.dataKey]}
+          yFormatter={viewMetric.formatter}
+          yKey={viewMetric.dataKey}
+        />
+        <ChartExportControls
+          chartId={chartId}
+          data={hourlyData.results}
+          filename={`compare_hourly_${viewMetric.value}_${chartId}`}
+        />
+      </StatusWrapper>
+    );
+  }
+
+  // if filters are empty, show the facet item line in the chart
+  renderBreakdownGroupHourlyNoFilters(facetItemInfo) {
+    const {
+      facetItemHourly,
+    } = this.props;
+    const chartId = `facet-hourly-${facetItemInfo.id}`;
+    const hourly = facetItemHourly.find(hourly => hourly.id === facetItemInfo.id);
+
+    return this.renderHourly(chartId, hourly.status, hourly.data);
+  }
+
+  // if one filter has items, show the lines for those filter items in the chart
+  renderBreakdownGroupHourlySingleFilter(facetItemInfo) {
+    const {
+      singleFilterHourlyObjects,
+    } = this.props;
+
+    const chartId = `facet-single-filtered-hourly-${facetItemInfo.id}`;
+
+    // TODO: use time series data based on filterInfos in facetItemInfo
+    // const hourly = singleFilterHourly.find(seriesData => seriesData.meta.id === facetItemInfo.id);
+    const hourlyObject = singleFilterHourlyObjects[facetItemInfo.id];
+    return this.renderHourly(chartId, hourlyObject.status, hourlyObject.data);
+  }
+
+  // if both filters have items, group by `breakdownBy` filter and have the other filter items have lines in those charts
+  renderBreakdownGroupHourlyBothFilters(facetItemInfo, filter1Infos, filter2Infos) {
+    const {
+      overallHourly,
+    } = this.props;
+
+    const chartId = `facet-double-filtered-hourly-${facetItemInfo.id}`;
+
+    // TODO: produce a number of time series based on filter1 -> filter2
+    const hourly = overallHourly.find(seriesData => seriesData.meta.id === facetItemInfo.id);
+
+    return this.renderHourly(chartId, overallHourlyStatus, hourly);
+  }
+
+  renderBreakdownGroupHourly(facetItemInfo) {
+    const { filterClientIspIds, filterClientIspInfos, filterTransitIspIds, filterTransitIspInfos } = this.props;
+    // if filters are empty, show the facet item line in the chart
+    // if one filter has items, show the lines for those filter items in the chart
+    // if both filters have items, group by `breakdownBy` filter and have the other filter items have lines in those charts
+    let groupCharts;
+    let colSize = 6;
+
+    // no filters
+    if (!filterClientIspIds.length && !filterTransitIspIds.length) {
+      groupCharts = this.renderBreakdownGroupHourlyNoFilters(facetItemInfo);
+
+    // only one filter (client ISPs)
+    } else if (filterClientIspIds.length && !filterTransitIspIds.length) {
+      groupCharts = this.renderBreakdownGroupHourlySingleFilter(facetItemInfo, filterClientIspInfos);
+
+    // only one filter (transit ISPs)
+    } else if (!filterClientIspIds.length && filterTransitIspIds.length) {
+      groupCharts = this.renderBreakdownGroupHourlySingleFilter(facetItemInfo, filterTransitIspInfos);
+
+    // else two filters
+    } else {
+      // TODO: order filter1, filter2 based on breakdownBy
+      colSize = 12;
+      groupCharts = this.renderBreakdownGroupHourlyBothFilters(facetItemInfo, filterClientIspInfos, filterTransitIspInfos);
+    }
+
+    return (
+      <Col key={facetItemInfo.id} md={colSize}>
+        <h4>{facetItemInfo.label}</h4>
+        {groupCharts}
+      </Col>
+    );
+  }
+
+
   renderBreakdownOptions() {
+    // TODO: when both filters have values, choose which one to breakdown by
     return (<div />);
   }
 
@@ -483,7 +611,6 @@ class ComparePage extends PureComponent {
     // if filters are empty, show the facet item line in the chart
     // if one filter has items, show the lines for those filter items in the chart
     // if both filters have items, group by `breakdownBy` filter and have the other filter items have lines in those charts
-
     return (
       <Row>
         <Col md={3}>
@@ -495,6 +622,14 @@ class ComparePage extends PureComponent {
               <h3>Breakdown</h3>
             </header>
             {facetLocationInfos.map((facetItemInfo) => this.renderBreakdownGroup(facetItemInfo))}
+          </div>
+          <div className="subsection">
+            <header>
+              <h3>By Hour</h3>
+            </header>
+            <Row>
+              {facetLocationInfos.map((facetItemInfo) => this.renderBreakdownGroupHourly(facetItemInfo))}
+            </Row>
           </div>
         </Col>
       </Row>

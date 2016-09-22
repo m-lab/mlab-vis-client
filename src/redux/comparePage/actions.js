@@ -6,9 +6,9 @@ import { saveLocationInfoIfNeeded } from '../locations/actions';
 import { saveClientIspInfoIfNeeded } from '../clientIsps/actions';
 import { saveTransitIspInfoIfNeeded } from '../transitIsps/actions';
 
-export const HIGHLIGHT_HOURLY = 'locationPage/HIGHLIGHT_HOURLY';
-export const HIGHLIGHT_TIME_SERIES_DATE = 'locationPage/HIGHLIGHT_TIME_SERIES_DATE';
-export const HIGHLIGHT_TIME_SERIES_LINE = 'locationPage/HIGHLIGHT_TIME_SERIES_LINE';
+export const HIGHLIGHT_HOURLY = 'comparePage/HIGHLIGHT_HOURLY';
+export const HIGHLIGHT_TIME_SERIES_DATE = 'comparePage/HIGHLIGHT_TIME_SERIES_DATE';
+export const HIGHLIGHT_TIME_SERIES_LINE = 'comparePage/HIGHLIGHT_TIME_SERIES_LINE';
 
 /**
  * Action for highlighting the hourly chart

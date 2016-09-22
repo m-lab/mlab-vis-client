@@ -4,6 +4,7 @@
 import { createSelector } from 'reselect';
 import { metrics, facetTypes } from '../../constants';
 import { mergeStatuses, status } from '../status';
+import { colorsFor } from '../../utils/color';
 
 // ----------------------
 // Input Selectors
@@ -233,6 +234,24 @@ export const getOverallTimeSeriesStatus = createSelector(
 
 
 /**
+ * Selector to get the data objects for the overall hourly data
+ */
+export const getFacetItemHourly = createSelector(
+  getFacetLocations,
+  (facetLocations) => {
+    if (!facetLocations) {
+      return undefined;
+    }
+
+    return facetLocations.map(facetLocation => {
+      const hourly = facetLocation.time.hourly;
+      return { id: facetLocation.id, data: hourly.data, status: status(hourly) };
+    });
+  }
+);
+
+
+/**
  * Selector to get the data objects for the single filtered time series data
  */
 export const getSingleFilterTimeSeriesObjects = createSelector(
@@ -266,3 +285,14 @@ export const getSingleFilterTimeSeriesObjects = createSelector(
   }
 );
 
+
+/**
+ * Selector to get the colors given all the selected ISPs and locations
+ */
+export const getColors = createSelector(
+  getFacetLocationIds, getFilterClientIspIds, getFilterTransitIspIds,
+  (facetLocationIds, filterClientIspIds, filterTransitIspIds) => {
+    const combined = [].concat(facetLocationIds, filterClientIspIds, filterTransitIspIds);
+    return colorsFor(combined);
+  }
+);
