@@ -9,7 +9,7 @@ import { Router, browserHistory, applyRouterMiddleware } from 'react-router';
 import { syncHistoryWithStore } from 'react-router-redux';
 import { useScroll } from 'react-router-scroll';
 import createStore from './redux/createStore';
-import * as api from './api/api';
+import api from './api/api';
 import getRoutes from './routes';
 
 const dest = document.getElementById('content');

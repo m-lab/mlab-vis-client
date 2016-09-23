@@ -43,10 +43,10 @@ export function formatNumber(number) {
 }
 
 /**
- * Convert strign to key by removing spaces and lowercasing.
+ * Convert strign to key by removing spaces+special chars and lowercasing.
  * @param {String} aString a String to format into a key
  * @return {String} downcase string with no spaces.
  */
-export function stringToKey(aString) {
-  return aString.toLowerCase().replace(/ /g, '').trim();
+export function stringToKey(aString = '') {
+  return aString.toLowerCase().replace(/[^\w|_]/g, '').trim();
 }
