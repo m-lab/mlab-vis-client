@@ -44,12 +44,13 @@ export function highlightTimeSeriesLine(highlightLine) {
 /** Actions that replace values in the URL */
 export const changeTimeAggregation = urlReplaceAction('timeAggregation');
 export const changeViewMetric = urlReplaceAction('viewMetric');
-export const changeFacetType = urlReplaceAction('facetType');
 export const changeStartDate = urlReplaceAction('startDate');
 export const changeEndDate = urlReplaceAction('endDate');
+const changeFacetItemIds = urlReplaceAction('facetItemIds');
+const changeFilter1Ids = urlReplaceAction('filter1Ids');
+const changeFilter2Ids = urlReplaceAction('filter2Ids');
 
 // handle Facet locations
-const changeFacetItemIds = urlReplaceAction('facetItemIds');
 export function changeFacetLocations(newFacetLocations, urlConnectDispatch) {
   return () => {
     // ensure these locations are all saved in the location map
@@ -63,8 +64,7 @@ export function changeFacetLocations(newFacetLocations, urlConnectDispatch) {
 }
 
 // handle Filter client ISPs
-const changeFilter1Ids = urlReplaceAction('filter1Ids');
-export function changeFilterClientIsps(newFilterClientIsps, urlConnectDispatch) {
+export function changeFilterClientIsps(newFilterClientIsps, filterNum, urlConnectDispatch) {
   return () => {
     // ensure these locations are all saved in the location map
     newFilterClientIsps.forEach(clientIspInfo => {
@@ -72,13 +72,16 @@ export function changeFilterClientIsps(newFilterClientIsps, urlConnectDispatch) 
     });
 
     // update the IDs in the URL
-    urlConnectDispatch(changeFilter1Ids(newFilterClientIsps.map(d => d.id)));
+    if (filterNum === 'filter1') {
+      urlConnectDispatch(changeFilter1Ids(newFilterClientIsps.map(d => d.id)));
+    } else {
+      urlConnectDispatch(changeFilter2Ids(newFilterClientIsps.map(d => d.id)));
+    }
   };
 }
 
 // handle Filter transit ISPs
-const changeFilter2Ids = urlReplaceAction('filter2Ids');
-export function changeFilterTransitIsps(newFilterTransitIsps, urlConnectDispatch) {
+export function changeFilterTransitIsps(newFilterTransitIsps, filterNum, urlConnectDispatch) {
   return () => {
     // ensure these locations are all saved in the location map
     newFilterTransitIsps.forEach(transitIspInfo => {
@@ -86,9 +89,28 @@ export function changeFilterTransitIsps(newFilterTransitIsps, urlConnectDispatch
     });
 
     // update the IDs in the URL
-    urlConnectDispatch(changeFilter2Ids(newFilterTransitIsps.map(d => d.id)));
+    if (filterNum === 'filter1') {
+      urlConnectDispatch(changeFilter1Ids(newFilterTransitIsps.map(d => d.id)));
+    } else {
+      urlConnectDispatch(changeFilter2Ids(newFilterTransitIsps.map(d => d.id)));
+    }
   };
 }
 
-// TODO changing filter locations will need to update filter1Ids or filter2Ids depending on which facetType is selected
-// if facetType = client, then filter1, if facetType = transit, filter2.
+// handle Filter locations
+export function changeFilterLocations(newFilterLocations, filterNum, urlConnectDispatch) {
+  return () => {
+    // ensure these locations are all saved in the location map
+    newFilterLocations.forEach(locationInfo => {
+      urlConnectDispatch(saveTransitIspInfoIfNeeded(locationInfo));
+    });
+
+    // update the IDs in the URL
+    if (filterNum === 'filter1') {
+      urlConnectDispatch(changeFilter1Ids(newFilterLocations.map(d => d.id)));
+    } else {
+      urlConnectDispatch(changeFilter2Ids(newFilterLocations.map(d => d.id)));
+    }
+  };
+}
+

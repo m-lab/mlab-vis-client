@@ -1,5 +1,5 @@
 import React from 'react';
-import { IndexRoute, Route } from 'react-router';
+import { IndexRoute, Route, Redirect } from 'react-router';
 import {
     App,
     HomePage,
@@ -17,8 +17,17 @@ export default () => (
     <IndexRoute component={HomePage} />
 
     { /* Routes */ }
-    <Route path="location/:locationId" component={LocationPage} />
-    <Route path="compare" component={ComparePage} />
+    {/* Temporarily default to seattle */}
+    <Redirect from="location" to="location/nauswaseattle" />
+    <Route path="location" component={LocationPage}>
+      <Route path=":locationId" />
+    </Route>
+
+    {/* Default to location compare */}
+    <Redirect from="compare" to="compare/location" />
+    <Route path="compare" component={ComparePage}>
+      <Route path=":facetType" />
+    </Route>
 
     { /* Catch all route */ }
     <Route path="*" component={NotFoundPage} status={404} />

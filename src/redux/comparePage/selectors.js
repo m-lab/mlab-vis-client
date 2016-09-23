@@ -111,7 +111,7 @@ export function getFilterTypes(state, props) {
   } else if (facetType.value === 'clientIsp') {
     return [extractFacetType('location'), extractFacetType('transitIsp')];
   } else if (facetType.value === 'transitIsp') {
-    return [extractFacetType('clientIsp'), extractFacetType('location')];
+    return [extractFacetType('location'), extractFacetType('clientIsp')];
   }
 
   return [];
