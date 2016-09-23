@@ -72,17 +72,18 @@ export default class UrlHandler {
     // write to the URL key if provided, otherwise use the key
     const { urlKey = key } = keyConfig;
 
+    const encoded = encode(keyConfig.type, value);
     // create the new location object
     const newLocation = {
       ...location,
       query: {
         ...location.query,
-        [urlKey]: encode(keyConfig.type, value),
+        [urlKey]: encoded,
       },
     };
 
-    // remove if it is the default value
-    if (value === keyConfig.defaultValue) {
+    // remove if it is the default value or if it is an empty string when encoded
+    if (value === keyConfig.defaultValue || encoded === '') {
       delete newLocation.query[urlKey];
     }
 
