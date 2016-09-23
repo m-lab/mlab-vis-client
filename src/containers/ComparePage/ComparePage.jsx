@@ -18,6 +18,7 @@ import { facetTypes } from '../../constants';
 import {
   ChartExportControls,
   CompareInputPanel,
+  CompareTimeSeriesCharts,
   DateRangeSelector,
   HourChartWithCounts,
   LineChartWithCounts,
@@ -433,77 +434,6 @@ class ComparePage extends PureComponent {
     return this.renderTimeSeries(chartId, combined.status, combined.data);
   }
 
-  // if filters are empty, show the facet item line in the chart
-  renderBreakdownGroupNoFilters(facetItemInfo) {
-    const {
-      facetItemTimeSeries,
-    } = this.props;
-
-    const chartId = `facet-time-series-${facetItemInfo.id}`;
-    const timeSeries = facetItemTimeSeries.timeSeries.find(seriesData => seriesData.id === facetItemInfo.id);
-
-    return this.renderTimeSeries(chartId, timeSeries.status, timeSeries.data);
-  }
-
-  // if one filter has items, show the lines for those filter items in the chart
-  renderBreakdownGroupSingleFilter(facetItemInfo) {
-    const {
-      singleFilterTimeSeries,
-    } = this.props;
-
-    const chartId = `facet-single-filtered-time-series-${facetItemInfo.id}`;
-
-    const timeSeriesObject = singleFilterTimeSeries[facetItemInfo.id];
-    return this.renderTimeSeries(chartId, timeSeriesObject.status, timeSeriesObject.data);
-  }
-
-  // if both filters have items, group by `breakdownBy` filter and have the other filter items have lines in those charts
-  renderBreakdownGroupBothFilters(facetItemInfo, filter1Infos, filter2Infos) {
-    const {
-      facetItemTimeSeries,
-    } = this.props;
-
-    const chartId = `facet-double-filtered-time-series-${facetItemInfo.id}`;
-
-    // TODO: produce a number of time series based on filter1 -> filter2
-    const timeSeries = facetItemTimeSeries.timeSeries.find(seriesData => seriesData.id === facetItemInfo.id);
-
-    return this.renderTimeSeries(chartId, timeSeries.status, timeSeries.data);
-  }
-
-  renderBreakdownGroup(facetItemInfo) {
-    const { filter1Ids, filter1Infos, filter2Ids, filter2Infos } = this.props;
-    // if filters are empty, show the facet item line in the chart
-    // if one filter has items, show the lines for those filter items in the chart
-    // if both filters have items, group by `breakdownBy` filter and have the other filter items have lines in those charts
-    let groupCharts;
-
-    // no filters
-    if (!filter1Ids.length && !filter2Ids.length) {
-      groupCharts = this.renderBreakdownGroupNoFilters(facetItemInfo);
-
-    // only one filter (client ISPs)
-    } else if (filter1Ids.length && !filter2Ids.length) {
-      groupCharts = this.renderBreakdownGroupSingleFilter(facetItemInfo, filter1Infos);
-
-    // only one filter (transit ISPs)
-    } else if (!filter1Ids.length && filter2Ids.length) {
-      groupCharts = this.renderBreakdownGroupSingleFilter(facetItemInfo, filter2Infos);
-
-    // else two filters
-    } else {
-      // TODO: order filter1, filter2 based on breakdownBy
-      groupCharts = this.renderBreakdownGroupBothFilters(facetItemInfo, filter1Infos, filter2Infos);
-    }
-
-    return (
-      <div key={facetItemInfo.id}>
-        <h4>{facetItemInfo.label}</h4>
-        {groupCharts}
-      </div>
-    );
-  }
-
   renderHourly(chartId, status, hourlyData) {
     const {
       highlightHourly,
@@ -648,7 +578,19 @@ class ComparePage extends PureComponent {
   }
 
   renderBreakdown() {
-    const { facetItemInfos } = this.props;
+    const {
+      facetItemInfos,
+      facetItemTimeSeries,
+      filter1Ids,
+      filter1Infos,
+      filter2Ids,
+      filter2Infos,
+      highlightTimeSeriesDate,
+      highlightTimeSeriesLine,
+      singleFilterTimeSeries,
+      viewMetric,
+    } = this.props;
+
     // if filters are empty, show the facet item line in the chart
     // if one filter has items, show the lines for those filter items in the chart
     // if both filters have items, group by `breakdownBy` filter and have the other filter items have lines in those charts
@@ -662,7 +604,24 @@ class ComparePage extends PureComponent {
             <header>
               <h3>Breakdown</h3>
             </header>
-            {facetItemInfos.map((facetItemInfo) => this.renderBreakdownGroup(facetItemInfo))}
+            {facetItemInfos.map((facetItemInfo) => (
+              <CompareTimeSeriesCharts
+                key={facetItemInfo.id}
+                facetItemId={facetItemInfo.id}
+                facetItemInfo={facetItemInfo}
+                facetItemTimeSeries={facetItemTimeSeries}
+                filter1Ids={filter1Ids}
+                filter1Infos={filter1Infos}
+                filter2Ids={filter2Ids}
+                filter2Infos={filter2Infos}
+                highlightTimeSeriesDate={highlightTimeSeriesDate}
+                highlightTimeSeriesLine={highlightTimeSeriesLine}
+                onHighlightTimeSeriesDate={this.onHighlightTimeSeriesDate}
+                onHighlightTimeSeriesLine={this.onHighlightTimeSeriesLine}
+                singleFilterTimeSeries={singleFilterTimeSeries}
+                viewMetric={viewMetric}
+              />
+            ))}
           </div>
           <div className="subsection">
             <header>
