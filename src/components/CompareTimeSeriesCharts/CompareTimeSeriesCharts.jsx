@@ -11,6 +11,7 @@ import {
  */
 export default class CompareTimeSeriesCharts extends PureComponent {
   static propTypes = {
+    colors: PropTypes.object,
     facetItemId: PropTypes.string,
     facetItemInfo: PropTypes.object,
     facetItemTimeSeries: PropTypes.object,
@@ -28,6 +29,7 @@ export default class CompareTimeSeriesCharts extends PureComponent {
 
   renderTimeSeries(chartId, status, seriesData) {
     const {
+      colors,
       highlightTimeSeriesDate,
       highlightTimeSeriesLine,
       onHighlightTimeSeriesDate,
@@ -43,6 +45,7 @@ export default class CompareTimeSeriesCharts extends PureComponent {
       <StatusWrapper status={status}>
         <LineChartWithCounts
           id={chartId}
+          colors={colors}
           series={seriesData}
           onHighlightDate={onHighlightTimeSeriesDate}
           highlightDate={highlightTimeSeriesDate}
