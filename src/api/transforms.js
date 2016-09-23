@@ -193,7 +193,7 @@ export function transformClientIspSearchResults(body) {
     const results = body.results;
     results.forEach(d => {
       d.meta.label = d.meta.client_asn_name;
-      d.meta.id = d.meta.client_asn_number;
+      d.meta.id = d.meta.id;
     });
 
     // add new entries to the body object
@@ -216,7 +216,7 @@ export function transformTransitIspSearchResults(body) {
   if (body.results) {
     const results = body.results;
     results.forEach(d => {
-      d.meta.id = d.meta.server_asn_name_lookup; // TODO - this should eventually be provided as `id`
+      d.meta.id = d.meta.id;
       d.meta.label = d.meta.server_asn_name;
     });
 
