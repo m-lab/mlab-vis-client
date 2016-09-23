@@ -82,10 +82,10 @@ export function getFacetType(state, props) {
 }
 
 /**
- * Input selector to get the selected facet location IDs
+ * Input selector to get the selected facet item IDs
  */
-function getFacetLocationIds(state, props) {
-  return props.facetLocationIds;
+function getFacetItemIds(state, props) {
+  return props.facetItemIds;
 }
 
 
@@ -122,27 +122,35 @@ function getTransitIsps(state) {
 // ----------------------
 
 /**
- * Inflates facet location IDs into location values
+ * Gets the object for each facet item based on the active facet type
  */
-export const getFacetLocations = createSelector(
-  getLocations, getFacetLocationIds,
-  (locations, facetLocationIds) => {
-    if (facetLocationIds) {
-      const facetLocations = facetLocationIds.map(id => locations[id]).filter(d => d != null);
-      return facetLocations;
+export const getFacetItems = createSelector(
+  getFacetType, getFacetItemIds, getLocations, getClientIsps, getTransitIsps,
+  (facetType, facetItemIds, locations, clientIsps, transitIsps) => {
+    let items;
+    if (facetType.value === 'location') {
+      items = locations;
+    } else if (facetType.value === 'clientIsp') {
+      items = clientIsps;
+    } else if (facetType.value === 'transitIsp') {
+      items = transitIsps;
+    }
+
+    if (facetItemIds && items) {
+      const facetItems = facetItemIds.map(id => items[id]).filter(d => d != null);
+      return facetItems;
     }
 
     return [];
   }
 );
 
-
 /**
- * Gets the location info for each facet location
+ * Gets the info for each facet item
  */
-export const getFacetLocationInfos = createSelector(
-  getFacetLocations,
-  (facetLocations) => facetLocations.map(facetLocation => facetLocation.info.data)
+export const getFacetItemInfos = createSelector(
+  getFacetItems,
+  (facetItems) => facetItems.map(facetItem => facetItem.info.data)
     .filter(d => d != null));
 
 
@@ -200,13 +208,13 @@ export const getFilterTransitIspInfos = createSelector(
  * Selector to get the data objects for the main facet items time series data
  */
 export const getFacetItemTimeSeries = createSelector(
-  getFacetLocations,
-  (facetLocations) => {
-    if (!facetLocations) {
+  getFacetItems,
+  (facetItems) => {
+    if (!facetItems) {
       return undefined;
     }
 
-    const timeSeries = facetLocations
+    const timeSeries = facetItems
       .map(facetLocation => {
         const timeSeries = facetLocation.time.timeSeries;
         if (!timeSeries) {
@@ -236,13 +244,13 @@ export const getFacetItemTimeSeries = createSelector(
  * Selector to get the data objects for the overall hourly data
  */
 export const getFacetItemHourly = createSelector(
-  getFacetLocations,
-  (facetLocations) => {
-    if (!facetLocations) {
+  getFacetItems,
+  (facetItems) => {
+    if (!facetItems) {
       return undefined;
     }
 
-    return facetLocations.map(facetLocation => {
+    return facetItems.map(facetLocation => {
       const hourly = facetLocation.time.hourly;
       return { id: facetLocation.id, data: hourly.data, status: status(hourly) };
     });
@@ -254,13 +262,14 @@ export const getFacetItemHourly = createSelector(
  * Selector to get the data objects for the single filtered time series data
  */
 export const getSingleFilterTimeSeries = createSelector(
-  getFacetLocations, getFilterClientIsps,
-  (facetLocations, clientIsps) => {
-    if (!facetLocations) {
+  getFacetItems, getFilterClientIsps,
+  (facetItems, clientIsps) => {
+    if (!facetItems) {
       return undefined;
     }
+    // TODO: update to handle different facet types and filter types
 
-    return facetLocations.reduce((byLocation, facetLocation) => {
+    return facetItems.reduce((byLocation, facetLocation) => {
       const timeSeriesObjects = clientIsps
         .map(filterClientIsp => {
           if (!facetLocation.clientIsps[filterClientIsp.id]) {
@@ -290,13 +299,13 @@ export const getSingleFilterTimeSeries = createSelector(
  * Selector to get the data objects for the single filtered hourly data
  */
 export const getSingleFilterHourly = createSelector(
-  getFacetLocations, getFilterClientIsps,
-  (facetLocations, clientIsps) => {
-    if (!facetLocations) {
+  getFacetItems, getFilterClientIsps,
+  (facetItems, clientIsps) => {
+    if (!facetItems) {
       return undefined;
     }
 
-    return facetLocations.reduce((byLocation, facetLocation) => {
+    return facetItems.reduce((byLocation, facetLocation) => {
       const hourlyObjects = clientIsps
         .map(filterClientIsp => {
           if (!facetLocation.clientIsps[filterClientIsp.id]) {
@@ -321,9 +330,9 @@ export const getSingleFilterHourly = createSelector(
  * Selector to get the colors given all the selected ISPs and locations
  */
 export const getColors = createSelector(
-  getFacetLocationIds, getFilterClientIspIds, getFilterTransitIspIds,
-  (facetLocationIds, filterClientIspIds, filterTransitIspIds) => {
-    const combined = [].concat(facetLocationIds, filterClientIspIds, filterTransitIspIds);
+  getFacetItemIds, getFilterClientIspIds, getFilterTransitIspIds,
+  (facetItemIds, filterClientIspIds, filterTransitIspIds) => {
+    const combined = [].concat(facetItemIds, filterClientIspIds, filterTransitIspIds);
     return colorsFor(combined);
   }
 );

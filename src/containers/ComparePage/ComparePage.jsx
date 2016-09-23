@@ -42,7 +42,7 @@ const urlQueryConfig = {
   startDate: { type: 'date', urlKey: 'start', defaultValue: moment('2015-10-1') },
   endDate: { type: 'date', urlKey: 'end', defaultValue: moment('2015-11-1') },
   timeAggregation: { type: 'string', defaultValue: 'day', urlKey: 'aggr' },
-  facetLocationIds: { type: 'array', urlKey: 'locations' },
+  facetItemIds: { type: 'array', urlKey: 'selected' },
   filterClientIspIds: { type: 'array', urlKey: 'filterClientIsps' },
   filterTransitIspIds: { type: 'array', urlKey: 'filterTransitIsps' },
 };
@@ -53,8 +53,8 @@ function mapStateToProps(state, propsWithUrl) {
     ...propsWithUrl,
     colors: ComparePageSelectors.getColors(state, propsWithUrl),
     facetItemHourly: ComparePageSelectors.getFacetItemHourly(state, propsWithUrl),
+    facetItemInfos: ComparePageSelectors.getFacetItemInfos(state, propsWithUrl),
     facetItemTimeSeries: ComparePageSelectors.getFacetItemTimeSeries(state, propsWithUrl),
-    facetLocationInfos: ComparePageSelectors.getFacetLocationInfos(state, propsWithUrl),
     facetType: ComparePageSelectors.getFacetType(state, propsWithUrl),
     filterClientIspInfos: ComparePageSelectors.getFilterClientIspInfos(state, propsWithUrl),
     filterTransitIspInfos: ComparePageSelectors.getFilterTransitIspInfos(state, propsWithUrl),
@@ -74,9 +74,9 @@ class ComparePage extends PureComponent {
     dispatch: PropTypes.func,
     endDate: momentPropTypes.momentObj,
     facetItemHourly: PropTypes.array,
+    facetItemIds: PropTypes.array,
+    facetItemInfos: PropTypes.array,
     facetItemTimeSeries: PropTypes.object,
-    facetLocationIds: PropTypes.array,
-    facetLocationInfos: PropTypes.array,
     facetType: PropTypes.object,
     filterClientIspIds: PropTypes.array,
     filterClientIspInfos: PropTypes.array,
@@ -93,7 +93,7 @@ class ComparePage extends PureComponent {
   }
 
   static defaultProps = {
-    facetLocationIds: [],
+    facetItemIds: [],
     filterClientIspIds: [],
     filterTransitIspIds: [],
   }
@@ -123,37 +123,28 @@ class ComparePage extends PureComponent {
   }
 
   /**
-   * Fetch the data for the page if needed
+   * Fetch the data for the page (if needed)
    */
   fetchData(props) {
-    const { dispatch, facetLocationIds, filterClientIspIds, timeAggregation, startDate, endDate } = props;
-    const options = { startDate, endDate };
+    const { facetType } = props;
 
-    this.fetchInfo(props);
-
-    // fetch the time series and hourly data for facet locations (unfiltered)
-    facetLocationIds.forEach(locationId => {
-      dispatch(LocationsActions.fetchTimeSeriesIfNeeded(timeAggregation, locationId, options));
-      dispatch(LocationsActions.fetchHourlyIfNeeded(timeAggregation, locationId, options));
-
-      // fetch the data for each of the filter client ISPs
-      filterClientIspIds.forEach(clientIspId => {
-        dispatch(LocationsActions.fetchClientIspLocationTimeSeriesIfNeeded(timeAggregation, locationId,
-          clientIspId, options));
-        dispatch(LocationsActions.fetchClientIspLocationHourlyIfNeeded(timeAggregation, locationId,
-          clientIspId, options));
-      });
-    });
+    if (facetType.value === 'location') {
+      this.fetchDataFacetTypeLocation(props);
+    } else if (facetType.value === 'clientIsp') {
+      // this.fetchDataFacetTypeClientIsp(props);
+    }
   }
 
   /**
-   * Fetch info for the selected ISPs and locations (used in labels)
+   * Fetch the data for the page when the facet type is Location (if needed)
    */
-  fetchInfo(props) {
-    const { dispatch, facetLocationIds, filterClientIspIds, filterTransitIspIds } = props;
+  fetchDataFacetTypeLocation(props) {
+    const { dispatch, facetItemIds, filterClientIspIds, filterTransitIspIds,
+      timeAggregation, startDate, endDate } = props;
+    const options = { startDate, endDate };
 
     // get facet location info if needed
-    facetLocationIds.forEach(facetLocationId => {
+    facetItemIds.forEach(facetLocationId => {
       dispatch(LocationsActions.fetchInfoIfNeeded(facetLocationId));
     });
 
@@ -165,6 +156,24 @@ class ComparePage extends PureComponent {
     // get filter transit ISP info if needed
     filterTransitIspIds.forEach(filterTransitIspId => {
       dispatch(TransitIspsActions.fetchInfoIfNeeded(filterTransitIspId));
+    });
+
+    // fetch the time series and hourly data for facet locations (unfiltered)
+    facetItemIds.forEach(locationId => {
+      dispatch(LocationsActions.fetchTimeSeriesIfNeeded(timeAggregation, locationId, options));
+      dispatch(LocationsActions.fetchHourlyIfNeeded(timeAggregation, locationId, options));
+
+      // TODO: handle options for when both filters are active
+
+      // fetch the data for each of the filter client ISPs
+      filterClientIspIds.forEach(clientIspId => {
+        dispatch(LocationsActions.fetchClientIspLocationTimeSeriesIfNeeded(timeAggregation, locationId,
+          clientIspId, options));
+        dispatch(LocationsActions.fetchClientIspLocationHourlyIfNeeded(timeAggregation, locationId,
+          clientIspId, options));
+      });
+
+      // TODO: fetch data for filter transit ISPs
     });
   }
 
@@ -298,8 +307,8 @@ class ComparePage extends PureComponent {
   }
 
   renderLocationInputs() {
-    const { facetLocationIds, facetLocationInfos, filterClientIspInfos, filterTransitIspInfos } = this.props;
-    const hasFacetLocations = facetLocationIds.length;
+    const { facetItemIds, facetItemInfos, filterClientIspInfos, filterTransitIspInfos } = this.props;
+    const hasFacetLocations = facetItemIds.length;
     return (
       <div className="input-section subsection">
         <div>
@@ -307,7 +316,7 @@ class ComparePage extends PureComponent {
             <h3>Locations</h3>
           </header>
           <p>Select one or more locations to explore measurements in. Each location will get its own chart.</p>
-          <SearchSelect type="location" onChange={this.onFacetLocationsChange} selected={facetLocationInfos} />
+          <SearchSelect type="location" onChange={this.onFacetLocationsChange} selected={facetItemInfos} />
         </div>
         <Row>
           <Col md={6}>
@@ -619,7 +628,7 @@ class ComparePage extends PureComponent {
   }
 
   renderBreakdown() {
-    const { facetLocationInfos } = this.props;
+    const { facetItemInfos } = this.props;
     // if filters are empty, show the facet item line in the chart
     // if one filter has items, show the lines for those filter items in the chart
     // if both filters have items, group by `breakdownBy` filter and have the other filter items have lines in those charts
@@ -633,14 +642,14 @@ class ComparePage extends PureComponent {
             <header>
               <h3>Breakdown</h3>
             </header>
-            {facetLocationInfos.map((facetItemInfo) => this.renderBreakdownGroup(facetItemInfo))}
+            {facetItemInfos.map((facetItemInfo) => this.renderBreakdownGroup(facetItemInfo))}
           </div>
           <div className="subsection">
             <header>
               <h3>By Hour</h3>
             </header>
             <Row>
-              {facetLocationInfos.map((facetItemInfo) => this.renderBreakdownGroupHourly(facetItemInfo))}
+              {facetItemInfos.map((facetItemInfo) => this.renderBreakdownGroupHourly(facetItemInfo))}
             </Row>
           </div>
         </Col>

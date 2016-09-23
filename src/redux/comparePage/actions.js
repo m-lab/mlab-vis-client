@@ -49,7 +49,7 @@ export const changeStartDate = urlReplaceAction('startDate');
 export const changeEndDate = urlReplaceAction('endDate');
 
 // handle Facet locations
-const changeFacetLocationIds = urlReplaceAction('facetLocationIds');
+const changeFacetItemIds = urlReplaceAction('facetItemIds');
 export function changeFacetLocations(newFacetLocations, urlConnectDispatch) {
   return () => {
     // ensure these locations are all saved in the location map
@@ -58,7 +58,7 @@ export function changeFacetLocations(newFacetLocations, urlConnectDispatch) {
     });
 
     // update the IDs in the URL
-    urlConnectDispatch(changeFacetLocationIds(newFacetLocations.map(d => d.id)));
+    urlConnectDispatch(changeFacetItemIds(newFacetLocations.map(d => d.id)));
   };
 }
 
