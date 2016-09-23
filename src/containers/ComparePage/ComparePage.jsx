@@ -132,58 +132,98 @@ class ComparePage extends PureComponent {
    * Fetch the data for the page (if needed)
    */
   fetchData(props) {
-    const { facetType } = props;
+    const { dispatch, facetType } = props;
+
+    const facetClientIspIds = this.getFacetItemIds('clientIsp', props);
+    const facetLocationIds = this.getFacetItemIds('location', props);
+    const facetTransitIspIds = this.getFacetItemIds('transitIsp', props);
+    const filterClientIspIds = this.getFilterIds('clientIsp', props);
+    const filterLocationIds = this.getFilterIds('location', props);
+    const filterTransitIspIds = this.getFilterIds('transitIsp', props);
+    const combineIds = (facetIds, filterIds) => facetIds.concat(filterIds);
+
+    // get location info if needed
+    combineIds(facetLocationIds, filterLocationIds).forEach(locationId => {
+      dispatch(LocationsActions.fetchInfoIfNeeded(locationId));
+    });
+
+    // get client ISP info if needed
+    combineIds(facetClientIspIds, filterClientIspIds).forEach(clientIspId => {
+      dispatch(ClientIspsActions.fetchInfoIfNeeded(clientIspId));
+    });
+
+    // get transit ISP info if needed
+    combineIds(facetTransitIspIds, filterTransitIspIds).forEach(transitIspId => {
+      dispatch(TransitIspsActions.fetchInfoIfNeeded(transitIspId));
+    });
 
     if (facetType.value === 'location') {
-      this.fetchDataFacetTypeLocation(props);
+      this.fetchDataFacetTypeLocation(props, facetLocationIds, filterClientIspIds, filterTransitIspIds);
     } else if (facetType.value === 'clientIsp') {
-      // this.fetchDataFacetTypeClientIsp(props);
+      this.fetchDataFacetTypeClientIsp(props, facetClientIspIds, filterLocationIds, filterTransitIspIds);
+    } else if (facetType.value === 'transitIsp') {
+      this.fetchDataFacetTypeTransitIsp(props, facetTransitIspIds, filterLocationIds, filterClientIspIds);
     }
   }
 
   /**
    * Fetch the data for the page when the facet type is Location (if needed)
    */
-  fetchDataFacetTypeLocation(props) {
-    const { dispatch, facetItemIds, filter1Ids, filter2Ids,
-      timeAggregation, startDate, endDate } = props;
+  fetchDataFacetTypeLocation(props, facetLocationIds, filterClientIspIds, filterTransitIspIds) {
+    const { dispatch, timeAggregation, startDate, endDate } = props;
     const options = { startDate, endDate };
 
-    const filterClientIspIds = filter1Ids;
-    const filterTransitIspIds = filter2Ids;
-
-    // get facet location info if needed
-    facetItemIds.forEach(facetLocationId => {
-      dispatch(LocationsActions.fetchInfoIfNeeded(facetLocationId));
-    });
-
-    // get filter client ISP info if needed
-    filterClientIspIds.forEach(filterClientIspId => {
-      dispatch(ClientIspsActions.fetchInfoIfNeeded(filterClientIspId));
-    });
-
-    // get filter transit ISP info if needed
-    filterTransitIspIds.forEach(filterTransitIspId => {
-      dispatch(TransitIspsActions.fetchInfoIfNeeded(filterTransitIspId));
-    });
-
     // fetch the time series and hourly data for facet locations (unfiltered)
-    facetItemIds.forEach(locationId => {
+    facetLocationIds.forEach(locationId => {
       dispatch(LocationsActions.fetchTimeSeriesIfNeeded(timeAggregation, locationId, options));
       dispatch(LocationsActions.fetchHourlyIfNeeded(timeAggregation, locationId, options));
 
-      // TODO: handle options for when both filters are active
+      // both filters active
+      if (filterClientIspIds.length && filterTransitIspIds.length) {
+        console.warn('TODO - not fetching data for both active filters', locationId, filterClientIspIds,
+          filterTransitIspIds);
 
-      // fetch the data for each of the filter client ISPs
-      filterClientIspIds.forEach(clientIspId => {
-        dispatch(LocationsActions.fetchClientIspLocationTimeSeriesIfNeeded(timeAggregation, locationId,
-          clientIspId, options));
-        dispatch(LocationsActions.fetchClientIspLocationHourlyIfNeeded(timeAggregation, locationId,
-          clientIspId, options));
-      });
+      // only one filter active
+      } else {
+        // fetch the data for each of the filter client ISPs
+        filterClientIspIds.forEach(clientIspId => {
+          dispatch(LocationsActions.fetchClientIspLocationTimeSeriesIfNeeded(timeAggregation, locationId,
+            clientIspId, options));
+          dispatch(LocationsActions.fetchClientIspLocationHourlyIfNeeded(timeAggregation, locationId,
+            clientIspId, options));
+        });
 
-      // TODO: fetch data for filter transit ISPs
+        // fetch the data for each of the filter transit ISPs
+        filterTransitIspIds.forEach(transitIspId => {
+          console.warn('TODO - not fetching data for', locationId, transitIspId);
+          // dispatch(LocationsActions.fetchTransitIspLocationTimeSeriesIfNeeded(timeAggregation, locationId,
+          //   transitIspId, options));
+          // dispatch(LocationsActions.fetchTransitIspLocationHourlyIfNeeded(timeAggregation, locationId,
+          //   transitIspId, options));
+        });
+      }
     });
+  }
+
+  /**
+   * Fetch the data for the page when the facet type is Client ISP (if needed)
+   */
+  fetchDataFacetTypeClientIsp(props, facetClientIspIds, filterLocationIds, filterTransitIspIds) {
+    const { dispatch, timeAggregation, startDate, endDate } = props;
+    const options = { startDate, endDate };
+
+    console.warn('TODO - fetch data for when facet type is client ISP');
+  }
+
+  /**
+   * Fetch the data for the page when the facet type is Transit ISP (if needed)
+   */
+  fetchDataFacetTypeTransitIsp(props, facetTransitIspIds, filterLocationIds, filterClientIspIds) {
+    const { dispatch, timeAggregation, startDate, endDate } = props;
+    const options = { startDate, endDate };
+
+    console.warn('TODO - fetch data for when facet type is transit ISP');
+
   }
 
   /**
@@ -299,6 +339,36 @@ class ComparePage extends PureComponent {
   onHighlightTimeSeriesLine(series) {
     const { dispatch } = this.props;
     dispatch(ComparePageActions.highlightTimeSeriesLine(series));
+  }
+
+  /**
+   * Helper function to get filter IDs given a filter type
+   * @param {String} type filter type (e.g. location, clientIsp, transitIsp)
+   * @return {Array} filterIds or undefined if not a filter
+   */
+  getFilterIds(type, props) {
+    const { filterTypes, filter1Ids, filter2Ids } = props;
+    if (filterTypes[0].value === type) {
+      return filter1Ids;
+    } else if (filterTypes[1].value === type) {
+      return filter2Ids;
+    }
+
+    return [];
+  }
+
+  /**
+   * Helper function to get facet item IDs given a facet type
+   * @param {String} type facet type (e.g. location, clientIsp, transitIsp)
+   * @return {Array} facetItemIds or undefined if not the active facet type
+   */
+  getFacetItemIds(type, props) {
+    const { facetType, facetItemIds } = props;
+    if (facetType.value === type) {
+      return facetItemIds;
+    }
+
+    return [];
   }
 
   renderTimeRangeSelector() {

@@ -63,6 +63,33 @@ export function changeFacetLocations(newFacetLocations, urlConnectDispatch) {
   };
 }
 
+// handle Facet client ISPs
+export function changeFacetClientIsps(newFacetClientIsps, urlConnectDispatch) {
+  return () => {
+    // ensure these client ISPs are all saved in the client ISP map
+    newFacetClientIsps.forEach(clientIspInfo => {
+      urlConnectDispatch(saveClientIspInfoIfNeeded(clientIspInfo));
+    });
+
+    // update the IDs in the URL
+    urlConnectDispatch(changeFacetItemIds(newFacetClientIsps.map(d => d.id)));
+  };
+}
+
+// handle Facet transit ISPs
+export function changeFacetTransitIsps(newFacetTransitIsps, urlConnectDispatch) {
+  return () => {
+    // ensure these transit ISPs are all saved in the transit ISP map
+    newFacetTransitIsps.forEach(clientIspInfo => {
+      urlConnectDispatch(saveTransitIspInfoIfNeeded(clientIspInfo));
+    });
+
+    // update the IDs in the URL
+    urlConnectDispatch(changeFacetItemIds(newFacetTransitIsps.map(d => d.id)));
+  };
+}
+
+
 // handle Filter client ISPs
 export function changeFilterClientIsps(newFilterClientIsps, filterNum, urlConnectDispatch) {
   return () => {

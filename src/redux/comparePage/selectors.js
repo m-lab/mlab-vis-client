@@ -282,9 +282,9 @@ export const getFacetItemHourly = createSelector(
       return undefined;
     }
 
-    return facetItems.map(facetLocation => {
-      const hourly = facetLocation.time.hourly;
-      return { id: facetLocation.id, data: hourly.data, status: status(hourly) };
+    return facetItems.map(facetItem => {
+      const hourly = facetItem.time.hourly;
+      return { id: facetItem.id, data: hourly.data, status: status(hourly) };
     });
   }
 );

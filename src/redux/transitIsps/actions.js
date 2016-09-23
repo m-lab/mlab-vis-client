@@ -65,3 +65,89 @@ export function saveTransitIspInfoIfNeeded(transitIspInfo) {
     }
   };
 }
+
+
+// ---------------------
+// Fetch Time Series
+// ---------------------
+const timeSeriesFetch = createFetchAction({
+  typePrefix: 'transitIsps/',
+  key: 'TIME_SERIES',
+  args: ['timeAggregation', 'transitIspId', 'options'],
+  shouldFetch(state, timeAggregation, transitIspId, options = {}) {
+    const transitIspState = state.transitIsps[transitIspId];
+    if (!transitIspState) {
+      return true;
+    }
+
+    const timeSeriesState = transitIspState.time.timeSeries;
+
+    // if we don't have this time aggregation, we should fetch it
+    if (timeSeriesState.timeAggregation !== timeAggregation) {
+      return true;
+    }
+
+    if (options.startDate && !options.startDate.isSame(timeSeriesState.startDate, timeAggregation)) {
+      return true;
+    }
+
+    if (options.endDate && !options.endDate.isSame(timeSeriesState.endDate, timeAggregation)) {
+      return true;
+    }
+
+    // only fetch if it isn't fetching/already fetched
+    return !(timeSeriesState.isFetched || timeSeriesState.isFetching);
+  },
+  promise(timeAggregation, transitIspId, options) {
+    return api => api.getTransitIspTimeSeries(timeAggregation, transitIspId, options);
+  },
+});
+export const FETCH_TIME_SERIES = timeSeriesFetch.types.fetch;
+export const FETCH_TIME_SERIES_SUCCESS = timeSeriesFetch.types.success;
+export const FETCH_TIME_SERIES_FAIL = timeSeriesFetch.types.fail;
+export const shouldFetchTimeSeries = timeSeriesFetch.shouldFetch;
+export const fetchTimeSeries = timeSeriesFetch.fetch;
+export const fetchTimeSeriesIfNeeded = timeSeriesFetch.fetchIfNeeded;
+
+// ---------------------
+// Fetch Hourly
+// ---------------------
+const hourlyFetch = createFetchAction({
+  typePrefix: 'transitIsps/',
+  key: 'HOURLY',
+  args: ['timeAggregation', 'transitIspId', 'options'],
+  shouldFetch(state, timeAggregation, transitIspId, options = {}) {
+    const transitIspState = state.transitIsps[transitIspId];
+    if (!transitIspState) {
+      return true;
+    }
+
+    const transitIspHourState = transitIspState.time.hourly;
+
+    // if we don't have this time aggregation, we should fetch it
+    if (transitIspHourState.timeAggregation !== timeAggregation) {
+      return true;
+    }
+
+
+    if (options.startDate && !options.startDate.isSame(transitIspHourState.startDate, timeAggregation)) {
+      return true;
+    }
+
+    if (options.endDate && !options.endDate.isSame(transitIspHourState.endDate, timeAggregation)) {
+      return true;
+    }
+
+    // only fetch if it isn't fetching/already fetched
+    return !(transitIspState.time.hourly.isFetched || transitIspState.time.hourly.isFetching);
+  },
+  promise(timeAggregation, transitIspId, options) {
+    return (api) => api.getTransitIspHourly(timeAggregation, transitIspId, options);
+  },
+});
+export const FETCH_HOURLY = hourlyFetch.types.fetch;
+export const FETCH_HOURLY_SUCCESS = hourlyFetch.types.success;
+export const FETCH_HOURLY_FAIL = hourlyFetch.types.fail;
+export const shouldFetchHourly = hourlyFetch.shouldFetch;
+export const fetchHourly = hourlyFetch.fetch;
+export const fetchHourlyIfNeeded = hourlyFetch.fetchIfNeeded;
