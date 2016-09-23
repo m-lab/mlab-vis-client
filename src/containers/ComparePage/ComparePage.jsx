@@ -58,6 +58,7 @@ function mapStateToProps(state, propsWithUrl) {
     facetType: ComparePageSelectors.getFacetType(state, propsWithUrl),
     filter1Infos: ComparePageSelectors.getFilter1Infos(state, propsWithUrl),
     filter2Infos: ComparePageSelectors.getFilter2Infos(state, propsWithUrl),
+    filterTypes: ComparePageSelectors.getFilterTypes(state, propsWithUrl),
     highlightHourly: ComparePageSelectors.getHighlightHourly(state, propsWithUrl),
     highlightTimeSeriesDate: ComparePageSelectors.getHighlightTimeSeriesDate(state, propsWithUrl),
     highlightTimeSeriesLine: ComparePageSelectors.getHighlightTimeSeriesLine(state, propsWithUrl),
@@ -82,6 +83,7 @@ class ComparePage extends PureComponent {
     filter1Infos: PropTypes.array,
     filter2Ids: PropTypes.array,
     filter2Infos: PropTypes.array,
+    filterTypes: PropTypes.array,
     highlightHourly: PropTypes.number,
     highlightTimeSeriesDate: PropTypes.object,
     highlightTimeSeriesLine: PropTypes.object,
@@ -105,6 +107,7 @@ class ComparePage extends PureComponent {
     this.onDateRangeChange = this.onDateRangeChange.bind(this);
     this.onFacetTypeChange = this.onFacetTypeChange.bind(this);
     this.onFacetLocationsChange = this.onFacetLocationsChange.bind(this);
+    this.onFacetClientIspsChange = this.onFacetClientIspsChange.bind(this);
     this.onFilterClientIspsChange = this.onFilterClientIspsChange.bind(this);
     this.onFilterTransitIspsChange = this.onFilterTransitIspsChange.bind(this);
     this.onHighlightHourly = this.onHighlightHourly.bind(this);
@@ -229,6 +232,15 @@ class ComparePage extends PureComponent {
   }
 
   /**
+   * Callback when the facet client ISP list changes
+   * @param {Array} facetClientIsps array of client ISP info objects
+   */
+  onFacetClientIspsChange(facetClientIsps) {
+    const { dispatch } = this.props;
+    dispatch(ComparePageActions.changeFacetClientIsps(facetClientIsps, dispatch));
+  }
+
+  /**
    * Callback when the filter client ISP list changes
    * @param {Array} clientIsps array of client ISP info objects
    */
@@ -309,9 +321,68 @@ class ComparePage extends PureComponent {
     );
   }
 
-  renderLocationInputs() {
-    const { facetItemIds, facetItemInfos, filter1Infos, filter2Infos } = this.props;
-    const hasFacetLocations = facetItemIds.length;
+  renderFilterClientIspsInput() {
+    const { facetItemIds, filter1Infos, filter2Infos, filterTypes } = this.props;
+    const infos = filterTypes[0].value === 'clientIsp' ? filter1Infos : filter2Infos;
+    const hasFacetItems = facetItemIds.length;
+
+    return (
+      <div>
+        <h4>Filter by Client ISP</h4>
+        <p>Select one or more Client ISPs to filter the measurements by.</p>
+        <SearchSelect
+          type="clientIsp"
+          orientation="vertical"
+          disabled={!hasFacetItems}
+          onChange={this.onFilterClientIspsChange}
+          selected={infos}
+        />
+      </div>
+    );
+  }
+
+  renderFilterTransitIspsInput() {
+    const { facetItemIds, filter1Infos, filter2Infos, filterTypes } = this.props;
+    const infos = filterTypes[0].value === 'transitIsp' ? filter1Infos : filter2Infos;
+    const hasFacetItems = facetItemIds.length;
+
+    return (
+      <div>
+        <h4>Filter by Transit ISP</h4>
+        <p>Select one or more Transit ISPs to filter the measurements by.</p>
+        <SearchSelect
+          type="transitIsp"
+          orientation="vertical"
+          disabled={!hasFacetItems}
+          onChange={this.onFilterTransitIspsChange}
+          selected={infos}
+        />
+      </div>
+    );
+  }
+
+  renderFilterLocationsInput() {
+    const { facetItemIds, filter1Infos, filter2Infos, filterTypes } = this.props;
+    const infos = filterTypes[0].value === 'location' ? filter1Infos : filter2Infos;
+
+    const hasFacetItems = facetItemIds.length;
+    return (
+      <div>
+        <h4>Filter by Location</h4>
+        <p>Select one or more locations to filter the measurements by.</p>
+        <SearchSelect
+          type="location"
+          orientation="vertical"
+          disabled={!hasFacetItems}
+          onChange={this.onFilterLocationsChange}
+          selected={infos}
+        />
+      </div>
+    );
+  }
+
+  renderFacetLocationInputs() {
+    const { facetItemInfos } = this.props;
     return (
       <div className="input-section subsection">
         <div>
@@ -323,26 +394,33 @@ class ComparePage extends PureComponent {
         </div>
         <Row>
           <Col md={6}>
-            <h4>Filter by Client ISP</h4>
-            <p>Select one or more Client ISPs to filter the measurements by.</p>
-            <SearchSelect
-              type="clientIsp"
-              orientation="vertical"
-              disabled={!hasFacetLocations}
-              onChange={this.onFilterClientIspsChange}
-              selected={filter1Infos}
-            />
+            {this.renderFilterClientIspsInput()}
           </Col>
           <Col md={6}>
-            <h4>Filter by Transit ISP</h4>
-            <p>Select one or more Transit ISPs to filter the measurements by.</p>
-            <SearchSelect
-              type="transitIsp"
-              orientation="vertical"
-              disabled={!hasFacetLocations}
-              onChange={this.onFilterTransitIspsChange}
-              selected={filter2Infos}
-            />
+            {this.renderFilterTransitIspsInput()}
+          </Col>
+        </Row>
+      </div>
+    );
+  }
+
+  renderFacetClientIspInputs() {
+    const { facetItemInfos } = this.props;
+    return (
+      <div className="input-section subsection">
+        <div>
+          <header>
+            <h3>Client ISPs</h3>
+          </header>
+          <p>Select one or more client ISPs to explore measurements in. Each client ISP will get its own chart.</p>
+          <SearchSelect type="clientIsp" onChange={this.onFacetClientIspsChange} selected={facetItemInfos} />
+        </div>
+        <Row>
+          <Col md={6}>
+            {this.renderFilterLocationsInput()}
+          </Col>
+          <Col md={6}>
+            {this.renderFilterTransitIspsInput()}
           </Col>
         </Row>
       </div>
@@ -350,13 +428,23 @@ class ComparePage extends PureComponent {
   }
 
   renderInputSection() {
+    const { facetType } = this.props;
+    let inputs;
+    if (facetType.value === 'location') {
+      inputs = this.renderFacetLocationInputs();
+    } else if (facetType.value === 'clientIsp') {
+      inputs = this.renderFacetClientIspInputs();
+    } else if (facetType.value === 'transitIsp') {
+      inputs = null;
+    }
+
     return (
       <Row>
         <Col md={3}>
           {this.renderFacetSelector()}
         </Col>
         <Col md={9}>
-          {this.renderLocationInputs()}
+          {inputs}
         </Col>
       </Row>
     );
@@ -627,7 +715,19 @@ class ComparePage extends PureComponent {
 
   renderBreakdownOptions() {
     // TODO: when both filters have values, choose which one to breakdown by
-    return (<div />);
+    const { filterTypes, filter1Ids, filter2Ids } = this.props;
+    const breakdownBy = filterTypes[0]; // TODO this should be read from URL
+
+    if (filter1Ids.length && filter2Ids.length) {
+      return (
+        <div className="breakdown-by-selector">
+          <h5>Breakdown By</h5>
+          <SelectableList items={filterTypes} active={breakdownBy.value} onChange={this.onBreakdownByChange} />
+        </div>
+      );
+    }
+
+    return null;
   }
 
   renderBreakdown() {

@@ -107,11 +107,11 @@ function getFilter1Ids(state, props) {
 export function getFilterTypes(state, props) {
   const facetType = getFacetType(state, props);
   if (facetType.value === 'location') {
-    return ['clientIsp', 'transitIsp'];
+    return [extractFacetType('clientIsp'), extractFacetType('transitIsp')];
   } else if (facetType.value === 'clientIsp') {
-    return ['location', 'transitIsp'];
+    return [extractFacetType('location'), extractFacetType('transitIsp')];
   } else if (facetType.value === 'transitIsp') {
-    return ['clientIsp', 'location'];
+    return [extractFacetType('clientIsp'), extractFacetType('location')];
   }
 
   return [];
@@ -177,11 +177,11 @@ export const getFilter1Items = createSelector(
   getFilterTypes, getFilter1Ids, getLocations, getClientIsps, getTransitIsps,
   ([filterType], filterIds, locations, clientIsps, transitIsps) => {
     let items;
-    if (filterType === 'location') {
+    if (filterType.value === 'location') {
       items = locations;
-    } else if (filterType === 'clientIsp') {
+    } else if (filterType.value === 'clientIsp') {
       items = clientIsps;
-    } else if (filterType === 'transitIsp') {
+    } else if (filterType.value === 'transitIsp') {
       items = transitIsps;
     }
 
@@ -210,11 +210,11 @@ export const getFilter2Items = createSelector(
   getFilterTypes, getFilter2Ids, getLocations, getClientIsps, getTransitIsps,
   ([_, filterType], filterIds, locations, clientIsps, transitIsps) => {
     let items;
-    if (filterType === 'location') {
+    if (filterType.value === 'location') {
       items = locations;
-    } else if (filterType === 'clientIsp') {
+    } else if (filterType.value === 'clientIsp') {
       items = clientIsps;
-    } else if (filterType === 'transitIsp') {
+    } else if (filterType.value === 'transitIsp') {
       items = transitIsps;
     }
 
