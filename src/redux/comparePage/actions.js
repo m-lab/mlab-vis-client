@@ -63,7 +63,7 @@ export function changeFacetLocations(newFacetLocations, urlConnectDispatch) {
 }
 
 // handle Filter client ISPs
-const changeFilterClientIspIds = urlReplaceAction('filterClientIspIds');
+const changeFilter1Ids = urlReplaceAction('filter1Ids');
 export function changeFilterClientIsps(newFilterClientIsps, urlConnectDispatch) {
   return () => {
     // ensure these locations are all saved in the location map
@@ -72,12 +72,12 @@ export function changeFilterClientIsps(newFilterClientIsps, urlConnectDispatch) 
     });
 
     // update the IDs in the URL
-    urlConnectDispatch(changeFilterClientIspIds(newFilterClientIsps.map(d => d.id)));
+    urlConnectDispatch(changeFilter1Ids(newFilterClientIsps.map(d => d.id)));
   };
 }
 
 // handle Filter transit ISPs
-const changeFilterTransitIspIds = urlReplaceAction('filterTransitIspIds');
+const changeFilter2Ids = urlReplaceAction('filter2Ids');
 export function changeFilterTransitIsps(newFilterTransitIsps, urlConnectDispatch) {
   return () => {
     // ensure these locations are all saved in the location map
@@ -86,6 +86,9 @@ export function changeFilterTransitIsps(newFilterTransitIsps, urlConnectDispatch
     });
 
     // update the IDs in the URL
-    urlConnectDispatch(changeFilterTransitIspIds(newFilterTransitIsps.map(d => d.id)));
+    urlConnectDispatch(changeFilter2Ids(newFilterTransitIsps.map(d => d.id)));
   };
 }
+
+// TODO changing filter locations will need to update filter1Ids or filter2Ids depending on which facetType is selected
+// if facetType = client, then filter1, if facetType = transit, filter2.

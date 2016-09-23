@@ -95,10 +95,26 @@ function getLocations(state) {
 
 
 /**
- * Input selector to get the selected filter client ISP IDs
+ * Input selector to get the selected filter 1 IDs
  */
-function getFilterClientIspIds(state, props) {
-  return props.filterClientIspIds;
+function getFilter1Ids(state, props) {
+  return props.filter1Ids;
+}
+
+/**
+ * Helper function telling you which type is filter1 and which one is filter2
+ */
+export function getFilterTypes(state, props) {
+  const facetType = getFacetType(state, props);
+  if (facetType.value === 'location') {
+    return ['clientIsp', 'transitIsp'];
+  } else if (facetType.value === 'clientIsp') {
+    return ['location', 'transitIsp'];
+  } else if (facetType.value === 'transitIsp') {
+    return ['clientIsp', 'location'];
+  }
+
+  return [];
 }
 
 function getClientIsps(state) {
@@ -107,10 +123,10 @@ function getClientIsps(state) {
 
 
 /**
- * Input selector to get the selected filter transit ISP IDs
+ * Input selector to get the selected filter 2 IDs
  */
-function getFilterTransitIspIds(state, props) {
-  return props.filterTransitIspIds;
+function getFilter2Ids(state, props) {
+  return props.filter2Ids;
 }
 
 function getTransitIsps(state) {
@@ -155,52 +171,68 @@ export const getFacetItemInfos = createSelector(
 
 
 /**
- * Inflates facet client ISP IDs into client ISP values
+ * Inflates filter 1 IDs into objects
  */
-export const getFilterClientIsps = createSelector(
-  getClientIsps, getFilterClientIspIds,
-  (clientIsps, filterClientIspIds) => {
-    if (filterClientIspIds) {
-      const facetLocations = filterClientIspIds.map(id => clientIsps[id]).filter(d => d != null);
-      return facetLocations;
+export const getFilter1Items = createSelector(
+  getFilterTypes, getFilter1Ids, getLocations, getClientIsps, getTransitIsps,
+  ([filterType], filterIds, locations, clientIsps, transitIsps) => {
+    let items;
+    if (filterType === 'location') {
+      items = locations;
+    } else if (filterType === 'clientIsp') {
+      items = clientIsps;
+    } else if (filterType === 'transitIsp') {
+      items = transitIsps;
+    }
+
+    if (filterIds) {
+      const filterItems = filterIds.map(id => items[id]).filter(d => d != null);
+      return filterItems;
     }
 
     return [];
   }
 );
 
-
 /**
- * Gets the client ISP info for each facet client ISP
+ * Gets the info for filter1 objects
  */
-export const getFilterClientIspInfos = createSelector(
-  getFilterClientIsps,
-  (filterClientIsps) => filterClientIsps.map(filterClientIsp => filterClientIsp.info.data)
+export const getFilter1Infos = createSelector(
+  getFilter1Items,
+  (filterItems) => filterItems.map(filterItem => filterItem.info.data)
     .filter(d => d != null));
 
 
 /**
- * Inflates facet transit ISP IDs into transit ISP values
+ * Inflates filter 2 IDs into objects
  */
-export const getFilterTransitIsps = createSelector(
-  getTransitIsps, getFilterTransitIspIds,
-  (transitIsps, filterTransitIspIds) => {
-    if (filterTransitIspIds) {
-      const facetLocations = filterTransitIspIds.map(id => transitIsps[id]).filter(d => d != null);
-      return facetLocations;
+export const getFilter2Items = createSelector(
+  getFilterTypes, getFilter2Ids, getLocations, getClientIsps, getTransitIsps,
+  ([_, filterType], filterIds, locations, clientIsps, transitIsps) => {
+    let items;
+    if (filterType === 'location') {
+      items = locations;
+    } else if (filterType === 'clientIsp') {
+      items = clientIsps;
+    } else if (filterType === 'transitIsp') {
+      items = transitIsps;
+    }
+
+    if (filterIds) {
+      const filterItems = filterIds.map(id => items[id]).filter(d => d != null);
+      return filterItems;
     }
 
     return [];
   }
 );
 
-
 /**
- * Gets the transit ISP info for each facet transit ISP
+ * Gets the info for filter2 objects
  */
-export const getFilterTransitIspInfos = createSelector(
-  getFilterTransitIsps,
-  (filterTransitIsps) => filterTransitIsps.map(filterTransitIsp => filterTransitIsp.info.data)
+export const getFilter2Infos = createSelector(
+  getFilter2Items,
+  (filterItems) => filterItems.map(filterItem => filterItem.info.data)
     .filter(d => d != null));
 
 
@@ -262,7 +294,7 @@ export const getFacetItemHourly = createSelector(
  * Selector to get the data objects for the single filtered time series data
  */
 export const getSingleFilterTimeSeries = createSelector(
-  getFacetItems, getFilterClientIsps,
+  getFacetItems, getFilter1Items,
   (facetItems, clientIsps) => {
     if (!facetItems) {
       return undefined;
@@ -299,7 +331,7 @@ export const getSingleFilterTimeSeries = createSelector(
  * Selector to get the data objects for the single filtered hourly data
  */
 export const getSingleFilterHourly = createSelector(
-  getFacetItems, getFilterClientIsps,
+  getFacetItems, getFilter1Items,
   (facetItems, clientIsps) => {
     if (!facetItems) {
       return undefined;
@@ -330,7 +362,7 @@ export const getSingleFilterHourly = createSelector(
  * Selector to get the colors given all the selected ISPs and locations
  */
 export const getColors = createSelector(
-  getFacetItemIds, getFilterClientIspIds, getFilterTransitIspIds,
+  getFacetItemIds, getFilter1Ids, getFilter2Ids,
   (facetItemIds, filterClientIspIds, filterTransitIspIds) => {
     const combined = [].concat(facetItemIds, filterClientIspIds, filterTransitIspIds);
     return colorsFor(combined);
