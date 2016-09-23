@@ -63,7 +63,7 @@ export default class ScatterGroup extends PureComponent {
    */
   renderPlot(field, allData) {
     const { compareMetrics, width, height } = this.props;
-    const data = allData ? allData.clientIspsData : [];
+    const data = allData && allData.clientIspsData;
     const xMetric = (compareMetrics && compareMetrics.x) || metrics[0];
     const yMetric = (compareMetrics && compareMetrics.y) || metrics[1];
     const xKey = xMetric.dataKey;

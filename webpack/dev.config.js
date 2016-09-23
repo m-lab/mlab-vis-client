@@ -113,6 +113,7 @@ module.exports = {
       __DEVELOPMENT__: true,
       __DISABLE_SSR__: true, // <--- Ignores server-side rendering check/warning
       __DEVTOOLS__: true,  // <-------- DISABLE redux-devtools HERE
+      __DEBUG_COMPUTED_PROPS__: false,
     }),
   ],
 };

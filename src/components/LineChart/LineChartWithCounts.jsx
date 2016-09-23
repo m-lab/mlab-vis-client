@@ -211,4 +211,4 @@ class LineChartWithCounts extends PureComponent {
   }
 }
 
-export default addComputedProps(visProps)(LineChartWithCounts);
+export default addComputedProps(visProps, { changeExclude: ['highlightDate'] })(LineChartWithCounts);

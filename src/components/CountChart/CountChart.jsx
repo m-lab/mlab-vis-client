@@ -332,4 +332,4 @@ class CountChart extends PureComponent {
   }
 }
 
-export default addComputedProps(visProps)(CountChart);
+export default addComputedProps(visProps, { changeExclude: ['highlightCount'] })(CountChart);

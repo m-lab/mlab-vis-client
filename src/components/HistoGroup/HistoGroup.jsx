@@ -26,15 +26,19 @@ export default class HistoGroup extends PureComponent {
     summary: PropTypes.object,
     viewMetric: PropTypes.object,
     width: PropTypes.number,
+    yExtent: PropTypes.array,
+    yFormatter: PropTypes.func,
   }
 
   static defaultProps = {
     width: 250,
     height: 250,
+    yExtent: [0, 100],
+    yFormatter: d => `${d}%`,
   }
 
   renderPlot(info, bins, color) {
-    const { width, height, viewMetric } = this.props;
+    const { width, height, viewMetric, yExtent, yFormatter } = this.props;
 
     if (!bins) {
       return null;
@@ -52,8 +56,8 @@ export default class HistoGroup extends PureComponent {
           xFormatter={viewMetric.formatter}
           xAxisLabel={viewMetric.label}
           xAxisUnit={viewMetric.unit}
-          yExtent={[0, 100.0]}
-          yFormatter={(d) => `${d}%`}
+          yExtent={yExtent}
+          yFormatter={yFormatter}
         />
       </Col>
     );
