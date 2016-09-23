@@ -555,4 +555,4 @@ class LineChart extends PureComponent {
   }
 }
 
-export default addComputedProps(visProps)(LineChart);
+export default addComputedProps(visProps, { changeExclude: ['highlightDate'] })(LineChart);

@@ -465,4 +465,4 @@ class HourChart extends PureComponent {
   }
 }
 
-export default addComputedProps(visProps)(HourChart);
+export default addComputedProps(visProps, { changeExclude: ['highlightHour'] })(HourChart);

@@ -56,6 +56,7 @@
     "__SERVER__": true,
     "__DISABLE_SSR__": true,
     "__DEVTOOLS__": true,
+    "__DEBUG_COMPUTED_PROPS__": true,
     "socket": true,
     "webpackIsomorphicTools": true,
     "sinon": true

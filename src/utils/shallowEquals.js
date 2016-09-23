@@ -1,3 +1,20 @@
+// helper function to include or exclude keys before comparing
+function excludeIncludeKeys(objA, objB, excludeKeys, includeKeys) {
+  let keysA = Object.keys(objA);
+  let keysB = Object.keys(objB);
+
+  if (excludeKeys) {
+    keysA = keysA.filter(key => excludeKeys.indexOf(key) === -1);
+    keysB = keysB.filter(key => excludeKeys.indexOf(key) === -1);
+  } else if (includeKeys) {
+    keysA = keysA.filter(key => excludeKeys.indexOf(key) !== -1);
+    keysB = keysB.filter(key => excludeKeys.indexOf(key) !== -1);
+  }
+
+  return [keysA, keysB];
+}
+
+
 /**
  * Taken from React's PureRenderMixin - https://github.com/francoislaberge/pure-render-mixin/blob/master/src/shallow-equal.js
  * Performs equality by iterating through keys on an object and returning
@@ -6,7 +23,7 @@
  *
  * @return {Boolean}
  */
-export default function shallowEquals(objA, objB, excludeKeys) {
+export default function shallowEquals(objA, objB, excludeKeys, includeKeys) {
   if (objA === objB) {
     return true;
   }
@@ -16,13 +33,7 @@ export default function shallowEquals(objA, objB, excludeKeys) {
     return false;
   }
 
-  let keysA = Object.keys(objA);
-  let keysB = Object.keys(objB);
-
-  if (excludeKeys) {
-    keysA = keysA.filter(key => excludeKeys.indexOf(key) === -1);
-    keysB = keysB.filter(key => excludeKeys.indexOf(key) === -1);
-  }
+  const [keysA, keysB] = excludeIncludeKeys(objA, objB, excludeKeys, includeKeys);
 
   if (keysA.length !== keysB.length) {
     return false;
@@ -43,13 +54,16 @@ export default function shallowEquals(objA, objB, excludeKeys) {
 /**
  * Logs and returns an array showing the places where shallow equals failed or the string "equal"
  */
-export function shallowEqualsDebug(objA, objB) {
+export function shallowEqualsDebug(objA, objB, excludeKeys, includeKeys, logPrefix = 'shallowEqualsDebug') {
   let result;
-  if (shallowEquals(objA, objB)) {
+  if (shallowEquals(objA, objB, excludeKeys, includeKeys)) {
     result = 'equal';
   } else {
-    result = Object.keys(objA)
-      .filter(key => objA[key] !== objB[key])
+    const [keysA, keysB] = excludeIncludeKeys(objA, objB, excludeKeys, includeKeys);
+
+    result = keysA
+      .concat(keysB.filter(key => objA[key] === undefined)) // add in keys in B not in A
+      .filter(key => objA[key] !== objB[key]) // add in keys where they don't match
       .map(key => ({ key, a: objA[key], b: objB[key] }))
       .reduce((acc, elem) => {
         acc.push(elem.key);
@@ -59,6 +73,6 @@ export function shallowEqualsDebug(objA, objB) {
       }, []);
   }
 
-  console.log('shallowEqualsDebug:', result);
+  console.log(`${logPrefix}:`, result);
   return result;
 }
