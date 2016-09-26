@@ -440,6 +440,10 @@ export const getSingleFilterItems = createSelector(
 export const getSingleFilterTimeSeries = createSelector(
   getFacetItemIds, getSingleFilterItems,
   (facetItemIds, singleFilterItems) => {
+    if (!facetItemIds) {
+      return undefined;
+    }
+
     const results = facetItemIds.reduce((byFacetItem, facetItemId) => {
       // filter to just the items for this facet
       const itemsForFacet = singleFilterItems.filter(item => item.id.facetItemId === facetItemId);
@@ -469,6 +473,10 @@ export const getSingleFilterTimeSeries = createSelector(
 export const getSingleFilterHourly = createSelector(
   getFacetItemIds, getSingleFilterItems,
   (facetItemIds, singleFilterItems) => {
+    if (!facetItemIds) {
+      return undefined;
+    }
+
     const results = facetItemIds.reduce((byFacetItem, facetItemId) => {
       // filter to just the items for this facet
       const itemsForFacet = singleFilterItems.filter(item => item.id.facetItemId === facetItemId);
