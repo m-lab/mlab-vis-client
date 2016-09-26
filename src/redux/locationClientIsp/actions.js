@@ -1,5 +1,5 @@
 /**
- * Actions for locations
+ * Actions for locations + client ISPs
  */
 import createFetchAction from '../createFetchAction';
 import typePrefix from './typePrefix';

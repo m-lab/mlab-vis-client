@@ -1,5 +1,5 @@
 /**
- * Selectors for locations
+ * Selectors for locations + client ISP
  */
 
 // import { createSelector } from 'reselect';

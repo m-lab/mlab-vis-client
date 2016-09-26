@@ -442,3 +442,22 @@ export function transformTransitIspInfo(transitIspId) {
     return body;
   };
 }
+
+/**
+ * Transforms transit ISP meta to have label
+ *
+ * - adds in a `label` property to meta
+ *
+ * @param {Object} body The response body
+ * @return {Object} The transformed response body
+ */
+export function transformTransitIspLabel(body) {
+  // NOTE: modifying body directly means it modifies what is stored in the API cache
+  if (body.meta) {
+    const { meta } = body;
+
+    meta.label = meta.server_asn_name;
+  }
+
+  return body;
+}

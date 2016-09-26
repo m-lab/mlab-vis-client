@@ -12,6 +12,9 @@ import * as LocationsActions from '../../redux/locations/actions';
 import * as ClientIspsActions from '../../redux/clientIsps/actions';
 import * as TransitIspsActions from '../../redux/transitIsps/actions';
 import * as LocationClientIspActions from '../../redux/locationClientIsp/actions';
+import * as LocationTransitIspActions from '../../redux/locationTransitIsp/actions';
+import * as ClientIspTransitIspActions from '../../redux/clientIspTransitIsp/actions';
+import * as LocationClientIspTransitIspActions from '../../redux/locationClientIspTransitIsp/actions';
 
 // import { colorsFor } from '../../utils/color';
 import { facetTypes } from '../../constants';
@@ -167,64 +170,114 @@ class ComparePage extends PureComponent {
     }
   }
 
+  // helper to get time series and hour data for a given set of actions.
+  fetchTimeData(props, Actions, ...args) {
+    const { dispatch, timeAggregation, startDate, endDate } = props;
+    const options = { startDate, endDate };
+
+    dispatch(Actions.fetchTimeSeriesIfNeeded(timeAggregation, ...args, options));
+    dispatch(Actions.fetchHourlyIfNeeded(timeAggregation, ...args, options));
+  }
+
+  fetchDataForLocations(props, locationIds) {
+    // fetch the time series and hourly data for locations (unfiltered)
+    locationIds.forEach(locationId => this.fetchTimeData(props, LocationsActions, locationId));
+  }
+
+  fetchDataForClientIsps(props, clientIspIds) {
+    // fetch the time series and hourly data for client ISPs (unfiltered)
+    clientIspIds.forEach(clientIspId => this.fetchTimeData(props, ClientIspsActions, clientIspId));
+  }
+
+  fetchDataForTransitIsps(props, transitIspIds) {
+    // fetch the time series and hourly data for transit ISPs (unfiltered)
+    transitIspIds.forEach(transitIspId => this.fetchTimeData(props, TransitIspsActions, transitIspId));
+  }
+
+  fetchDataForLocationClientIsps(props, locationIds, clientIspIds) {
+    locationIds.forEeach(locationId => clientIspIds.forEach(clientIspId =>
+      this.fetchTimeData(props, LocationClientIspActions, locationId, clientIspId)));
+  }
+
+  fetchDataForLocationTransitIsps(props, locationIds, transitIspIds) {
+    locationIds.forEeach(locationId => transitIspIds.forEach(transitIspId =>
+      this.fetchTimeData(props, LocationTransitIspActions, locationId, transitIspId)));
+  }
+
+  fetchDataForClientIspTransitIsps(props, clientIspIds, transitIspIds) {
+    clientIspIds.forEeach(clientIspId => transitIspIds.forEach(transitIspId =>
+      this.fetchTimeData(props, ClientIspTransitIspActions, clientIspId, transitIspId)));
+  }
+
+  fetchDataForLocationClientIspTransitIsps(props, locationIds, clientIspIds, transitIspIds) {
+    locationIds.forEeach(locationId => clientIspIds.forEach(clientIspId => transitIspIds.forEach(transitIspId =>
+      this.fetchTimeData(props, LocationClientIspTransitIspActions, locationId, clientIspId, transitIspId))));
+  }
+
   /**
    * Fetch the data for the page when the facet type is Location (if needed)
    */
   fetchDataFacetTypeLocation(props, facetLocationIds, filterClientIspIds, filterTransitIspIds) {
-    const { dispatch, timeAggregation, startDate, endDate } = props;
-    const options = { startDate, endDate };
-
     // fetch the time series and hourly data for facet locations (unfiltered)
-    facetLocationIds.forEach(locationId => {
-      dispatch(LocationsActions.fetchTimeSeriesIfNeeded(timeAggregation, locationId, options));
-      dispatch(LocationsActions.fetchHourlyIfNeeded(timeAggregation, locationId, options));
+    this.fetchDataForLocations(props, facetLocationIds);
 
-      // both filters active
-      if (filterClientIspIds.length && filterTransitIspIds.length) {
-        console.warn('TODO - not fetching data for both active filters', locationId, filterClientIspIds,
-          filterTransitIspIds);
+    // both filters active
+    if (filterClientIspIds.length && filterTransitIspIds.length) {
+      this.fetchDataForLocationClientIspTransitIsps(props, facetLocationIds, filterClientIspIds, filterTransitIspIds);
 
-      // only one filter active
-      } else {
-        // fetch the data for each of the filter client ISPs
-        filterClientIspIds.forEach(clientIspId => {
-          dispatch(LocationClientIspActions.fetchTimeSeriesIfNeeded(timeAggregation, locationId,
-            clientIspId, options));
-          dispatch(LocationClientIspActions.fetchHourlyIfNeeded(timeAggregation, locationId,
-            clientIspId, options));
-        });
+    // only one filter active
+    // fetch the data for each of the filter client ISPs
+    } else if (filterClientIspIds.length) {
+      this.fetchDataForLocationClientIsps(props, facetLocationIds, filterClientIspIds);
 
-        // fetch the data for each of the filter transit ISPs
-        filterTransitIspIds.forEach(transitIspId => {
-          console.warn('TODO - not fetching data for', locationId, transitIspId);
-          // dispatch(LocationsActions.fetchTransitIspLocationTimeSeriesIfNeeded(timeAggregation, locationId,
-          //   transitIspId, options));
-          // dispatch(LocationsActions.fetchTransitIspLocationHourlyIfNeeded(timeAggregation, locationId,
-          //   transitIspId, options));
-        });
-      }
-    });
+    // fetch the data for each of the filter transit ISPs
+    } else if (filterTransitIspIds.length) {
+      this.fetchDataForLocationTransitIsps(props, facetLocationIds, filterTransitIspIds);
+    }
   }
 
   /**
    * Fetch the data for the page when the facet type is Client ISP (if needed)
    */
   fetchDataFacetTypeClientIsp(props, facetClientIspIds, filterLocationIds, filterTransitIspIds) {
-    const { dispatch, timeAggregation, startDate, endDate } = props;
-    const options = { startDate, endDate };
+    // fetch the time series and hourly data for facet client ISPs (unfiltered)
+    this.fetchDataForClientIsps(props, facetClientIspIds);
 
-    console.warn('TODO - fetch data for when facet type is client ISP');
+    // both filters active
+    if (filterLocationIds.length && filterTransitIspIds.length) {
+      this.fetchDataForLocationClientIspTransitIsps(props, filterLocationIds, facetClientIspIds, filterTransitIspIds);
+
+    // only one filter active
+    // fetch the data for each of the filter locations
+    } else if (filterLocationIds.length) {
+      this.fetchDataForLocationClientIsps(props, filterLocationIds, facetClientIspIds);
+
+    // fetch the data for each of the filter transit ISPs
+    } else if (filterTransitIspIds.length) {
+      this.fetchDataForClientIspTransitIsps(props, facetClientIspIds, filterTransitIspIds);
+    }
   }
 
   /**
    * Fetch the data for the page when the facet type is Transit ISP (if needed)
    */
   fetchDataFacetTypeTransitIsp(props, facetTransitIspIds, filterLocationIds, filterClientIspIds) {
-    const { dispatch, timeAggregation, startDate, endDate } = props;
-    const options = { startDate, endDate };
+    // fetch the time series and hourly data for facet client ISPs (unfiltered)
+    this.fetchDataForClientIsps(props, filterClientIspIds);
 
-    console.warn('TODO - fetch data for when facet type is transit ISP');
+    // both filters active
+    if (filterLocationIds.length && facetTransitIspIds.length) {
+      this.fetchDataForLocationClientIspTransitIsps(props, filterLocationIds, filterClientIspIds, facetTransitIspIds);
 
+    // only one filter active
+    // fetch the data for each of the filter locations
+    } else if (filterLocationIds.length) {
+      this.fetchDataForLocationClientIsps(props, filterLocationIds, filterClientIspIds);
+
+    // fetch the data for each of the filter client ISPs
+    } else if (filterClientIspIds.length) {
+      this.fetchDataForClientIspTransitIsps(props, filterClientIspIds, facetTransitIspIds);
+    }
   }
 
   /**
