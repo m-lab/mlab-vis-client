@@ -85,6 +85,10 @@ export function transformTimeSeries(body) {
       results: points,
       extents: computeDataExtents(points),
     });
+
+    if (!body.meta) {
+      body.meta = {};
+    }
   }
 
   return body;
@@ -117,6 +121,10 @@ export function transformHourly(body) {
       results: points,
       extents: computeDataExtents(points),
     });
+
+    if (!body.meta) {
+      body.meta = {};
+    }
   }
 
   return body;
