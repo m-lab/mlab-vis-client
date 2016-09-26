@@ -50,7 +50,7 @@ function prepareData(props) {
  */
 function visProps(props) {
   const { width, xExtent, xKey } = props;
-  let { highlightLine, colors = {} } = props;
+  let { highlightLine, colors } = props;
 
   const preparedData = prepareData(props);
   const { series } = preparedData;
@@ -77,6 +77,8 @@ function visProps(props) {
   // initialize a color scale
   if (series && !colors) {
     colors = colorsFor(series, (d) => d.meta.id);
+  } else if (!colors) {
+    colors = {};
   }
 
   // ensure we have the series for the highlighted line
