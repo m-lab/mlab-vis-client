@@ -84,10 +84,6 @@ function mapStateToProps(state, propsWithUrl) {
   };
 }
 
-console.warn('Currently disabled fetching client ISP data in location page');
-let maxRenders = 100;
-let renders = 0;
-
 class LocationPage extends PureComponent {
   static propTypes = {
     clientIspHourly: PropTypes.array,
@@ -145,10 +141,6 @@ class LocationPage extends PureComponent {
    * Fetch the data for the page if needed
    */
   fetchData(props) {
-    if (renders++ > maxRenders) {
-      return;
-    }
-
     const { dispatch, locationId, timeAggregation, startDate, endDate, topClientIsps, selectedClientIspIds } = props;
     const options = {
       startDate,
