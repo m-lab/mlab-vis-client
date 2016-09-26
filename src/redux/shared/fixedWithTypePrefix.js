@@ -1,32 +1,19 @@
-export const initialState = {
-  isFetching: false,
-  isFetched: false,
-};
+import { makeFetchState, reduceFetch, reduceFetchSuccess, reduceFetchFail } from './fetch';
+
+export const initialState = makeFetchState();
 
 // reducer for fixed
 export default function fixedWithTypePrefix(typePrefix) {
   return function fixed(state = initialState, action) {
     switch (action.type) {
       case `${typePrefix}FETCH_INFO`:
-        return {
-          data: state.data,
-          isFetching: true,
-          isFetched: false,
-        };
+        return reduceFetch({ data: state.data });
       case `${typePrefix}SAVE_INFO`:
       case `${typePrefix}FETCH_INFO_SUCCESS`:
-        return {
-          // store the data directly
-          data: action.result.data,
-          isFetching: false,
-          isFetched: true,
-        };
+        // store the data directly
+        return reduceFetchSuccess({ data: action.result.data });
       case `${typePrefix}FETCH_INFO_FAIL`:
-        return {
-          isFetching: false,
-          isFetched: false,
-          error: action.error,
-        };
+        return reduceFetchFail({ error: action.error });
       default:
         return state;
     }

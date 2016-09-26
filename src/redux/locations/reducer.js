@@ -1,49 +1,71 @@
 /**
  * Reducer for locations
  */
+import { combineReducers } from 'redux';
 import * as Actions from './actions';
-import * as GlobalSearchActions from '../globalSearch/actions';
-import { initialState } from './initialState';
-import location from './reducers/location';
+import infoWithTypePrefix, { initialState as initialInfoState } from '../shared/infoWithTypePrefix';
+import timeWithTypePrefix, { initialState as initialTimeState } from '../shared/timeWithTypePrefix';
+import fixedWithTypePrefix, { initialState as initialFixedState } from '../shared/fixedWithTypePrefix';
+import { makeFetchState, reduceFetch, reduceFetchSuccess, reduceFetchFail } from '../shared/fetch';
+import typePrefix from './typePrefix';
 
-// The root reducer
-function locations(state = initialState, action = {}) {
+export const initialState = {
+  id: null,
+
+  info: initialInfoState,
+  time: initialTimeState,
+  fixed: initialFixedState,
+
+  topClientIsps: makeFetchState(),
+
+  clientIsps: {},
+  transitIsps: {},
+};
+
+const time = timeWithTypePrefix(typePrefix);
+const info = infoWithTypePrefix(typePrefix);
+const fixed = fixedWithTypePrefix(typePrefix);
+
+// reducer for the top clientIsps in a location
+function topClientIsps(state = initialState.topClientIsps, action = {}) {
   switch (action.type) {
-    case Actions.FETCH_TIME_SERIES:
-    case Actions.FETCH_TIME_SERIES_SUCCESS:
-    case Actions.FETCH_TIME_SERIES_FAIL:
-    case Actions.FETCH_HOURLY:
-    case Actions.FETCH_HOURLY_SUCCESS:
-    case Actions.FETCH_HOURLY_FAIL:
-    case Actions.FETCH_CLIENT_ISP_TIME_SERIES:
-    case Actions.FETCH_CLIENT_ISP_TIME_SERIES_SUCCESS:
-    case Actions.FETCH_CLIENT_ISP_TIME_SERIES_FAIL:
-    case Actions.FETCH_CLIENT_ISP_HOURLY:
-    case Actions.FETCH_CLIENT_ISP_HOURLY_SUCCESS:
-    case Actions.FETCH_CLIENT_ISP_HOURLY_FAIL:
     case Actions.FETCH_TOP_CLIENT_ISPS:
+      return reduceFetch({ data: state.data });
     case Actions.FETCH_TOP_CLIENT_ISPS_SUCCESS:
+      return reduceFetchSuccess({ data: action.result.results });
     case Actions.FETCH_TOP_CLIENT_ISPS_FAIL:
-    case Actions.FETCH_INFO:
-    case Actions.FETCH_INFO_SUCCESS:
-    case Actions.FETCH_INFO_FAIL:
-    case Actions.SAVE_LOCATION_INFO:
-    case Actions.FETCH_CLIENT_ISP_INFO:
-    case Actions.FETCH_CLIENT_ISP_INFO_SUCCESS:
-    case Actions.FETCH_CLIENT_ISP_INFO_FAIL: {
-      const { locationId } = action;
-
-      return {
-        ...state,
-        [locationId]: location(state[locationId], action),
-      };
-    }
-    // case GlobalSearchActions.FETCH_LOCATION_SEARCH_SUCCESS: {
-    //   return state;
-    // }
+      return reduceFetchFail({ error: action.error });
     default:
       return state;
   }
+}
+
+
+// reducer to get the ID
+function id(state = initialState.id, action = {}) {
+  return action.locationId || state;
+}
+
+// combine the location reducer
+const location = combineReducers({
+  id,
+  info,
+  fixed,
+  time,
+  topClientIsps,
+});
+
+// The root reducer
+function locations(state = {}, action) {
+  if (action.locationId != null) {
+    const { locationId } = action;
+    return {
+      ...state,
+      [locationId]: location(state[locationId], action),
+    };
+  }
+
+  return state;
 }
 
 

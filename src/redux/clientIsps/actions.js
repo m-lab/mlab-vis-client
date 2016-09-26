@@ -3,10 +3,14 @@
  */
 import createFetchAction from '../createFetchAction';
 import typePrefix from './typePrefix';
+import { infoShouldFetch, timeSeriesShouldFetch, hourlyShouldFetch } from '../shared/shouldFetch';
 
 /**
  * Action Creators
  */
+function getClientIspState(state, clientIspId) {
+  return state.clientIsps[clientIspId];
+}
 
 // ---------------------
 // Fetch Client ISP Info
@@ -16,13 +20,8 @@ const infoFetch = createFetchAction({
   key: 'INFO',
   args: ['clientIspId'],
   shouldFetch(state, clientIspId) {
-    const clientIspState = state.clientIsps[clientIspId];
-    if (!clientIspState) {
-      return true;
-    }
-
-    const hasInfo = clientIspState.info.isFetched || clientIspState.info.isFetching;
-    return !hasInfo;
+    const clientIspState = getClientIspState(state, clientIspId);
+    return infoShouldFetch(clientIspState);
   },
   promise(clientIspId) {
     return api => api.getClientIspInfo(clientIspId);
@@ -42,7 +41,7 @@ export const fetchInfoIfNeeded = infoFetch.fetchIfNeeded;
  */
 export const SAVE_CLIENT_ISP_INFO = `${typePrefix}SAVE_INFO`;
 export function shouldSaveClientIspInfo(state, clientIsp) {
-  const clientIspState = state.clientIsps[clientIsp.id];
+  const clientIspState = getClientIspState(state, clientIsp.id);
   if (!clientIspState) {
     return true;
   }
@@ -76,28 +75,8 @@ const timeSeriesFetch = createFetchAction({
   key: 'TIME_SERIES',
   args: ['timeAggregation', 'clientIspId', 'options'],
   shouldFetch(state, timeAggregation, clientIspId, options = {}) {
-    const clientIspState = state.clientIsps[clientIspId];
-    if (!clientIspState) {
-      return true;
-    }
-
-    const timeSeriesState = clientIspState.time.timeSeries;
-
-    // if we don't have this time aggregation, we should fetch it
-    if (timeSeriesState.timeAggregation !== timeAggregation) {
-      return true;
-    }
-
-    if (options.startDate && !options.startDate.isSame(timeSeriesState.startDate, timeAggregation)) {
-      return true;
-    }
-
-    if (options.endDate && !options.endDate.isSame(timeSeriesState.endDate, timeAggregation)) {
-      return true;
-    }
-
-    // only fetch if it isn't fetching/already fetched
-    return !(timeSeriesState.isFetched || timeSeriesState.isFetching);
+    const clientIspState = getClientIspState(state, clientIspId);
+    return timeSeriesShouldFetch(clientIspState, timeAggregation, options);
   },
   promise(timeAggregation, clientIspId, options) {
     return api => api.getClientIspTimeSeries(timeAggregation, clientIspId, options);
@@ -118,29 +97,8 @@ const hourlyFetch = createFetchAction({
   key: 'HOURLY',
   args: ['timeAggregation', 'clientIspId', 'options'],
   shouldFetch(state, timeAggregation, clientIspId, options = {}) {
-    const clientIspState = state.clientIsps[clientIspId];
-    if (!clientIspState) {
-      return true;
-    }
-
-    const clientIspHourState = clientIspState.time.hourly;
-
-    // if we don't have this time aggregation, we should fetch it
-    if (clientIspHourState.timeAggregation !== timeAggregation) {
-      return true;
-    }
-
-
-    if (options.startDate && !options.startDate.isSame(clientIspHourState.startDate, timeAggregation)) {
-      return true;
-    }
-
-    if (options.endDate && !options.endDate.isSame(clientIspHourState.endDate, timeAggregation)) {
-      return true;
-    }
-
-    // only fetch if it isn't fetching/already fetched
-    return !(clientIspState.time.hourly.isFetched || clientIspState.time.hourly.isFetching);
+    const clientIspState = getClientIspState(state, clientIspId);
+    return hourlyShouldFetch(clientIspState, timeAggregation, options);
   },
   promise(timeAggregation, clientIspId, options) {
     return (api) => api.getClientIspHourly(timeAggregation, clientIspId, options);

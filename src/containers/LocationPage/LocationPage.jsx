@@ -8,7 +8,9 @@ import Col from 'react-bootstrap/lib/Col';
 
 import * as LocationPageSelectors from '../../redux/locationPage/selectors';
 import * as LocationPageActions from '../../redux/locationPage/actions';
+import * as LocationsSelectors from '../../redux/locations/selectors';
 import * as LocationsActions from '../../redux/locations/actions';
+import * as LocationClientIspActions from '../../redux/locationClientIsp/actions';
 
 import { colorsFor } from '../../utils/color';
 import { metrics } from '../../constants';
@@ -68,19 +70,23 @@ function mapStateToProps(state, propsWithUrl) {
     highlightHourly: LocationPageSelectors.getHighlightHourly(state, propsWithUrl),
     highlightTimeSeriesDate: LocationPageSelectors.getHighlightTimeSeriesDate(state, propsWithUrl),
     highlightTimeSeriesLine: LocationPageSelectors.getHighlightTimeSeriesLine(state, propsWithUrl),
-    hourlyStatus: LocationPageSelectors.getLocationHourlyStatus(state, propsWithUrl),
-    locationInfo: LocationPageSelectors.getLocationInfo(state, propsWithUrl),
+    hourlyStatus: LocationsSelectors.getLocationHourlyStatus(state, propsWithUrl),
+    locationInfo: LocationsSelectors.getLocationInfo(state, propsWithUrl),
     locationAndClientIspTimeSeries: LocationPageSelectors.getLocationAndClientIspTimeSeries(state, propsWithUrl),
-    locationHourly: LocationPageSelectors.getLocationHourly(state, propsWithUrl),
-    locationTimeSeries: LocationPageSelectors.getLocationTimeSeries(state, propsWithUrl),
+    locationHourly: LocationsSelectors.getLocationHourly(state, propsWithUrl),
+    locationTimeSeries: LocationsSelectors.getLocationTimeSeries(state, propsWithUrl),
     selectedClientIspInfo: LocationPageSelectors.getLocationSelectedClientIspInfo(state, propsWithUrl),
     summary: LocationPageSelectors.getSummaryData(state, propsWithUrl),
     timeSeriesStatus: LocationPageSelectors.getTimeSeriesStatus(state, propsWithUrl),
-    topClientIsps: LocationPageSelectors.getLocationTopClientIsps(state, propsWithUrl),
+    topClientIsps: LocationsSelectors.getLocationTopClientIsps(state, propsWithUrl),
     viewMetric: LocationPageSelectors.getViewMetric(state, propsWithUrl),
     compareMetrics: LocationPageSelectors.getCompareMetrics(state, propsWithUrl),
   };
 }
+
+console.warn('Currently disabled fetching client ISP data in location page');
+let maxRenders = 100;
+let renders = 0;
 
 class LocationPage extends PureComponent {
   static propTypes = {
@@ -139,6 +145,10 @@ class LocationPage extends PureComponent {
    * Fetch the data for the page if needed
    */
   fetchData(props) {
+    if (renders++ > maxRenders) {
+      return;
+    }
+
     const { dispatch, locationId, timeAggregation, startDate, endDate, topClientIsps, selectedClientIspIds } = props;
     const options = {
       startDate,
@@ -148,7 +158,6 @@ class LocationPage extends PureComponent {
     dispatch(LocationsActions.fetchTimeSeriesIfNeeded(timeAggregation, locationId, options));
     dispatch(LocationsActions.fetchHourlyIfNeeded(timeAggregation, locationId, options));
     dispatch(LocationsActions.fetchTopClientIspsIfNeeded(locationId));
-
     // setup selected ISPs if needed
     if (topClientIsps) {
       if (!selectedClientIspIds) {
@@ -175,10 +184,10 @@ class LocationPage extends PureComponent {
     // fetch data for selected Client ISPs
     if (selectedClientIspIds) {
       selectedClientIspIds.forEach(clientIspId => {
-        dispatch(LocationsActions.fetchClientIspInfoIfNeeded(locationId, clientIspId));
-        dispatch(LocationsActions.fetchClientIspLocationTimeSeriesIfNeeded(timeAggregation, locationId,
+        dispatch(LocationClientIspActions.fetchInfoIfNeeded(locationId, clientIspId));
+        dispatch(LocationClientIspActions.fetchTimeSeriesIfNeeded(timeAggregation, locationId,
           clientIspId, options));
-        dispatch(LocationsActions.fetchClientIspLocationHourlyIfNeeded(timeAggregation, locationId,
+        dispatch(LocationClientIspActions.fetchHourlyIfNeeded(timeAggregation, locationId,
           clientIspId, options));
       });
     }

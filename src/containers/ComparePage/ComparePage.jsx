@@ -11,6 +11,7 @@ import * as ComparePageActions from '../../redux/comparePage/actions';
 import * as LocationsActions from '../../redux/locations/actions';
 import * as ClientIspsActions from '../../redux/clientIsps/actions';
 import * as TransitIspsActions from '../../redux/transitIsps/actions';
+import * as LocationClientIspActions from '../../redux/locationClientIsp/actions';
 
 // import { colorsFor } from '../../utils/color';
 import { facetTypes } from '../../constants';
@@ -187,9 +188,9 @@ class ComparePage extends PureComponent {
       } else {
         // fetch the data for each of the filter client ISPs
         filterClientIspIds.forEach(clientIspId => {
-          dispatch(LocationsActions.fetchClientIspLocationTimeSeriesIfNeeded(timeAggregation, locationId,
+          dispatch(LocationClientIspActions.fetchTimeSeriesIfNeeded(timeAggregation, locationId,
             clientIspId, options));
-          dispatch(LocationsActions.fetchClientIspLocationHourlyIfNeeded(timeAggregation, locationId,
+          dispatch(LocationClientIspActions.fetchHourlyIfNeeded(timeAggregation, locationId,
             clientIspId, options));
         });
 

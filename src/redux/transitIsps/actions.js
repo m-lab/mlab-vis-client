@@ -2,26 +2,26 @@
  * Actions for transitIsps
  */
 import createFetchAction from '../createFetchAction';
+import typePrefix from './typePrefix';
+import { infoShouldFetch, timeSeriesShouldFetch, hourlyShouldFetch } from '../shared/shouldFetch';
 
 /**
  * Action Creators
  */
+function getTransitIspState(state, transitIspId) {
+  return state.transitIsps[transitIspId];
+}
 
 // ---------------------
 // Fetch Transit ISP Info
 // ---------------------
 const infoFetch = createFetchAction({
-  typePrefix: 'transitIsps/',
+  typePrefix,
   key: 'INFO',
   args: ['transitIspId'],
   shouldFetch(state, transitIspId) {
-    const transitIspState = state.transitIsps[transitIspId];
-    if (!transitIspState) {
-      return true;
-    }
-
-    const hasInfo = transitIspState.info.isFetched || transitIspState.info.isFetching;
-    return !hasInfo;
+    const transitIspState = getTransitIspState(state, transitIspId);
+    return infoShouldFetch(transitIspState);
   },
   promise(transitIspId) {
     return api => api.getTransitIspInfo(transitIspId);
@@ -39,9 +39,9 @@ export const fetchInfoIfNeeded = infoFetch.fetchIfNeeded;
  * This is typically done when using a value from a search result that hasn't yet been
  * populated in the transit ISP store.
  */
-export const SAVE_TRANSIT_ISP_INFO = 'transitIsps/SAVE_TRANSIT_ISP_INFO';
+export const SAVE_TRANSIT_ISP_INFO = `${typePrefix}SAVE_INFO`;
 export function shouldSaveTransitIspInfo(state, transitIsp) {
-  const transitIspState = state.transitIsps[transitIsp.id];
+  const transitIspState = getTransitIspState(state, transitIsp.id);
   if (!transitIspState) {
     return true;
   }
@@ -71,32 +71,12 @@ export function saveTransitIspInfoIfNeeded(transitIspInfo) {
 // Fetch Time Series
 // ---------------------
 const timeSeriesFetch = createFetchAction({
-  typePrefix: 'transitIsps/',
+  typePrefix,
   key: 'TIME_SERIES',
   args: ['timeAggregation', 'transitIspId', 'options'],
   shouldFetch(state, timeAggregation, transitIspId, options = {}) {
-    const transitIspState = state.transitIsps[transitIspId];
-    if (!transitIspState) {
-      return true;
-    }
-
-    const timeSeriesState = transitIspState.time.timeSeries;
-
-    // if we don't have this time aggregation, we should fetch it
-    if (timeSeriesState.timeAggregation !== timeAggregation) {
-      return true;
-    }
-
-    if (options.startDate && !options.startDate.isSame(timeSeriesState.startDate, timeAggregation)) {
-      return true;
-    }
-
-    if (options.endDate && !options.endDate.isSame(timeSeriesState.endDate, timeAggregation)) {
-      return true;
-    }
-
-    // only fetch if it isn't fetching/already fetched
-    return !(timeSeriesState.isFetched || timeSeriesState.isFetching);
+    const transitIspState = getTransitIspState(state, transitIspId);
+    return timeSeriesShouldFetch(transitIspState, timeAggregation, options);
   },
   promise(timeAggregation, transitIspId, options) {
     return api => api.getTransitIspTimeSeries(timeAggregation, transitIspId, options);
@@ -113,33 +93,12 @@ export const fetchTimeSeriesIfNeeded = timeSeriesFetch.fetchIfNeeded;
 // Fetch Hourly
 // ---------------------
 const hourlyFetch = createFetchAction({
-  typePrefix: 'transitIsps/',
+  typePrefix,
   key: 'HOURLY',
   args: ['timeAggregation', 'transitIspId', 'options'],
   shouldFetch(state, timeAggregation, transitIspId, options = {}) {
-    const transitIspState = state.transitIsps[transitIspId];
-    if (!transitIspState) {
-      return true;
-    }
-
-    const transitIspHourState = transitIspState.time.hourly;
-
-    // if we don't have this time aggregation, we should fetch it
-    if (transitIspHourState.timeAggregation !== timeAggregation) {
-      return true;
-    }
-
-
-    if (options.startDate && !options.startDate.isSame(transitIspHourState.startDate, timeAggregation)) {
-      return true;
-    }
-
-    if (options.endDate && !options.endDate.isSame(transitIspHourState.endDate, timeAggregation)) {
-      return true;
-    }
-
-    // only fetch if it isn't fetching/already fetched
-    return !(transitIspState.time.hourly.isFetched || transitIspState.time.hourly.isFetching);
+    const transitIspState = getTransitIspState(state, transitIspId);
+    return hourlyShouldFetch(transitIspState, timeAggregation, options);
   },
   promise(timeAggregation, transitIspId, options) {
     return (api) => api.getTransitIspHourly(timeAggregation, transitIspId, options);

@@ -5,6 +5,18 @@ import { createSelector } from 'reselect';
 import { metrics, facetTypes } from '../../constants';
 import { mergeStatuses, status } from '../status';
 import { colorsFor } from '../../utils/color';
+import * as LocationsSelectors from '../locations/selectors';
+import * as LocationClientIspSelectors from '../locationClientIsp/selectors';
+import makeLocationClientIspId from '../locationClientIsp/makeId';
+
+// TODO: replace this with imports when available
+console.warn('using temporary make ID functions');
+function makeId(...args) {
+  return args.join('_');
+}
+const makeLocationClientIspTransitIspId = makeId;
+const makeLocationTransitIspId = makeId;
+const makeClientIspTransitIspId = makeId;
 
 // ----------------------
 // Input Selectors
@@ -88,12 +100,6 @@ function getFacetItemIds(state, props) {
   return props.facetItemIds;
 }
 
-
-function getLocations(state) {
-  return state.locations;
-}
-
-
 /**
  * Input selector to get the selected filter 1 IDs
  */
@@ -141,7 +147,7 @@ function getTransitIsps(state) {
  * Gets the object for each facet item based on the active facet type
  */
 export const getFacetItems = createSelector(
-  getFacetType, getFacetItemIds, getLocations, getClientIsps, getTransitIsps,
+  getFacetType, getFacetItemIds, LocationsSelectors.getLocations, getClientIsps, getTransitIsps,
   (facetType, facetItemIds, locations, clientIsps, transitIsps) => {
     let items;
     if (facetType.value === 'location') {
@@ -174,7 +180,7 @@ export const getFacetItemInfos = createSelector(
  * Inflates filter 1 IDs into objects
  */
 export const getFilter1Items = createSelector(
-  getFilterTypes, getFilter1Ids, getLocations, getClientIsps, getTransitIsps,
+  getFilterTypes, getFilter1Ids, LocationsSelectors.getLocations, getClientIsps, getTransitIsps,
   ([filterType], filterIds, locations, clientIsps, transitIsps) => {
     let items;
     if (filterType.value === 'location') {
@@ -207,7 +213,7 @@ export const getFilter1Infos = createSelector(
  * Inflates filter 2 IDs into objects
  */
 export const getFilter2Items = createSelector(
-  getFilterTypes, getFilter2Ids, getLocations, getClientIsps, getTransitIsps,
+  getFilterTypes, getFilter2Ids, LocationsSelectors.getLocations, getClientIsps, getTransitIsps,
   ([_, filterType], filterIds, locations, clientIsps, transitIsps) => {
     let items;
     if (filterType.value === 'location') {
@@ -247,13 +253,13 @@ export const getFacetItemTimeSeries = createSelector(
     }
 
     const timeSeries = facetItems
-      .map(facetLocation => {
-        const timeSeries = facetLocation.time.timeSeries;
+      .map(facetItem => {
+        const timeSeries = facetItem.time.timeSeries;
         if (!timeSeries) {
           return null;
         }
 
-        return { id: facetLocation.id, status: status(timeSeries), data: timeSeries.data };
+        return { id: facetItem.id, status: status(timeSeries), data: timeSeries.data };
       })
       .filter(d => d != null);
 
@@ -289,30 +295,158 @@ export const getFacetItemHourly = createSelector(
   }
 );
 
+/**
+ * Compute the combined type and create the IDs for the combined items
+ *
+ * Possible outcomes for combinedType are:
+ * - clientIsp-transitIsp
+ * - location-clientIsp
+ * - location-clientIsp-transitIsp
+ * - location-transitIsp
+ */
+export const getCombinedTypeAndIds = createSelector(
+  getFacetType, getFacetItemIds, getFilterTypes, getFilter1Ids, getFilter2Ids,
+  (facetType, facetItemIds, [filter1Type, filter2Type], filter1Ids, filter2Ids) => {
+    const sortValues = { location: 0, clientIsp: 1, transitIsp: 2 };
+
+    // find out which filters are active
+    const combined = [{ value: facetType.value, type: 'facet', ids: facetItemIds, sort: sortValues[facetType] }];
+    if (filter1Ids && filter1Ids.length) {
+      combined.push({ value: filter1Type.value, type: 'filter1', ids: filter1Ids, sort: sortValues[filter1Type] });
+    }
+    if (filter2Ids && filter2Ids.length) {
+      combined.push({ value: filter2Type.value, type: 'filter2', ids: filter2Ids, sort: sortValues[filter2Type] });
+    }
+    // sort so we get the same value no matter if where a type occurs
+    const combinedType = combined.sort((a, b) => a.sort - b.sort).map(d => d.value).join('-');
+
+    // compute combined IDs
+    const combinedIds = [];
+    switch (combinedType) {
+      case 'location-clientIsp': {
+        // make IDs
+        const locations = combined[0];
+        const clientIsps = combined[1];
+
+        locations.ids.forEach(locationId => {
+          clientIsps.ids.forEach(clientIspId => {
+            combinedIds.push({
+              facetItemId: locations.type === 'facet' ? locationId : clientIspId,
+              filterItemId: locations.type !== 'facet' ? locationId : clientIspId,
+              combined: makeLocationClientIspId(locationId, clientIspId),
+            });
+          });
+        });
+
+        break;
+      }
+      case 'location-transitIsp': {
+        // make IDs
+        const locations = combined[0];
+        const transitIsps = combined[1];
+
+        locations.ids.forEach(locationId => {
+          transitIsps.ids.forEach(transitIspId => {
+            combinedIds.push({
+              facetItemId: locations.type === 'facet' ? locationId : transitIspId,
+              filterItemId: locations.type !== 'facet' ? locationId : transitIspId,
+              combined: makeLocationTransitIspId(locationId, transitIspId),
+            });
+          });
+        });
+        break;
+      }
+      case 'clientIsp-transitIsp': {
+        // make IDs
+        const clientIsps = combined[0];
+        const transitIsps = combined[1];
+
+        clientIsps.ids.forEach(clientIspId => {
+          transitIsps.ids.forEach(transitIspId => {
+            combinedIds.push({
+              facetItemId: clientIsps.type === 'facet' ? clientIspId : transitIspId,
+              filterItemId: clientIsps.type !== 'facet' ? clientIspId : transitIspId,
+              combined: makeClientIspTransitIspId(clientIspId, transitIspId),
+            });
+          });
+        });
+        break;
+      }
+      case 'location-clientIsp-transitIsp': {
+        // make IDs
+        const locations = combined[0];
+        const clientIsps = combined[1];
+        const transitIsps = combined[2];
+
+        locations.ids.forEach(locationId => {
+          clientIsps.ids.forEach(clientIspId => {
+            transitIsps.ids.forEach(transitIspId => {
+              /* eslint-disable no-nested-ternary,max-len */
+              const facetItemId = locations.type === 'facet' ? locationId : (clientIsps.type === 'facet' ? clientIspId : transitIspId);
+              const filter1ItemId = locations.type === 'filter1' ? locationId : (clientIsps.type === 'filter1' ? clientIspId : transitIspId);
+              const filter2ItemId = locations.type === 'filter2' ? locationId : (clientIsps.type === 'filter2' ? clientIspId : transitIspId);
+              /* eslint-enable no-nested-ternary,max-len */
+
+              combinedIds.push({
+                facetItemId,
+                filter1ItemId,
+                filter2ItemId,
+                combined: makeLocationClientIspTransitIspId(locationId, clientIspId, transitIspId),
+              });
+            });
+          });
+        });
+        break;
+      }
+      default:
+        break;
+    }
+
+    return { combinedType, combinedIds };
+  }
+);
+
+
+/**
+ * Get the time items for when we have a facet + a single filter
+ */
+export const getSingleFilterItems = createSelector(
+  getCombinedTypeAndIds, LocationClientIspSelectors.getLocationClientIsps,
+  ({ combinedType, combinedIds }, locationClientIsps) => {
+    if (combinedType === 'location-clientIsp') {
+      return combinedIds.map(id => ({
+        id,
+        data: locationClientIsps[id.combined],
+      })).filter(d => d.data != null);
+    }
+
+    // TODO implement this
+    if (combinedType === 'location-transitIsp') {
+      console.warn('TODO: location-transitIsp not implemented', combinedType, combinedIds);
+    }
+
+    // TODO implement this
+    if (combinedType === 'clientIsp-transitIsp') {
+      console.warn('TODO: clientIsp-transitIsp not implemented', combinedType, combinedIds);
+    }
+
+    return [];
+  }
+);
 
 /**
  * Selector to get the data objects for the single filtered time series data
  */
 export const getSingleFilterTimeSeries = createSelector(
-  getFacetItems, getFilter1Items,
-  (facetItems, clientIsps) => {
-    if (!facetItems) {
-      return undefined;
-    }
-    // TODO: update to handle different facet types and filter types
-
-    return facetItems.reduce((byLocation, facetLocation) => {
-      const timeSeriesObjects = clientIsps
-        .map(filterClientIsp => {
-          if (!facetLocation.clientIsps[filterClientIsp.id]) {
-            return null;
-          }
-          return facetLocation.clientIsps[filterClientIsp.id].time.timeSeries;
-        })
-        .filter(d => d != null);
+  getFacetItemIds, getSingleFilterItems,
+  (facetItemIds, singleFilterItems) => {
+    const results = facetItemIds.reduce((byFacetItem, facetItemId) => {
+      // filter to just the items for this facet
+      const itemsForFacet = singleFilterItems.filter(item => item.id.facetItemId === facetItemId);
+      const timeSeriesObjects = itemsForFacet.map(item => item.data.time.timeSeries);
 
       // group them together
-      byLocation[facetLocation.id] = timeSeriesObjects.reduce((combined, timeSeriesObject) => {
+      byFacetItem[facetItemId] = timeSeriesObjects.reduce((combined, timeSeriesObject) => {
         combined.statuses.push(status(timeSeriesObject));
         if (timeSeriesObject.data) {
           combined.data.push(timeSeriesObject.data);
@@ -320,10 +454,12 @@ export const getSingleFilterTimeSeries = createSelector(
         return combined;
       }, { statuses: [], data: [] });
 
-      byLocation[facetLocation.id].status = mergeStatuses(byLocation[facetLocation.id].statuses);
-
-      return byLocation;
+      // compute the overall status for this facet group
+      byFacetItem[facetItemId].status = mergeStatuses(byFacetItem[facetItemId].statuses);
+      return byFacetItem;
     }, {});
+
+    return results;
   }
 );
 
@@ -331,29 +467,24 @@ export const getSingleFilterTimeSeries = createSelector(
  * Selector to get the data objects for the single filtered hourly data
  */
 export const getSingleFilterHourly = createSelector(
-  getFacetItems, getFilter1Items,
-  (facetItems, clientIsps) => {
-    if (!facetItems) {
-      return undefined;
-    }
-
-    return facetItems.reduce((byLocation, facetLocation) => {
-      const hourlyObjects = clientIsps
-        .map(filterClientIsp => {
-          if (!facetLocation.clientIsps[filterClientIsp.id]) {
-            return null;
-          }
-
-          const hourly = facetLocation.clientIsps[filterClientIsp.id].time.hourly;
-          return { id: filterClientIsp.id, data: hourly.data, status: status(hourly) };
-        })
-        .filter(d => d != null);
+  getFacetItemIds, getSingleFilterItems,
+  (facetItemIds, singleFilterItems) => {
+    const results = facetItemIds.reduce((byFacetItem, facetItemId) => {
+      // filter to just the items for this facet
+      const itemsForFacet = singleFilterItems.filter(item => item.id.facetItemId === facetItemId);
+      const hourlyObjects = itemsForFacet.map(item => ({
+        id: item.id.filterItemId,
+        data: item.data.time.hourly.data,
+        status: status(item.data.time.hourly),
+      }));
 
       // group them together
-      byLocation[facetLocation.id] = hourlyObjects;
+      byFacetItem[facetItemId] = hourlyObjects;
 
-      return byLocation;
+      return byFacetItem;
     }, {});
+
+    return results;
   }
 );
 

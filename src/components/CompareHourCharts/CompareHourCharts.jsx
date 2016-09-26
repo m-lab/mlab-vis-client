@@ -70,6 +70,11 @@ export default class CompareHourCharts extends PureComponent {
     const {
       facetItemHourly,
     } = this.props;
+
+    if (!facetItemHourly) {
+      return null;
+    }
+
     const chartId = `facet-hourly-${facetItemInfo.id}`;
     const hourly = facetItemHourly.find(hourly => hourly.id === facetItemInfo.id);
 
@@ -82,6 +87,9 @@ export default class CompareHourCharts extends PureComponent {
       singleFilterHourly,
     } = this.props;
 
+    if (!singleFilterHourly) {
+      return null;
+    }
 
     const hourlyObjects = singleFilterHourly[facetItemInfo.id];
 
@@ -107,6 +115,10 @@ export default class CompareHourCharts extends PureComponent {
     const {
       facetItemHourly,
     } = this.props;
+
+    if (!facetItemHourly) {
+      return null;
+    }
 
     const chartId = `facet-double-filtered-hourly-${facetItemInfo.id}`;
 

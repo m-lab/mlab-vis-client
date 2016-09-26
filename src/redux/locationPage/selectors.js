@@ -2,59 +2,16 @@
  * Selectors for locationPage
  */
 import { createSelector } from 'reselect';
-import { initialLocationState } from '../locations/initialState';
 import { metrics } from '../../constants';
 import { mergeStatuses, status } from '../status';
+import * as LocationsSelectors from '../locations/selectors';
+import * as LocationClientIspSelectors from '../locationClientIsp/selectors';
 
 // ----------------------
 // Input Selectors
 // ----------------------
-
-export function getLocation(state, props) {
-  // read in locationId from props
-  const { locationId } = props;
-
-  if (locationId == null || !state.locations[locationId]) {
-    return initialLocationState;
-  }
-
-  return state.locations[locationId];
-}
-
-
-export function getLocationInfo(state, props) {
-  const location = getLocation(state, props);
-  return location.info.data;
-}
-
-export function getLocationFixed(state, props) {
-  const location = getLocation(state, props);
-  return location.fixed.data;
-}
-
-export function getLocationHourly(state, props) {
-  const location = getLocation(state, props);
-  return location.time.hourly.data;
-}
-
-export function getLocationHourlyStatus(state, props) {
-  const location = getLocation(state, props);
-  return status(location.time.hourly);
-}
-
-export function getLocationTimeSeries(state, props) {
-  const location = getLocation(state, props);
-  return location.time.timeSeries.data;
-}
-
-export function getLocationTimeSeriesStatus(state, props) {
-  const location = getLocation(state, props);
-  return status(location.time.timeSeries);
-}
-
-export function getLocationTopClientIsps(state, props) {
-  const location = getLocation(state, props);
-  return location.topClientIsps.data;
+export function getLocationId(state, props) {
+  return props.locationId;
 }
 
 export function getHighlightHourly(state) {
@@ -68,7 +25,6 @@ export function getHighlightTimeSeriesDate(state) {
 export function getHighlightTimeSeriesLine(state) {
   return state.locationPage.highlightTimeSeriesLine;
 }
-
 
 /**
  * Extract a particular metric from metrics array using its value
@@ -120,15 +76,6 @@ function getLocationSelectedClientIspIds(state, props) {
   return props.selectedClientIspIds;
 }
 
-
-/**
- * Input selector to get the client ISP map for a location
- */
-function getLocationClientIsps(state, props) {
-  return getLocation(state, props).clientIsps;
-}
-
-
 // ----------------------
 // Selectors
 // ----------------------
@@ -138,10 +85,12 @@ function getLocationClientIsps(state, props) {
  * selected clientIsps
  */
 export const getLocationSelectedClientIsps = createSelector(
-  getLocationClientIsps, getLocationSelectedClientIspIds,
-  (clientIsps, selectedIds) => {
+  LocationClientIspSelectors.getLocationClientIsps, getLocationSelectedClientIspIds, getLocationId,
+  (locationClientIsps, selectedIds, locationId) => {
     if (selectedIds) {
-      const selected = selectedIds.map(id => clientIsps[id]).filter(d => d != null);
+      const selected = selectedIds.map(id =>
+          LocationClientIspSelectors.findLocationClientIsp(locationClientIsps, locationId, id)
+        ).filter(d => d != null);
       return selected;
     }
     return [];
@@ -203,7 +152,7 @@ export const getLocationClientIspTimeSeriesStatus = createSelector(
  * location+clientISP)
  */
 export const getTimeSeriesStatus = createSelector(
-  getLocationClientIspTimeSeriesStatus, getLocationTimeSeriesStatus,
+  getLocationClientIspTimeSeriesStatus, LocationsSelectors.getLocationTimeSeriesStatus,
   (ispStatus, locationStatus) => mergeStatuses(ispStatus, locationStatus));
 
 
@@ -212,7 +161,7 @@ export const getTimeSeriesStatus = createSelector(
  * for the selected client ISPs AND for the location all ine one array.
  */
 export const getLocationAndClientIspTimeSeries = createSelector(
-  getLocationClientIspTimeSeries, getLocationTimeSeries,
+  getLocationClientIspTimeSeries, LocationsSelectors.getLocationTimeSeries,
   (clientIspTimeSeries = [], locationTimeSeries) => {
     let result = [];
     if (locationTimeSeries) {
@@ -234,7 +183,7 @@ export const getLocationAndClientIspTimeSeries = createSelector(
  * Sample: { lastYear: { locationData: {}, clientIspsData: [] }}
  */
 export const getSummaryData = createSelector(
-  getLocationInfo, getLocationFixed, getLocationSelectedClientIsps,
+  LocationsSelectors.getLocationInfo, LocationsSelectors.getLocationFixed, getLocationSelectedClientIsps,
   (locationInfo, locationFixed, selectedClientIsps) => {
     if (!locationFixed) {
       return undefined;

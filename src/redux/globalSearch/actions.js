@@ -2,32 +2,36 @@
  * Actions for search
  */
 import createFetchAction from '../createFetchAction';
-
+import { shouldFetch } from '../shared/shouldFetch';
 /**
  * Action Creators
  */
+
+function searchShouldFetch(state, searchQuery) {
+  // ignore empty queries
+  if (searchQuery.length === 0) {
+    return false;
+  }
+
+  // is it a different query than what we had before?
+  if (state.query !== searchQuery) {
+    return true;
+  }
+
+  // query matches what is currently there.
+  return shouldFetch(state);
+}
 
 // ---------------------
 // Fetch Location Search
 // ---------------------
 const locationSearchFetch = createFetchAction({
-  typePrefix: 'globalSearch/',
-  key: 'LOCATION_SEARCH',
+  typePrefix: 'globalSearch/location/',
+  key: 'SEARCH',
   args: ['searchQuery'],
   shouldFetch(state, searchQuery) {
-    // ignore empty queries
-    if (searchQuery.length === 0) {
-      return false;
-    }
-
-    // is it a different query than what we had before?
     const locationSearchState = state.globalSearch.locationSearch;
-    if (locationSearchState.query !== searchQuery) {
-      return true;
-    }
-
-    // query matches what is currently there.
-    return !(locationSearchState.isFetched || locationSearchState.isFetching);
+    return searchShouldFetch(locationSearchState, searchQuery);
   },
   promise(searchQuery) {
     return api => api.getLocationSearch(searchQuery);
@@ -46,23 +50,12 @@ export const fetchLocationSearchIfNeeded = locationSearchFetch.fetchIfNeeded;
 // Fetch Client ISP Search
 // ---------------------
 const clientIspSearchFetch = createFetchAction({
-  typePrefix: 'globalSearch/',
-  key: 'CLIENT_ISP_SEARCH',
+  typePrefix: 'globalSearch/clientIsp/',
+  key: 'SEARCH',
   args: ['searchQuery'],
   shouldFetch(state, searchQuery) {
-    // ignore empty queries
-    if (searchQuery.length === 0) {
-      return false;
-    }
-
-    // is it a different query than what we had before?
     const clientIspSearchState = state.globalSearch.clientIspSearch;
-    if (clientIspSearchState.query !== searchQuery) {
-      return true;
-    }
-
-    // query matches what is currently there.
-    return !(clientIspSearchState.isFetched || clientIspSearchState.isFetching);
+    return searchShouldFetch(clientIspSearchState, searchQuery);
   },
   promise(searchQuery) {
     return api => api.getClientIspSearch(searchQuery);
@@ -81,23 +74,12 @@ export const fetchClientIspSearchIfNeeded = clientIspSearchFetch.fetchIfNeeded;
 // Fetch Transit ISP Search
 // ---------------------
 const transitIspSearchFetch = createFetchAction({
-  typePrefix: 'globalSearch/',
-  key: 'TRANSIT_ISP_SEARCH',
+  typePrefix: 'globalSearch/transitIsp/',
+  key: 'SEARCH',
   args: ['searchQuery'],
   shouldFetch(state, searchQuery) {
-    // ignore empty queries
-    if (searchQuery.length === 0) {
-      return false;
-    }
-
-    // is it a different query than what we had before?
     const transitIspSearchState = state.globalSearch.transitIspSearch;
-    if (transitIspSearchState.query !== searchQuery) {
-      return true;
-    }
-
-    // query matches what is currently there.
-    return !(transitIspSearchState.isFetched || transitIspSearchState.isFetching);
+    return searchShouldFetch(transitIspSearchState, searchQuery);
   },
   promise(searchQuery) {
     return api => api.getTransitIspSearch(searchQuery);

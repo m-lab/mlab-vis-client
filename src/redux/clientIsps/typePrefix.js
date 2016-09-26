@@ -1,1 +1,1 @@
-export default 'clientIsp/';
+export default 'clientIsps/';

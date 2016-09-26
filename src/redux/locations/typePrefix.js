@@ -1,1 +1,1 @@
-export default 'location/';
+export default 'locations/';

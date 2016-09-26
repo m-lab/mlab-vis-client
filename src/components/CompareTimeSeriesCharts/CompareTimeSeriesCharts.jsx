@@ -73,6 +73,10 @@ export default class CompareTimeSeriesCharts extends PureComponent {
       facetItemTimeSeries,
     } = this.props;
 
+    if (!facetItemTimeSeries) {
+      return null;
+    }
+
     const chartId = `facet-time-series-${facetItemInfo.id}`;
     const timeSeries = facetItemTimeSeries.timeSeries.find(seriesData => seriesData.id === facetItemInfo.id);
 
@@ -85,6 +89,10 @@ export default class CompareTimeSeriesCharts extends PureComponent {
       singleFilterTimeSeries,
     } = this.props;
 
+    if (!singleFilterTimeSeries) {
+      return null;
+    }
+
     const chartId = `facet-single-filtered-time-series-${facetItemInfo.id}`;
 
     const timeSeriesObject = singleFilterTimeSeries[facetItemInfo.id];
@@ -96,6 +104,10 @@ export default class CompareTimeSeriesCharts extends PureComponent {
     const {
       facetItemTimeSeries,
     } = this.props;
+
+    if (!facetItemTimeSeries) {
+      return null;
+    }
 
     const chartId = `facet-double-filtered-time-series-${facetItemInfo.id}`;
 
