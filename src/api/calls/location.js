@@ -68,7 +68,7 @@ export function getLocationHourly(timeAggregation, locationId, options = {}) {
 export function getLocationClientIspTimeSeries(timeAggregation, locationId, clientIspId, options = {}) {
   const params = getDateRangeParams(timeAggregation, options);
 
-  return get(`/locations/${locationId}/time/${timeAggregation}/clientisps/${clientIspId}/metrics`, { params })
+  return get(`/locations/${locationId}/time/${timeAggregation}/clients/${clientIspId}/metrics`, { params })
     .then(transform(transformClientIspLabel, transformTimeSeries));
 }
 
@@ -86,7 +86,7 @@ export function getLocationClientIspTimeSeries(timeAggregation, locationId, clie
 export function getLocationClientIspHourly(timeAggregation, locationId, clientIspId, options = {}) {
   const params = getDateRangeParams(timeAggregation, options);
 
-  return get(`/locations/${locationId}/time/${timeAggregation}_hour/clientisps/${clientIspId}/metrics`, { params })
+  return get(`/locations/${locationId}/time/${timeAggregation}_hour/clients/${clientIspId}/metrics`, { params })
     .then(transform(transformClientIspLabel, transformHourly));
 }
 
@@ -98,7 +98,7 @@ export function getLocationClientIspHourly(timeAggregation, locationId, clientIs
  * @return {Promise} A promise after the get request was made
  */
 export function getLocationTopClientIsps(locationId) {
-  return get(`/locations/${locationId}/clientisps`)
+  return get(`/locations/${locationId}/clients`)
     .then(transform(transformMapMeta));
 }
 
@@ -122,6 +122,6 @@ export function getLocationSearch(searchQuery) {
  * @return {Promise} A promise after the get request was made
  */
 export function getLocationClientIspInfo(locationId, clientIspId) {
-  return get(`/locations/${locationId}/clientisps/${clientIspId}/info`)
+  return get(`/locations/${locationId}/clients/${clientIspId}/info`)
     .then(transform(transformFixedData));
 }

@@ -17,7 +17,7 @@ import {
  * @return {Promise} A promise after the get request was made
  */
 export function getClientIspSearch(searchQuery) {
-  return get(`/client_asns/search/${stringToKey(searchQuery)}`)
+  return get(`/clients/search/${stringToKey(searchQuery)}`)
     .then(transform(transformClientIspSearchResults));
 }
 
@@ -28,7 +28,7 @@ export function getClientIspSearch(searchQuery) {
  * @return {Promise} A promise after the get request was made
  */
 export function getClientIspInfo(clientIspId) {
-  // return get(`/client_asns/${clientIspId}/info`)
+  // return get(`/clients/${clientIspId}/info`)
   return get('/locations/nauswa/info')
     .then(transform(transformClientIspInfo(clientIspId)));
 }
@@ -44,7 +44,7 @@ export function getClientIspInfo(clientIspId) {
  */
 export function getClientIspTimeSeries(timeAggregation, clientIspId, options = {}) {
   const params = getDateRangeParams(timeAggregation, options);
-  return get(`/client_asns/${clientIspId}/time/${timeAggregation}/metrics`, { params })
+  return get(`/clients/${clientIspId}/time/${timeAggregation}/metrics`, { params })
     .then(transform(transformClientIspLabel, transformTimeSeries));
 }
 
@@ -61,6 +61,6 @@ export function getClientIspTimeSeries(timeAggregation, clientIspId, options = {
  */
 export function getClientIspHourly(timeAggregation, clientIspId, options = {}) {
   const params = getDateRangeParams(timeAggregation, options);
-  return get(`/client_asns/${clientIspId}/time/${timeAggregation}_hour/metrics`, { params })
+  return get(`/clients/${clientIspId}/time/${timeAggregation}_hour/metrics`, { params })
     .then(transform(transformClientIspLabel, transformHourly));
 }
