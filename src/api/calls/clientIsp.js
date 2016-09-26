@@ -17,7 +17,7 @@ import {
  * @return {Promise} A promise after the get request was made
  */
 export function getClientIspSearch(searchQuery) {
-  return get(`/clients/search/${stringToKey(searchQuery)}`)
+  return get('/clients/search', { params: { q: stringToKey(searchQuery) } })
     .then(transform(transformClientIspSearchResults));
 }
 

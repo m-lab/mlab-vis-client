@@ -17,7 +17,7 @@ import {
  * @return {Promise} A promise after the get request was made
  */
 export function getTransitIspSearch(searchQuery) {
-  return get(`/servers/search/${stringToKey(searchQuery)}`)
+  return get('/servers/search', { params: { q: stringToKey(searchQuery) } })
     .then(transform(transformTransitIspSearchResults));
 }
 

@@ -110,7 +110,7 @@ export function getLocationTopClientIsps(locationId) {
  * @return {Promise} A promise after the get request was made
  */
 export function getLocationSearch(searchQuery) {
-  return get(`/locations/search/${stringToKey(searchQuery)}`)
+  return get('/locations/search', { params: { q: stringToKey(searchQuery) } })
     .then(transform(transformLocationSearchResults));
 }
 
