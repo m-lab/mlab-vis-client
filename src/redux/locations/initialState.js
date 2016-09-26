@@ -1,31 +1,17 @@
+import { initialState as initialInfoState } from '../shared/infoWithTypePrefix';
+import { initialState as initialFixedState } from '../shared/fixedWithTypePrefix';
+import { initialState as initialTimeState } from '../shared/timeWithTypePrefix';
 
 export const initialState = {};
 
 export const initialLocationState = {
   id: null,
 
-  info: {
-    isFetching: false,
-    isFetched: false,
-  },
-
-  time: {
-    timeSeries: {
-      isFetching: false,
-      isFetched: false,
-    },
-    hourly: {
-      isFetching: false,
-      isFetched: false,
-    },
-  },
+  info: initialInfoState,
+  time: initialTimeState,
+  fixed: initialFixedState,
 
   topClientIsps: {
-    isFetching: false,
-    isFetched: false,
-  },
-
-  fixed: {
     isFetching: false,
     isFetched: false,
   },
@@ -37,26 +23,9 @@ export const initialLocationState = {
 export const initialClientIspState = {
   id: null,
 
-  info: {
-    isFetching: false,
-    isFetched: false,
-  },
-
-  fixed: {
-    isFetching: false,
-    isFetched: false,
-  },
-
-  time: {
-    timeSeries: {
-      isFetching: false,
-      isFetched: false,
-    },
-    hourly: {
-      isFetching: false,
-      isFetched: false,
-    },
-  },
+  info: initialInfoState,
+  time: initialTimeState,
+  fixed: initialFixedState,
 
   transitIsps: {},
 };
@@ -64,24 +33,7 @@ export const initialClientIspState = {
 export const initialTransitIspState = {
   id: null,
 
-  info: {
-    isFetching: false,
-    isFetched: false,
-  },
-
-  fixed: {
-    isFetching: false,
-    isFetched: false,
-  },
-
-  time: {
-    timeSeries: {
-      isFetching: false,
-      isFetched: false,
-    },
-    hourly: {
-      isFetching: false,
-      isFetched: false,
-    },
-  },
+  info: initialInfoState,
+  time: initialTimeState,
+  fixed: initialFixedState,
 };

@@ -2,6 +2,7 @@
  * Actions for clientIsps
  */
 import createFetchAction from '../createFetchAction';
+import typePrefix from './typePrefix';
 
 /**
  * Action Creators
@@ -11,7 +12,7 @@ import createFetchAction from '../createFetchAction';
 // Fetch Client ISP Info
 // ---------------------
 const infoFetch = createFetchAction({
-  typePrefix: 'clientIsps/',
+  typePrefix,
   key: 'INFO',
   args: ['clientIspId'],
   shouldFetch(state, clientIspId) {
@@ -39,7 +40,7 @@ export const fetchInfoIfNeeded = infoFetch.fetchIfNeeded;
  * This is typically done when using a value from a search result that hasn't yet been
  * populated in the client ISP store.
  */
-export const SAVE_CLIENT_ISP_INFO = 'clientIsps/SAVE_CLIENT_ISP_INFO';
+export const SAVE_CLIENT_ISP_INFO = `${typePrefix}SAVE_INFO`;
 export function shouldSaveClientIspInfo(state, clientIsp) {
   const clientIspState = state.clientIsps[clientIsp.id];
   if (!clientIspState) {
@@ -71,7 +72,7 @@ export function saveClientIspInfoIfNeeded(clientIspInfo) {
 // Fetch Time Series
 // ---------------------
 const timeSeriesFetch = createFetchAction({
-  typePrefix: 'clientIsps/',
+  typePrefix,
   key: 'TIME_SERIES',
   args: ['timeAggregation', 'clientIspId', 'options'],
   shouldFetch(state, timeAggregation, clientIspId, options = {}) {
@@ -113,7 +114,7 @@ export const fetchTimeSeriesIfNeeded = timeSeriesFetch.fetchIfNeeded;
 // Fetch Hourly
 // ---------------------
 const hourlyFetch = createFetchAction({
-  typePrefix: 'clientIsps/',
+  typePrefix,
   key: 'HOURLY',
   args: ['timeAggregation', 'clientIspId', 'options'],
   shouldFetch(state, timeAggregation, clientIspId, options = {}) {

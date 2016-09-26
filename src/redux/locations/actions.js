@@ -2,6 +2,7 @@
  * Actions for locations
  */
 import createFetchAction from '../createFetchAction';
+import typePrefix from './typePrefix';
 
 /**
  * Action Creators
@@ -12,7 +13,7 @@ import createFetchAction from '../createFetchAction';
  * This is typically done when using a value from a search result that hasn't yet been
  * populated in the location store.
  */
-export const SAVE_LOCATION_INFO = 'locations/SAVE_LOCATION_INFO';
+export const SAVE_LOCATION_INFO = `${typePrefix}SAVE_INFO`;
 export function shouldSaveLocationInfo(state, location) {
   const locationState = state.locations[location.id];
   if (!locationState) {
@@ -43,7 +44,7 @@ export function saveLocationInfoIfNeeded(locationInfo) {
 // Fetch Time Series
 // ---------------------
 const timeSeriesFetch = createFetchAction({
-  typePrefix: 'location/',
+  typePrefix,
   key: 'TIME_SERIES',
   args: ['timeAggregation', 'locationId', 'options'],
   shouldFetch(state, timeAggregation, locationId, options = {}) {
@@ -85,7 +86,7 @@ export const fetchTimeSeriesIfNeeded = timeSeriesFetch.fetchIfNeeded;
 // Fetch Hourly
 // ---------------------
 const hourlyFetch = createFetchAction({
-  typePrefix: 'location/',
+  typePrefix,
   key: 'HOURLY',
   args: ['timeAggregation', 'locationId', 'options'],
   shouldFetch(state, timeAggregation, locationId, options = {}) {
@@ -128,7 +129,7 @@ export const fetchHourlyIfNeeded = hourlyFetch.fetchIfNeeded;
 // Fetch Client ISPs in location
 // ---------------------
 const topClientIsps = createFetchAction({
-  typePrefix: 'location/',
+  typePrefix,
   key: 'TOP_CLIENT_ISPS',
   args: ['locationId'],
   shouldFetch(state, locationId) {
@@ -156,8 +157,8 @@ export const fetchTopClientIspsIfNeeded = topClientIsps.fetchIfNeeded;
 // Fetch Client ISP in Location Time Series
 // ---------------------
 const clientIspLocationTimeSeries = createFetchAction({
-  typePrefix: 'location/',
-  key: 'CLIENT_ISP_TIME_SERIES',
+  typePrefix: 'locationClientIsp/',
+  key: 'TIME_SERIES',
   args: ['timeAggregation', 'locationId', 'clientIspId', 'options'],
   shouldFetch(state, timeAggregation, locationId, clientIspId, options) {
     const locationState = state.locations[locationId];
@@ -205,8 +206,8 @@ export const fetchClientIspLocationTimeSeriesIfNeeded = clientIspLocationTimeSer
 // Fetch Client ISP in Location Hourly
 // ---------------------
 const clientIspLocationHourly = createFetchAction({
-  typePrefix: 'location/',
-  key: 'CLIENT_ISP_HOURLY',
+  typePrefix: 'locationClientIsp/',
+  key: 'HOURLY',
   args: ['timeAggregation', 'locationId', 'clientIspId', 'options'],
   shouldFetch(state, timeAggregation, locationId, clientIspId, options) {
     const locationState = state.locations[locationId];
@@ -254,7 +255,7 @@ export const fetchClientIspLocationHourlyIfNeeded = clientIspLocationHourly.fetc
 // Fetch Location Info
 // ---------------------
 const infoFetch = createFetchAction({
-  typePrefix: 'location/',
+  typePrefix,
   key: 'INFO',
   args: ['locationId'],
   shouldFetch(state, locationId) {
@@ -283,8 +284,8 @@ export const fetchInfoIfNeeded = infoFetch.fetchIfNeeded;
 // Fetch Location Client ISP Info
 // ---------------------
 const clientIspInfo = createFetchAction({
-  typePrefix: 'location/',
-  key: 'CLIENT_ISP_INFO',
+  typePrefix: 'locationClientIsp/',
+  key: 'INFO',
   args: ['locationId', 'clientIspId'],
   shouldFetch(state, locationId, clientIspId) {
     const locationState = state.locations[locationId];

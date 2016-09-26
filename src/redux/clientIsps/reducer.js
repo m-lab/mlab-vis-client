@@ -4,129 +4,24 @@
 import { combineReducers } from 'redux';
 import * as Actions from './actions';
 
-const initialState = {
-};
+import infoWithTypePrefix, { initialState as initialInfoState } from '../shared/infoWithTypePrefix';
+import timeWithTypePrefix, { initialState as initialTimeState } from '../shared/timeWithTypePrefix';
+import typePrefix from './typePrefix';
 
-export const initialClientIspState = {
+const time = timeWithTypePrefix(typePrefix);
+const info = infoWithTypePrefix(typePrefix);
+
+export const initialState = {
   id: null,
 
-  info: {
-    isFetching: false,
-    isFetched: false,
-  },
-
-  time: {
-    timeSeries: {
-      isFetching: false,
-      isFetched: false,
-    },
-    hourly: {
-      isFetching: false,
-      isFetched: false,
-    },
-  },
+  info: initialInfoState,
+  time: initialTimeState,
 
   transitIsps: {},
 };
 
-
-// reducer for the time series portion of time
-function timeSeries(state = initialClientIspState.time.timeSeries, action = {}) {
-  switch (action.type) {
-    case Actions.FETCH_CLIENT_ISP_TIME_SERIES:
-      return {
-        data: state.data,
-        timeAggregation: action.timeAggregation,
-        startDate: action.options.startDate,
-        endDate: action.options.endDate,
-        isFetching: true,
-        isFetched: false,
-      };
-    case Actions.FETCH_CLIENT_ISP_TIME_SERIES_SUCCESS:
-      return {
-        data: action.result,
-        timeAggregation: action.timeAggregation,
-        startDate: action.options.startDate,
-        endDate: action.options.endDate,
-        isFetching: false,
-        isFetched: true,
-      };
-    case Actions.FETCH_CLIENT_ISP_TIME_SERIES_FAIL:
-      return {
-        isFetching: false,
-        isFetched: false,
-        error: action.error,
-      };
-    default:
-      return state;
-  }
-}
-
-// reducer for the hourly portion of time
-function hourly(state = initialClientIspState.time.hourly, action = {}) {
-  switch (action.type) {
-    case Actions.FETCH_CLIENT_ISP_HOURLY:
-      return {
-        data: state.data,
-        timeAggregation: action.timeAggregation,
-        startDate: action.options.startDate,
-        endDate: action.options.endDate,
-        isFetching: true,
-        isFetched: false,
-      };
-    case Actions.FETCH_CLIENT_ISP_HOURLY_SUCCESS:
-      return {
-        data: action.result,
-        timeAggregation: action.timeAggregation,
-        startDate: action.options.startDate,
-        endDate: action.options.endDate,
-        isFetching: false,
-        isFetched: true,
-      };
-    case Actions.FETCH_CLIENT_ISP_HOURLY_FAIL:
-      return {
-        isFetching: false,
-        isFetched: false,
-        error: action.error,
-      };
-    default:
-      return state;
-  }
-}
-
-const time = combineReducers({ timeSeries, hourly });
-
-// reducer for client ISP info
-function info(state = initialClientIspState.info, action = {}) {
-  switch (action.type) {
-    case Actions.FETCH_INFO:
-      return {
-        data: state.data,
-        isFetching: true,
-        isFetched: false,
-      };
-    case Actions.SAVE_CLIENT_ISP_INFO:
-    case Actions.FETCH_INFO_SUCCESS:
-      return {
-        // store the meta info directly
-        data: action.result.meta,
-        isFetching: false,
-        isFetched: true,
-      };
-    case Actions.FETCH_INFO_FAIL:
-      return {
-        isFetching: false,
-        isFetched: false,
-        error: action.error,
-      };
-    default:
-      return state;
-  }
-}
-
-
 // reducer to get the ID
-function id(state = initialClientIspState.id, action = {}) {
+function id(state = initialState.id, action) {
   return action.clientIspId || state;
 }
 
@@ -137,7 +32,7 @@ const clientIsp = combineReducers({
 });
 
 // The root reducer
-function clientIsps(state = initialState, action = {}) {
+function clientIsps(state = {}, action) {
   const { clientIspId } = action;
   switch (action.type) {
     case Actions.SAVE_CLIENT_ISP_INFO:
