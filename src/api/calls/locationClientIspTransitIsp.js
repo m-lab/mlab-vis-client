@@ -19,7 +19,7 @@ import {
  * @param {Object} options with startDate and endDate moment objects
  * @return {Promise} A promise after the get request was made
  */
-export function getLocationClientIspTimeSeries(timeAggregation, locationId, clientIspId, transitIspId, options = {}) {
+export function getLocationClientIspTransitIspTimeSeries(timeAggregation, locationId, clientIspId, transitIspId, options = {}) {
   const params = getDateRangeParams(timeAggregation, options);
 
   return get(`/locations/${locationId}/time/${timeAggregation}/clients/${clientIspId}/servers/${transitIspId}/metrics`, { params })
@@ -38,7 +38,7 @@ export function getLocationClientIspTimeSeries(timeAggregation, locationId, clie
  * @param {Object} options with startDate and endDate moment objects
  * @return {Promise} A promise after the get request was made
  */
-export function getLocationClientIspHourly(timeAggregation, locationId, clientIspId, transitIspId, options = {}) {
+export function getLocationClientIspTransitIspHourly(timeAggregation, locationId, clientIspId, transitIspId, options = {}) {
   const params = getDateRangeParams(timeAggregation, options);
 
   return get(`/locations/${locationId}/time/${timeAggregation}_hour/clients/${clientIspId}/servers/${transitIspId}/metrics`, { params })
@@ -53,7 +53,7 @@ export function getLocationClientIspHourly(timeAggregation, locationId, clientIs
  * @param {String} transitIspId The AS number of the ISP (e.g., AS7922)
  * @return {Promise} A promise after the get request was made
  */
-export function getLocationClientIspInfo(locationId, clientIspId, transitIspId) {
+export function getLocationClientIspTransitIspInfo(locationId, clientIspId, transitIspId) {
   return get(`/locations/${locationId}/clients/${clientIspId}/servers/${transitIspId}/info`)
     .then(transform(transformFixedData));
 }
