@@ -7,5 +7,5 @@ const calls = {
   ...Location,
   ...TransitIsp,
 };
-console.log('calls are', calls);
+
 export default calls;
