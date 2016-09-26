@@ -64,7 +64,7 @@ export function hashString(string, maxCount) {
     return 0;
   }
 
-  const sum = d3.sum(string.split('').map(ch => ch.charCodeAt(0)));
+  const sum = d3.sum(string.split('').map(ch => ch.charCodeAt(0) * ch.charCodeAt(0)));
   return mod(sum, maxCount);
 }
 
