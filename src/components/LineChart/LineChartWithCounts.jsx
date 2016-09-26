@@ -75,7 +75,7 @@ function visProps(props) {
   }
 
   // initialize a color scale
-  if (series) {
+  if (series && !colors) {
     colors = colorsFor(series, (d) => d.meta.id);
   }
 
