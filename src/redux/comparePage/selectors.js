@@ -8,15 +8,10 @@ import { colorsFor } from '../../utils/color';
 import * as LocationsSelectors from '../locations/selectors';
 import * as LocationClientIspSelectors from '../locationClientIsp/selectors';
 import makeLocationClientIspId from '../locationClientIsp/makeId';
+import makeLocationClientIspTransitIspId from '../locationClientIspTransitIsp/makeId';
+import makeLocationTransitIspId from '../locationTransitIsp/makeId';
+import makeClientIspTransitIspId from '../clientIspTransitIsp/makeId';
 
-// TODO: replace this with imports when available
-console.warn('using temporary make ID functions');
-function makeId(...args) {
-  return args.join('_');
-}
-const makeLocationClientIspTransitIspId = makeId;
-const makeLocationTransitIspId = makeId;
-const makeClientIspTransitIspId = makeId;
 
 // ----------------------
 // Input Selectors
