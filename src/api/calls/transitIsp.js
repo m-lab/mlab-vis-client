@@ -1,25 +1,13 @@
-import { stringToKey } from '../../utils/format';
 import getMetricsParams from '../getMetricsParams';
 import get from '../get';
 import {
   transform,
   transformTimeSeries,
   transformHourly,
-  transformTransitIspSearchResults,
   transformTransitIspInfo,
   transformTransitIspLabel,
 } from '../transforms';
 
-/**
- * Get Search results for a transit ISP
- *
- * @param {String} searchQuery search to search for. (e.g. comcas)
- * @return {Promise} A promise after the get request was made
- */
-export function getTransitIspSearch(searchQuery) {
-  return get('/servers/search', { q: stringToKey(searchQuery) })
-    .then(transform(transformTransitIspSearchResults));
-}
 
 /**
  * Get information for a transit ISP

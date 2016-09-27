@@ -1,11 +1,9 @@
-import { stringToKey } from '../../utils/format';
 import getMetricsParams from '../getMetricsParams';
 import get from '../get';
 import {
   transform,
   transformTimeSeries,
   transformHourly,
-  transformLocationSearchResults,
   transformLocationInfo,
   transformLocationLabel,
   transformFixedData,
@@ -63,16 +61,4 @@ export function getLocationHourly(timeAggregation, locationId, options = {}) {
 export function getLocationTopClientIsps(locationId) {
   return get(`/locations/${locationId}/clients`)
     .then(transform(transformMapMeta));
-}
-
-
-/**
- * Get Search results for a location
- *
- * @param {String} searchQuery search to search for.
- * @return {Promise} A promise after the get request was made
- */
-export function getLocationSearch(searchQuery) {
-  return get('/locations/search', { q: stringToKey(searchQuery) })
-    .then(transform(transformLocationSearchResults));
 }
