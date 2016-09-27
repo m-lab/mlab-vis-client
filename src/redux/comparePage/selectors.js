@@ -312,7 +312,7 @@ export const getCombinedTypeAndIds = createSelector(
     const combined = [{
       value: facetType.value,
       type: 'facet',
-      ids: facetItemIds,
+      ids: facetItemIds || [],
       sort: sortValues[facetType.value],
     }];
     if (filter1Ids && filter1Ids.length) {
