@@ -1,4 +1,4 @@
-import getDateRangeParams from '../getDateRangeParams';
+import getMetricsParams from '../getMetricsParams';
 import get from '../get';
 import {
   transform,
@@ -19,9 +19,9 @@ import {
  * @return {Promise} A promise after the get request was made
  */
 export function getLocationTransitIspTimeSeries(timeAggregation, locationId, transitIspId, options = {}) {
-  const params = getDateRangeParams(timeAggregation, options);
+  const params = getMetricsParams(timeAggregation, options);
 
-  return get(`/locations/${locationId}/time/${timeAggregation}/servers/${transitIspId}/metrics`, { params })
+  return get(`/locations/${locationId}/servers/${transitIspId}/metrics`, params)
     .then(transform(transformTransitIspLabel, transformTimeSeries));
 }
 
@@ -37,9 +37,9 @@ export function getLocationTransitIspTimeSeries(timeAggregation, locationId, tra
  * @return {Promise} A promise after the get request was made
  */
 export function getLocationTransitIspHourly(timeAggregation, locationId, transitIspId, options = {}) {
-  const params = getDateRangeParams(timeAggregation, options);
+  const params = getMetricsParams(`${timeAggregation}_hour`, options);
 
-  return get(`/locations/${locationId}/time/${timeAggregation}_hour/servers/${transitIspId}/metrics`, { params })
+  return get(`/locations/${locationId}/servers/${transitIspId}/metrics`, params)
     .then(transform(transformTransitIspLabel, transformHourly));
 }
 

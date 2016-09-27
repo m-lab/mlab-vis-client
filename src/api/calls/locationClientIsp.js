@@ -1,4 +1,4 @@
-import getDateRangeParams from '../getDateRangeParams';
+import getMetricsParams from '../getMetricsParams';
 import get from '../get';
 import {
   transform,
@@ -19,9 +19,9 @@ import {
  * @return {Promise} A promise after the get request was made
  */
 export function getLocationClientIspTimeSeries(timeAggregation, locationId, clientIspId, options = {}) {
-  const params = getDateRangeParams(timeAggregation, options);
+  const params = getMetricsParams(timeAggregation, options);
 
-  return get(`/locations/${locationId}/time/${timeAggregation}/clients/${clientIspId}/metrics`, { params })
+  return get(`/locations/${locationId}/clients/${clientIspId}/metrics`, params)
     .then(transform(transformClientIspLabel, transformTimeSeries));
 }
 
@@ -37,9 +37,9 @@ export function getLocationClientIspTimeSeries(timeAggregation, locationId, clie
  * @return {Promise} A promise after the get request was made
  */
 export function getLocationClientIspHourly(timeAggregation, locationId, clientIspId, options = {}) {
-  const params = getDateRangeParams(timeAggregation, options);
+  const params = getMetricsParams(`${timeAggregation}_hour`, options);
 
-  return get(`/locations/${locationId}/time/${timeAggregation}_hour/clients/${clientIspId}/metrics`, { params })
+  return get(`/locations/${locationId}/clients/${clientIspId}/metrics`, params)
     .then(transform(transformClientIspLabel, transformHourly));
 }
 

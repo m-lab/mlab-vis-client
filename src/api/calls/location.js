@@ -1,5 +1,5 @@
 import { stringToKey } from '../../utils/format';
-import getDateRangeParams from '../getDateRangeParams';
+import getMetricsParams from '../getMetricsParams';
 import get from '../get';
 import {
   transform,
@@ -32,8 +32,8 @@ export function getLocationInfo(locationId) {
  * @return {Promise} A promise after the get request was made
  */
 export function getLocationTimeSeries(timeAggregation, locationId, options = {}) {
-  const params = getDateRangeParams(timeAggregation, options);
-  return get(`/locations/${locationId}/time/${timeAggregation}/metrics`, { params })
+  const params = getMetricsParams(timeAggregation, options);
+  return get(`/locations/${locationId}/metrics`, params)
     .then(transform(transformLocationLabel, transformTimeSeries));
 }
 
@@ -49,8 +49,8 @@ export function getLocationTimeSeries(timeAggregation, locationId, options = {})
  * @return {Promise} A promise after the get request was made
  */
 export function getLocationHourly(timeAggregation, locationId, options = {}) {
-  const params = getDateRangeParams(timeAggregation, options);
-  return get(`/locations/${locationId}/time/${timeAggregation}_hour/metrics`, { params })
+  const params = getMetricsParams(`${timeAggregation}_hour`, options);
+  return get(`/locations/${locationId}/metrics`, params)
     .then(transform(transformLocationLabel, transformHourly));
 }
 
@@ -73,6 +73,6 @@ export function getLocationTopClientIsps(locationId) {
  * @return {Promise} A promise after the get request was made
  */
 export function getLocationSearch(searchQuery) {
-  return get('/locations/search', { params: { q: stringToKey(searchQuery) } })
+  return get('/locations/search', { q: stringToKey(searchQuery) })
     .then(transform(transformLocationSearchResults));
 }

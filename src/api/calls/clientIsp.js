@@ -1,5 +1,5 @@
 import { stringToKey } from '../../utils/format';
-import getDateRangeParams from '../getDateRangeParams';
+import getMetricsParams from '../getMetricsParams';
 import get from '../get';
 import {
   transform,
@@ -17,7 +17,7 @@ import {
  * @return {Promise} A promise after the get request was made
  */
 export function getClientIspSearch(searchQuery) {
-  return get('/clients/search', { params: { q: stringToKey(searchQuery) } })
+  return get('/clients/search', { q: stringToKey(searchQuery) })
     .then(transform(transformClientIspSearchResults));
 }
 
@@ -43,8 +43,8 @@ export function getClientIspInfo(clientIspId) {
  * @return {Promise} A promise after the get request was made
  */
 export function getClientIspTimeSeries(timeAggregation, clientIspId, options = {}) {
-  const params = getDateRangeParams(timeAggregation, options);
-  return get(`/clients/${clientIspId}/time/${timeAggregation}/metrics`, { params })
+  const params = getMetricsParams(timeAggregation, options);
+  return get(`/clients/${clientIspId}/metrics`, params)
     .then(transform(transformClientIspLabel, transformTimeSeries));
 }
 
@@ -60,7 +60,7 @@ export function getClientIspTimeSeries(timeAggregation, clientIspId, options = {
  * @return {Promise} A promise after the get request was made
  */
 export function getClientIspHourly(timeAggregation, clientIspId, options = {}) {
-  const params = getDateRangeParams(timeAggregation, options);
-  return get(`/clients/${clientIspId}/time/${timeAggregation}_hour/metrics`, { params })
+  const params = getMetricsParams(`${timeAggregation}_hour`, options);
+  return get(`/clients/${clientIspId}/metrics`, params)
     .then(transform(transformClientIspLabel, transformHourly));
 }
