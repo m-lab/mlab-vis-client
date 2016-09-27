@@ -161,8 +161,6 @@ export function transformLocationLabel(body) {
   return body;
 }
 
-console.warn('TODO - temporarily adding in ID in transform search results');
-
 /**
  * Transforms the response from location search before rest of application uses it.
  *
@@ -176,9 +174,6 @@ export function transformLocationSearchResults(body) {
     results.forEach(d => {
       // Create a display name for cities.
       transformLocationLabel(d);
-      d.name = d.meta.label;
-      d.id = d.meta.location_key;
-      d.meta.id = d.meta.location_key;
     });
 
     // add new entries to the body object
@@ -202,7 +197,6 @@ export function transformClientIspSearchResults(body) {
     const results = body.results;
     results.forEach(d => {
       d.meta.label = d.meta.client_asn_name;
-      d.meta.id = d.meta.client_asn_number;
     });
 
     // add new entries to the body object
@@ -225,7 +219,6 @@ export function transformTransitIspSearchResults(body) {
   if (body.results) {
     const results = body.results;
     results.forEach(d => {
-      d.meta.id = d.meta.server_asn_name_lookup; // TODO - this should eventually be provided as `id`
       d.meta.label = d.meta.server_asn_name;
     });
 

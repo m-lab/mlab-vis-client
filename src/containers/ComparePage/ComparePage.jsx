@@ -195,22 +195,22 @@ class ComparePage extends PureComponent {
   }
 
   fetchDataForLocationClientIsps(props, locationIds, clientIspIds) {
-    locationIds.forEeach(locationId => clientIspIds.forEach(clientIspId =>
+    locationIds.forEach(locationId => clientIspIds.forEach(clientIspId =>
       this.fetchTimeData(props, LocationClientIspActions, locationId, clientIspId)));
   }
 
   fetchDataForLocationTransitIsps(props, locationIds, transitIspIds) {
-    locationIds.forEeach(locationId => transitIspIds.forEach(transitIspId =>
+    locationIds.forEach(locationId => transitIspIds.forEach(transitIspId =>
       this.fetchTimeData(props, LocationTransitIspActions, locationId, transitIspId)));
   }
 
   fetchDataForClientIspTransitIsps(props, clientIspIds, transitIspIds) {
-    clientIspIds.forEeach(clientIspId => transitIspIds.forEach(transitIspId =>
+    clientIspIds.forEach(clientIspId => transitIspIds.forEach(transitIspId =>
       this.fetchTimeData(props, ClientIspTransitIspActions, clientIspId, transitIspId)));
   }
 
   fetchDataForLocationClientIspTransitIsps(props, locationIds, clientIspIds, transitIspIds) {
-    locationIds.forEeach(locationId => clientIspIds.forEach(clientIspId => transitIspIds.forEach(transitIspId =>
+    locationIds.forEach(locationId => clientIspIds.forEach(clientIspId => transitIspIds.forEach(transitIspId =>
       this.fetchTimeData(props, LocationClientIspTransitIspActions, locationId, clientIspId, transitIspId))));
   }
 

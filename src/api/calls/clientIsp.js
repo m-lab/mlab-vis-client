@@ -1,11 +1,9 @@
-import { stringToKey } from '../../utils/format';
 import getMetricsParams from '../getMetricsParams';
 import get from '../get';
 import {
   transform,
   transformTimeSeries,
   transformHourly,
-  transformClientIspSearchResults,
   transformClientIspLabel,
   transformClientIspInfo,
 } from '../transforms';
