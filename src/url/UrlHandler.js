@@ -82,8 +82,8 @@ export default class UrlHandler {
       },
     };
 
-    // remove if it is the default value or if it is an empty string when encoded
-    if (value === keyConfig.defaultValue || encoded === '') {
+    // remove if it is an empty string when encoded
+    if (encoded === '') {
       delete newLocation.query[urlKey];
     }
 

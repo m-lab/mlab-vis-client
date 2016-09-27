@@ -1,6 +1,7 @@
 /**
  * Selectors for comparePage
  */
+import d3 from 'd3';
 import { createSelector } from 'reselect';
 import { metrics, facetTypes } from '../../constants';
 import { mergeStatuses, status } from '../status';
@@ -136,6 +137,11 @@ function getFilter2Ids(state, props) {
 
 function getTransitIsps(state) {
   return state.transitIsps;
+}
+
+
+function getBreakdownBy(state, props) {
+  return props.breakdownBy;
 }
 
 // ----------------------
@@ -304,8 +310,8 @@ export const getFacetItemHourly = createSelector(
  * - location-transitIsp
  */
 export const getCombinedTypeAndIds = createSelector(
-  getFacetType, getFacetItemIds, getFilterTypes, getFilter1Ids, getFilter2Ids,
-  (facetType, facetItemIds, [filter1Type, filter2Type], filter1Ids, filter2Ids) => {
+  getFacetType, getFacetItemIds, getFilterTypes, getFilter1Ids, getFilter2Ids, getBreakdownBy,
+  (facetType, facetItemIds, [filter1Type, filter2Type], filter1Ids, filter2Ids, breakdownBy) => {
     const sortValues = { location: 0, clientIsp: 1, transitIsp: 2 };
 
     // find out which filters are active
@@ -319,6 +325,7 @@ export const getCombinedTypeAndIds = createSelector(
       combined.push({
         value: filter1Type.value,
         type: 'filter1',
+        breakdownBy: breakdownBy === 'filter1',
         ids: filter1Ids,
         sort: sortValues[filter1Type.value],
       });
@@ -327,6 +334,7 @@ export const getCombinedTypeAndIds = createSelector(
       combined.push({
         value: filter2Type.value,
         type: 'filter2',
+        breakdownBy: breakdownBy === 'filter2',
         ids: filter2Ids,
         sort: sortValues[filter2Type.value],
       });
@@ -397,14 +405,14 @@ export const getCombinedTypeAndIds = createSelector(
             transitIsps.ids.forEach(transitIspId => {
               /* eslint-disable no-nested-ternary,max-len */
               const facetItemId = locations.type === 'facet' ? locationId : (clientIsps.type === 'facet' ? clientIspId : transitIspId);
-              const filter1ItemId = locations.type === 'filter1' ? locationId : (clientIsps.type === 'filter1' ? clientIspId : transitIspId);
-              const filter2ItemId = locations.type === 'filter2' ? locationId : (clientIsps.type === 'filter2' ? clientIspId : transitIspId);
+              const breakdownByItemId = locations.breakdownBy ? locationId : (clientIsps.breakdownBy ? clientIspId : transitIspId);
+              const filterItemId = locations.breakdownBy === false ? locationId : (clientIsps.breakdownBy === false ? clientIspId : transitIspId);
               /* eslint-enable no-nested-ternary,max-len */
 
               combinedIds.push({
                 facetItemId,
-                filter1ItemId,
-                filter2ItemId,
+                breakdownByItemId,
+                filterItemId,
                 combined: makeLocationClientIspTransitIspId(locationId, clientIspId, transitIspId),
               });
             });
@@ -422,16 +430,19 @@ export const getCombinedTypeAndIds = createSelector(
 
 
 /**
- * Get the time items for when we have a facet + a single filter
+ * Get the data items for the combined facet + filters
  */
-export const getSingleFilterItems = createSelector(
+export const getCombinedItems = createSelector(
   getCombinedTypeAndIds,
   LocationClientIspSelectors.getLocationClientIsps,
   LocationTransitIspSelectors.getLocationTransitIsps,
   ClientTransitIspSelectors.getClientIspTransitIsps,
-  ({ combinedType, combinedIds }, locationClientIsps, locationTransitIsps, clientIspTransitIsps) => {
+  LocationClientIspTransitIspSelectors.getLocationClientIspTransitIsps,
+  ({ combinedType, combinedIds }, locationClientIsps, locationTransitIsps,
+    clientIspTransitIsps, locationClientIspTransitIsps) => {
     const sourceMap = {
       'location-clientIsp': locationClientIsps,
+      'location-clientIsp-transitIsp': locationClientIspTransitIsps,
       'location-transitIsp': locationTransitIsps,
       'clientIsp-transitIsp': clientIspTransitIsps,
     };
@@ -450,64 +461,104 @@ export const getSingleFilterItems = createSelector(
 );
 
 /**
- * Selector to get the data objects for the single filtered time series data
+ * helper function to combine data in a nested format.
+ * end up with:
+ * { facetId: combined, ... } (one filter)
+ * { facetId: { breakdownByItemId: combined, ... }, ... } (two filters)
+ *
+ * where combined happens by sending a subset of combinedItems to combine()
  */
-export const getSingleFilterTimeSeries = createSelector(
-  getFacetItemIds, getSingleFilterItems,
-  (facetItemIds, singleFilterItems) => {
-    if (!facetItemIds) {
-      return undefined;
+function combineData(combine, combinedType, combinedItems) {
+  if (!combinedItems || !combinedItems.length) {
+    return undefined;
+  }
+
+  // end result is grouped by facet item ID
+  let byFacetItem;
+
+  // nest by facet item ID
+  const nest = d3.nest().key(item => item.id.facetItemId);
+
+  // nest two levels deep for all 3 factors
+  if (combinedType === 'location-clientIsp-transitIsp') {
+    // further nest by breakdown item ID
+    byFacetItem = nest.key(item => item.id.breakdownByItemId).object(combinedItems);
+
+    // replace combine the items as combined time series objects
+    Object.keys(byFacetItem).forEach(facetItemId => {
+      const byBreakdown = byFacetItem[facetItemId];
+      Object.keys(byBreakdown).forEach(breakdownByItemId => {
+        // replace the array of items with a combined time series object
+        byBreakdown[breakdownByItemId] = combine(byBreakdown[breakdownByItemId]);
+      });
+    });
+
+  // only one filter active, so only one level of nesting necessary
+  } else {
+    byFacetItem = nest.object(combinedItems);
+    Object.keys(byFacetItem).forEach(facetItemId => {
+      // replace the array of items with a combined time series object
+      byFacetItem[facetItemId] = combine(byFacetItem[facetItemId]);
+    });
+  }
+
+  return byFacetItem;
+}
+
+// helper function to combine the time series into a single object of form:
+// {facetId: { status: "", statuses: [], data: [] }, ...}
+// where each data entry corresponds to a line
+function combineTimeSeries(itemsToCombine) {
+  const timeSeriesToCombine = itemsToCombine.map(item => item.data.time.timeSeries);
+
+  // group them together by the facet ID
+  const combinedTimeSeries = timeSeriesToCombine.reduce((combined, timeSeriesObject) => {
+    combined.statuses.push(status(timeSeriesObject));
+    if (timeSeriesObject.data) {
+      combined.data.push(timeSeriesObject.data);
     }
+    return combined;
+  }, { statuses: [], data: [] });
 
-    const results = facetItemIds.reduce((byFacetItem, facetItemId) => {
-      // filter to just the items for this facet
-      const itemsForFacet = singleFilterItems.filter(item => item.id.facetItemId === facetItemId);
-      const timeSeriesObjects = itemsForFacet.map(item => item.data.time.timeSeries);
+  // compute the overall status for this facet group
+  combinedTimeSeries.status = mergeStatuses(combinedTimeSeries.statuses);
+  return combinedTimeSeries;
+}
 
-      // group them together
-      byFacetItem[facetItemId] = timeSeriesObjects.reduce((combined, timeSeriesObject) => {
-        combined.statuses.push(status(timeSeriesObject));
-        if (timeSeriesObject.data) {
-          combined.data.push(timeSeriesObject.data);
-        }
-        return combined;
-      }, { statuses: [], data: [] });
-
-      // compute the overall status for this facet group
-      byFacetItem[facetItemId].status = mergeStatuses(byFacetItem[facetItemId].statuses);
-      return byFacetItem;
-    }, {});
-
-    return results;
+/**
+ * Selector to get the data objects for the combined filtered time series data
+ */
+export const getCombinedTimeSeries = createSelector(
+  getCombinedTypeAndIds,
+  getFacetItemIds,
+  getCombinedItems,
+  ({ combinedType }, facetItemIds, combinedItems) => {
+    const combined = combineData(combineTimeSeries, combinedType, combinedItems);
+    return combined;
   }
 );
+
+// helper function to combine items into combined hourly objects
+function combineHourly(itemsToCombine) {
+  const hourlyObjects = itemsToCombine.map(item => ({
+    id: item.id.filterItemId,
+    data: item.data.time.hourly.data,
+    status: status(item.data.time.hourly),
+  }));
+
+  return hourlyObjects;
+}
 
 /**
  * Selector to get the data objects for the single filtered hourly data
  */
-export const getSingleFilterHourly = createSelector(
-  getFacetItemIds, getSingleFilterItems,
-  (facetItemIds, singleFilterItems) => {
-    if (!facetItemIds) {
-      return undefined;
-    }
-
-    const results = facetItemIds.reduce((byFacetItem, facetItemId) => {
-      // filter to just the items for this facet
-      const itemsForFacet = singleFilterItems.filter(item => item.id.facetItemId === facetItemId);
-      const hourlyObjects = itemsForFacet.map(item => ({
-        id: item.id.filterItemId,
-        data: item.data.time.hourly.data,
-        status: status(item.data.time.hourly),
-      }));
-
-      // group them together
-      byFacetItem[facetItemId] = hourlyObjects;
-
-      return byFacetItem;
-    }, {});
-
-    return results;
+export const getCombinedHourly = createSelector(
+  getCombinedTypeAndIds,
+  getFacetItemIds,
+  getCombinedItems,
+  ({ combinedType }, facetItemIds, combinedItems) => {
+    const combined = combineData(combineHourly, combinedType, combinedItems);
+    return combined;
   }
 );
 

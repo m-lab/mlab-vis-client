@@ -44,6 +44,7 @@ export function highlightTimeSeriesLine(highlightLine) {
 /** Actions that replace values in the URL */
 export const changeTimeAggregation = urlReplaceAction('timeAggregation');
 export const changeViewMetric = urlReplaceAction('viewMetric');
+export const changeBreakdownBy = urlReplaceAction('breakdownBy');
 export const changeStartDate = urlReplaceAction('startDate');
 export const changeEndDate = urlReplaceAction('endDate');
 const changeFacetItemIds = urlReplaceAction('facetItemIds');
@@ -140,4 +141,3 @@ export function changeFilterLocations(newFilterLocations, filterNum, urlConnectD
     }
   };
 }
-

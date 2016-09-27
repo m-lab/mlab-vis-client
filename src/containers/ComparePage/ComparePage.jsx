@@ -41,6 +41,7 @@ import './ComparePage.scss';
 // Define how to read/write state to URL query parameters
 const urlQueryConfig = {
   viewMetric: { type: 'string', defaultValue: 'download', urlKey: 'metric' },
+  breakdownBy: { type: 'string', defaultValue: 'filter1', urlKey: 'breakdownBy' },
 
   // selected time
   // TODO: change defaults to more recent time period when data is up-to-date
@@ -57,6 +58,8 @@ function mapStateToProps(state, propsWithUrl) {
   return {
     ...propsWithUrl,
     colors: ComparePageSelectors.getColors(state, propsWithUrl),
+    combinedHourly: ComparePageSelectors.getCombinedHourly(state, propsWithUrl),
+    combinedTimeSeries: ComparePageSelectors.getCombinedTimeSeries(state, propsWithUrl),
     facetItemHourly: ComparePageSelectors.getFacetItemHourly(state, propsWithUrl),
     facetItemInfos: ComparePageSelectors.getFacetItemInfos(state, propsWithUrl),
     facetItemTimeSeries: ComparePageSelectors.getFacetItemTimeSeries(state, propsWithUrl),
@@ -67,8 +70,6 @@ function mapStateToProps(state, propsWithUrl) {
     highlightHourly: ComparePageSelectors.getHighlightHourly(state, propsWithUrl),
     highlightTimeSeriesDate: ComparePageSelectors.getHighlightTimeSeriesDate(state, propsWithUrl),
     highlightTimeSeriesLine: ComparePageSelectors.getHighlightTimeSeriesLine(state, propsWithUrl),
-    singleFilterHourly: ComparePageSelectors.getSingleFilterHourly(state, propsWithUrl),
-    singleFilterTimeSeries: ComparePageSelectors.getSingleFilterTimeSeries(state, propsWithUrl),
     viewMetric: ComparePageSelectors.getViewMetric(state, propsWithUrl),
   };
 }
@@ -76,7 +77,10 @@ function mapStateToProps(state, propsWithUrl) {
 const pageTitle = 'Compare';
 class ComparePage extends PureComponent {
   static propTypes = {
+    breakdownBy: PropTypes.string,
     colors: PropTypes.object,
+    combinedHourly: PropTypes.object,
+    combinedTimeSeries: PropTypes.object,
     dispatch: PropTypes.func,
     endDate: momentPropTypes.momentObj,
     facetItemHourly: PropTypes.array,
@@ -94,8 +98,6 @@ class ComparePage extends PureComponent {
     highlightTimeSeriesLine: PropTypes.object,
     location: PropTypes.object, // route location
     router: PropTypes.object, // react-router
-    singleFilterHourly: PropTypes.object,
-    singleFilterTimeSeries: PropTypes.object,
     startDate: momentPropTypes.momentObj,
     timeAggregation: PropTypes.string,
     viewMetric: PropTypes.object,
@@ -112,6 +114,7 @@ class ComparePage extends PureComponent {
     super(props);
 
     // bind handlers
+    this.onBreakdownByChange = this.onBreakdownByChange.bind(this);
     this.onDateRangeChange = this.onDateRangeChange.bind(this);
     this.onFacetTypeChange = this.onFacetTypeChange.bind(this);
     this.onFacetItemsChange = this.onFacetItemsChange.bind(this);
@@ -305,6 +308,20 @@ class ComparePage extends PureComponent {
   onViewMetricChange(value) {
     const { dispatch } = this.props;
     dispatch(ComparePageActions.changeViewMetric(value));
+  }
+
+  /**
+   * Callback for time aggregation checkbox
+   */
+  onBreakdownByChange(value) {
+    const { dispatch, filterTypes } = this.props;
+    if (filterTypes[0].value === value) {
+      value = 'filter1';
+    } else {
+      value = 'filter2';
+    }
+
+    dispatch(ComparePageActions.changeBreakdownBy(value));
   }
 
   /**
@@ -560,14 +577,20 @@ class ComparePage extends PureComponent {
 
   renderBreakdownOptions() {
     // TODO: when both filters have values, choose which one to breakdown by
-    const { filterTypes, filter1Ids, filter2Ids } = this.props;
-    const breakdownBy = filterTypes[0]; // TODO this should be read from URL
+    const { filterTypes, filter1Ids, filter2Ids, breakdownBy } = this.props;
+
+    let active;
+    if (breakdownBy === 'filter1') {
+      active = filterTypes[0].value;
+    } else {
+      active = filterTypes[1].value;
+    }
 
     if (filter1Ids.length && filter2Ids.length) {
       return (
         <div className="breakdown-by-selector">
           <h5>Breakdown By</h5>
-          <SelectableList items={filterTypes} active={breakdownBy.value} onChange={this.onBreakdownByChange} />
+          <SelectableList items={filterTypes} active={active} onChange={this.onBreakdownByChange} />
         </div>
       );
     }
@@ -577,6 +600,7 @@ class ComparePage extends PureComponent {
 
   renderBreakdown() {
     const {
+      breakdownBy,
       colors,
       facetItemInfos,
       facetItemTimeSeries,
@@ -588,8 +612,8 @@ class ComparePage extends PureComponent {
       highlightHourly,
       highlightTimeSeriesDate,
       highlightTimeSeriesLine,
-      singleFilterTimeSeries,
-      singleFilterHourly,
+      combinedTimeSeries,
+      combinedHourly,
       viewMetric,
     } = this.props;
 
@@ -609,7 +633,9 @@ class ComparePage extends PureComponent {
             {facetItemInfos.map((facetItemInfo) => (
               <CompareTimeSeriesCharts
                 key={facetItemInfo.id}
+                breakdownBy={breakdownBy}
                 colors={colors}
+                combinedTimeSeries={combinedTimeSeries && combinedTimeSeries[facetItemInfo.id]}
                 facetItemId={facetItemInfo.id}
                 facetItemInfo={facetItemInfo}
                 facetItemTimeSeries={facetItemTimeSeries}
@@ -621,7 +647,6 @@ class ComparePage extends PureComponent {
                 highlightTimeSeriesLine={highlightTimeSeriesLine}
                 onHighlightTimeSeriesDate={this.onHighlightTimeSeriesDate}
                 onHighlightTimeSeriesLine={this.onHighlightTimeSeriesLine}
-                singleFilterTimeSeries={singleFilterTimeSeries}
                 viewMetric={viewMetric}
               />
             ))}
@@ -634,7 +659,9 @@ class ComparePage extends PureComponent {
               {facetItemInfos.map((facetItemInfo) => (
                 <CompareHourCharts
                   key={facetItemInfo.id}
+                  breakdownBy={breakdownBy}
                   colors={colors}
+                  combinedHourly={combinedHourly && combinedHourly[facetItemInfo.id]}
                   facetItemId={facetItemInfo.id}
                   facetItemInfo={facetItemInfo}
                   facetItemHourly={facetItemHourly}
@@ -644,7 +671,6 @@ class ComparePage extends PureComponent {
                   filter2Infos={filter2Infos}
                   highlightHourly={highlightHourly}
                   onHighlightHourly={this.onHighlightHourly}
-                  singleFilterHourly={singleFilterHourly}
                   viewMetric={viewMetric}
                 />
             ))}

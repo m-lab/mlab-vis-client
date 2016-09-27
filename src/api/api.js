@@ -7,8 +7,6 @@ import * as LocationTransitIsp from './calls/locationTransitIsp';
 import * as TransitIsp from './calls/transitIsp';
 import * as Search from './calls/search';
 
-console.warn('Multipart API queries (e.g. locationTransitIsp) not using proper URLs and have incorrect transforms.');
-
 const calls = {
   ...ClientIsp,
   ...ClientIspTransitIsp,
