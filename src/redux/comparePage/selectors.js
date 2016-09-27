@@ -7,6 +7,10 @@ import { mergeStatuses, status } from '../status';
 import { colorsFor } from '../../utils/color';
 import * as LocationsSelectors from '../locations/selectors';
 import * as LocationClientIspSelectors from '../locationClientIsp/selectors';
+import * as LocationClientIspTransitIspSelectors from '../locationClientIspTransitIsp/selectors';
+import * as LocationTransitIspSelectors from '../locationTransitIsp/selectors';
+import * as ClientTransitIspSelectors from '../clientIspTransitIsp/selectors';
+
 import makeLocationClientIspId from '../locationClientIsp/makeId';
 import makeLocationClientIspTransitIspId from '../locationClientIspTransitIsp/makeId';
 import makeLocationTransitIspId from '../locationTransitIsp/makeId';
@@ -305,12 +309,27 @@ export const getCombinedTypeAndIds = createSelector(
     const sortValues = { location: 0, clientIsp: 1, transitIsp: 2 };
 
     // find out which filters are active
-    const combined = [{ value: facetType.value, type: 'facet', ids: facetItemIds, sort: sortValues[facetType] }];
+    const combined = [{
+      value: facetType.value,
+      type: 'facet',
+      ids: facetItemIds,
+      sort: sortValues[facetType.value],
+    }];
     if (filter1Ids && filter1Ids.length) {
-      combined.push({ value: filter1Type.value, type: 'filter1', ids: filter1Ids, sort: sortValues[filter1Type] });
+      combined.push({
+        value: filter1Type.value,
+        type: 'filter1',
+        ids: filter1Ids,
+        sort: sortValues[filter1Type.value],
+      });
     }
     if (filter2Ids && filter2Ids.length) {
-      combined.push({ value: filter2Type.value, type: 'filter2', ids: filter2Ids, sort: sortValues[filter2Type] });
+      combined.push({
+        value: filter2Type.value,
+        type: 'filter2',
+        ids: filter2Ids,
+        sort: sortValues[filter2Type.value],
+      });
     }
     // sort so we get the same value no matter if where a type occurs
     const combinedType = combined.sort((a, b) => a.sort - b.sort).map(d => d.value).join('-');
@@ -406,23 +425,24 @@ export const getCombinedTypeAndIds = createSelector(
  * Get the time items for when we have a facet + a single filter
  */
 export const getSingleFilterItems = createSelector(
-  getCombinedTypeAndIds, LocationClientIspSelectors.getLocationClientIsps,
-  ({ combinedType, combinedIds }, locationClientIsps) => {
-    if (combinedType === 'location-clientIsp') {
+  getCombinedTypeAndIds,
+  LocationClientIspSelectors.getLocationClientIsps,
+  LocationTransitIspSelectors.getLocationTransitIsps,
+  ClientTransitIspSelectors.getClientIspTransitIsps,
+  ({ combinedType, combinedIds }, locationClientIsps, locationTransitIsps, clientIspTransitIsps) => {
+    const sourceMap = {
+      'location-clientIsp': locationClientIsps,
+      'location-transitIsp': locationTransitIsps,
+      'clientIsp-transitIsp': clientIspTransitIsps,
+    };
+
+    const source = sourceMap[combinedType];
+
+    if (source) {
       return combinedIds.map(id => ({
         id,
-        data: locationClientIsps[id.combined],
+        data: source[id.combined],
       })).filter(d => d.data != null);
-    }
-
-    // TODO implement this
-    if (combinedType === 'location-transitIsp') {
-      console.warn('TODO: location-transitIsp not implemented', combinedType, combinedIds);
-    }
-
-    // TODO implement this
-    if (combinedType === 'clientIsp-transitIsp') {
-      console.warn('TODO: clientIsp-transitIsp not implemented', combinedType, combinedIds);
     }
 
     return [];
