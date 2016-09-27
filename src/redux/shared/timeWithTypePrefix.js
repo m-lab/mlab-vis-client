@@ -24,7 +24,12 @@ function timeSeriesWithTypePrefix(typePrefix) {
           endDate: action.options.endDate,
         });
       case `${typePrefix}FETCH_TIME_SERIES_FAIL`:
-        return reduceFetchFail({ error: action.error });
+        return reduceFetchFail({
+          timeAggregation: state.timeAggregation,
+          startDate: state.startDate,
+          endDate: state.endDate,
+          error: action.error,
+        });
       default:
         return state;
     }
@@ -49,7 +54,12 @@ function hourlyWithTypePrefix(typePrefix) {
           endDate: action.options.endDate,
         });
       case `${typePrefix}FETCH_HOURLY_FAIL`:
-        return reduceFetchFail({ error: action.error });
+        return reduceFetchFail({
+          timeAggregation: state.timeAggregation,
+          startDate: state.startDate,
+          endDate: state.endDate,
+          error: action.error,
+        });
       default:
         return state;
     }
