@@ -2,26 +2,26 @@
  * Actions for transitIsps
  */
 import createFetchAction from '../createFetchAction';
+import typePrefix from './typePrefix';
+import { infoShouldFetch, timeSeriesShouldFetch, hourlyShouldFetch } from '../shared/shouldFetch';
 
 /**
  * Action Creators
  */
+function getTransitIspState(state, transitIspId) {
+  return state.transitIsps[transitIspId];
+}
 
 // ---------------------
 // Fetch Transit ISP Info
 // ---------------------
 const infoFetch = createFetchAction({
-  typePrefix: 'transitIsps/',
+  typePrefix,
   key: 'INFO',
   args: ['transitIspId'],
   shouldFetch(state, transitIspId) {
-    const transitIspState = state.transitIsps[transitIspId];
-    if (!transitIspState) {
-      return true;
-    }
-
-    const hasInfo = transitIspState.info.isFetched || transitIspState.info.isFetching;
-    return !hasInfo;
+    const transitIspState = getTransitIspState(state, transitIspId);
+    return infoShouldFetch(transitIspState);
   },
   promise(transitIspId) {
     return api => api.getTransitIspInfo(transitIspId);
@@ -39,9 +39,9 @@ export const fetchInfoIfNeeded = infoFetch.fetchIfNeeded;
  * This is typically done when using a value from a search result that hasn't yet been
  * populated in the transit ISP store.
  */
-export const SAVE_TRANSIT_ISP_INFO = 'transitIsps/SAVE_TRANSIT_ISP_INFO';
+export const SAVE_TRANSIT_ISP_INFO = `${typePrefix}SAVE_INFO`;
 export function shouldSaveTransitIspInfo(state, transitIsp) {
-  const transitIspState = state.transitIsps[transitIsp.id];
+  const transitIspState = getTransitIspState(state, transitIsp.id);
   if (!transitIspState) {
     return true;
   }
@@ -65,3 +65,48 @@ export function saveTransitIspInfoIfNeeded(transitIspInfo) {
     }
   };
 }
+
+
+// ---------------------
+// Fetch Time Series
+// ---------------------
+const timeSeriesFetch = createFetchAction({
+  typePrefix,
+  key: 'TIME_SERIES',
+  args: ['timeAggregation', 'transitIspId', 'options'],
+  shouldFetch(state, timeAggregation, transitIspId, options = {}) {
+    const transitIspState = getTransitIspState(state, transitIspId);
+    return timeSeriesShouldFetch(transitIspState, timeAggregation, options);
+  },
+  promise(timeAggregation, transitIspId, options) {
+    return api => api.getTransitIspTimeSeries(timeAggregation, transitIspId, options);
+  },
+});
+export const FETCH_TIME_SERIES = timeSeriesFetch.types.fetch;
+export const FETCH_TIME_SERIES_SUCCESS = timeSeriesFetch.types.success;
+export const FETCH_TIME_SERIES_FAIL = timeSeriesFetch.types.fail;
+export const shouldFetchTimeSeries = timeSeriesFetch.shouldFetch;
+export const fetchTimeSeries = timeSeriesFetch.fetch;
+export const fetchTimeSeriesIfNeeded = timeSeriesFetch.fetchIfNeeded;
+
+// ---------------------
+// Fetch Hourly
+// ---------------------
+const hourlyFetch = createFetchAction({
+  typePrefix,
+  key: 'HOURLY',
+  args: ['timeAggregation', 'transitIspId', 'options'],
+  shouldFetch(state, timeAggregation, transitIspId, options = {}) {
+    const transitIspState = getTransitIspState(state, transitIspId);
+    return hourlyShouldFetch(transitIspState, timeAggregation, options);
+  },
+  promise(timeAggregation, transitIspId, options) {
+    return (api) => api.getTransitIspHourly(timeAggregation, transitIspId, options);
+  },
+});
+export const FETCH_HOURLY = hourlyFetch.types.fetch;
+export const FETCH_HOURLY_SUCCESS = hourlyFetch.types.success;
+export const FETCH_HOURLY_FAIL = hourlyFetch.types.fail;
+export const shouldFetchHourly = hourlyFetch.shouldFetch;
+export const fetchHourly = hourlyFetch.fetch;
+export const fetchHourlyIfNeeded = hourlyFetch.fetchIfNeeded;

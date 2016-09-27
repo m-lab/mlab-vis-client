@@ -2,26 +2,26 @@
  * Actions for clientIsps
  */
 import createFetchAction from '../createFetchAction';
+import typePrefix from './typePrefix';
+import { infoShouldFetch, timeSeriesShouldFetch, hourlyShouldFetch } from '../shared/shouldFetch';
 
 /**
  * Action Creators
  */
+function getClientIspState(state, clientIspId) {
+  return state.clientIsps[clientIspId];
+}
 
 // ---------------------
 // Fetch Client ISP Info
 // ---------------------
 const infoFetch = createFetchAction({
-  typePrefix: 'clientIsps/',
+  typePrefix,
   key: 'INFO',
   args: ['clientIspId'],
   shouldFetch(state, clientIspId) {
-    const clientIspState = state.clientIsps[clientIspId];
-    if (!clientIspState) {
-      return true;
-    }
-
-    const hasInfo = clientIspState.info.isFetched || clientIspState.info.isFetching;
-    return !hasInfo;
+    const clientIspState = getClientIspState(state, clientIspId);
+    return infoShouldFetch(clientIspState);
   },
   promise(clientIspId) {
     return api => api.getClientIspInfo(clientIspId);
@@ -39,9 +39,9 @@ export const fetchInfoIfNeeded = infoFetch.fetchIfNeeded;
  * This is typically done when using a value from a search result that hasn't yet been
  * populated in the client ISP store.
  */
-export const SAVE_CLIENT_ISP_INFO = 'clientIsps/SAVE_CLIENT_ISP_INFO';
+export const SAVE_CLIENT_ISP_INFO = `${typePrefix}SAVE_INFO`;
 export function shouldSaveClientIspInfo(state, clientIsp) {
-  const clientIspState = state.clientIsps[clientIsp.id];
+  const clientIspState = getClientIspState(state, clientIsp.id);
   if (!clientIspState) {
     return true;
   }
@@ -65,3 +65,48 @@ export function saveClientIspInfoIfNeeded(clientIspInfo) {
     }
   };
 }
+
+
+// ---------------------
+// Fetch Time Series
+// ---------------------
+const timeSeriesFetch = createFetchAction({
+  typePrefix,
+  key: 'TIME_SERIES',
+  args: ['timeAggregation', 'clientIspId', 'options'],
+  shouldFetch(state, timeAggregation, clientIspId, options = {}) {
+    const clientIspState = getClientIspState(state, clientIspId);
+    return timeSeriesShouldFetch(clientIspState, timeAggregation, options);
+  },
+  promise(timeAggregation, clientIspId, options) {
+    return api => api.getClientIspTimeSeries(timeAggregation, clientIspId, options);
+  },
+});
+export const FETCH_TIME_SERIES = timeSeriesFetch.types.fetch;
+export const FETCH_TIME_SERIES_SUCCESS = timeSeriesFetch.types.success;
+export const FETCH_TIME_SERIES_FAIL = timeSeriesFetch.types.fail;
+export const shouldFetchTimeSeries = timeSeriesFetch.shouldFetch;
+export const fetchTimeSeries = timeSeriesFetch.fetch;
+export const fetchTimeSeriesIfNeeded = timeSeriesFetch.fetchIfNeeded;
+
+// ---------------------
+// Fetch Hourly
+// ---------------------
+const hourlyFetch = createFetchAction({
+  typePrefix,
+  key: 'HOURLY',
+  args: ['timeAggregation', 'clientIspId', 'options'],
+  shouldFetch(state, timeAggregation, clientIspId, options = {}) {
+    const clientIspState = getClientIspState(state, clientIspId);
+    return hourlyShouldFetch(clientIspState, timeAggregation, options);
+  },
+  promise(timeAggregation, clientIspId, options) {
+    return (api) => api.getClientIspHourly(timeAggregation, clientIspId, options);
+  },
+});
+export const FETCH_HOURLY = hourlyFetch.types.fetch;
+export const FETCH_HOURLY_SUCCESS = hourlyFetch.types.success;
+export const FETCH_HOURLY_FAIL = hourlyFetch.types.fail;
+export const shouldFetchHourly = hourlyFetch.shouldFetch;
+export const fetchHourly = hourlyFetch.fetch;
+export const fetchHourlyIfNeeded = hourlyFetch.fetchIfNeeded;

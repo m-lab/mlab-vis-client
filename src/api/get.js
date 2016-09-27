@@ -34,14 +34,13 @@ function urlCacheKey(path, params) {
  * Makes an AJAX get request
  *
  * @param {String} path The relative API URL to request from
- * @param {Object} options The request options
- * @param {Object} options.params The query parameters
+ * @param {Object} query The request query params
  * @return {Promise} The promise for the request
  */
-export default function get(path, { params } = {}) {
+export default function get(path, query) {
   return new Promise((resolve, reject) => {
     // check for a cached response
-    const cacheKey = urlCacheKey(path, params);
+    const cacheKey = urlCacheKey(path, query);
     const cached = apiCache.get(cacheKey);
 
     // found in cache
@@ -54,8 +53,8 @@ export default function get(path, { params } = {}) {
     const request = superagent.get(formatUrl(path));
 
     // add in query parameters
-    if (params) {
-      request.query(params);
+    if (query) {
+      request.query(query);
     }
 
     request.end((err, { body } = {}) => {
@@ -74,4 +73,3 @@ export default function get(path, { params } = {}) {
     });
   });
 }
-

@@ -30,3 +30,6 @@ export Histogram from './Histogram/Histogram';
 export HistoGroup from './HistoGroup/HistoGroup';
 export TextWithBackground from './TextWithBackground/TextWithBackground';
 export SearchSelect from './SearchSelect/SearchSelect';
+export CompareInputPanel from './CompareInputPanel/CompareInputPanel';
+export CompareTimeSeriesCharts from './CompareTimeSeriesCharts/CompareTimeSeriesCharts';
+export CompareHourCharts from './CompareHourCharts/CompareHourCharts';

@@ -48,7 +48,6 @@ export function hashAsn(asnNumber, maxCount) {
   if (!asnNumber) {
     return 0;
   }
-
   const asn = parseInt(asnNumber.replace(/\D+/g, ''), 10);
   return mod(asn, maxCount);
 }
@@ -61,7 +60,11 @@ export function hashAsn(asnNumber, maxCount) {
  * @return {Integer} value between 0 and maxCount
  */
 export function hashString(string, maxCount) {
-  const sum = d3.sum(string.split('').map(ch => ch.charCodeAt(0)));
+  if (!string) {
+    return 0;
+  }
+
+  const sum = d3.sum(string.split('').map(ch => ch.charCodeAt(0) * ch.charCodeAt(0)));
   return mod(sum, maxCount);
 }
 
@@ -110,7 +113,7 @@ function varyColor(colors, overlaps) {
  *  defaults to hashAsn which expects value to be ASN strings.
  * @return {Array} Array of Color strings in order of values.
  */
-export function extractColors(values, valueAccessor = d => d, hashFunction = hashAsn) {
+export function extractColors(values, valueAccessor = d => d, hashFunction = hashString) {
   const maxCount = HCL_COLORS.length;
   const indexes = values.map((v, i) => ({ index: i, hash: hashFunction(valueAccessor(v), maxCount) }));
 
@@ -138,7 +141,7 @@ export function extractColors(values, valueAccessor = d => d, hashFunction = has
  *  defaults to hashAsn which expects value to be ASN strings.
  * @return {Object} With a key for each value in values.
  */
-export function colorsFor(values, valueAccessor = d => d, hashFunction = hashAsn) {
+export function colorsFor(values, valueAccessor = d => d, hashFunction = hashString) {
   const colors = extractColors(values, valueAccessor, hashFunction);
   const colorMap = {};
   colors.forEach((color, index) => {

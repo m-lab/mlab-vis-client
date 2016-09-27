@@ -14,6 +14,7 @@ function mapStateToProps(state, props) {
 
 class TransitIspSearch extends PureComponent {
   static propTypes = {
+    disabled: PropTypes.bool,
     dispatch: PropTypes.func,
     exclude: PropTypes.array,
     onSuggestionSelected: PropTypes.func,
@@ -37,12 +38,13 @@ class TransitIspSearch extends PureComponent {
   }
 
   render() {
-    const { searchResults, onSuggestionSelected } = this.props;
+    const { disabled, searchResults, onSuggestionSelected } = this.props;
 
     return (
       <Search
         className="TransitIspSearch"
         defaultSectionName="Transit ISPs"
+        disabled={disabled}
         placeholder="Search for a transit ISP"
         searchResults={searchResults}
         onSearchChange={this.onSearchQueryChange}

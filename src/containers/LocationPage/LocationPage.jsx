@@ -8,7 +8,9 @@ import Col from 'react-bootstrap/lib/Col';
 
 import * as LocationPageSelectors from '../../redux/locationPage/selectors';
 import * as LocationPageActions from '../../redux/locationPage/actions';
+import * as LocationsSelectors from '../../redux/locations/selectors';
 import * as LocationsActions from '../../redux/locations/actions';
+import * as LocationClientIspActions from '../../redux/locationClientIsp/actions';
 
 import { colorsFor } from '../../utils/color';
 import { metrics } from '../../constants';
@@ -68,15 +70,15 @@ function mapStateToProps(state, propsWithUrl) {
     highlightHourly: LocationPageSelectors.getHighlightHourly(state, propsWithUrl),
     highlightTimeSeriesDate: LocationPageSelectors.getHighlightTimeSeriesDate(state, propsWithUrl),
     highlightTimeSeriesLine: LocationPageSelectors.getHighlightTimeSeriesLine(state, propsWithUrl),
-    hourlyStatus: LocationPageSelectors.getLocationHourlyStatus(state, propsWithUrl),
-    locationInfo: LocationPageSelectors.getLocationInfo(state, propsWithUrl),
+    hourlyStatus: LocationsSelectors.getLocationHourlyStatus(state, propsWithUrl),
+    locationInfo: LocationsSelectors.getLocationInfo(state, propsWithUrl),
     locationAndClientIspTimeSeries: LocationPageSelectors.getLocationAndClientIspTimeSeries(state, propsWithUrl),
-    locationHourly: LocationPageSelectors.getLocationHourly(state, propsWithUrl),
-    locationTimeSeries: LocationPageSelectors.getLocationTimeSeries(state, propsWithUrl),
+    locationHourly: LocationsSelectors.getLocationHourly(state, propsWithUrl),
+    locationTimeSeries: LocationsSelectors.getLocationTimeSeries(state, propsWithUrl),
     selectedClientIspInfo: LocationPageSelectors.getLocationSelectedClientIspInfo(state, propsWithUrl),
     summary: LocationPageSelectors.getSummaryData(state, propsWithUrl),
     timeSeriesStatus: LocationPageSelectors.getTimeSeriesStatus(state, propsWithUrl),
-    topClientIsps: LocationPageSelectors.getLocationTopClientIsps(state, propsWithUrl),
+    topClientIsps: LocationsSelectors.getLocationTopClientIsps(state, propsWithUrl),
     viewMetric: LocationPageSelectors.getViewMetric(state, propsWithUrl),
     compareMetrics: LocationPageSelectors.getCompareMetrics(state, propsWithUrl),
   };
@@ -148,7 +150,6 @@ class LocationPage extends PureComponent {
     dispatch(LocationsActions.fetchTimeSeriesIfNeeded(timeAggregation, locationId, options));
     dispatch(LocationsActions.fetchHourlyIfNeeded(timeAggregation, locationId, options));
     dispatch(LocationsActions.fetchTopClientIspsIfNeeded(locationId));
-
     // setup selected ISPs if needed
     if (topClientIsps) {
       if (!selectedClientIspIds) {
@@ -175,10 +176,10 @@ class LocationPage extends PureComponent {
     // fetch data for selected Client ISPs
     if (selectedClientIspIds) {
       selectedClientIspIds.forEach(clientIspId => {
-        dispatch(LocationsActions.fetchClientIspInfoIfNeeded(locationId, clientIspId));
-        dispatch(LocationsActions.fetchClientIspLocationTimeSeriesIfNeeded(timeAggregation, locationId,
+        dispatch(LocationClientIspActions.fetchInfoIfNeeded(locationId, clientIspId));
+        dispatch(LocationClientIspActions.fetchTimeSeriesIfNeeded(timeAggregation, locationId,
           clientIspId, options));
-        dispatch(LocationsActions.fetchClientIspLocationHourlyIfNeeded(timeAggregation, locationId,
+        dispatch(LocationClientIspActions.fetchHourlyIfNeeded(timeAggregation, locationId,
           clientIspId, options));
       });
     }
@@ -298,7 +299,7 @@ class LocationPage extends PureComponent {
 
   renderCityProviders() {
     const { locationInfo } = this.props;
-    const locationName = (locationInfo && locationInfo.label) || 'Loading...';
+    const locationName = (locationInfo && (locationInfo.shortLabel || locationInfo.label)) || 'Loading...';
     return (
       <div className="section">
         <header>
@@ -412,7 +413,6 @@ class LocationPage extends PureComponent {
     const { clientIspTimeSeries, highlightTimeSeriesDate, highlightTimeSeriesLine,
       locationId, locationTimeSeries, timeSeriesStatus, viewMetric } = this.props;
     const chartId = 'providers-time-series';
-    const chartData = locationTimeSeries && locationTimeSeries.results;
     return (
       <div className="subsection">
         <header>
@@ -421,7 +421,6 @@ class LocationPage extends PureComponent {
         <StatusWrapper status={timeSeriesStatus}>
           <LineChartWithCounts
             id={chartId}
-            data={chartData}
             series={clientIspTimeSeries}
             annotationSeries={locationTimeSeries}
             onHighlightDate={this.onHighlightTimeSeriesDate}
@@ -437,7 +436,7 @@ class LocationPage extends PureComponent {
           />
           <ChartExportControls
             chartId={chartId}
-            data={chartData}
+            data={locationTimeSeries && locationTimeSeries.results}
             filename={`${locationId}_${viewMetric.value}_${chartId}`}
           />
         </StatusWrapper>
@@ -623,7 +622,7 @@ class LocationPage extends PureComponent {
 
   render() {
     const { locationInfo } = this.props;
-    const locationName = (locationInfo && locationInfo.label) || 'Location';
+    const locationName = (locationInfo && (locationInfo.shortLabel || locationInfo.label)) || 'Location';
 
     return (
       <div className="location-page">

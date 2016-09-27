@@ -15,6 +15,7 @@ class Search extends PureComponent {
   static propTypes = {
     className: PropTypes.string,
     defaultSectionName: PropTypes.string,
+    disabled: PropTypes.bool,
     onSearchChange: PropTypes.func,
     onSuggestionSelected: PropTypes.func,
     placeholder: PropTypes.string,
@@ -158,7 +159,7 @@ class Search extends PureComponent {
     return (
       <div>
         <span className="suggestion-count">{formatNumber(suggestion.data.test_count)}</span>
-        <span className="suggestion-name">{suggestion.meta.longLabel || suggestion.meta.label}</span>
+        <span className="suggestion-name">{suggestion.meta.label}</span>
       </div>
     );
   }
@@ -168,17 +169,18 @@ class Search extends PureComponent {
    * @return {ReactElement} JSX markup.
    */
   render() {
-    const { placeholder, className } = this.props;
+    const { disabled, placeholder, className } = this.props;
     const { value, suggestions } = this.state;
 
     const inputProps = {
       placeholder,
       value,
       onChange: this.onChange,
+      disabled,
     };
 
     return (
-      <div className={classNames('Search', className)}>
+      <div className={classNames('Search', className, { disabled })}>
         <Autosuggest
           suggestions={suggestions}
           onSuggestionsFetchRequested={this.onSuggestionsFetchRequested}

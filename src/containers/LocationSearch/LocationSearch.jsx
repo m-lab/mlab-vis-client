@@ -14,6 +14,7 @@ function mapStateToProps(state, props) {
 
 class LocationSearch extends PureComponent {
   static propTypes = {
+    disabled: PropTypes.bool,
     dispatch: PropTypes.func,
     exclude: PropTypes.array,
     onSuggestionSelected: PropTypes.func,
@@ -50,10 +51,11 @@ class LocationSearch extends PureComponent {
   }
 
   render() {
-    const { searchResults, onSuggestionSelected } = this.props;
+    const { disabled, searchResults, onSuggestionSelected } = this.props;
     return (
       <Search
         className="LocationSearch"
+        disabled={disabled}
         placeholder="Search for a location"
         searchResults={searchResults}
         onSearchChange={this.onSearchQueryChange}

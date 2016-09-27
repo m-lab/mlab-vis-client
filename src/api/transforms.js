@@ -85,6 +85,10 @@ export function transformTimeSeries(body) {
       results: points,
       extents: computeDataExtents(points),
     });
+
+    if (!body.meta) {
+      body.meta = {};
+    }
   }
 
   return body;
@@ -117,6 +121,10 @@ export function transformHourly(body) {
       results: points,
       extents: computeDataExtents(points),
     });
+
+    if (!body.meta) {
+      body.meta = {};
+    }
   }
 
   return body;
@@ -135,24 +143,23 @@ export function transformLocationLabel(body) {
   if (body.meta) {
     const { meta } = body;
 
-    meta.label = meta.client_city || meta.client_region || meta.client_country || meta.client_continent;
-    meta.longLabel = meta.label;
+    meta.shortLabel = meta.client_city || meta.client_region || meta.client_country || meta.client_continent;
+    meta.label = meta.shortLabel;
+
     // Create a display name for locations.
     if (meta.type === 'city') {
       if (meta.client_country === 'United States') {
-        meta.longLabel += `, ${meta.client_region}`;
+        meta.label += `, ${meta.client_region}`;
       } else {
-        meta.longLabel += `, ${meta.client_country}`;
+        meta.label += `, ${meta.client_country}`;
       }
     } else if (meta.type === 'region') {
-      meta.longLabel += `, ${meta.client_country}`;
+      meta.label += `, ${meta.client_country}`;
     }
   }
 
   return body;
 }
-
-console.warn('TODO - temporarily adding in ID in transform search results');
 
 /**
  * Transforms the response from location search before rest of application uses it.
@@ -167,9 +174,6 @@ export function transformLocationSearchResults(body) {
     results.forEach(d => {
       // Create a display name for cities.
       transformLocationLabel(d);
-      d.name = d.meta.longLabel;
-      d.id = d.meta.location_key;
-      d.meta.id = d.meta.location_key;
     });
 
     // add new entries to the body object
@@ -193,7 +197,6 @@ export function transformClientIspSearchResults(body) {
     const results = body.results;
     results.forEach(d => {
       d.meta.label = d.meta.client_asn_name;
-      d.meta.id = d.meta.id;
     });
 
     // add new entries to the body object
@@ -216,7 +219,6 @@ export function transformTransitIspSearchResults(body) {
   if (body.results) {
     const results = body.results;
     results.forEach(d => {
-      d.meta.id = d.meta.id;
       d.meta.label = d.meta.server_asn_name;
     });
 
@@ -440,4 +442,23 @@ export function transformTransitIspInfo(transitIspId) {
 
     return body;
   };
+}
+
+/**
+ * Transforms transit ISP meta to have label
+ *
+ * - adds in a `label` property to meta
+ *
+ * @param {Object} body The response body
+ * @return {Object} The transformed response body
+ */
+export function transformTransitIspLabel(body) {
+  // NOTE: modifying body directly means it modifies what is stored in the API cache
+  if (body.meta) {
+    const { meta } = body;
+
+    meta.label = meta.server_asn_name;
+  }
+
+  return body;
 }

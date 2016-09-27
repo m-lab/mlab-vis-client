@@ -2,74 +2,45 @@
  * Reducer for transitIsps
  */
 import { combineReducers } from 'redux';
-import * as Actions from './actions';
+// import * as Actions from './actions';
 
-const initialState = {
-};
+import infoWithTypePrefix, { initialState as initialInfoState } from '../shared/infoWithTypePrefix';
+import timeWithTypePrefix, { initialState as initialTimeState } from '../shared/timeWithTypePrefix';
+import typePrefix from './typePrefix';
 
-export const initialTransitIspState = {
+const time = timeWithTypePrefix(typePrefix);
+const info = infoWithTypePrefix(typePrefix);
+
+export const initialState = {
   id: null,
 
-  info: {
-    isFetching: false,
-    isFetched: false,
-  },
+  info: initialInfoState,
+  time: initialTimeState,
 };
 
-// reducer for transit ISP info
-function info(state = initialTransitIspState.info, action = {}) {
-  switch (action.type) {
-    case Actions.FETCH_INFO:
-      return {
-        data: state.data,
-        isFetching: true,
-        isFetched: false,
-      };
-    case Actions.SAVE_TRANSIT_ISP_INFO:
-    case Actions.FETCH_INFO_SUCCESS:
-      return {
-        // store the meta info directly
-        data: action.result.meta,
-        isFetching: false,
-        isFetched: true,
-      };
-    case Actions.FETCH_INFO_FAIL:
-      return {
-        isFetching: false,
-        isFetched: false,
-        error: action.error,
-      };
-    default:
-      return state;
-  }
-}
-
-
 // reducer to get the ID
-function id(state = initialTransitIspState.id, action = {}) {
+function id(state = initialState.id, action) {
   return action.transitIspId || state;
 }
 
 const transitIsp = combineReducers({
   id,
   info,
+  time,
 });
 
+
 // The root reducer
-function transitIsps(state = initialState, action = {}) {
-  const { transitIspId } = action;
-  switch (action.type) {
-    case Actions.SAVE_TRANSIT_ISP_INFO:
-    case Actions.FETCH_INFO:
-    case Actions.FETCH_INFO_SUCCESS:
-    case Actions.FETCH_INFO_FAIL:
-      return {
-        ...state,
-        [transitIspId]: transitIsp(state[transitIspId], action),
-      };
-    default:
-      return state;
+function transitIsps(state = {}, action) {
+  if (action.transitIspId != null) {
+    const { transitIspId } = action;
+    return {
+      ...state,
+      [transitIspId]: transitIsp(state[transitIspId], action),
+    };
   }
+
+  return state;
 }
 
 

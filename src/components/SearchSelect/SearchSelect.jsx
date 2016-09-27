@@ -5,7 +5,7 @@ import Col from 'react-bootstrap/lib/Col';
 import { Icon } from '../../components';
 import { LocationSearch, ClientIspSearch, TransitIspSearch } from '../../containers';
 
-import { colorsFor, hashAsn, hashString } from '../../utils/color';
+import { colorsFor, hashString } from '../../utils/color';
 
 import '../../assets/react-select.scss';
 import './SearchSelect.scss';
@@ -17,6 +17,7 @@ import './SearchSelect.scss';
  */
 export default class SearchSelect extends PureComponent {
   static propTypes = {
+    disabled: PropTypes.bool,
     onChange: PropTypes.func,
     orientation: PropTypes.oneOf(['horizontal', 'vertical']),
     selected: PropTypes.array,
@@ -24,6 +25,7 @@ export default class SearchSelect extends PureComponent {
   }
 
   static defaultProps = {
+    disabled: false,
     orientation: 'horizontal',
     selected: [],
   }
@@ -62,9 +64,7 @@ export default class SearchSelect extends PureComponent {
   }
 
   getColors(selected) {
-    const { type } = this.props;
-    const hash = type === 'clientIsp' ? hashAsn : hashString;
-    return colorsFor(selected, (d) => d.id, hash);
+    return colorsFor(selected, (d) => d.id);
   }
 
   /**
@@ -75,7 +75,7 @@ export default class SearchSelect extends PureComponent {
     const style = { backgroundColor: color };
     return (
       <div key={item.id} className="selected-item" style={style}>
-        <span className="item-label">{item.longLabel || item.label}</span>
+        <span className="item-label">{item.label}</span>
         <Icon
           name="close"
           className="item-remove-control"
@@ -105,7 +105,7 @@ export default class SearchSelect extends PureComponent {
    * @return {React.Component} The rendered component
    */
   render() {
-    const { type, selected, orientation } = this.props;
+    const { disabled, type, selected, orientation } = this.props;
     const colSize = orientation === 'vertical' ? 12 : 6;
 
     // decide which search component to use based on type
@@ -122,7 +122,7 @@ export default class SearchSelect extends PureComponent {
       <div className="SearchSelect">
         <Row>
           <Col md={colSize}>
-            <SearchComponent onSuggestionSelected={this.onAdd} exclude={selected} />
+            <SearchComponent disabled={disabled} onSuggestionSelected={this.onAdd} exclude={selected} />
           </Col>
           <Col md={colSize}>
             {this.renderSelectedItems(selected)}

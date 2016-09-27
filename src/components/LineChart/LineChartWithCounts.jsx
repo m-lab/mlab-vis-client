@@ -12,11 +12,13 @@ import addComputedProps from '../../hoc/addComputedProps';
  * @return {Array} the prepared data
  */
 function prepareData(props) {
-  const { series } = props;
+  let { series } = props;
 
   if (!series) {
     return {};
   }
+
+  series = Array.isArray(series) ? series : [series];
 
   // create counts
   const countsByDate = series.reduce((countsByDate, oneSeries) => {
@@ -48,9 +50,11 @@ function prepareData(props) {
  */
 function visProps(props) {
   const { width, xExtent, xKey } = props;
+  let { highlightLine, colors } = props;
 
   const preparedData = prepareData(props);
   const { series } = preparedData;
+
   const padding = {
     right: 50,
     left: 50,
@@ -71,14 +75,19 @@ function visProps(props) {
   }
 
   // initialize a color scale
-  let colors = {};
-  if (series) {
+  if (series && !colors) {
     colors = colorsFor(series, (d) => d.meta.id);
+  } else if (!colors) {
+    colors = {};
+  }
+
+  // ensure we have the series for the highlighted line
+  if (highlightLine && !series.includes(highlightLine)) {
+    highlightLine = null;
   }
 
   // assumes the first series has the max length
   const numBins = series && series.length ? series[0].length : 1;
-
   return {
     series: preparedData.series,
     counts: preparedData.counts,
@@ -86,6 +95,7 @@ function visProps(props) {
     numBins,
     xScale,
     colors,
+    highlightLine,
   };
 }
 
@@ -95,7 +105,6 @@ function visProps(props) {
  *
  * @prop {Array|Object} annotationSeries The array of series data not included in count (e.g., [{ meta, results }, ...])
  *   or just a single object of series data.
- * @prop {Array} data The array of data points to render (e.g., [{x: Date, y: Number}, ...])
  * @prop {Boolean} forceZeroMin=true Whether the min y value should always be 0.
  * @prop {Number} height The height in pixels of the SVG chart
  * @prop {Object} highlightDate The date being highlighted in the chart
@@ -119,7 +128,6 @@ class LineChartWithCounts extends PureComponent {
     annotationSeries: PropTypes.oneOfType([PropTypes.array, PropTypes.object]),
     colors: PropTypes.object,
     counts: PropTypes.array,
-    data: PropTypes.array,
     forceZeroMin: PropTypes.bool,
     height: React.PropTypes.number,
     highlightDate: React.PropTypes.object,
@@ -129,7 +137,7 @@ class LineChartWithCounts extends PureComponent {
     onHighlightDate: React.PropTypes.func,
     onHighlightLine: React.PropTypes.func,
     padding: PropTypes.object,
-    series: PropTypes.array,
+    series: PropTypes.oneOfType([PropTypes.array, PropTypes.object]),
     width: React.PropTypes.number,
     xExtent: PropTypes.array,
     xKey: React.PropTypes.string,

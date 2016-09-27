@@ -291,7 +291,18 @@ class CountChart extends PureComponent {
     if (highlightCount == null) {
       this.highlightCountBar.style('display', 'none');
     } else {
-      const d = data.find(datum => datum[xKey] === highlightCount);
+      let d;
+      if (highlightCount.isSame) {
+        d = data.find(datum => highlightCount.isSame(datum[xKey]));
+      } else {
+        d = data.find(datum => datum[xKey] === highlightCount);
+      }
+
+      // skip if we have no matching point to highlight
+      if (d == null) {
+        return;
+      }
+
       this.highlightCountBar
         .style('display', '')
         .attr('transform', `translate(${xScale(d[xKey])} ${yScale(d[yKey] || 0)})`);

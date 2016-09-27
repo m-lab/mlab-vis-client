@@ -24,6 +24,12 @@ $search-width: 400px;
   transition: border-color ease-in-out 0.15s, box-shadow ease-in-out 0.15s;
 }
 
+.disabled .react-autosuggest__input {
+  background: #eee;
+  cursor: not-allowed;
+}
+
+
 .react-autosuggest__input:focus {
   border-color: #66afe9;
   outline: 0;

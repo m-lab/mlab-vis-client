@@ -20,7 +20,7 @@ export default class Breadcrumbs extends PureComponent {
 
   render() {
     const { info, query } = this.props;
-    const { label, parents = [] } = info;
+    const { shortLabel, label, parents = [] } = info;
 
     return (
       <div className="Breadcrumbs">
@@ -31,7 +31,7 @@ export default class Breadcrumbs extends PureComponent {
               <span className="breadcrumb-separator">/</span>
             </li>
           ))}
-          <li className="breadcrumb-current">{label}</li>
+          <li className="breadcrumb-current">{shortLabel || label}</li>
         </ul>
       </div>
     );
