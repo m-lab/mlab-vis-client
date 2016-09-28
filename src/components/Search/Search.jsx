@@ -19,13 +19,11 @@ class Search extends PureComponent {
     onSearchChange: PropTypes.func,
     onSuggestionSelected: PropTypes.func,
     placeholder: PropTypes.string,
-    searchQuery: PropTypes.string,
     searchResults: PropTypes.array,
   }
 
   static defaultProps = {
     placeholder: 'Search',
-    searchQuery: '',
     searchResults: [],
     defaultSectionName: 'Other',
   }

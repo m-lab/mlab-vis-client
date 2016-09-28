@@ -16,7 +16,8 @@ class LocationSearch extends PureComponent {
   static propTypes = {
     disabled: PropTypes.bool,
     dispatch: PropTypes.func,
-    exclude: PropTypes.array,
+    // eslint-disable-next-line
+    exclude: PropTypes.array, // this prop is read in the searchResults selector
     onSuggestionSelected: PropTypes.func,
     router: PropTypes.object,
     searchResults: PropTypes.array,

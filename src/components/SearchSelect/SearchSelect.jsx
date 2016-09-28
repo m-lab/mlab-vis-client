@@ -5,7 +5,7 @@ import Col from 'react-bootstrap/lib/Col';
 import { Icon } from '../../components';
 import { LocationSearch, ClientIspSearch, TransitIspSearch } from '../../containers';
 
-import { colorsFor, hashString } from '../../utils/color';
+import { colorsFor } from '../../utils/color';
 
 import '../../assets/react-select.scss';
 import './SearchSelect.scss';
