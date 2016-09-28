@@ -4,6 +4,7 @@
 import { createSelector } from 'reselect';
 import { metrics } from '../../constants';
 import { mergeStatuses, status } from '../status';
+import { colorsFor } from '../../utils/color';
 import * as LocationsSelectors from '../locations/selectors';
 import * as LocationClientIspSelectors from '../locationClientIsp/selectors';
 
@@ -260,3 +261,19 @@ export const getLocationClientIspHourly = createSelector(
 export const getLocationClientIspHourlyStatus = createSelector(
   getLocationClientIspHourlyObjects,
   (hourlyObjects) => status(hourlyObjects));
+
+/**
+ * Selector to get the colors given all the selected ISPs and locations
+ */
+export const getColors = createSelector(
+  getLocationId, getLocationSelectedClientIspIds,
+  (locationId, selectedClientIspIds) => {
+    const colors = colorsFor(selectedClientIspIds,
+      // generate the colors based on client ISP ID
+      clientIspId => clientIspId,
+      // access the colours based on location_clientIspId
+      clientIspId => `${locationId}_${clientIspId}`);
+
+    return colors;
+  }
+);

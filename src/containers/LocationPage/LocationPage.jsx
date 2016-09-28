@@ -68,6 +68,8 @@ function mapStateToProps(state, propsWithUrl) {
     ...propsWithUrl,
     clientIspHourly: LocationPageSelectors.getLocationClientIspHourly(state, propsWithUrl),
     clientIspTimeSeries: LocationPageSelectors.getLocationClientIspTimeSeries(state, propsWithUrl),
+    colors: LocationPageSelectors.getColors(state, propsWithUrl),
+    compareMetrics: LocationPageSelectors.getCompareMetrics(state, propsWithUrl),
     highlightHourly: LocationPageSelectors.getHighlightHourly(state, propsWithUrl),
     highlightTimeSeriesDate: LocationPageSelectors.getHighlightTimeSeriesDate(state, propsWithUrl),
     highlightTimeSeriesLine: LocationPageSelectors.getHighlightTimeSeriesLine(state, propsWithUrl),
@@ -81,7 +83,6 @@ function mapStateToProps(state, propsWithUrl) {
     timeSeriesStatus: LocationPageSelectors.getTimeSeriesStatus(state, propsWithUrl),
     topClientIsps: LocationsSelectors.getLocationTopClientIsps(state, propsWithUrl),
     viewMetric: LocationPageSelectors.getViewMetric(state, propsWithUrl),
-    compareMetrics: LocationPageSelectors.getCompareMetrics(state, propsWithUrl),
   };
 }
 
@@ -89,6 +90,7 @@ class LocationPage extends PureComponent {
   static propTypes = {
     clientIspHourly: PropTypes.array,
     clientIspTimeSeries: PropTypes.array,
+    colors: PropTypes.object,
     compareMetrics: PropTypes.object,
     dispatch: PropTypes.func,
     endDate: momentPropTypes.momentObj,
@@ -413,7 +415,7 @@ class LocationPage extends PureComponent {
 
   renderCompareProviders() {
     const { clientIspTimeSeries, highlightTimeSeriesDate, highlightTimeSeriesLine,
-      locationId, locationTimeSeries, timeSeriesStatus, viewMetric } = this.props;
+      locationId, locationTimeSeries, timeSeriesStatus, viewMetric, colors } = this.props;
     const chartId = 'providers-time-series';
     return (
       <div className="subsection">
@@ -424,6 +426,7 @@ class LocationPage extends PureComponent {
           <AutoWidth>
             <LineChartWithCounts
               id={chartId}
+              colors={colors}
               series={clientIspTimeSeries}
               annotationSeries={locationTimeSeries}
               onHighlightDate={this.onHighlightTimeSeriesDate}
@@ -473,9 +476,7 @@ class LocationPage extends PureComponent {
   }
 
   renderProvidersByHour() {
-    const { locationHourly, clientIspHourly } = this.props;
-
-    const colors = colorsFor(clientIspHourly, (d) => d.meta.id);
+    const { locationHourly, clientIspHourly, colors } = this.props;
 
     return (
       <div className="subsection">

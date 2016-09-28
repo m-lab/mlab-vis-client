@@ -137,15 +137,18 @@ export function extractColors(values, valueAccessor = d => d, hashFunction = has
  * @param {Array} values Array to extract colors for.
  * @param {Function} valueAccessor Function to pull out the value from values with.
  *  defaults to identity function.
+ * @param {Function} keyAccessor Function to pull out the key from the values.
+ *  default to the valueAccessor.
  * @param {Function} hashFunction Function to convert value to an index into color array.
  *  defaults to hashAsn which expects value to be ASN strings.
  * @return {Object} With a key for each value in values.
  */
-export function colorsFor(values, valueAccessor = d => d, hashFunction = hashString) {
+export function colorsFor(values, valueAccessor = d => d, keyAccessor, hashFunction = hashString) {
+  keyAccessor = keyAccessor || valueAccessor;
   const colors = extractColors(values, valueAccessor, hashFunction);
   const colorMap = {};
   colors.forEach((color, index) => {
-    colorMap[valueAccessor(values[index])] = color;
+    colorMap[keyAccessor(values[index])] = color;
   });
 
   return colorMap;
