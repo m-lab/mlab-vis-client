@@ -37,7 +37,7 @@ class LocationSearch extends PureComponent {
   onSuggestionSelected(suggestion) {
     const { router } = this.props;
 
-    const suggestionId = suggestion.id;
+    const suggestionId = suggestion.meta.id;
     const path = `/location/${suggestionId}`;
     router.push(path);
   }
