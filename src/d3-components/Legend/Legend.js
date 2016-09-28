@@ -7,12 +7,24 @@ import './Legend.scss';
  * root container node.
  */
 export default class Legend {
-  constructor({ data = [], colors, formatter = d => d, width, onHoverLegendEntry }) {
+  constructor(options) {
+    const {
+      data = [],
+      colors,
+      formatter = d => d,
+      width,
+      onHoverLegendEntry,
+      labelKey = 'label',
+      idKey = 'id',
+    } = options;
+
     this.data = data;
     this.colors = colors;
     this.formatter = formatter;
     this.width = width;
     this.onHoverLegendEntry = onHoverLegendEntry;
+    this.labelKey = labelKey;
+    this.idKey = idKey;
 
     const entryMarginRight = 14;
     const minEntryWidth = 180;
@@ -47,6 +59,9 @@ export default class Legend {
    * @return {void}
    */
   render(container, values, onHoverLegendEntry = () => {}, highlightDatum) {
+    const idKey = this.idKey;
+    const labelKey = this.labelKey;
+
     let root = container.select('.Legend');
 
     if (root.empty()) {
@@ -57,7 +72,7 @@ export default class Legend {
     // when mousing between entries
     root.on('mouseleave', () => onHoverLegendEntry(null));
 
-    const binding = root.selectAll('.legend-entry').data(this.data, d => d.meta.id);
+    const binding = root.selectAll('.legend-entry').data(this.data, d => d.meta[idKey]);
     binding.exit().remove();
 
     const { entry: entryConfig, colorBox: colorBoxConfig } = this.config;
@@ -68,12 +83,14 @@ export default class Legend {
       .attr('class', 'legend-entry')
       .each(function legendEnter(d) {
         const entry = d3.select(this);
+        const datumId = d.meta[idKey];
+        const label = d.meta[labelKey];
 
         const entryId = String(Math.random()).replace(/\./, '');
         const clipId = `legend-clip-${entryId}`;
 
         // use the provided color or default to gray
-        const color = colors[d.meta.id] || '#aaa';
+        const color = colors[datumId] || '#aaa';
 
         // clip on the inner entry so the mouse listener can be outside of it.
         const innerEntry = entry.append('g').attr('clip-path', `url(#${clipId})`);
@@ -99,7 +116,7 @@ export default class Legend {
           .attr('class', 'legend-entry-label')
           .attr('x', colorBoxConfig.width + colorBoxConfig.margin)
           .attr('dy', 12)
-          .text(d.meta.label);
+          .text(label);
 
         // prepare the area where values are shown
         // this is the white bg rect to overlap the label text if necessary

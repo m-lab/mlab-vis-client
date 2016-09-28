@@ -45,7 +45,22 @@ export const metrics = [
 ];
 
 export const facetTypes = [
-  { value: 'location', label: 'Location' },
-  { value: 'clientIsp', label: 'Client ISP' },
-  { value: 'transitIsp', label: 'Transit ISP' },
+  {
+    value: 'location',
+    label: 'Location',
+    idKey: 'client_location_key',
+    labelKey: 'client_location_label',
+  },
+  {
+    value: 'clientIsp',
+    label: 'Client ISP',
+    idKey: 'client_asn_number',
+    labelKey: 'client_asn_name',
+  },
+  {
+    value: 'transitIsp',
+    label: 'Transit ISP',
+    idKey: 'server_asn_number',
+    labelKey: 'server_asn_name',
+  },
 ];

@@ -49,7 +49,7 @@ function prepareData(props) {
  * Figure out what is needed for both charts
  */
 function visProps(props) {
-  const { width, xExtent, xKey } = props;
+  const { width, xExtent, xKey, idKey } = props;
   let { highlightLine, colors } = props;
 
   const preparedData = prepareData(props);
@@ -76,7 +76,7 @@ function visProps(props) {
 
   // initialize a color scale
   if (series && !colors) {
-    colors = colorsFor(series, (d) => d.meta.id);
+    colors = colorsFor(series, (d) => d.meta[idKey]);
   } else if (!colors) {
     colors = {};
   }
@@ -133,6 +133,7 @@ class LineChartWithCounts extends PureComponent {
     highlightDate: React.PropTypes.object,
     highlightLine: React.PropTypes.object,
     id: React.PropTypes.string,
+    idKey: React.PropTypes.string,
     numBins: React.PropTypes.number,
     onHighlightDate: React.PropTypes.func,
     onHighlightLine: React.PropTypes.func,
@@ -151,6 +152,8 @@ class LineChartWithCounts extends PureComponent {
 
   static defaultProps = {
     threshold: 30,
+    idKey: 'id',
+    labelKey: 'label',
   }
 
   /**
@@ -159,12 +162,12 @@ class LineChartWithCounts extends PureComponent {
    */
   render() {
     const { id, width, xKey, annotationSeries, series, highlightLine, highlightDate,
-      onHighlightDate, counts, padding, xScale, numBins, colors } = this.props;
+      onHighlightDate, counts, padding, xScale, numBins, colors, idKey } = this.props;
 
     const lineChartHeight = 350;
     const countHeight = 80;
     const height = lineChartHeight + countHeight;
-    const highlightColor = highlightLine ? colors[highlightLine.meta.id] : undefined;
+    const highlightColor = highlightLine ? colors[highlightLine.meta[idKey]] : undefined;
     const highlightCountData = highlightLine ? highlightLine.results : undefined;
 
     return (

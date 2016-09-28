@@ -19,16 +19,18 @@ export default class CompareHourCharts extends PureComponent {
     facetItemHourly: PropTypes.array,
     facetItemId: PropTypes.string,
     facetItemInfo: PropTypes.object,
+    facetType: PropTypes.object,
     filter1Ids: PropTypes.array,
     filter1Infos: PropTypes.array,
     filter2Ids: PropTypes.array,
     filter2Infos: PropTypes.array,
+    filterTypes: PropTypes.array,
     highlightHourly: PropTypes.number,
     onHighlightHourly: PropTypes.func,
     viewMetric: PropTypes.object,
   }
 
-  renderHourly(chartId, hourly) {
+  renderHourly(chartId, hourly, dataType) {
     const {
       highlightHourly,
       viewMetric,
@@ -45,7 +47,7 @@ export default class CompareHourCharts extends PureComponent {
     if (!hourlyData || hourlyData.length === 0) {
       return null;
     }
-    const color = colors[hourlyData.meta.id];
+    const color = colors[hourlyData.meta[dataType.idKey]];
 
     return (
       <StatusWrapper status={status}>
@@ -76,6 +78,7 @@ export default class CompareHourCharts extends PureComponent {
   renderNoFilters(facetItemInfo) {
     const {
       facetItemHourly,
+      facetType,
     } = this.props;
 
     if (!facetItemHourly) {
@@ -85,11 +88,11 @@ export default class CompareHourCharts extends PureComponent {
     const chartId = `facet-hourly-${facetItemInfo.id}`;
     const hourly = facetItemHourly.find(hourly => hourly.id === facetItemInfo.id);
 
-    return this.renderHourly(chartId, hourly);
+    return this.renderHourly(chartId, hourly, facetType);
   }
 
   // if one filter has items, show the lines for those filter items in the chart
-  renderSingleFilter(facetItemInfo, filter1Infos) {
+  renderSingleFilter(facetItemInfo, filterInfos, dataType) {
     const {
       combinedHourly,
     } = this.props;
@@ -104,12 +107,12 @@ export default class CompareHourCharts extends PureComponent {
     return (
       <Row>
         {combinedHourly.map(hourlyObject => {
-          const info = filter1Infos.find(d => d.id === hourlyObject.id) || { label: 'Loading...' };
+          const info = filterInfos.find(d => d.id === hourlyObject.id) || { label: 'Loading...' };
           const chartId = `${baseChartId}-${hourlyObject.id}`;
           return (
             <Col key={hourlyObject.id} md={6}>
               <h5>{info.label}</h5>
-              {this.renderHourly(chartId, hourlyObject)}
+              {this.renderHourly(chartId, hourlyObject, dataType)}
             </Col>
           );
         })}
@@ -122,6 +125,7 @@ export default class CompareHourCharts extends PureComponent {
     const {
       combinedHourly,
       breakdownBy,
+      filterTypes,
     } = this.props;
 
     if (!combinedHourly) {
@@ -131,6 +135,7 @@ export default class CompareHourCharts extends PureComponent {
     const baseChartId = `facet-single-filtered-hourly-${facetItemInfo.id}`;
     const breakdownInfos = breakdownBy === 'filter1' ? filter1Infos : filter2Infos;
     const filterInfos = breakdownBy === 'filter1' ? filter2Infos : filter1Infos;
+    const dataType = breakdownBy === 'filter1' ? filterTypes[1] : filterTypes[0];
 
     // render a chart for each filter item
     return (
@@ -150,7 +155,7 @@ export default class CompareHourCharts extends PureComponent {
                   return (
                     <Col key={`${breakdownId}-${filterId}`} md={6}>
                       <h6>{filterInfo.label}</h6>
-                      {this.renderHourly(chartId, hourObject)}
+                      {this.renderHourly(chartId, hourObject, dataType)}
                     </Col>
                   );
                 })}
@@ -163,7 +168,7 @@ export default class CompareHourCharts extends PureComponent {
   }
 
   render() {
-    const { facetItemInfo, filter1Ids, filter1Infos, filter2Ids, filter2Infos } = this.props;
+    const { facetItemInfo, filter1Ids, filter1Infos, filter2Ids, filter2Infos, filterTypes } = this.props;
     // if filters are empty, show the facet item line in the chart
     // if one filter has items, show the lines for those filter items in the chart
     // if both filters have items, group by `breakdownBy` filter and have the other filter items have lines in those charts
@@ -177,12 +182,12 @@ export default class CompareHourCharts extends PureComponent {
     // only one filter (client ISPs)
     } else if (filter1Ids.length && !filter2Ids.length) {
       colSize = 12;
-      groupCharts = this.renderSingleFilter(facetItemInfo, filter1Infos);
+      groupCharts = this.renderSingleFilter(facetItemInfo, filter1Infos, filterTypes[0]);
 
     // only one filter (transit ISPs)
     } else if (!filter1Ids.length && filter2Ids.length) {
       colSize = 12;
-      groupCharts = this.renderSingleFilter(facetItemInfo, filter2Infos);
+      groupCharts = this.renderSingleFilter(facetItemInfo, filter2Infos, filterTypes[1]);
 
     // else two filters
     } else {

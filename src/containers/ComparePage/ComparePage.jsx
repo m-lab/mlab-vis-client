@@ -534,6 +534,7 @@ class ComparePage extends PureComponent {
       highlightTimeSeriesDate,
       highlightTimeSeriesLine,
       viewMetric,
+      colors,
     } = this.props;
 
     if (!seriesData || seriesData.length === 0) {
@@ -545,6 +546,7 @@ class ComparePage extends PureComponent {
         <LineChartWithCounts
           id={chartId}
           series={seriesData}
+          colors={colors}
           onHighlightDate={this.onHighlightTimeSeriesDate}
           highlightDate={highlightTimeSeriesDate}
           onHighlightLine={this.onHighlightTimeSeriesLine}
@@ -605,10 +607,12 @@ class ComparePage extends PureComponent {
       facetItemInfos,
       facetItemTimeSeries,
       facetItemHourly,
+      facetType,
       filter1Ids,
       filter1Infos,
       filter2Ids,
       filter2Infos,
+      filterTypes,
       highlightHourly,
       highlightTimeSeriesDate,
       highlightTimeSeriesLine,
@@ -639,10 +643,12 @@ class ComparePage extends PureComponent {
                 facetItemId={facetItemInfo.id}
                 facetItemInfo={facetItemInfo}
                 facetItemTimeSeries={facetItemTimeSeries}
+                facetType={facetType}
                 filter1Ids={filter1Ids}
                 filter1Infos={filter1Infos}
                 filter2Ids={filter2Ids}
                 filter2Infos={filter2Infos}
+                filterTypes={filterTypes}
                 highlightTimeSeriesDate={highlightTimeSeriesDate}
                 highlightTimeSeriesLine={highlightTimeSeriesLine}
                 onHighlightTimeSeriesDate={this.onHighlightTimeSeriesDate}
@@ -665,10 +671,12 @@ class ComparePage extends PureComponent {
                   facetItemId={facetItemInfo.id}
                   facetItemInfo={facetItemInfo}
                   facetItemHourly={facetItemHourly}
+                  facetType={facetType}
                   filter1Ids={filter1Ids}
                   filter1Infos={filter1Infos}
                   filter2Ids={filter2Ids}
                   filter2Infos={filter2Infos}
+                  filterTypes={filterTypes}
                   highlightHourly={highlightHourly}
                   onHighlightHourly={this.onHighlightHourly}
                   viewMetric={viewMetric}

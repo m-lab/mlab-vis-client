@@ -569,7 +569,11 @@ export const getCombinedHourly = createSelector(
 export const getColors = createSelector(
   getFacetItemIds, getFilter1Ids, getFilter2Ids,
   (facetItemIds, filterClientIspIds, filterTransitIspIds) => {
-    const combined = [].concat(facetItemIds, filterClientIspIds, filterTransitIspIds);
-    return colorsFor(combined);
+    const combined = [facetItemIds, filterClientIspIds, filterTransitIspIds]
+      .filter(d => d != null)
+      .reduce((combined, ids) => combined.concat(ids), []);
+
+    const colors = colorsFor(combined);
+    return colors;
   }
 );

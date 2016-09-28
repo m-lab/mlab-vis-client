@@ -17,10 +17,12 @@ export default class CompareTimeSeriesCharts extends PureComponent {
     facetItemId: PropTypes.string,
     facetItemInfo: PropTypes.object,
     facetItemTimeSeries: PropTypes.object,
+    facetType: PropTypes.object,
     filter1Ids: PropTypes.array,
     filter1Infos: PropTypes.array,
     filter2Ids: PropTypes.array,
     filter2Infos: PropTypes.array,
+    filterTypes: PropTypes.array,
     highlightTimeSeriesDate: PropTypes.object,
     highlightTimeSeriesLine: PropTypes.object,
     onHighlightTimeSeriesDate: PropTypes.func,
@@ -28,7 +30,7 @@ export default class CompareTimeSeriesCharts extends PureComponent {
     viewMetric: PropTypes.object,
   }
 
-  renderTimeSeries(chartId, timeSeries) {
+  renderTimeSeries(chartId, timeSeries, lineDataType) {
     const {
       colors,
       highlightTimeSeriesDate,
@@ -52,6 +54,8 @@ export default class CompareTimeSeriesCharts extends PureComponent {
       <StatusWrapper status={status}>
         <LineChartWithCounts
           id={chartId}
+          idKey={lineDataType.idKey}
+          labelKey={lineDataType.labelKey}
           colors={colors}
           series={seriesData}
           onHighlightDate={onHighlightTimeSeriesDate}
@@ -78,6 +82,7 @@ export default class CompareTimeSeriesCharts extends PureComponent {
   renderNoFilters(facetItemInfo) {
     const {
       facetItemTimeSeries,
+      facetType,
     } = this.props;
 
     if (!facetItemTimeSeries) {
@@ -87,11 +92,11 @@ export default class CompareTimeSeriesCharts extends PureComponent {
     const chartId = `facet-time-series-${facetItemInfo.id}`;
     const timeSeries = facetItemTimeSeries.timeSeries.find(seriesData => seriesData.id === facetItemInfo.id);
 
-    return this.renderTimeSeries(chartId, timeSeries);
+    return this.renderTimeSeries(chartId, timeSeries, facetType);
   }
 
   // if one filter has items, show the lines for those filter items in the chart
-  renderSingleFilter(facetItemInfo) {
+  renderSingleFilter(facetItemInfo, filterType) {
     const {
       combinedTimeSeries,
     } = this.props;
@@ -103,7 +108,7 @@ export default class CompareTimeSeriesCharts extends PureComponent {
     const chartId = `facet-single-filtered-time-series-${facetItemInfo.id}`;
 
     const timeSeriesObject = combinedTimeSeries;
-    return this.renderTimeSeries(chartId, timeSeriesObject);
+    return this.renderTimeSeries(chartId, timeSeriesObject, filterType);
   }
 
   // if both filters have items, group by `breakdownBy` filter and have the other filter items have lines in those charts
@@ -111,6 +116,7 @@ export default class CompareTimeSeriesCharts extends PureComponent {
     const {
       combinedTimeSeries,
       breakdownBy,
+      filterTypes,
     } = this.props;
 
     if (!combinedTimeSeries) {
@@ -119,6 +125,7 @@ export default class CompareTimeSeriesCharts extends PureComponent {
 
     const baseChartId = `facet-double-filtered-time-series-${facetItemInfo.id}`;
     const breakdownInfos = breakdownBy === 'filter1' ? filter1Infos : filter2Infos;
+    const lineDataType = breakdownBy === 'filter1' ? filterTypes[1] : filterTypes[0];
 
     return (
       <div>
@@ -129,7 +136,7 @@ export default class CompareTimeSeriesCharts extends PureComponent {
           return (
             <div key={breakdownId}>
               <h5>{breakdownInfo.label}</h5>
-              {this.renderTimeSeries(chartId, timeSeriesObject)}
+              {this.renderTimeSeries(chartId, timeSeriesObject, lineDataType)}
             </div>
           );
         })}
@@ -138,7 +145,7 @@ export default class CompareTimeSeriesCharts extends PureComponent {
   }
 
   render() {
-    const { facetItemInfo, filter1Ids, filter1Infos, filter2Ids, filter2Infos } = this.props;
+    const { facetItemInfo, filter1Ids, filter1Infos, filter2Ids, filter2Infos, filterTypes } = this.props;
     // if filters are empty, show the facet item line in the chart
     // if one filter has items, show the lines for those filter items in the chart
     // if both filters have items, group by `breakdownBy` filter and have the other filter items have lines in those charts
@@ -150,11 +157,11 @@ export default class CompareTimeSeriesCharts extends PureComponent {
 
     // only one filter (client ISPs)
     } else if (filter1Ids.length && !filter2Ids.length) {
-      groupCharts = this.renderSingleFilter(facetItemInfo, filter1Infos);
+      groupCharts = this.renderSingleFilter(facetItemInfo, filterTypes[0]);
 
     // only one filter (transit ISPs)
     } else if (!filter1Ids.length && filter2Ids.length) {
-      groupCharts = this.renderSingleFilter(facetItemInfo, filter2Infos);
+      groupCharts = this.renderSingleFilter(facetItemInfo, filterTypes[1]);
 
     // else two filters
     } else {

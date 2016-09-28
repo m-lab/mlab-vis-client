@@ -4,6 +4,7 @@ import {
   transform,
   transformTimeSeries,
   transformHourly,
+  transformClientIspLabel,
   transformTransitIspLabel,
   transformFixedData,
 } from '../transforms';
@@ -35,7 +36,7 @@ export function getClientIspTransitIspTimeSeries(timeAggregation, clientIspId, t
   const params = getMetricsParams(timeAggregation, options);
 
   return get(`/clients/${clientIspId}/servers/${transitIspId}/metrics`, params)
-    .then(transform(transformTransitIspLabel, transformTimeSeries));
+    .then(transform(transformClientIspLabel, transformTransitIspLabel, transformTimeSeries));
 }
 
 
@@ -53,5 +54,5 @@ export function getClientIspTransitIspHourly(timeAggregation, clientIspId, trans
   const params = getMetricsParams(`${timeAggregation}_hour`, options);
 
   return get(`/clients/${clientIspId}/servers/${transitIspId}/metrics`, params)
-    .then(transform(transformTransitIspLabel, transformHourly));
+    .then(transform(transformClientIspLabel, transformTransitIspLabel, transformHourly));
 }
