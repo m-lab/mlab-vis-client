@@ -151,7 +151,8 @@ class LocationPage extends PureComponent {
     dispatch(LocationsActions.fetchHourlyIfNeeded(timeAggregation, locationId, options));
     dispatch(LocationsActions.fetchTopClientIspsIfNeeded(locationId));
     // setup selected ISPs if needed
-    if (topClientIsps) {
+    if (topClientIsps && topClientIsps.length) {
+      // if we don't have selected client ISPs yet, select the top ones.
       if (!selectedClientIspIds) {
         // once we have the client ISPs for the location, if we don't have selected client ISPs,
         // set the selected client ISPs to the top 3 for the location.
