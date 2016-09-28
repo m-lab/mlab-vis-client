@@ -16,6 +16,8 @@ function searchWithTypePrefix(typePrefix) {
         return reduceFetch({
           data: state.data,
           query: action.searchQuery,
+          searchFilterType: action.searchFilterType,
+          searchFilterItemIds: action.searchFilterItemIds,
         });
       case `${typePrefix}FETCH_SEARCH_SUCCESS`:
         // if the query has changed since, ignore this
@@ -27,6 +29,8 @@ function searchWithTypePrefix(typePrefix) {
           ...state,
           data: action.result.results,
           query: action.searchQuery,
+          searchFilterType: action.searchFilterType,
+          searchFilterItemIds: action.searchFilterItemIds,
         });
       case `${typePrefix}FETCH_SEARCH_FAIL`:
         return reduceFetchFail({

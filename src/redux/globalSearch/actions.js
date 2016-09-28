@@ -18,6 +18,14 @@ function searchShouldFetch(state, searchQuery, searchFilterType, searchFilterIte
     return true;
   }
 
+  if (state.searchFilterType !== searchFilterType) {
+    return true;
+  }
+
+  if (state.searchFilterItemIds !== searchFilterItemIds) {
+    return true;
+  }
+
   // query matches what is currently there.
   return shouldFetch(state);
 }
