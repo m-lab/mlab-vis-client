@@ -266,7 +266,7 @@ class ComparePage extends PureComponent {
    */
   fetchDataFacetTypeTransitIsp(props, facetTransitIspIds, filterLocationIds, filterClientIspIds) {
     // fetch the time series and hourly data for facet client ISPs (unfiltered)
-    this.fetchDataForClientIsps(props, filterClientIspIds);
+    this.fetchDataForTransitIsps(props, facetTransitIspIds);
 
     // both filters active
     if (filterLocationIds.length && facetTransitIspIds.length) {
@@ -275,7 +275,7 @@ class ComparePage extends PureComponent {
     // only one filter active
     // fetch the data for each of the filter locations
     } else if (filterLocationIds.length) {
-      this.fetchDataForLocationClientIsps(props, filterLocationIds, filterClientIspIds);
+      this.fetchDataForLocationTransitIsps(props, filterLocationIds, facetTransitIspIds);
 
     // fetch the data for each of the filter client ISPs
     } else if (filterClientIspIds.length) {
