@@ -8,6 +8,19 @@ import {
   transformFixedData,
 } from '../transforms';
 
+
+/**
+ * Get information for a transit ISP in a clientIsp
+ *
+ * @param {String} clientIspId The clientIsp to query (e.g., nauswaseattle)
+ * @param {String} transitIspId The AS number of the ISP (e.g., AS7922)
+ * @return {Promise} A promise after the get request was made
+ */
+export function getClientIspTransitIspInfo(clientIspId, transitIspId) {
+  return get(`/clients/${clientIspId}/servers/${transitIspId}/info`)
+    .then(transform(transformFixedData));
+}
+
 /**
  * Get time series data for a transit ISP in a clientIsp in a given time aggregation
  *
@@ -41,16 +54,4 @@ export function getClientIspTransitIspHourly(timeAggregation, clientIspId, trans
 
   return get(`/clients/${clientIspId}/servers/${transitIspId}/metrics`, params)
     .then(transform(transformTransitIspLabel, transformHourly));
-}
-
-/**
- * Get information for a transit ISP in a clientIsp
- *
- * @param {String} clientIspId The clientIsp to query (e.g., nauswaseattle)
- * @param {String} transitIspId The AS number of the ISP (e.g., AS7922)
- * @return {Promise} A promise after the get request was made
- */
-export function getClientIspTransitIspInfo(clientIspId, transitIspId) {
-  return get(`/clients/${clientIspId}/servers/${transitIspId}/info`)
-    .then(transform(transformFixedData));
 }

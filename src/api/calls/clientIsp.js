@@ -8,6 +8,7 @@ import {
   transformClientIspInfo,
 } from '../transforms';
 
+
 /**
  * Get information for a client ISP
  *
@@ -15,11 +16,9 @@ import {
  * @return {Promise} A promise after the get request was made
  */
 export function getClientIspInfo(clientIspId) {
-  // return get(`/clients/${clientIspId}/info`)
-  return get('/locations/nauswa/info')
-    .then(transform(transformClientIspInfo(clientIspId)));
+  return get(`/clients/${clientIspId}/info`)
+    .then(transform(transformClientIspInfo));
 }
-
 
 /**
  * Get data for a client ISP in a given time aggregation.

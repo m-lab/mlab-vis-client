@@ -405,20 +405,13 @@ export function transformMapMeta(body) {
  * @param {Object} body The response body
  * @return {Object} The transformed response body
  */
-export function transformClientIspInfo(clientIspId) {
+export function transformClientIspInfo(body) {
   // NOTE: modifying body directly means it modifies what is stored in the API cache
-  return function fakeTransform(body) {
-    if (body.meta) {
-      body.meta = {
-        client_asn_name: 'Client ISP Name',
-        client_asn_number: clientIspId,
-        id: clientIspId,
-        label: 'Client ISP Name',
-      };
-    }
+  if (body.meta) {
+    body.meta.label = body.meta.client_asn_name;
+  }
 
-    return body;
-  };
+  return body;
 }
 
 
@@ -429,20 +422,15 @@ export function transformClientIspInfo(clientIspId) {
  * @param {Object} body The response body
  * @return {Object} The transformed response body
  */
-export function transformTransitIspInfo(transitIspId) {
+export function transformTransitIspInfo(body) {
   // NOTE: modifying body directly means it modifies what is stored in the API cache
-  return function fakeTransform(body) {
-    if (body.meta) {
-      body.meta = {
-        server_asn_name: 'Transit ISP Name',
-        id: transitIspId,
-        label: 'Transit ISP Name',
-      };
-    }
+  if (body.meta) {
+    body.meta.label = body.meta.server_asn_name;
+  }
 
-    return body;
-  };
+  return body;
 }
+
 
 /**
  * Transforms transit ISP meta to have label

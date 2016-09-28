@@ -16,11 +16,9 @@ import {
  * @return {Promise} A promise after the get request was made
  */
 export function getTransitIspInfo(transitIspId) {
-  // return get(`/servers/${clientIspId}/info`)
-  return get('/locations/nauswa/info')
-    .then(transform(transformTransitIspInfo(transitIspId)));
+  return get(`/servers/${transitIspId}/info`)
+    .then(transform(transformTransitIspInfo));
 }
-
 
 /**
  * Get data for a transit ISP in a given time aggregation.

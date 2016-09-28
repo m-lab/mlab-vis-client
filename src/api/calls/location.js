@@ -10,6 +10,7 @@ import {
   transformMapMeta,
 } from '../transforms';
 
+
 /**
  * Get information for a location
  *
