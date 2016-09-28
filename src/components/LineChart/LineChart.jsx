@@ -13,6 +13,8 @@ import './LineChart.scss';
  */
 function visProps(props) {
   const {
+    idKey,
+    labelKey,
     series,
     forceZeroMin,
     height,
@@ -39,7 +41,7 @@ function visProps(props) {
 
   // initialize a color scale unless one was provided
   if (series && !colors) {
-    colors = colorsFor(series, (d) => d.meta.id);
+    colors = colorsFor(series, (d) => d.meta[idKey]);
   }
 
   const padding = {
@@ -57,6 +59,8 @@ function visProps(props) {
     colors,
     formatter: yFormatter,
     width: plotAreaWidth,
+    idKey,
+    labelKey,
   });
 
   padding.top += legend.height;
@@ -104,7 +108,7 @@ function visProps(props) {
     .defined(d => d[yKey] != null)
     .accessData(d => d.results)
     .lineStyles({
-      stroke: (d) => colors[d.meta.id] || '#aaa',
+      stroke: (d) => colors[d.meta[idKey]] || '#aaa',
       'stroke-width': 1.5,
     });
 
@@ -168,7 +172,9 @@ class LineChart extends PureComponent {
     highlightDate: React.PropTypes.object,
     highlightLine: React.PropTypes.object,
     id: React.PropTypes.string,
+    idKey: React.PropTypes.string,
     inSvg: React.PropTypes.bool,
+    labelKey: React.PropTypes.string,
     legend: React.PropTypes.object,
     lineChunked: React.PropTypes.func,
     onHighlightDate: React.PropTypes.func,
@@ -191,6 +197,8 @@ class LineChart extends PureComponent {
 
   static defaultProps = {
     forceZeroMin: true,
+    idKey: 'id',
+    labelKey: 'label',
     xKey: 'x',
     yFormatter: d => d,
     yKey: 'y',
@@ -375,7 +383,7 @@ class LineChart extends PureComponent {
   }
 
   updateHighlightDate(highlightValues) {
-    const { highlightDate, xScale, plotAreaHeight, yScale, yKey, series, colors } = this.props;
+    const { highlightDate, xScale, plotAreaHeight, yScale, yKey, series, colors, idKey } = this.props;
 
     // render the x-axis marker for highlightDate
     if (highlightDate == null) {
@@ -405,15 +413,15 @@ class LineChart extends PureComponent {
         .attr('r', 3)
         .attr('cx', 0)
         .style('fill', (d, i) => {
-          if (series[i] && colors[series[i].meta.id]) {
-            return d3.color(colors[series[i].meta.id]).brighter(0.3);
+          if (series[i] && colors[series[i].meta[idKey]]) {
+            return d3.color(colors[series[i].meta[idKey]]).brighter(0.3);
           }
 
           return '#bbb';
         })
         .style('stroke', (d, i) => {
-          if (series[i] && colors[series[i].meta.id]) {
-            return colors[series[i].meta.id];
+          if (series[i] && colors[series[i].meta[idKey]]) {
+            return colors[series[i].meta[idKey]];
           }
 
           return '#aaa';

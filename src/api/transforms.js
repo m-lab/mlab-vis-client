@@ -130,6 +130,23 @@ export function transformHourly(body) {
   return body;
 }
 
+function locationLabel(meta) {
+  let label = meta.client_city || meta.client_region || meta.client_country || meta.client_continent;
+
+  // Create a display name for locations.
+  if (meta.type === 'city') {
+    if (meta.client_country === 'United States') {
+      label += `, ${meta.client_region}`;
+    } else {
+      label += `, ${meta.client_country}`;
+    }
+  } else if (meta.type === 'region') {
+    label += `, ${meta.client_country}`;
+  }
+
+  return label;
+}
+
 /**
  * Transforms location meta to have label
  *
@@ -144,18 +161,8 @@ export function transformLocationLabel(body) {
     const { meta } = body;
 
     meta.shortLabel = meta.client_city || meta.client_region || meta.client_country || meta.client_continent;
-    meta.label = meta.shortLabel;
-
-    // Create a display name for locations.
-    if (meta.type === 'city') {
-      if (meta.client_country === 'United States') {
-        meta.label += `, ${meta.client_region}`;
-      } else {
-        meta.label += `, ${meta.client_country}`;
-      }
-    } else if (meta.type === 'region') {
-      meta.label += `, ${meta.client_country}`;
-    }
+    meta.label = locationLabel(meta);
+    meta.client_location_label = meta.label;
   }
 
   return body;
@@ -244,6 +251,9 @@ export function transformClientIspLabel(body) {
   if (body.meta) {
     const { meta } = body;
 
+    if (!meta.client_asn_name || !meta.client_asn_name.length) {
+      meta.client_asn_name = meta.client_asn_number;
+    }
     meta.label = meta.client_asn_name;
   }
 
@@ -408,7 +418,7 @@ export function transformMapMeta(body) {
 export function transformClientIspInfo(body) {
   // NOTE: modifying body directly means it modifies what is stored in the API cache
   if (body.meta) {
-    body.meta.label = body.meta.client_asn_name;
+    transformClientIspLabel(body);
   }
 
   return body;
@@ -425,7 +435,7 @@ export function transformClientIspInfo(body) {
 export function transformTransitIspInfo(body) {
   // NOTE: modifying body directly means it modifies what is stored in the API cache
   if (body.meta) {
-    body.meta.label = body.meta.server_asn_name;
+    transformTransitIspLabel(body);
   }
 
   return body;
@@ -445,6 +455,9 @@ export function transformTransitIspLabel(body) {
   if (body.meta) {
     const { meta } = body;
 
+    if (!meta.server_asn_name || !meta.server_asn_name.length) {
+      meta.server_asn_name = meta.server_asn_number;
+    }
     meta.label = meta.server_asn_name;
   }
 
