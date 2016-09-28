@@ -19,6 +19,8 @@ class TransitIspSearch extends PureComponent {
     // eslint-disable-next-line
     exclude: PropTypes.array, // this prop is read in the searchResults selector
     onSuggestionSelected: PropTypes.func,
+    searchFilterItemIds: PropTypes.array,
+    searchFilterType: PropTypes.string,
     searchResults: PropTypes.array,
   }
 
@@ -33,8 +35,8 @@ class TransitIspSearch extends PureComponent {
    * Callback for when the search query changes
    */
   onSearchQueryChange(query) {
-    const { dispatch } = this.props;
-    dispatch(GlobalSearchActions.fetchTransitIspSearchIfNeeded(query));
+    const { dispatch, searchFilterType, searchFilterItemIds } = this.props;
+    dispatch(GlobalSearchActions.fetchTransitIspSearchIfNeeded(query, searchFilterType, searchFilterItemIds));
   }
 
   render() {

@@ -20,6 +20,8 @@ class LocationSearch extends PureComponent {
     exclude: PropTypes.array, // this prop is read in the searchResults selector
     onSuggestionSelected: PropTypes.func,
     router: PropTypes.object,
+    searchFilterItemIds: PropTypes.array,
+    searchFilterType: PropTypes.string,
     searchResults: PropTypes.array,
   }
 
@@ -47,8 +49,8 @@ class LocationSearch extends PureComponent {
    * Callback for when the search query changes
    */
   onSearchQueryChange(query) {
-    const { dispatch } = this.props;
-    dispatch(GlobalSearchActions.fetchLocationSearchIfNeeded(query));
+    const { dispatch, searchFilterType, searchFilterItemIds } = this.props;
+    dispatch(GlobalSearchActions.fetchLocationSearchIfNeeded(query, searchFilterType, searchFilterItemIds));
   }
 
   render() {

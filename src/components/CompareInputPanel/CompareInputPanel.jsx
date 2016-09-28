@@ -25,7 +25,7 @@ export default class CompareLocationsInput extends PureComponent {
   }
 
   renderFilterClientIspsInput(changeCallback) {
-    const { facetItemIds, filter1Infos, filter2Infos, filterTypes } = this.props;
+    const { facetItemIds, filter1Infos, filter2Infos, filterTypes, facetType } = this.props;
     const infos = filterTypes[0].value === 'clientIsp' ? filter1Infos : filter2Infos;
     const hasFacetItems = facetItemIds.length;
 
@@ -38,6 +38,8 @@ export default class CompareLocationsInput extends PureComponent {
           orientation="vertical"
           disabled={!hasFacetItems}
           onChange={changeCallback}
+          searchFilterItemIds={facetItemIds}
+          searchFilterType={facetType.value}
           selected={infos}
         />
       </div>
@@ -45,7 +47,7 @@ export default class CompareLocationsInput extends PureComponent {
   }
 
   renderFilterTransitIspsInput(changeCallback) {
-    const { facetItemIds, filter1Infos, filter2Infos, filterTypes } = this.props;
+    const { facetItemIds, filter1Infos, filter2Infos, filterTypes, facetType } = this.props;
     const infos = filterTypes[0].value === 'transitIsp' ? filter1Infos : filter2Infos;
     const hasFacetItems = facetItemIds.length;
 
@@ -58,6 +60,8 @@ export default class CompareLocationsInput extends PureComponent {
           orientation="vertical"
           disabled={!hasFacetItems}
           onChange={changeCallback}
+          searchFilterItemIds={facetItemIds}
+          searchFilterType={facetType.value}
           selected={infos}
         />
       </div>
@@ -65,7 +69,7 @@ export default class CompareLocationsInput extends PureComponent {
   }
 
   renderFilterLocationsInput(changeCallback) {
-    const { facetItemIds, filter1Infos, filter2Infos, filterTypes } = this.props;
+    const { facetItemIds, filter1Infos, filter2Infos, filterTypes, facetType } = this.props;
     const infos = filterTypes[0].value === 'location' ? filter1Infos : filter2Infos;
 
     const hasFacetItems = facetItemIds.length;
@@ -78,6 +82,8 @@ export default class CompareLocationsInput extends PureComponent {
           orientation="vertical"
           disabled={!hasFacetItems}
           onChange={changeCallback}
+          searchFilterItemIds={facetItemIds}
+          searchFilterType={facetType.value}
           selected={infos}
         />
       </div>
