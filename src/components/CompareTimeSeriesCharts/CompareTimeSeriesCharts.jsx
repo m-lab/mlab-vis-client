@@ -1,4 +1,5 @@
 import React, { PureComponent, PropTypes } from 'react';
+import AutoWidth from 'react-auto-width';
 
 import {
   ChartExportControls,
@@ -52,23 +53,24 @@ export default class CompareTimeSeriesCharts extends PureComponent {
 
     return (
       <StatusWrapper status={status}>
-        <LineChartWithCounts
-          id={chartId}
-          idKey={lineDataType.idKey}
-          labelKey={lineDataType.labelKey}
-          colors={colors}
-          series={seriesData}
-          onHighlightDate={onHighlightTimeSeriesDate}
-          highlightDate={highlightTimeSeriesDate}
-          onHighlightLine={onHighlightTimeSeriesLine}
-          highlightLine={highlightTimeSeriesLine}
-          yFormatter={viewMetric.formatter}
-          width={840}
-          xKey="date"
-          yAxisLabel={viewMetric.label}
-          yAxisUnit={viewMetric.unit}
-          yKey={viewMetric.dataKey}
-        />
+        <AutoWidth>
+          <LineChartWithCounts
+            id={chartId}
+            idKey={lineDataType.idKey}
+            labelKey={lineDataType.labelKey}
+            colors={colors}
+            series={seriesData}
+            onHighlightDate={onHighlightTimeSeriesDate}
+            highlightDate={highlightTimeSeriesDate}
+            onHighlightLine={onHighlightTimeSeriesLine}
+            highlightLine={highlightTimeSeriesLine}
+            yFormatter={viewMetric.formatter}
+            xKey="date"
+            yAxisLabel={viewMetric.label}
+            yAxisUnit={viewMetric.unit}
+            yKey={viewMetric.dataKey}
+          />
+        </AutoWidth>
         <ChartExportControls
           chartId={chartId}
           data={seriesData}

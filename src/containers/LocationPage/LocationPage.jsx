@@ -5,6 +5,7 @@ import { browserHistory } from 'react-router';
 import momentPropTypes from 'react-moment-proptypes';
 import Row from 'react-bootstrap/lib/Row';
 import Col from 'react-bootstrap/lib/Col';
+import AutoWidth from 'react-auto-width';
 
 import * as LocationPageSelectors from '../../redux/locationPage/selectors';
 import * as LocationPageActions from '../../redux/locationPage/actions';
@@ -420,21 +421,22 @@ class LocationPage extends PureComponent {
           <h3>Compare Providers</h3>
         </header>
         <StatusWrapper status={timeSeriesStatus}>
-          <LineChartWithCounts
-            id={chartId}
-            series={clientIspTimeSeries}
-            annotationSeries={locationTimeSeries}
-            onHighlightDate={this.onHighlightTimeSeriesDate}
-            highlightDate={highlightTimeSeriesDate}
-            onHighlightLine={this.onHighlightTimeSeriesLine}
-            highlightLine={highlightTimeSeriesLine}
-            yFormatter={viewMetric.formatter}
-            width={840}
-            xKey="date"
-            yAxisLabel={viewMetric.label}
-            yAxisUnit={viewMetric.unit}
-            yKey={viewMetric.dataKey}
-          />
+          <AutoWidth>
+            <LineChartWithCounts
+              id={chartId}
+              series={clientIspTimeSeries}
+              annotationSeries={locationTimeSeries}
+              onHighlightDate={this.onHighlightTimeSeriesDate}
+              highlightDate={highlightTimeSeriesDate}
+              onHighlightLine={this.onHighlightTimeSeriesLine}
+              highlightLine={highlightTimeSeriesLine}
+              yFormatter={viewMetric.formatter}
+              xKey="date"
+              yAxisLabel={viewMetric.label}
+              yAxisUnit={viewMetric.unit}
+              yKey={viewMetric.dataKey}
+            />
+          </AutoWidth>
           <ChartExportControls
             chartId={chartId}
             data={locationTimeSeries && locationTimeSeries.results}
@@ -456,14 +458,15 @@ class LocationPage extends PureComponent {
           <h3>Compare Metrics</h3>
         </header>
         <StatusWrapper status={timeSeriesStatus}>
-          <LineChartSmallMult
-            id={chartId}
-            series={locationAndClientIspTimeSeries}
-            width={800}
-            xKey="date"
-            metrics={metrics}
-            timeAggregation={timeAggregation}
-          />
+          <AutoWidth>
+            <LineChartSmallMult
+              id={chartId}
+              series={locationAndClientIspTimeSeries}
+              xKey="date"
+              metrics={metrics}
+              timeAggregation={timeAggregation}
+            />
+          </AutoWidth>
         </StatusWrapper>
       </div>
     );
@@ -502,20 +505,21 @@ class LocationPage extends PureComponent {
         <h4>{hourlyData.meta.label}</h4>
         <div className="clearfix">
           <StatusWrapper status={hourlyStatus}>
-            <HourChartWithCounts
-              color={color}
-              data={hourlyData.results}
-              highlightHour={highlightHourly}
-              id={chartId}
-              onHighlightHour={this.onHighlightHourly}
-              threshold={30}
-              width={400}
-              yAxisLabel={viewMetric.label}
-              yAxisUnit={viewMetric.unit}
-              yExtent={hourlyData.extents[extentKey]}
-              yFormatter={viewMetric.formatter}
-              yKey={viewMetric.dataKey}
-            />
+            <AutoWidth>
+              <HourChartWithCounts
+                color={color}
+                data={hourlyData.results}
+                highlightHour={highlightHourly}
+                id={chartId}
+                onHighlightHour={this.onHighlightHourly}
+                threshold={30}
+                yAxisLabel={viewMetric.label}
+                yAxisUnit={viewMetric.unit}
+                yExtent={hourlyData.extents[extentKey]}
+                yFormatter={viewMetric.formatter}
+                yKey={viewMetric.dataKey}
+              />
+            </AutoWidth>
             <ChartExportControls
               chartId={chartId}
               data={hourlyData.results}

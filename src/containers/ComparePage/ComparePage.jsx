@@ -5,6 +5,7 @@ import { browserHistory, withRouter } from 'react-router';
 import momentPropTypes from 'react-moment-proptypes';
 import Row from 'react-bootstrap/lib/Row';
 import Col from 'react-bootstrap/lib/Col';
+import AutoWidth from 'react-auto-width';
 
 import * as ComparePageSelectors from '../../redux/comparePage/selectors';
 import * as ComparePageActions from '../../redux/comparePage/actions';
@@ -543,21 +544,22 @@ class ComparePage extends PureComponent {
 
     return (
       <StatusWrapper status={status}>
-        <LineChartWithCounts
-          id={chartId}
-          series={seriesData}
-          colors={colors}
-          onHighlightDate={this.onHighlightTimeSeriesDate}
-          highlightDate={highlightTimeSeriesDate}
-          onHighlightLine={this.onHighlightTimeSeriesLine}
-          highlightLine={highlightTimeSeriesLine}
-          yFormatter={viewMetric.formatter}
-          width={840}
-          xKey="date"
-          yAxisLabel={viewMetric.label}
-          yAxisUnit={viewMetric.unit}
-          yKey={viewMetric.dataKey}
-        />
+        <AutoWidth>
+          <LineChartWithCounts
+            id={chartId}
+            series={seriesData}
+            colors={colors}
+            onHighlightDate={this.onHighlightTimeSeriesDate}
+            highlightDate={highlightTimeSeriesDate}
+            onHighlightLine={this.onHighlightTimeSeriesLine}
+            highlightLine={highlightTimeSeriesLine}
+            yFormatter={viewMetric.formatter}
+            xKey="date"
+            yAxisLabel={viewMetric.label}
+            yAxisUnit={viewMetric.unit}
+            yKey={viewMetric.dataKey}
+          />
+        </AutoWidth>
         <ChartExportControls
           chartId={chartId}
           data={seriesData}

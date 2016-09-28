@@ -1,6 +1,7 @@
 import React, { PureComponent, PropTypes } from 'react';
 import Row from 'react-bootstrap/lib/Row';
 import Col from 'react-bootstrap/lib/Col';
+import AutoWidth from 'react-auto-width';
 
 import {
   ChartExportControls,
@@ -51,20 +52,21 @@ export default class CompareHourCharts extends PureComponent {
 
     return (
       <StatusWrapper status={status}>
-        <HourChartWithCounts
-          color={color}
-          data={hourlyData.results}
-          highlightHour={highlightHourly}
-          id={chartId}
-          onHighlightHour={onHighlightHourly}
-          threshold={30}
-          width={400}
-          yAxisLabel={viewMetric.label}
-          yAxisUnit={viewMetric.unit}
-          yExtent={hourlyData.extents[viewMetric.dataKey]}
-          yFormatter={viewMetric.formatter}
-          yKey={viewMetric.dataKey}
-        />
+        <AutoWidth>
+          <HourChartWithCounts
+            color={color}
+            data={hourlyData.results}
+            highlightHour={highlightHourly}
+            id={chartId}
+            onHighlightHour={onHighlightHourly}
+            threshold={30}
+            yAxisLabel={viewMetric.label}
+            yAxisUnit={viewMetric.unit}
+            yExtent={hourlyData.extents[viewMetric.dataKey]}
+            yFormatter={viewMetric.formatter}
+            yKey={viewMetric.dataKey}
+          />
+        </AutoWidth>
         <ChartExportControls
           chartId={chartId}
           data={hourlyData.results}
