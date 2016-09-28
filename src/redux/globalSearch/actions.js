@@ -7,7 +7,7 @@ import { shouldFetch } from '../shared/shouldFetch';
  * Action Creators
  */
 
-function searchShouldFetch(state, searchQuery) {
+function searchShouldFetch(state, searchQuery, searchFilterType, searchFilterItemIds) {
   // ignore empty queries
   if (searchQuery.length === 0) {
     return false;
@@ -28,13 +28,13 @@ function searchShouldFetch(state, searchQuery) {
 const locationSearchFetch = createFetchAction({
   typePrefix: 'globalSearch/location/',
   key: 'SEARCH',
-  args: ['searchQuery'],
-  shouldFetch(state, searchQuery) {
+  args: ['searchQuery', 'searchFilterType', 'searchFilterItemIds'],
+  shouldFetch(state, searchQuery, searchFilterType, searchFilterItemIds) {
     const locationSearchState = state.globalSearch.locationSearch;
-    return searchShouldFetch(locationSearchState, searchQuery);
+    return searchShouldFetch(locationSearchState, searchQuery, searchFilterType, searchFilterItemIds);
   },
-  promise(searchQuery) {
-    return api => api.getLocationSearch(searchQuery);
+  promise(searchQuery, searchFilterType, searchFilterItemIds) {
+    return api => api.getLocationSearch(searchQuery, searchFilterType, searchFilterItemIds);
   },
 });
 
@@ -52,13 +52,13 @@ export const fetchLocationSearchIfNeeded = locationSearchFetch.fetchIfNeeded;
 const clientIspSearchFetch = createFetchAction({
   typePrefix: 'globalSearch/clientIsp/',
   key: 'SEARCH',
-  args: ['searchQuery'],
-  shouldFetch(state, searchQuery) {
+  args: ['searchQuery', 'searchFilterType', 'searchFilterItemIds'],
+  shouldFetch(state, searchQuery, searchFilterType, searchFilterItemIds) {
     const clientIspSearchState = state.globalSearch.clientIspSearch;
-    return searchShouldFetch(clientIspSearchState, searchQuery);
+    return searchShouldFetch(clientIspSearchState, searchQuery, searchFilterType, searchFilterItemIds);
   },
-  promise(searchQuery) {
-    return api => api.getClientIspSearch(searchQuery);
+  promise(searchQuery, searchFilterType, searchFilterItemIds) {
+    return api => api.getClientIspSearch(searchQuery, searchFilterType, searchFilterItemIds);
   },
 });
 
@@ -76,13 +76,13 @@ export const fetchClientIspSearchIfNeeded = clientIspSearchFetch.fetchIfNeeded;
 const transitIspSearchFetch = createFetchAction({
   typePrefix: 'globalSearch/transitIsp/',
   key: 'SEARCH',
-  args: ['searchQuery'],
-  shouldFetch(state, searchQuery) {
+  args: ['searchQuery', 'searchFilterType', 'searchFilterItemIds'],
+  shouldFetch(state, searchQuery, searchFilterType, searchFilterItemIds) {
     const transitIspSearchState = state.globalSearch.transitIspSearch;
-    return searchShouldFetch(transitIspSearchState, searchQuery);
+    return searchShouldFetch(transitIspSearchState, searchQuery, searchFilterType, searchFilterItemIds);
   },
-  promise(searchQuery) {
-    return api => api.getTransitIspSearch(searchQuery);
+  promise(searchQuery, searchFilterType, searchFilterItemIds) {
+    return api => api.getTransitIspSearch(searchQuery, searchFilterType, searchFilterItemIds);
   },
 });
 
