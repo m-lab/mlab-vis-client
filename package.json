@@ -17,7 +17,7 @@
   "main": "bin/server.js",
   "scripts": {
     "build": "better-npm-run build",
-    "deploy": "gcloud app deploy"
+    "deploy": "gcloud app deploy",
     "dev": "concurrently --kill-others \"npm run start-dev\" \"npm run webpack-watch\"",
     "lint": "eslint -c .eslintrc src",
     "postinstall": "npm run webpack-clean-cache",
@@ -29,7 +29,7 @@
     "webpack-dll": "webpack --colors --progress --config webpack/dll.config.js",
     "webpack-dashboard": "WEBPACK_DASHBOARD=true node webpack/webpack-dev-server.js",
     "webpack-watch": "better-npm-run webpack-watch",
-    "webpack-clean-cache": "rm -rf webpack/webpack-records.json webpack/cache",
+    "webpack-clean-cache": "rm -rf webpack/webpack-records.json webpack/cache"
   },
   "betterScripts": {
     "start-prod": {
