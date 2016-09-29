@@ -6,6 +6,8 @@ import {
   SearchSelect,
 } from '../../components';
 
+import './CompareInputPanel.scss';
+
 /**
  * Component for selecting inputs for the compare page
  */
@@ -22,8 +24,8 @@ export default class CompareLocationsInput extends PureComponent {
     onFacetItemsChange: PropTypes.func,
     onFilter1Change: PropTypes.func,
     onFilter2Change: PropTypes.func,
-    topFilter1Infos: PropTypes.array,
-    topFilter2Infos: PropTypes.array,
+    topFilter1: PropTypes.object,
+    topFilter2: PropTypes.object,
   }
 
   constructor(props) {
@@ -180,50 +182,47 @@ export default class CompareLocationsInput extends PureComponent {
     return undefined;
   }
 
-  renderFilterSuggestions(filterType, topInfos, onAdd) {
-    if (!topInfos || !topInfos.length) {
-      return null;
-    }
-
+  renderFilterSuggestions(filterType, top, onAdd) {
+    const { data = [], status } = top;
     const numSuggestions = 10;
-    const suggestions = topInfos.slice(0, numSuggestions);
+    const suggestions = data.slice(0, numSuggestions);
     const { idKey, labelKey } = filterType;
+
+    let loading;
+    if (!status || status === 'loading') {
+      loading = <span className="loading-text">Loading...</span>;
+    }
 
     return (
       <div className="filter-suggestions">
-        <h5>Suggestions</h5>
-        <ul className="list-unstyled">
-          {suggestions.map((suggestion) => {
-            return (
-              <li key={suggestion[idKey]}>
-                <button onClick={() => onAdd(suggestion)} className='btn btn-default'>
-                  {suggestion[labelKey]}
-                  <span style={{ marginLeft: 10, color: '#aaa', fontSize: '0.9em' }}>
-                    {suggestion.test_count}
-                  </span>
-                </button>
-              </li>
-            );
-          })}
+        <h5>Suggestions{loading}</h5>
+        <ul className="list-inline">
+          {suggestions.map((suggestion) => (
+            <li key={suggestion[idKey]}>
+              <button onClick={() => onAdd(suggestion)} className="filter-suggestion">
+                {suggestion[labelKey]}
+              </button>
+            </li>
+          ))}
         </ul>
       </div>
     );
   }
 
   render() {
-    const { filterTypes, onFilter1Change, onFilter2Change, topFilter1Infos, topFilter2Infos } = this.props;
+    const { filterTypes, onFilter1Change, onFilter2Change, topFilter1, topFilter2 } = this.props;
+
     return (
-      <div className="input-section subsection">
+      <div className="CompareInputPanel input-section subsection">
         {this.renderFacetInput()}
         <Row>
           <Col md={6}>
             {this.renderFilterInput(filterTypes[0], onFilter1Change)}
-            {this.renderFilterSuggestions(filterTypes[0], topFilter1Infos, this.onFilter1Add)}
+            {this.renderFilterSuggestions(filterTypes[0], topFilter1, this.onFilter1Add)}
           </Col>
           <Col md={6}>
             {this.renderFilterInput(filterTypes[1], onFilter2Change)}
-            {this.renderFilterSuggestions(filterTypes[1], topFilter2Infos, this.onFilter2Add)}
-
+            {this.renderFilterSuggestions(filterTypes[1], topFilter2, this.onFilter2Add)}
           </Col>
         </Row>
       </div>

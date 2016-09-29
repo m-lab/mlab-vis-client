@@ -184,13 +184,17 @@ function topKeyFromFilterType(filterType) {
   return undefined;
 }
 
-function topFilterInfos(facetItems, filterType, filterIds = []) {
+function topFilter(facetItems, filterType, filterIds = []) {
   const topKey = topKeyFromFilterType(filterType);
 
   const { idKey } = filterType;
 
+  const topItems = facetItems.map(facetItem => facetItem[topKey]);
+  const statuses = topItems.map(status);
+  const statusStr = mergeStatuses(statuses);
+
   // combine the arrays
-  let combined = facetItems.map((facetItem) => facetItem[topKey].data)
+  let combined = topItems.map(topItem => topItem.data)
     .filter(d => d != null && d.length)
     .reduce((flattened, facetTopInfos) => flattened.concat(facetTopInfos), []);
 
@@ -209,22 +213,28 @@ function topFilterInfos(facetItems, filterType, filterIds = []) {
   combined.sort((a, b) => b.test_count - a.test_count);
 
   // let's limit it to 20. we aren't showing that many, so no need to keep them around in memory.
-  return combined.slice(0, 20);
+  return {
+    data: combined.slice(0, 20),
+    status: statusStr,
+    statuses,
+  };
 }
 
 /**
- * Selector to get the colors given all the selected ISPs and locations
+ * Get the top N items for a filter given the selected facet items.
+ * Returns { data: [], status: '', statuses: [] }
  */
-export const getTopFilter1Infos = createSelector(
+export const getTopFilter1 = createSelector(
   getFacetItems, getFilterTypes, getFilter1Ids,
-  (facetItems, filterTypes, filterIds) => topFilterInfos(facetItems, filterTypes[0], filterIds));
+  (facetItems, filterTypes, filterIds) => topFilter(facetItems, filterTypes[0], filterIds));
 
 /**
- * Selector to get the colors given all the selected ISPs and locations
+ * Get the top N items for a filter given the selected facet items.
+ * Returns { data: [], status: '', statuses: [] }
  */
-export const getTopFilter2Infos = createSelector(
+export const getTopFilter2 = createSelector(
   getFacetItems, getFilterTypes, getFilter2Ids,
-  (facetItems, filterTypes, filterIds) => topFilterInfos(facetItems, filterTypes[1], filterIds));
+  (facetItems, filterTypes, filterIds) => topFilter(facetItems, filterTypes[1], filterIds));
 
 
 /**
