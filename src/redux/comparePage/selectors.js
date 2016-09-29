@@ -172,6 +172,71 @@ export const getFacetItems = createSelector(
   }
 );
 
+function topKeyFromFilterType(filterType) {
+  if (filterType.value === 'location') {
+    return 'topLocations';
+  } else if (filterType.value === 'clientIsp') {
+    return 'topClientIsps';
+  } else if (filterType.value === 'transitIsp') {
+    return 'topTransitIsps';
+  }
+
+  return undefined;
+}
+
+function topFilter(facetItems, filterType, filterIds = []) {
+  const topKey = topKeyFromFilterType(filterType);
+
+  const { idKey } = filterType;
+
+  const topItems = facetItems.map(facetItem => facetItem[topKey]);
+  const statuses = topItems.map(status);
+  const statusStr = mergeStatuses(statuses);
+
+  // combine the arrays
+  let combined = topItems.map(topItem => topItem.data)
+    .filter(d => d != null && d.length)
+    .reduce((flattened, facetTopInfos) => flattened.concat(facetTopInfos), []);
+
+  // remove already selected ones
+  combined = combined.filter(d => !filterIds.includes(d[idKey]));
+
+  // nest to combine so we can sum test counts. simplifies object to { [idKey], [labelKey], test_count }
+  // ensures we get one object per ID
+  const nested = d3.nest().key(d => d[idKey]).entries(combined);
+  combined = nested.map(entry => entry.values.slice(1).reduce((reduced, value) => {
+    reduced.test_count += value.test_count;
+    return reduced;
+  }, Object.assign({}, entry.values[0])));
+
+  // sort by test count descending
+  combined.sort((a, b) => b.test_count - a.test_count);
+
+  // let's limit it to 20. we aren't showing that many, so no need to keep them around in memory.
+  return {
+    data: combined.slice(0, 20),
+    status: statusStr,
+    statuses,
+  };
+}
+
+/**
+ * Get the top N items for a filter given the selected facet items.
+ * Returns { data: [], status: '', statuses: [] }
+ */
+export const getTopFilter1 = createSelector(
+  getFacetItems, getFilterTypes, getFilter1Ids,
+  (facetItems, filterTypes, filterIds) => topFilter(facetItems, filterTypes[0], filterIds));
+
+/**
+ * Get the top N items for a filter given the selected facet items.
+ * Returns { data: [], status: '', statuses: [] }
+ */
+export const getTopFilter2 = createSelector(
+  getFacetItems, getFilterTypes, getFilter2Ids,
+  (facetItems, filterTypes, filterIds) => topFilter(facetItems, filterTypes[1], filterIds));
+
+
 /**
  * Gets the info for each facet item
  */

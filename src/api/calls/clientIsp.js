@@ -6,6 +6,8 @@ import {
   transformHourly,
   transformClientIspLabel,
   transformClientIspInfo,
+  transformTopLocations,
+  transformTopTransitIsps,
 } from '../transforms';
 
 
@@ -49,4 +51,26 @@ export function getClientIspHourly(timeAggregation, clientIspId, options = {}) {
   const params = getMetricsParams(`${timeAggregation}_hour`, options);
   return get(`/clients/${clientIspId}/metrics`, params)
     .then(transform(transformClientIspLabel, transformHourly));
+}
+
+/**
+ * Get the top N locations that have the client ISP
+ *
+ * @param {String} clientIspId The client ISP to query (e.g., AS7922)
+ * @return {Promise} A promise after the get request was made
+ */
+export function getClientIspTopLocations(clientIspId) {
+  return get(`/clients/${clientIspId}/locations`)
+    .then(transform(transformTopLocations));
+}
+
+/**
+ * Get the top N Transit ISPs that have the client ISP
+ *
+ * @param {String} clientIspId The client ISP to query (e.g., AS7922)
+ * @return {Promise} A promise after the get request was made
+ */
+export function getClientIspTopTransitIsps(clientIspId) {
+  return get(`/clients/${clientIspId}/servers`)
+    .then(transform(transformTopTransitIsps));
 }
