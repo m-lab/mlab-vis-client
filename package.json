@@ -23,10 +23,10 @@
     "postinstall": "npm run webpack-clean-cache",
     "lint": "eslint -c .eslintrc src",
     "start-dev": "better-npm-run start-dev",
-    "watch-client": "better-npm-run watch-client",
+    "webpack-watch": "better-npm-run webpack-watch",
     "webpack-dll": "webpack --colors --progress --config webpack/dll.config.js",
     "webpack-dashboard": "WEBPACK_DASHBOARD=true node webpack/webpack-dev-server.js",
-    "dev": "concurrently --kill-others \"npm run start-dev\" \"npm run watch-client\"",
+    "dev": "concurrently --kill-others \"npm run start-dev\" \"npm run webpack-watch\"",
     "test": "karma start",
     "webpack-clean-cache": "rm -rf webpack/webpack-records.json webpack/cache",
     "deploy": "gcloud app deploy"
@@ -48,7 +48,7 @@
         "PORT": 3000
       }
     },
-    "watch-client": {
+    "webpack-watch": {
       "command": "node webpack/webpack-dev-server.js",
       "env": {
         "UV_THREADPOOL_SIZE": 100,

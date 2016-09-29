@@ -36,7 +36,7 @@ npm run start-dev
 Start webpack watch:
 
 ```bash
-npm run watch-client
+npm run webpack-watch
 ```
 
 ### Caching with HardSourceWebpackPlugin
@@ -95,4 +95,3 @@ npm run deploy
 ---
 
 *Originally built from https://github.com/erikras/react-redux-universal-hot-example*
-
