@@ -143,7 +143,7 @@ export function extractColors(values, valueAccessor = d => d, hashFunction = has
  *  defaults to hashAsn which expects value to be ASN strings.
  * @return {Object} With a key for each value in values.
  */
-export function colorsFor(values, valueAccessor = d => d, keyAccessor, hashFunction = hashString) {
+export function colorsFor(values = [], valueAccessor = d => d, keyAccessor, hashFunction = hashString) {
   keyAccessor = keyAccessor || valueAccessor;
   const colors = extractColors(values, valueAccessor, hashFunction);
   const colorMap = {};
