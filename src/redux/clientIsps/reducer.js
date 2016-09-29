@@ -7,16 +7,21 @@ import * as LocationsActions from '../locations/actions';
 
 import infoWithTypePrefix, { initialState as initialInfoState } from '../shared/infoWithTypePrefix';
 import timeWithTypePrefix, { initialState as initialTimeState } from '../shared/timeWithTypePrefix';
+import topInfosWithTypePrefix, { initialState as initialTopState } from '../shared/topInfosWithTypePrefix';
 import typePrefix from './typePrefix';
 
 const time = timeWithTypePrefix(typePrefix);
 const info = infoWithTypePrefix(typePrefix);
+const topLocations = topInfosWithTypePrefix(typePrefix, 'locations/');
+const topTransitIsps = topInfosWithTypePrefix(typePrefix, 'transitIsps/');
 
 export const initialState = {
   id: null,
 
   info: initialInfoState,
   time: initialTimeState,
+  topLocations: initialTopState,
+  topTransitIsps: initialTopState,
 };
 
 // reducer to get the ID
@@ -28,6 +33,8 @@ const clientIsp = combineReducers({
   id,
   info,
   time,
+  topLocations,
+  topTransitIsps,
 });
 
 // helper function to merge in ISP info that arrives separately from other handled actions.

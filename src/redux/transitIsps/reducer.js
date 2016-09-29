@@ -6,16 +6,21 @@ import { combineReducers } from 'redux';
 
 import infoWithTypePrefix, { initialState as initialInfoState } from '../shared/infoWithTypePrefix';
 import timeWithTypePrefix, { initialState as initialTimeState } from '../shared/timeWithTypePrefix';
+import topInfosWithTypePrefix, { initialState as initialTopState } from '../shared/topInfosWithTypePrefix';
 import typePrefix from './typePrefix';
 
 const time = timeWithTypePrefix(typePrefix);
 const info = infoWithTypePrefix(typePrefix);
+const topClientIsps = topInfosWithTypePrefix(typePrefix, 'clientIsps/');
+const topLocations = topInfosWithTypePrefix(typePrefix, 'locations/');
 
 export const initialState = {
   id: null,
 
   info: initialInfoState,
   time: initialTimeState,
+  topClientIsps: initialTopState,
+  topLocations: initialTopState,
 };
 
 // reducer to get the ID
@@ -27,6 +32,8 @@ const transitIsp = combineReducers({
   id,
   info,
   time,
+  topClientIsps,
+  topLocations,
 });
 
 

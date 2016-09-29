@@ -163,6 +163,11 @@ export function transformLocationLabel(body) {
     meta.shortLabel = meta.client_city || meta.client_region || meta.client_country || meta.client_continent;
     meta.label = locationLabel(meta);
     meta.client_location_label = meta.label;
+
+    // TODO temporarily add in location key if not there and client_location_key is
+    if (!meta.location_key && meta.client_location_key) {
+      meta.location_key = meta.client_location_key;
+    }
   }
 
   return body;
@@ -453,6 +458,7 @@ export function transformTopLocations(body) {
       const { meta } = d;
       meta.id = meta.location_key;
       meta.label = locationLabel(meta);
+      meta.client_location_label = meta.label;
 
       return meta;
     });

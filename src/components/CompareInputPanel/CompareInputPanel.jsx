@@ -197,8 +197,8 @@ export default class CompareLocationsInput extends PureComponent {
       <div className="filter-suggestions">
         <h5>Suggestions{loading}</h5>
         <ul className="list-inline">
-          {suggestions.map((suggestion) => (
-            <li key={suggestion[idKey]}>
+          {suggestions.map((suggestion, i) => (
+            <li key={i}>
               <button onClick={() => onAdd(suggestion)} className="filter-suggestion">
                 {suggestion[labelKey]}
               </button>

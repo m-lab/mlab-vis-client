@@ -194,12 +194,12 @@ function topFilter(facetItems, filterType, filterIds = []) {
   const statusStr = mergeStatuses(statuses);
 
   // combine the arrays
-  let combined = topItems.map(topItem => topItem.data)
+  let combined = topItems.map(topItem => topItem && topItem.data)
     .filter(d => d != null && d.length)
     .reduce((flattened, facetTopInfos) => flattened.concat(facetTopInfos), []);
 
-  // remove already selected ones
-  combined = combined.filter(d => !filterIds.includes(d[idKey]));
+  // remove already selected ones and those with no tests
+  combined = combined.filter(d => !filterIds.includes(d[idKey]) && d.test_count);
 
   // nest to combine so we can sum test counts. simplifies object to { [idKey], [labelKey], test_count }
   // ensures we get one object per ID

@@ -3,7 +3,12 @@
  */
 import createFetchAction from '../createFetchAction';
 import typePrefix from './typePrefix';
-import { infoShouldFetch, timeSeriesShouldFetch, hourlyShouldFetch } from '../shared/shouldFetch';
+import {
+  keyShouldFetch,
+  infoShouldFetch,
+  timeSeriesShouldFetch,
+  hourlyShouldFetch,
+} from '../shared/shouldFetch';
 
 /**
  * Action Creators
@@ -110,3 +115,47 @@ export const FETCH_HOURLY_FAIL = hourlyFetch.types.fail;
 export const shouldFetchHourly = hourlyFetch.shouldFetch;
 export const fetchHourly = hourlyFetch.fetch;
 export const fetchHourlyIfNeeded = hourlyFetch.fetchIfNeeded;
+
+// ---------------------
+// Fetch Locations related to a client ISP
+// ---------------------
+const topLocations = createFetchAction({
+  typePrefix: `${typePrefix}locations/`,
+  key: 'TOP',
+  args: ['clientIspId'],
+  shouldFetch(state, clientIspId) {
+    const clientIspState = getClientIspState(state, clientIspId);
+    return keyShouldFetch(clientIspState, 'topLocations');
+  },
+  promise(clientIspId) {
+    return api => api.getClientIspTopLocations(clientIspId);
+  },
+});
+export const FETCH_TOP_CLIENT_ISPS = topLocations.types.fetch;
+export const FETCH_TOP_CLIENT_ISPS_SUCCESS = topLocations.types.success;
+export const FETCH_TOP_CLIENT_ISPS_FAIL = topLocations.types.fail;
+export const shouldFetchTopLocations = topLocations.shouldFetch;
+export const fetchTopLocations = topLocations.fetch;
+export const fetchTopLocationsIfNeeded = topLocations.fetchIfNeeded;
+
+// ---------------------
+// Fetch Transit ISPs related to a client ISP
+// ---------------------
+const topTransitIsps = createFetchAction({
+  typePrefix: `${typePrefix}transitIsps/`,
+  key: 'TOP',
+  args: ['clientIspId'],
+  shouldFetch(state, clientIspId) {
+    const clientIspState = getClientIspState(state, clientIspId);
+    return keyShouldFetch(clientIspState, 'topTransitIsps');
+  },
+  promise(clientIspId) {
+    return api => api.getClientIspTopTransitIsps(clientIspId);
+  },
+});
+export const FETCH_TOP_TRANSIT_ISPS = topTransitIsps.types.fetch;
+export const FETCH_TOP_TRANSIT_ISPS_SUCCESS = topTransitIsps.types.success;
+export const FETCH_TOP_TRANSIT_ISPS_FAIL = topTransitIsps.types.fail;
+export const shouldFetchTopTransitIsps = topTransitIsps.shouldFetch;
+export const fetchTopTransitIsps = topTransitIsps.fetch;
+export const fetchTopTransitIspsIfNeeded = topTransitIsps.fetchIfNeeded;

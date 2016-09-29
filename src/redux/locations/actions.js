@@ -3,8 +3,13 @@
  */
 import createFetchAction from '../createFetchAction';
 import typePrefix from './typePrefix';
-import { keyShouldFetch, infoShouldFetch, fixedShouldFetch, timeSeriesShouldFetch,
-  hourlyShouldFetch } from '../shared/shouldFetch';
+import {
+  keyShouldFetch,
+  infoShouldFetch,
+  fixedShouldFetch,
+  timeSeriesShouldFetch,
+  hourlyShouldFetch,
+} from '../shared/shouldFetch';
 
 /**
  * Action Creators

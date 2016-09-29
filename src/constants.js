@@ -48,7 +48,7 @@ export const facetTypes = [
   {
     value: 'location',
     label: 'Location',
-    idKey: 'client_location_key',
+    idKey: 'location_key',
     labelKey: 'client_location_label',
   },
   {
