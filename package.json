@@ -16,20 +16,20 @@
   ],
   "main": "bin/server.js",
   "scripts": {
-    "start": "better-npm-run start-prod",
-    "start-prod": "better-npm-run start-prod",
     "build": "better-npm-run build",
-    "prestart": "npm run build",
-    "postinstall": "npm run webpack-clean-cache",
+    "deploy": "gcloud app deploy"
+    "dev": "concurrently --kill-others \"npm run start-dev\" \"npm run webpack-watch\"",
     "lint": "eslint -c .eslintrc src",
+    "postinstall": "npm run webpack-clean-cache",
+    "prestart": "npm run build",
+    "start": "better-npm-run start-prod",
     "start-dev": "better-npm-run start-dev",
-    "webpack-watch": "better-npm-run webpack-watch",
+    "start-prod": "better-npm-run start-prod",
+    "test": "karma start",
     "webpack-dll": "webpack --colors --progress --config webpack/dll.config.js",
     "webpack-dashboard": "WEBPACK_DASHBOARD=true node webpack/webpack-dev-server.js",
-    "dev": "concurrently --kill-others \"npm run start-dev\" \"npm run webpack-watch\"",
-    "test": "karma start",
+    "webpack-watch": "better-npm-run webpack-watch",
     "webpack-clean-cache": "rm -rf webpack/webpack-records.json webpack/cache",
-    "deploy": "gcloud app deploy"
   },
   "betterScripts": {
     "start-prod": {
