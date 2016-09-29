@@ -95,8 +95,8 @@ export const fetchHourlyIfNeeded = hourlyFetch.fetchIfNeeded;
 // Fetch Client ISPs in location
 // ---------------------
 const topClientIsps = createFetchAction({
-  typePrefix,
-  key: 'TOP_CLIENT_ISPS',
+  typePrefix: `${typePrefix}clientIsps/`,
+  key: 'TOP',
   args: ['locationId'],
   shouldFetch(state, locationId) {
     const locationState = getLocationState(state, locationId);
@@ -113,6 +113,27 @@ export const shouldFetchTopClientIsps = topClientIsps.shouldFetch;
 export const fetchTopClientIsps = topClientIsps.fetch;
 export const fetchTopClientIspsIfNeeded = topClientIsps.fetchIfNeeded;
 
+// ---------------------
+// Fetch Transit ISPs in location
+// ---------------------
+const topTransitIsps = createFetchAction({
+  typePrefix: `${typePrefix}transitIsps/`,
+  key: 'TOP',
+  args: ['locationId'],
+  shouldFetch(state, locationId) {
+    const locationState = getLocationState(state, locationId);
+    return keyShouldFetch(locationState, 'topTransitIsps');
+  },
+  promise(locationId) {
+    return api => api.getLocationTopTransitIsps(locationId);
+  },
+});
+export const FETCH_TOP_TRANSIT_ISPS = topTransitIsps.types.fetch;
+export const FETCH_TOP_TRANSIT_ISPS_SUCCESS = topTransitIsps.types.success;
+export const FETCH_TOP_TRANSIT_ISPS_FAIL = topTransitIsps.types.fail;
+export const shouldFetchTopTransitIsps = topTransitIsps.shouldFetch;
+export const fetchTopTransitIsps = topTransitIsps.fetch;
+export const fetchTopTransitIspsIfNeeded = topTransitIsps.fetchIfNeeded;
 
 // ---------------------
 // Fetch Location Info
@@ -135,4 +156,3 @@ export const FETCH_INFO_FAIL = infoFetch.types.fail;
 export const shouldFetchInfo = infoFetch.shouldFetch;
 export const fetchInfo = infoFetch.fetch;
 export const fetchInfoIfNeeded = infoFetch.fetchIfNeeded;
-

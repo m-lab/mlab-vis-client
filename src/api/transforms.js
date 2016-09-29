@@ -392,17 +392,70 @@ export function transformFixedData(body) {
   return body;
 }
 
+
 /**
- * Transforms the body `results` array to just be the meta value
- * for each entry in the array.
+ * Transforms the body `results` array to have labels and IDs.
+ * Pulls up the meta property to be the main result object.
  *
  * @param {Object} body The response body
  * @return {Object} The transformed response body
  */
-export function transformMapMeta(body) {
+export function transformTopClientIsps(body) {
   // NOTE: modifying body directly means it modifies what is stored in the API cache
   if (body.results) {
-    body.results = body.results.map(d => d.meta);
+    body.results = body.results.map(d => {
+      const { meta } = d;
+      meta.id = meta.client_asn_number;
+      meta.label = meta.client_asn_name;
+
+      return meta;
+    });
+  }
+
+  return body;
+}
+
+
+/**
+ * Transforms the body `results` array to have labels and IDs.
+ * Pulls up the meta property to be the main result object.
+ *
+ * @param {Object} body The response body
+ * @return {Object} The transformed response body
+ */
+export function transformTopTransitIsps(body) {
+  // NOTE: modifying body directly means it modifies what is stored in the API cache
+  if (body.results) {
+    body.results = body.results.map(d => {
+      const { meta } = d;
+      meta.id = meta.server_asn_number;
+      meta.label = meta.server_asn_name;
+
+      return meta;
+    });
+  }
+
+  return body;
+}
+
+
+/**
+ * Transforms the body `results` array to have labels and IDs.
+ * Pulls up the meta property to be the main result object.
+ *
+ * @param {Object} body The response body
+ * @return {Object} The transformed response body
+ */
+export function transformTopLocations(body) {
+  // NOTE: modifying body directly means it modifies what is stored in the API cache
+  if (body.results) {
+    body.results = body.results.map(d => {
+      const { meta } = d;
+      meta.id = meta.location_key;
+      meta.label = locationLabel(meta);
+
+      return meta;
+    });
   }
 
   return body;

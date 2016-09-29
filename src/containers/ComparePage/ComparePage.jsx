@@ -71,6 +71,8 @@ function mapStateToProps(state, propsWithUrl) {
     highlightHourly: ComparePageSelectors.getHighlightHourly(state, propsWithUrl),
     highlightTimeSeriesDate: ComparePageSelectors.getHighlightTimeSeriesDate(state, propsWithUrl),
     highlightTimeSeriesLine: ComparePageSelectors.getHighlightTimeSeriesLine(state, propsWithUrl),
+    topFilter1Infos: ComparePageSelectors.getTopFilter1Infos(state, propsWithUrl),
+    topFilter2Infos: ComparePageSelectors.getTopFilter2Infos(state, propsWithUrl),
     viewMetric: ComparePageSelectors.getViewMetric(state, propsWithUrl),
   };
 }
@@ -101,6 +103,8 @@ class ComparePage extends PureComponent {
     router: PropTypes.object, // react-router
     startDate: momentPropTypes.momentObj,
     timeAggregation: PropTypes.string,
+    topFilter1Infos: PropTypes.array,
+    topFilter2Infos: PropTypes.array,
     viewMetric: PropTypes.object,
   }
 
@@ -109,6 +113,8 @@ class ComparePage extends PureComponent {
     facetItemIds: [],
     filter1Ids: [],
     filter2Ids: [],
+    topFilter1Infos: [],
+    topFilter2Infos: [],
   }
 
   constructor(props) {
@@ -171,6 +177,32 @@ class ComparePage extends PureComponent {
       this.fetchDataFacetTypeClientIsp(props, facetClientIspIds, filterLocationIds, filterTransitIspIds);
     } else if (facetType.value === 'transitIsp') {
       this.fetchDataFacetTypeTransitIsp(props, facetTransitIspIds, filterLocationIds, filterClientIspIds);
+    }
+
+    // fetch the top filter infos for suggestions
+    this.fetchTopFilterInfos(props);
+  }
+
+  /**
+   * Helper function to fetch top filter options for each of the faceted items
+   */
+  fetchTopFilterInfos(props) {
+    const { dispatch, facetItemIds, facetType } = props;
+    if (facetType.value === 'location') {
+      facetItemIds.forEach(locationId => {
+        dispatch(LocationsActions.fetchTopClientIspsIfNeeded(locationId));
+        dispatch(LocationsActions.fetchTopTransitIspsIfNeeded(locationId));
+      });
+    } else if (facetType.value === 'clientIsp') {
+      facetItemIds.forEach(clientIspId => {
+        dispatch(ClientIspsActions.fetchTopLocationsIfNeeded(clientIspId));
+        dispatch(ClientIspsActions.fetchTopTransitIspsIfNeeded(clientIspId));
+      });
+    } else if (facetType.value === 'transitIsp') {
+      facetItemIds.forEach(transitIspId => {
+        dispatch(TransitIspsActions.fetchTopLocationsIfNeeded(transitIspId));
+        dispatch(TransitIspsActions.fetchTopClientIspsIfNeeded(transitIspId));
+      });
     }
   }
 
@@ -484,7 +516,7 @@ class ComparePage extends PureComponent {
 
   renderInputSection() {
     const { facetItemIds, facetItemInfos, facetType, filter1Ids, filter1Infos,
-      filter2Ids, filter2Infos, filterTypes } = this.props;
+      filter2Ids, filter2Infos, filterTypes, topFilter1Infos, topFilter2Infos } = this.props;
 
     return (
       <Row>
@@ -504,6 +536,8 @@ class ComparePage extends PureComponent {
             onFacetItemsChange={this.onFacetItemsChange}
             onFilter1Change={this.onFilter1Change}
             onFilter2Change={this.onFilter2Change}
+            topFilter1Infos={topFilter1Infos}
+            topFilter2Infos={topFilter2Infos}
           />
         </Col>
       </Row>

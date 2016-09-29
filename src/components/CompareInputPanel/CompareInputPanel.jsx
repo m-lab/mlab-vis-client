@@ -22,6 +22,32 @@ export default class CompareLocationsInput extends PureComponent {
     onFacetItemsChange: PropTypes.func,
     onFilter1Change: PropTypes.func,
     onFilter2Change: PropTypes.func,
+    topFilter1Infos: PropTypes.array,
+    topFilter2Infos: PropTypes.array,
+  }
+
+  constructor(props) {
+    super(props);
+
+    this.onFilter1Add = this.onFilter1Add.bind(this);
+    this.onFilter2Add = this.onFilter2Add.bind(this);
+  }
+
+  onFilter1Add(suggestion) {
+    const { filter1Infos, onFilter1Change } = this.props;
+    const newValues = [...filter1Infos, suggestion];
+    console.log(newValues);
+    if (onFilter1Change) {
+      onFilter1Change(newValues);
+    }
+  }
+
+  onFilter2Add(suggestion) {
+    const { filter2Infos, onFilter2Change } = this.props;
+    const newValues = [...filter2Infos, suggestion];
+    if (onFilter2Change) {
+      onFilter2Change(newValues);
+    }
   }
 
   renderFilterClientIspsInput(changeCallback) {
@@ -154,17 +180,50 @@ export default class CompareLocationsInput extends PureComponent {
     return undefined;
   }
 
+  renderFilterSuggestions(filterType, topInfos, onAdd) {
+    if (!topInfos || !topInfos.length) {
+      return null;
+    }
+
+    const numSuggestions = 10;
+    const suggestions = topInfos.slice(0, numSuggestions);
+    const { idKey, labelKey } = filterType;
+
+    return (
+      <div className="filter-suggestions">
+        <h5>Suggestions</h5>
+        <ul className="list-unstyled">
+          {suggestions.map((suggestion) => {
+            return (
+              <li key={suggestion[idKey]}>
+                <button onClick={() => onAdd(suggestion)} className='btn btn-default'>
+                  {suggestion[labelKey]}
+                  <span style={{ marginLeft: 10, color: '#aaa', fontSize: '0.9em' }}>
+                    {suggestion.test_count}
+                  </span>
+                </button>
+              </li>
+            );
+          })}
+        </ul>
+      </div>
+    );
+  }
+
   render() {
-    const { filterTypes, onFilter1Change, onFilter2Change } = this.props;
+    const { filterTypes, onFilter1Change, onFilter2Change, topFilter1Infos, topFilter2Infos } = this.props;
     return (
       <div className="input-section subsection">
         {this.renderFacetInput()}
         <Row>
           <Col md={6}>
             {this.renderFilterInput(filterTypes[0], onFilter1Change)}
+            {this.renderFilterSuggestions(filterTypes[0], topFilter1Infos, this.onFilter1Add)}
           </Col>
           <Col md={6}>
             {this.renderFilterInput(filterTypes[1], onFilter2Change)}
+            {this.renderFilterSuggestions(filterTypes[1], topFilter2Infos, this.onFilter2Add)}
+
           </Col>
         </Row>
       </div>

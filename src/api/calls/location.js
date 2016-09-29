@@ -7,7 +7,8 @@ import {
   transformLocationInfo,
   transformLocationLabel,
   transformFixedData,
-  transformMapMeta,
+  transformTopClientIsps,
+  transformTopTransitIsps,
 } from '../transforms';
 
 
@@ -54,12 +55,23 @@ export function getLocationHourly(timeAggregation, locationId, options = {}) {
 }
 
 /**
- * Get the top N ISPs in a location
+ * Get the top N Client ISPs in a location
  *
  * @param {String} locationId The location to query (e.g., nauswaseattle)
  * @return {Promise} A promise after the get request was made
  */
 export function getLocationTopClientIsps(locationId) {
   return get(`/locations/${locationId}/clients`)
-    .then(transform(transformMapMeta));
+    .then(transform(transformTopClientIsps));
+}
+
+/**
+ * Get the top N Transit ISPs in a location
+ *
+ * @param {String} locationId The location to query (e.g., nauswaseattle)
+ * @return {Promise} A promise after the get request was made
+ */
+export function getLocationTopTransitIsps(locationId) {
+  return get(`/locations/${locationId}/servers`)
+    .then(transform(transformTopTransitIsps));
 }

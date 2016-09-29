@@ -172,6 +172,61 @@ export const getFacetItems = createSelector(
   }
 );
 
+function topKeyFromFilterType(filterType) {
+  if (filterType.value === 'location') {
+    return 'topLocations';
+  } else if (filterType.value === 'clientIsp') {
+    return 'topClientIsps';
+  } else if (filterType.value === 'transitIsp') {
+    return 'topTransitIsps';
+  }
+
+  return undefined;
+}
+
+function topFilterInfos(facetItems, filterType, filterIds = []) {
+  const topKey = topKeyFromFilterType(filterType);
+
+  const { idKey } = filterType;
+
+  // combine the arrays
+  let combined = facetItems.map((facetItem) => facetItem[topKey].data)
+    .filter(d => d != null && d.length)
+    .reduce((flattened, facetTopInfos) => flattened.concat(facetTopInfos), []);
+
+  // remove already selected ones
+  combined = combined.filter(d => !filterIds.includes(d[idKey]));
+
+  // nest to combine so we can sum test counts. simplifies object to { [idKey], [labelKey], test_count }
+  // ensures we get one object per ID
+  const nested = d3.nest().key(d => d[idKey]).entries(combined);
+  combined = nested.map(entry => entry.values.slice(1).reduce((reduced, value) => {
+    reduced.test_count += value.test_count;
+    return reduced;
+  }, Object.assign({}, entry.values[0])));
+
+  // sort by test count descending
+  combined.sort((a, b) => b.test_count - a.test_count);
+
+  // let's limit it to 20. we aren't showing that many, so no need to keep them around in memory.
+  return combined.slice(0, 20);
+}
+
+/**
+ * Selector to get the colors given all the selected ISPs and locations
+ */
+export const getTopFilter1Infos = createSelector(
+  getFacetItems, getFilterTypes, getFilter1Ids,
+  (facetItems, filterTypes, filterIds) => topFilterInfos(facetItems, filterTypes[0], filterIds));
+
+/**
+ * Selector to get the colors given all the selected ISPs and locations
+ */
+export const getTopFilter2Infos = createSelector(
+  getFacetItems, getFilterTypes, getFilter2Ids,
+  (facetItems, filterTypes, filterIds) => topFilterInfos(facetItems, filterTypes[1], filterIds));
+
+
 /**
  * Gets the info for each facet item
  */

@@ -2,11 +2,11 @@
  * Reducer for locations
  */
 import { combineReducers } from 'redux';
-import * as Actions from './actions';
+// import * as Actions from './actions';
 import infoWithTypePrefix, { initialState as initialInfoState } from '../shared/infoWithTypePrefix';
 import timeWithTypePrefix, { initialState as initialTimeState } from '../shared/timeWithTypePrefix';
 import fixedWithTypePrefix, { initialState as initialFixedState } from '../shared/fixedWithTypePrefix';
-import { makeFetchState, reduceFetch, reduceFetchSuccess, reduceFetchFail } from '../shared/fetch';
+import topInfosWithTypePrefix, { initialState as initialTopState } from '../shared/topInfosWithTypePrefix';
 import typePrefix from './typePrefix';
 
 export const initialState = {
@@ -15,8 +15,8 @@ export const initialState = {
   info: initialInfoState,
   time: initialTimeState,
   fixed: initialFixedState,
-
-  topClientIsps: makeFetchState(),
+  topClientIsps: initialTopState,
+  topTransitIsps: initialTopState,
 
   clientIsps: {},
   transitIsps: {},
@@ -25,21 +25,8 @@ export const initialState = {
 const time = timeWithTypePrefix(typePrefix);
 const info = infoWithTypePrefix(typePrefix);
 const fixed = fixedWithTypePrefix(typePrefix);
-
-// reducer for the top clientIsps in a location
-function topClientIsps(state = initialState.topClientIsps, action = {}) {
-  switch (action.type) {
-    case Actions.FETCH_TOP_CLIENT_ISPS:
-      return reduceFetch({ data: state.data });
-    case Actions.FETCH_TOP_CLIENT_ISPS_SUCCESS:
-      return reduceFetchSuccess({ data: action.result.results });
-    case Actions.FETCH_TOP_CLIENT_ISPS_FAIL:
-      return reduceFetchFail({ error: action.error });
-    default:
-      return state;
-  }
-}
-
+const topClientIsps = topInfosWithTypePrefix(typePrefix, 'clientIsps/');
+const topTransitIsps = topInfosWithTypePrefix(typePrefix, 'transitIsps/');
 
 // reducer to get the ID
 function id(state = initialState.id, action = {}) {
@@ -53,6 +40,7 @@ const location = combineReducers({
   fixed,
   time,
   topClientIsps,
+  topTransitIsps,
 });
 
 // The root reducer
