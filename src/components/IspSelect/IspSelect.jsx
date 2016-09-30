@@ -69,8 +69,12 @@ export default class IspSelect extends PureComponent {
    * @param {Array} isps ISPs to convert
    * @return {Array} array of {value: label:} objects
    */
-  getOptions(isps) {
-    return isps.map(isp => ({ value: isp.client_asn_number, label: isp.client_asn_name }));
+  getOptions(isps, selected) {
+    let options = isps;
+    if (selected && selected.length) {
+      options = isps.filter(isp => !selected.find(d => d.client_asn_number === isp.client_asn_number));
+    }
+    return options.map(isp => ({ value: isp.client_asn_number, label: isp.client_asn_name }));
   }
 
   /**
@@ -99,7 +103,7 @@ export default class IspSelect extends PureComponent {
     const colors = colorsFor(selectedIsps, (d) => d.client_asn_number);
     return (
       <div className="active-isps">
-        {selectedIsps.map((selectedIsp, i) =>
+        {selectedIsps.map((selectedIsp) =>
           this.renderIsp(selectedIsp, colors[selectedIsp.client_asn_number])
         )}
       </div>
@@ -112,7 +116,7 @@ export default class IspSelect extends PureComponent {
    */
   render() {
     const { isps, selected } = this.props;
-    const options = this.getOptions(isps);
+    const options = this.getOptions(isps, selected);
     // const values = this.getOptions(selected);
     return (
       <div className="IspSelect">
