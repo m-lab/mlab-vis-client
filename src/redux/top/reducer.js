@@ -10,17 +10,17 @@ function stringifyIds(ids) {
   return ids ? ids.join(',') : undefined;
 }
 
-function topWithTypePrefix(typePrefix) {
+function topWithTypePrefix(typePrefix, filterIdsKey) {
   return function top(state = initialTopState, action) {
     switch (action.type) {
       case `${typePrefix}FETCH_TOP`:
         return reduceFetch({
           data: state.data,
-          filterIds: stringifyIds(action.filterIds),
+          filterIds: stringifyIds(action[filterIdsKey]),
         });
       case `${typePrefix}FETCH_TOP_SUCCESS`: {
         // if the filter IDs has changed since, ignore this
-        const filterIds = stringifyIds(action.filterIds);
+        const filterIds = stringifyIds(action[filterIdsKey]);
         if (state.filterIds !== filterIds) {
           return state;
         }
@@ -42,19 +42,19 @@ function topWithTypePrefix(typePrefix) {
   };
 }
 
-const locationsForClientIsps = topWithTypePrefix('top/locations/clientIsps/');
-const locationsForTransitIsps = topWithTypePrefix('top/locations/transitIsps/');
-const clientIspsForLocations = topWithTypePrefix('top/clientIsps/locations/');
-const clientIspsForClientIsps = topWithTypePrefix('top/clientIsps/transitIsps/');
-const transitIspsForLocations = topWithTypePrefix('top/transitIsps/locations/');
-const transitIspsForClientIsps = topWithTypePrefix('top/transitIsps/clientIsps/');
+const locationsForClientIsps = topWithTypePrefix('top/locations/clientIsps/', 'clientIspIds');
+const locationsForTransitIsps = topWithTypePrefix('top/locations/transitIsps/', 'transitIspIds');
+const clientIspsForLocations = topWithTypePrefix('top/clientIsps/locations/', 'locationIds');
+const clientIspsForTransitIsps = topWithTypePrefix('top/clientIsps/transitIsps/', 'transitIspIds');
+const transitIspsForLocations = topWithTypePrefix('top/transitIsps/locations/', 'locationIds');
+const transitIspsForClientIsps = topWithTypePrefix('top/transitIsps/clientIsps/', 'clientIspIds');
 
 // Export the reducer
 export default combineReducers({
   locationsForClientIsps,
   locationsForTransitIsps,
   clientIspsForLocations,
-  clientIspsForClientIsps,
+  clientIspsForTransitIsps,
   transitIspsForLocations,
   transitIspsForClientIsps,
 });

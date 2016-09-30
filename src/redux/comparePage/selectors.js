@@ -144,6 +144,10 @@ function getBreakdownBy(state, props) {
   return props.breakdownBy;
 }
 
+function getTop(state) {
+  return state.top;
+}
+
 // ----------------------
 // Selectors
 // ----------------------
@@ -172,51 +176,43 @@ export const getFacetItems = createSelector(
   }
 );
 
-function topKeyFromFilterType(filterType) {
+function topKeyFromTypes(facetType, filterType) {
+  let prefix;
   if (filterType.value === 'location') {
-    return 'topLocations';
+    prefix = 'locations';
   } else if (filterType.value === 'clientIsp') {
-    return 'topClientIsps';
+    prefix = 'clientIsps';
   } else if (filterType.value === 'transitIsp') {
-    return 'topTransitIsps';
+    prefix = 'transitIsps';
   }
 
-  return undefined;
+  let suffix;
+  if (facetType.value === 'location') {
+    suffix = 'ForLocations';
+  } else if (facetType.value === 'clientIsp') {
+    suffix = 'ForClientIsps';
+  } else if (facetType.value === 'transitIsp') {
+    suffix = 'ForTransitIsps';
+  }
+
+  return `${prefix}${suffix}`;
 }
 
-function topFilter(facetItems, filterType, filterIds = []) {
-  const topKey = topKeyFromFilterType(filterType);
+function topFilter(topState, facetType, filterType, filterIds = []) {
+  const topKey = topKeyFromTypes(facetType, filterType);
 
   const { idKey } = filterType;
 
-  const topItems = facetItems.map(facetItem => facetItem[topKey]);
-  const statuses = topItems.map(status);
-  const statusStr = mergeStatuses(statuses);
+  let topItems = topState[topKey].data || [];
+  const statusStr = status(topState[topKey]);
 
-  // combine the arrays
-  let combined = topItems.map(topItem => topItem && topItem.data)
-    .filter(d => d != null && d.length)
-    .reduce((flattened, facetTopInfos) => flattened.concat(facetTopInfos), []);
-
-  // remove already selected ones and those with no tests
-  combined = combined.filter(d => !filterIds.includes(d[idKey]) && d.test_count);
-
-  // nest to combine so we can sum test counts. simplifies object to { [idKey], [labelKey], test_count }
-  // ensures we get one object per ID
-  const nested = d3.nest().key(d => d[idKey]).entries(combined);
-  combined = nested.map(entry => entry.values.slice(1).reduce((reduced, value) => {
-    reduced.test_count += value.test_count;
-    return reduced;
-  }, Object.assign({}, entry.values[0])));
-
-  // sort by test count descending
-  combined.sort((a, b) => b.test_count - a.test_count);
+  // remove already selected ones
+  topItems = topItems.filter(d => !filterIds.includes(d[idKey]));
 
   // let's limit it to 20. we aren't showing that many, so no need to keep them around in memory.
   return {
-    data: combined.slice(0, 20),
+    data: topItems.slice(0, 20),
     status: statusStr,
-    statuses,
   };
 }
 
@@ -225,16 +221,18 @@ function topFilter(facetItems, filterType, filterIds = []) {
  * Returns { data: [], status: '', statuses: [] }
  */
 export const getTopFilter1 = createSelector(
-  getFacetItems, getFilterTypes, getFilter1Ids,
-  (facetItems, filterTypes, filterIds) => topFilter(facetItems, filterTypes[0], filterIds));
+  getTop, getFacetType, getFilterTypes, getFilter1Ids,
+  (top, facetType, filterTypes, filterIds) =>
+    topFilter(top, facetType, filterTypes[0], filterIds));
 
 /**
  * Get the top N items for a filter given the selected facet items.
  * Returns { data: [], status: '', statuses: [] }
  */
 export const getTopFilter2 = createSelector(
-  getFacetItems, getFilterTypes, getFilter2Ids,
-  (facetItems, filterTypes, filterIds) => topFilter(facetItems, filterTypes[1], filterIds));
+  getTop, getFacetType, getFilterTypes, getFilter2Ids,
+  (top, facetType, filterTypes, filterIds) =>
+    topFilter(top, facetType, filterTypes[1], filterIds));
 
 
 /**

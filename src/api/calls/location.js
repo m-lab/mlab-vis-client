@@ -62,7 +62,7 @@ export function getLocationHourly(timeAggregation, locationId, options = {}) {
  * @return {Promise} A promise after the get request was made
  */
 export function getTopClientIspsForLocations(locationIds) {
-  return get('/clients/top', getTopParams('locations', locationIds))
+  return get('/clients/top', getTopParams('clients', 'locations', locationIds))
     .then(transform(transformTopClientIsps));
 }
 
@@ -73,6 +73,6 @@ export function getTopClientIspsForLocations(locationIds) {
  * @return {Promise} A promise after the get request was made
  */
 export function getTopTransitIspsForLocations(locationIds) {
-  return get('/servers/top', getTopParams('locations', locationIds))
+  return get('/servers/top', getTopParams('servers', 'locations', locationIds))
     .then(transform(transformTopTransitIsps));
 }

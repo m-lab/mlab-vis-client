@@ -121,7 +121,7 @@ export const fetchHourlyIfNeeded = hourlyFetch.fetchIfNeeded;
 // Fetch Locations related to a transit ISP
 // ---------------------
 const topLocations = createFetchAction({
-  typePrefix: `${typePrefix}locations/`,
+  typePrefix: `${typePrefix}topLocations/`,
   key: 'TOP',
   args: ['transitIspId'],
   shouldFetch(state, transitIspId) {
@@ -143,7 +143,7 @@ export const fetchTopLocationsIfNeeded = topLocations.fetchIfNeeded;
 // Fetch Client ISPs related to a transit ISP
 // ---------------------
 const topClientIsps = createFetchAction({
-  typePrefix: `${typePrefix}clientIsps/`,
+  typePrefix: `${typePrefix}topClientIsps/`,
   key: 'TOP',
   args: ['transitIspId'],
   shouldFetch(state, transitIspId) {

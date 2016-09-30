@@ -12,8 +12,8 @@ import typePrefix from './typePrefix';
 
 const time = timeWithTypePrefix(typePrefix);
 const info = infoWithTypePrefix(typePrefix);
-const topLocations = topInfosWithTypePrefix(typePrefix, 'locations/');
-const topTransitIsps = topInfosWithTypePrefix(typePrefix, 'transitIsps/');
+const topLocations = topInfosWithTypePrefix(typePrefix, 'topLocations/');
+const topTransitIsps = topInfosWithTypePrefix(typePrefix, 'topTransitIsps/');
 
 export const initialState = {
   id: null,

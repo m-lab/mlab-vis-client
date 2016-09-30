@@ -409,9 +409,14 @@ export function transformTopClientIsps(body) {
   // NOTE: modifying body directly means it modifies what is stored in the API cache
   if (body.results) {
     body.results = body.results.map(d => {
-      const { meta } = d;
+      const { meta, data } = d;
       meta.id = meta.client_asn_number;
       meta.label = meta.client_asn_name;
+
+      // ensure we have a test_count value
+      if (!meta.test_count) {
+        meta.test_count = data.test_count || 0;
+      }
 
       return meta;
     });
@@ -432,9 +437,14 @@ export function transformTopTransitIsps(body) {
   // NOTE: modifying body directly means it modifies what is stored in the API cache
   if (body.results) {
     body.results = body.results.map(d => {
-      const { meta } = d;
+      const { meta, data } = d;
       meta.id = meta.server_asn_number;
       meta.label = meta.server_asn_name;
+
+      // ensure we have a test_count value
+      if (!meta.test_count) {
+        meta.test_count = data.test_count || 0;
+      }
 
       return meta;
     });
@@ -455,13 +465,33 @@ export function transformTopLocations(body) {
   // NOTE: modifying body directly means it modifies what is stored in the API cache
   if (body.results) {
     body.results = body.results.map(d => {
-      const { meta } = d;
+      const { meta, data } = d;
       meta.id = meta.location_key;
       meta.label = locationLabel(meta);
       meta.client_location_label = meta.label;
 
+      // ensure we have a test_count value
+      if (!meta.test_count) {
+        meta.test_count = data.test_count || 0;
+      }
+
       return meta;
     });
+
+    // sort by type. data is already sorted by test count. this gets us cities, then
+    // regions, then countries, then continents
+    const sortOrderMap = {
+      city: 1,
+      region: 2,
+      country: 3,
+      continent: 4,
+    };
+    const defaultSortValue = 5;
+
+    const nested = d3.nest().key(d => d.type).entries(body.results)
+      .sort((a, b) => (sortOrderMap[a.key] || defaultSortValue) - (sortOrderMap[b.key] || defaultSortValue));
+
+    body.results = nested.reduce((reduced, typeEntry) => reduced.concat(typeEntry.values), []);
   }
 
   return body;

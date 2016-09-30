@@ -9,6 +9,7 @@ import AutoWidth from 'react-auto-width';
 
 import * as ComparePageSelectors from '../../redux/comparePage/selectors';
 import * as ComparePageActions from '../../redux/comparePage/actions';
+import * as TopActions from '../../redux/top/actions';
 import * as LocationsActions from '../../redux/locations/actions';
 import * as ClientIspsActions from '../../redux/clientIsps/actions';
 import * as TransitIspsActions from '../../redux/transitIsps/actions';
@@ -186,21 +187,17 @@ class ComparePage extends PureComponent {
    */
   fetchTopFilterInfos(props) {
     const { dispatch, facetItemIds, facetType } = props;
-    if (facetType.value === 'location') {
-      facetItemIds.forEach(locationId => {
-        dispatch(LocationsActions.fetchTopClientIspsIfNeeded(locationId));
-        dispatch(LocationsActions.fetchTopTransitIspsIfNeeded(locationId));
-      });
-    } else if (facetType.value === 'clientIsp') {
-      facetItemIds.forEach(clientIspId => {
-        dispatch(ClientIspsActions.fetchTopLocationsIfNeeded(clientIspId));
-        dispatch(ClientIspsActions.fetchTopTransitIspsIfNeeded(clientIspId));
-      });
-    } else if (facetType.value === 'transitIsp') {
-      facetItemIds.forEach(transitIspId => {
-        dispatch(TransitIspsActions.fetchTopLocationsIfNeeded(transitIspId));
-        dispatch(TransitIspsActions.fetchTopClientIspsIfNeeded(transitIspId));
-      });
+    if (facetItemIds.length) {
+      if (facetType.value === 'location') {
+        dispatch(TopActions.fetchClientIspsForLocationsIfNeeded(facetItemIds));
+        dispatch(TopActions.fetchTransitIspsForLocationsIfNeeded(facetItemIds));
+      } else if (facetType.value === 'clientIsp') {
+        dispatch(TopActions.fetchLocationsForClientIspsIfNeeded(facetItemIds));
+        dispatch(TopActions.fetchTransitIspsForClientIspsIfNeeded(facetItemIds));
+      } else if (facetType.value === 'transitIsp') {
+        dispatch(TopActions.fetchClientIspsForTransitIspsIfNeeded(facetItemIds));
+        dispatch(TopActions.fetchLocationsForTransitIspsIfNeeded(facetItemIds));
+      }
     }
   }
 
