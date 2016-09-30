@@ -1,4 +1,5 @@
 import React, { PureComponent, PropTypes } from 'react';
+import classNames from 'classnames';
 import Row from 'react-bootstrap/lib/Row';
 import Col from 'react-bootstrap/lib/Col';
 
@@ -186,15 +187,16 @@ export default class CompareLocationsInput extends PureComponent {
     const { data = [], status } = top;
     const numSuggestions = 10;
     const suggestions = data.slice(0, numSuggestions);
-    const { idKey, labelKey } = filterType;
+    const { labelKey } = filterType;
 
+    const isLoading = !status || status === 'loading';
     let loading;
-    if (!status || status === 'loading') {
+    if (isLoading) {
       loading = <span className="loading-text">Loading...</span>;
     }
 
     return (
-      <div className="filter-suggestions">
+      <div className={classNames('filter-suggestions', { loading: isLoading })}>
         <h5>Suggestions{loading}</h5>
         <ul className="list-inline">
           {suggestions.map((suggestion, i) => (
