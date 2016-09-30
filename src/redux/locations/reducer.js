@@ -25,8 +25,8 @@ export const initialState = {
 const time = timeWithTypePrefix(typePrefix);
 const info = infoWithTypePrefix(typePrefix);
 const fixed = fixedWithTypePrefix(typePrefix);
-const topClientIsps = topInfosWithTypePrefix(typePrefix, 'clientIsps/');
-const topTransitIsps = topInfosWithTypePrefix(typePrefix, 'transitIsps/');
+const topClientIsps = topInfosWithTypePrefix(typePrefix, 'topClientIsps/');
+const topTransitIsps = topInfosWithTypePrefix(typePrefix, 'topTransitIsps/');
 
 // reducer to get the ID
 function id(state = initialState.id, action = {}) {

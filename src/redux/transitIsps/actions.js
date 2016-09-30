@@ -121,7 +121,7 @@ export const fetchHourlyIfNeeded = hourlyFetch.fetchIfNeeded;
 // Fetch Locations related to a transit ISP
 // ---------------------
 const topLocations = createFetchAction({
-  typePrefix: `${typePrefix}locations/`,
+  typePrefix: `${typePrefix}topLocations/`,
   key: 'TOP',
   args: ['transitIspId'],
   shouldFetch(state, transitIspId) {
@@ -129,7 +129,7 @@ const topLocations = createFetchAction({
     return keyShouldFetch(transitIspState, 'topLocations');
   },
   promise(transitIspId) {
-    return api => api.getTransitIspTopLocations(transitIspId);
+    return api => api.getTopLocationsForTransitIsps(transitIspId);
   },
 });
 export const FETCH_TOP_LOCATIONS = topLocations.types.fetch;
@@ -143,7 +143,7 @@ export const fetchTopLocationsIfNeeded = topLocations.fetchIfNeeded;
 // Fetch Client ISPs related to a transit ISP
 // ---------------------
 const topClientIsps = createFetchAction({
-  typePrefix: `${typePrefix}clientIsps/`,
+  typePrefix: `${typePrefix}topClientIsps/`,
   key: 'TOP',
   args: ['transitIspId'],
   shouldFetch(state, transitIspId) {
@@ -151,7 +151,7 @@ const topClientIsps = createFetchAction({
     return keyShouldFetch(transitIspState, 'topClientIsps');
   },
   promise(transitIspId) {
-    return api => api.getTransitIspTopClientIsps(transitIspId);
+    return api => api.getTopClientIspsForTransitIsps(transitIspId);
   },
 });
 export const FETCH_TOP_CLIENT_ISPS = topClientIsps.types.fetch;

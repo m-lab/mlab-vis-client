@@ -11,6 +11,7 @@ import { reducer as clientIspTransitIsp } from './clientIspTransitIsp';
 import { reducer as locationClientIspTransitIsp } from './locationClientIspTransitIsp';
 import { reducer as locationPage } from './locationPage';
 import { reducer as globalSearch } from './globalSearch';
+import { reducer as top } from './top';
 
 export default combineReducers({
   clientIsps,
@@ -24,4 +25,5 @@ export default combineReducers({
   locationTransitIsp,
   routing: routerReducer,
   transitIsps,
+  top,
 });

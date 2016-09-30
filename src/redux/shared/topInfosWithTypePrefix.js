@@ -3,7 +3,7 @@ import { makeFetchState, reduceFetch, reduceFetchSuccess, reduceFetchFail } from
 export const initialState = makeFetchState();
 
 // reducer for fixed
-export default function fixedWithTypePrefix(typePrefix, topPrefix) {
+export default function topInfosWithTypePrefix(typePrefix, topPrefix) {
   return function topInfos(state = initialState, action) {
     switch (action.type) {
       case `${typePrefix}${topPrefix}FETCH_TOP`:

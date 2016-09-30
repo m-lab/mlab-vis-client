@@ -13,7 +13,13 @@ import api from './api/api';
 import getRoutes from './routes';
 
 const dest = document.getElementById('content');
-const store = createStore(browserHistory, api, window.__data); // eslint-disable-line no-underscore-dangle, max-len
+let store;
+if (__DISABLE_SSR__) {
+  store = createStore(browserHistory, api);
+} else {
+  store = createStore(browserHistory, api, window.__data); // eslint-disable-line no-underscore-dangle, max-len
+}
+
 const history = syncHistoryWithStore(browserHistory, store);
 
 if (__DEVELOPMENT__) {

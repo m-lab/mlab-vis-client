@@ -1,6 +1,9 @@
 .CompareInputPanel {
   .filter-suggestions {
-    min-height: 150px;
+    &.loading {
+      // set a min height while loading to minimize jumping
+      min-height: 150px;
+    }
 
     .loading-text {
       margin-left: 12px;
