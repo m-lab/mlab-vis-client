@@ -129,7 +129,7 @@ const topLocations = createFetchAction({
     return keyShouldFetch(transitIspState, 'topLocations');
   },
   promise(transitIspId) {
-    return api => api.getTransitIspTopLocations(transitIspId);
+    return api => api.getTopLocationsForTransitIsps(transitIspId);
   },
 });
 export const FETCH_TOP_LOCATIONS = topLocations.types.fetch;
@@ -151,7 +151,7 @@ const topClientIsps = createFetchAction({
     return keyShouldFetch(transitIspState, 'topClientIsps');
   },
   promise(transitIspId) {
-    return api => api.getTransitIspTopClientIsps(transitIspId);
+    return api => api.getTopClientIspsForTransitIsps(transitIspId);
   },
 });
 export const FETCH_TOP_CLIENT_ISPS = topClientIsps.types.fetch;

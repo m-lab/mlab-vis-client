@@ -1,4 +1,5 @@
 import getMetricsParams from '../getMetricsParams';
+import getTopParams from '../getTopParams';
 import get from '../get';
 import {
   transform,
@@ -56,21 +57,21 @@ export function getTransitIspHourly(timeAggregation, transitIspId, options = {})
 /**
  * Get the top N locations that have the transit ISP
  *
- * @param {String} transitIspId The transit ISP to query (e.g., AS174)
+ * @param {String|String[]} transitIspIds The transit ISP to query (e.g., AS174)
  * @return {Promise} A promise after the get request was made
  */
-export function getTransitIspTopLocations(transitIspId) {
-  return get(`/servers/${transitIspId}/locations`)
+export function getTopLocationForTransitIsps(transitIspIds) {
+  return get('/locations/top', getTopParams('servers', transitIspIds))
   .then(transform(transformTopLocations));
 }
 
 /**
  * Get the top N Client ISPs that have the transit ISP
  *
- * @param {String} transitIspId The transit ISP to query (e.g., AS174)
+ * @param {String|String[]} transitIspIds The transit ISP to query (e.g., AS174)
  * @return {Promise} A promise after the get request was made
  */
-export function getTransitIspTopClientIsps(transitIspId) {
-  return get(`/servers/${transitIspId}/clients`)
+export function getTopClientIspsForTransitIsps(transitIspIds) {
+  return get('/clients/top', getTopParams('servers', transitIspIds))
   .then(transform(transformTopClientIsps));
 }

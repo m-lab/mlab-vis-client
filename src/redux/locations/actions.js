@@ -97,6 +97,29 @@ export const fetchHourly = hourlyFetch.fetch;
 export const fetchHourlyIfNeeded = hourlyFetch.fetchIfNeeded;
 
 // ---------------------
+// Fetch Location Info
+// ---------------------
+const infoFetch = createFetchAction({
+  typePrefix,
+  key: 'INFO',
+  args: ['locationId'],
+  shouldFetch(state, locationId) {
+    const locationState = getLocationState(state, locationId);
+    return infoShouldFetch(locationState) || fixedShouldFetch(locationState);
+  },
+  promise(locationId) {
+    return api => api.getLocationInfo(locationId);
+  },
+});
+export const FETCH_INFO = infoFetch.types.fetch;
+export const FETCH_INFO_SUCCESS = infoFetch.types.success;
+export const FETCH_INFO_FAIL = infoFetch.types.fail;
+export const shouldFetchInfo = infoFetch.shouldFetch;
+export const fetchInfo = infoFetch.fetch;
+export const fetchInfoIfNeeded = infoFetch.fetchIfNeeded;
+
+
+// ---------------------
 // Fetch Client ISPs in location
 // ---------------------
 const topClientIsps = createFetchAction({
@@ -108,7 +131,7 @@ const topClientIsps = createFetchAction({
     return keyShouldFetch(locationState, 'topClientIsps');
   },
   promise(locationId) {
-    return api => api.getLocationTopClientIsps(locationId);
+    return api => api.getTopClientIspsForLocations(locationId);
   },
 });
 export const FETCH_TOP_CLIENT_ISPS = topClientIsps.types.fetch;
@@ -130,7 +153,7 @@ const topTransitIsps = createFetchAction({
     return keyShouldFetch(locationState, 'topTransitIsps');
   },
   promise(locationId) {
-    return api => api.getLocationTopTransitIsps(locationId);
+    return api => api.getTopTransitIspsForLocations(locationId);
   },
 });
 export const FETCH_TOP_TRANSIT_ISPS = topTransitIsps.types.fetch;
@@ -139,25 +162,3 @@ export const FETCH_TOP_TRANSIT_ISPS_FAIL = topTransitIsps.types.fail;
 export const shouldFetchTopTransitIsps = topTransitIsps.shouldFetch;
 export const fetchTopTransitIsps = topTransitIsps.fetch;
 export const fetchTopTransitIspsIfNeeded = topTransitIsps.fetchIfNeeded;
-
-// ---------------------
-// Fetch Location Info
-// ---------------------
-const infoFetch = createFetchAction({
-  typePrefix,
-  key: 'INFO',
-  args: ['locationId'],
-  shouldFetch(state, locationId) {
-    const locationState = getLocationState(state, locationId);
-    return infoShouldFetch(locationState) || fixedShouldFetch(locationState);
-  },
-  promise(locationId) {
-    return api => api.getLocationInfo(locationId);
-  },
-});
-export const FETCH_INFO = infoFetch.types.fetch;
-export const FETCH_INFO_SUCCESS = infoFetch.types.success;
-export const FETCH_INFO_FAIL = infoFetch.types.fail;
-export const shouldFetchInfo = infoFetch.shouldFetch;
-export const fetchInfo = infoFetch.fetch;
-export const fetchInfoIfNeeded = infoFetch.fetchIfNeeded;
