@@ -1,4 +1,10 @@
-require('babel-polyfill');
+// check if we already added polyfill otherwise tests fail.
+const theGlobal = (typeof global === "object" ? global : typeof window === "object" ? window : {});
+
+if (!theGlobal._babelPolyfill) {
+  console.log('importing babel polyfill - config');
+  require('babel-polyfill');
+}
 
 const environment = {
   development: {

@@ -47,6 +47,7 @@ module.exports = function (config) {
           { test: /\.less$/, loader: 'style!css!less' },
           { test: /\.scss$/, loader: 'style!css!sass' },
           { test: /\.css$/, loader: 'style!css' },
+          { test: /\.(woff|woff2|ttf|eot|svg)(\?v=\d+\.\d+\.\d+)?$/, loader: 'url', query: {limit: 10240} },
         ]
       },
       resolve: {
@@ -63,7 +64,9 @@ module.exports = function (config) {
           __CLIENT__: true,
           __SERVER__: false,
           __DEVELOPMENT__: true,
-          __DEVTOOLS__: false  // <-------- DISABLE redux-devtools HERE
+          __DISABLE_SSR__: false, // <--- Ignores server-side rendering check/warning
+          __DEVTOOLS__: false,  // <-------- DISABLE redux-devtools HERE
+          __DEBUG_COMPUTED_PROPS__: false,
         })
       ],
       externals: {
