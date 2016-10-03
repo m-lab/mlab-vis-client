@@ -44,6 +44,7 @@ module.exports = {
       'scroll-behavior',
       'lodash',
       'lodash.curry',
+      'lodash.debounce',
       'dom-helpers',
       'reselect',
       'd3-array',
@@ -85,10 +86,7 @@ module.exports = {
       'react-themeable',
       'react-select',
       'react-input-autosize',
-      'react-dates',
-      'react-portal',
       'react-taco-table',
-      'array-includes',
       'object-keys',
       'define-properties',
       'foreach',
@@ -115,6 +113,9 @@ module.exports = {
       'ansi-regex',
       'ansi-html',
       'html-entities',
+      'jquery',
+      'bootstrap-daterangepicker',
+      'react-auto-width',
     ]
   },
   output: {
