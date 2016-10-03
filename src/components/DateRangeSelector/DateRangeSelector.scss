@@ -1,9 +1,7 @@
-
 .DateRangeSelector {
   margin-bottom: 13px;
 
-  caption {
-    display: table-caption;
-    text-align: center;
+  .main-date-input {
+    width: 200px;
   }
 }

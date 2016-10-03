@@ -15,6 +15,15 @@
     border-bottom: 3px solid darken($btn-primary-bg, 10%);
   }
 }
+.btn-success {
+  border-bottom: 3px solid $btn-success-border;
+
+  &.active {
+    border-bottom: 3px solid darken($btn-success-bg, 10%);
+  }
+}
+
+
 
 .btn {
   font-size: ceil($font-size-base * 0.9);

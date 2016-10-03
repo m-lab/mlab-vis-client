@@ -1,16 +1,3 @@
 @import "bootstrap_variables";
 
 // Place non bootstrap specific variables here
-
-// Colors for receptor status
-$nm-color: #c85f61;
-$her2amp-color: #4dab9b;
-$tnbc-color: #ca7832;
-$hrplus-color: #7da245;
-
-
-// Colors for highlighting charts
-$chart-highlight-color: #B8A2CC;
-$chart-toggled-color: $brand-primary;
-$chart-highlight-color-lighter: lighten($chart-highlight-color, 15%);
-$chart-toggled-color-lighter: lighten($chart-toggled-color, 15%);
