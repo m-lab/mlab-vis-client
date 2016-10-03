@@ -4,6 +4,7 @@
 import * as Actions from './actions';
 
 export const initialState = {
+  autoTimeAggregation: true,
   highlightHourly: undefined,
   highlightTimeSeriesDate: undefined,
   highlightTimeSeriesLine: undefined,
@@ -12,6 +13,11 @@ export const initialState = {
 // the location page reducer
 function locationPage(state = initialState, action = {}) {
   switch (action.type) {
+    case Actions.CHANGE_AUTO_TIME_AGGREGATION:
+      return {
+        ...state,
+        autoTimeAggregation: action.autoTimeAggregation,
+      };
     case Actions.HIGHLIGHT_HOURLY:
       return {
         ...state,
