@@ -1,22 +1,39 @@
 import React, { PureComponent, PropTypes } from 'react';
+import moment from 'moment';
 
-import { DateRangePicker } from 'react-dates';
+import jquery from 'jquery';
+import daterangepicker from 'bootstrap-daterangepicker'; // eslint-disable-line
 
 import momentPropTypes from 'react-moment-proptypes';
-
-import '../../assets/datepicker.scss';
+import '../../assets/daterangepicker.scss';
 import './DateRangeSelector.scss';
-
 
 /**
  * Date Range Selector Component
  */
 export default class DateRangeSelector extends PureComponent {
-
   static propTypes = {
+    alwaysShowCalendars: PropTypes.bool,
     endDate: momentPropTypes.momentObj,
+    maxDate: momentPropTypes.momentObj,
+    minDate: momentPropTypes.momentObj,
     onChange: PropTypes.func,
+    ranges: PropTypes.object,
+    showDropdowns: PropTypes.bool,
     startDate: momentPropTypes.momentObj,
+  }
+
+  static defaultProps = {
+    alwaysShowCalendars: true,
+    maxDate: moment(),
+    minDate: moment('2009-01-01'), // actual min date seems to be: 2009-02-18 00:00:00 UTC
+    ranges: {
+      'Last 30 Days': [moment().subtract(29, 'days'), moment()],
+      'Last 365 Days': [moment().subtract(364, 'days'), moment()],
+      'This Month': [moment().startOf('month'), moment().endOf('month')],
+      'This Year': [moment().startOf('year'), moment().endOf('year')],
+    },
+    showDropdowns: true,
   }
 
   /**
@@ -25,11 +42,29 @@ export default class DateRangeSelector extends PureComponent {
   constructor(props) {
     super(props);
 
-    this.state = {
-      focus: null,
-    };
     this.onDatesChange = this.onDatesChange.bind(this);
-    this.onFocusChange = this.onFocusChange.bind(this);
+  }
+
+  // mount the jquery based date picker
+  componentDidMount() {
+    const { alwaysShowCalendars, minDate, maxDate, startDate, endDate, ranges, showDropdowns } = this.props;
+    jquery(this.root).daterangepicker({
+      alwaysShowCalendars,
+      startDate,
+      endDate,
+      minDate,
+      maxDate,
+      ranges,
+      showDropdowns,
+    }).on('apply.daterangepicker', (evt, datePicker) => {
+      this.onDatesChange(datePicker);
+    });
+  }
+
+  componentWillUpdate(nextProps) {
+    // synchronize the props with the datepicker
+    jquery(this.root).data('daterangepicker').setStartDate(nextProps.startDate);
+    jquery(this.root).data('daterangepicker').setEndDate(nextProps.endDate);
   }
 
   /**
@@ -42,33 +77,13 @@ export default class DateRangeSelector extends PureComponent {
   }
 
   /**
-   * Callback for when date changes
-   * @param {String} focus  Which field is focused
-   */
-  onFocusChange(focus) {
-    this.setState({
-      focus,
-    });
-  }
-
-  /**
    * The main render method.
    * @return {React.Component} The rendered component
    */
   render() {
-    const { startDate, endDate } = this.props;
-    const { focus } = this.state;
-
     return (
       <div className="DateRangeSelector">
-        <DateRangePicker
-          startDate={startDate}
-          endDate={endDate}
-          focusedInput={focus}
-          onDatesChange={this.onDatesChange}
-          onFocusChange={this.onFocusChange}
-          isOutsideRange={() => false}
-        />
+        <input className="main-date-input form-control" ref={(node) => { this.root = node; }} />
       </div>
     );
   }
