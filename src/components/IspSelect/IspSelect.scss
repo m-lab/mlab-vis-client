@@ -13,16 +13,17 @@
 
   .selected-isp {
     display: inline-block;
-    padding: 4px 0px 2px 8px;
+    padding: 4px 25px 2px 8px;
     background-color: $brand-primary;
     color: #fff;
     margin: 0 4px 4px 0;
     border-radius: 4px;
     white-space: nowrap;
     max-width: 100%;
+    position: relative;
 
     .isp-label {
-      max-width: 90%;
+      max-width: 100%;
       display: inline-block;
       overflow: hidden;
       text-overflow: ellipsis;
@@ -30,14 +31,14 @@
     }
 
     .isp-remove-control {
-      display: block;
+      position: absolute;
+      top: 0;
+      right: 0;
       padding: 0 6px;
       line-height: 2;
-      margin: 0;
-      margin-top: -3px;
       border-radius: 0 4px 4px 0;
+      margin: 0;
       cursor: pointer;
-      float: right;
 
       &:hover {
         background: rgba(0, 0, 0, 0.1);
