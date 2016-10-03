@@ -12,6 +12,11 @@ export const initialState = {
 // the compare page reducer
 function comparePage(state = initialState, action = {}) {
   switch (action.type) {
+    case Actions.CHANGE_AUTO_TIME_AGGREGATION:
+      return {
+        ...state,
+        autoTimeAggregation: action.autoTimeAggregation,
+      };
     case Actions.HIGHLIGHT_HOURLY:
       return {
         ...state,

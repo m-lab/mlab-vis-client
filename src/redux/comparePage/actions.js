@@ -6,9 +6,22 @@ import { saveLocationInfoIfNeeded } from '../locations/actions';
 import { saveClientIspInfoIfNeeded } from '../clientIsps/actions';
 import { saveTransitIspInfoIfNeeded } from '../transitIsps/actions';
 
+export const CHANGE_AUTO_TIME_AGGREGATION = 'locationPage/CHANGE_AUTO_TIME_AGGREGATION';
 export const HIGHLIGHT_HOURLY = 'comparePage/HIGHLIGHT_HOURLY';
 export const HIGHLIGHT_TIME_SERIES_DATE = 'comparePage/HIGHLIGHT_TIME_SERIES_DATE';
 export const HIGHLIGHT_TIME_SERIES_LINE = 'comparePage/HIGHLIGHT_TIME_SERIES_LINE';
+
+/**
+ * Action for changing whether or not we automatically determine
+ * time aggregate based on date range size.
+ */
+export function changeAutoTimeAggregation(autoTimeAggregation) {
+  return {
+    type: CHANGE_AUTO_TIME_AGGREGATION,
+    autoTimeAggregation,
+  };
+}
+
 
 /**
  * Action for highlighting the hourly chart
