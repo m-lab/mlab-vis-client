@@ -1,2 +1,19 @@
 .Histogram {
+  .highlight-value text {
+    font-size: 12px;
+    font-weight: 500;
+  }
+
+  .highlight-value rect {
+    opacity: 0.9;
+  }
+
+  .highlight-bin text {
+    font-size: 10px;
+    font-weight: 500;
+  }
+
+  .highlight-bar {
+    pointer-events: none;
+  }
 }

@@ -1,7 +1,6 @@
 import React, { PureComponent, PropTypes } from 'react';
 import { Row, Col } from 'react-bootstrap';
 import { colorsFor } from '../../utils/color';
-
 import { Histogram } from '../../components';
 
 import './HistoGroup.scss';
@@ -14,7 +13,6 @@ import './HistoGroup.scss';
  * @prop {Number} height The height of the charts
  * @prop {Number} width The width of the charts
  * @prop {Func} onChange Metric change callback
- * @prop {Func} onHover Point hover callback
  */
 export default class HistoGroup extends PureComponent {
   static propTypes = {
@@ -22,7 +20,6 @@ export default class HistoGroup extends PureComponent {
     height: PropTypes.number,
     id: React.PropTypes.string,
     onChange: PropTypes.func,
-    onHover: PropTypes.func,
     summary: PropTypes.object,
     viewMetric: PropTypes.object,
     width: PropTypes.number,
@@ -34,11 +31,31 @@ export default class HistoGroup extends PureComponent {
     width: 250,
     height: 250,
     yExtent: [0, 100],
-    yFormatter: d => `${d}%`,
+  }
+
+  constructor(props) {
+    super(props);
+
+    this.state = {
+      highlightBin: null,
+    };
+
+    this.onHighlightBin = this.onHighlightBin.bind(this);
+  }
+
+  /**
+   * Callback when a bin is highlighted
+   * @param {Object} highlightBin the bin to highlight
+   */
+  onHighlightBin(highlightBin) {
+    this.setState({
+      highlightBin,
+    });
   }
 
   renderPlot(info, bins, color) {
     const { width, height, viewMetric, yExtent, yFormatter } = this.props;
+    const { highlightBin } = this.state;
 
     if (!bins) {
       return null;
@@ -51,6 +68,8 @@ export default class HistoGroup extends PureComponent {
           bins={bins}
           width={width}
           height={height}
+          highlightBin={highlightBin}
+          onHighlightBin={this.onHighlightBin}
           id={info.id}
           color={color}
           xFormatter={viewMetric.formatter}
