@@ -143,18 +143,12 @@ class ScatterPlot extends PureComponent {
    * Helper to find the highlight point based off the ID
    */
   getHighlightPoint() {
-    const { data, highlightPointId, xKey, yKey } = this.props;
+    const { data, highlightPointId } = this.props;
     if (!data || !data.length || highlightPointId == null) {
       return null;
     }
 
     const highlightPoint = data.find(d => d.id === highlightPointId);
-
-    // TODO: temporarily check for xKey and yKey until bug is fixed.
-    if (!highlightPoint || highlightPoint[xKey] == null || highlightPoint[yKey] == null) {
-      return null;
-    }
-
     return highlightPoint;
   }
 
@@ -224,7 +218,7 @@ class ScatterPlot extends PureComponent {
       .attr('text-anchor', 'end');
     highlightY.append('line')
       .attr('transform', 'translate(10 0)')
-      .attr('x1', 0)
+      .attr('x1', 0);
 
     this.update();
   }
@@ -318,13 +312,12 @@ class ScatterPlot extends PureComponent {
       .on('mouseenter', d => this.onHoverPoint(d))
       .on('mouseleave', () => this.onHoverPoint(null));
 
-    // TODO: the values inside our summary data don't all get populated at once?
     binding.merge(entering)
-      .attr('cx', (d) => (d[xKey] ? xScale(d[xKey]) : -100))
-      .attr('cy', (d) => (d[yKey] ? yScale(d[yKey]) : -100))
+      .attr('cx', (d) => xScale(d[xKey]))
+      .attr('cy', (d) => yScale(d[yKey]))
       .attr('r', pointRadius)
-      .attr('stroke', (d) => (d.id ? colors[d.id] : '#fff'))
-      .attr('fill', (d) => (d.id ? d3.color(colors[d.id]).brighter(0.3) : '#fff'));
+      .attr('stroke', (d) => colors[d.id])
+      .attr('fill', (d) => d3.color(colors[d.id]).brighter(0.3));
   }
 
   /**
