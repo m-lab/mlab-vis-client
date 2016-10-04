@@ -189,8 +189,9 @@ class ScatterPlot extends PureComponent {
 
     // set up highlight
     this.highlight = this.g.append('g')
-      .attr('transform', 'translate(0 -5)')
-      .attr('class', 'highlight');
+      .attr('class', 'highlight')
+      .attr('transform', 'translate(0 -5)');
+
     this.highlight.append('text')
       .attr('class', 'highlight-label');
     const axisHighlight = this.highlight.append('g')
@@ -207,6 +208,8 @@ class ScatterPlot extends PureComponent {
     highlightX.append('text')
       .attr('dy', 15)
       .attr('text-anchor', 'middle');
+    highlightX.append('line')
+      .attr('y1', 0);
 
     const highlightY = axisHighlight.append('g').attr('class', 'highlight-y');
     // add in a rect to fill out the area beneath the hovered value in Y axis
@@ -219,6 +222,9 @@ class ScatterPlot extends PureComponent {
     highlightY.append('text')
       .attr('dy', 4)
       .attr('text-anchor', 'end');
+    highlightY.append('line')
+      .attr('transform', 'translate(10 0)')
+      .attr('x1', 0)
 
     this.update();
   }
@@ -265,12 +271,17 @@ class ScatterPlot extends PureComponent {
     const yValue = highlightPoint[yKey];
 
     // show the value in the x axis
+    const xAxisY = yScale.range()[0] + 4;
     const highlightX = this.highlight.select('.highlight-x')
-      .attr('transform', `translate(${xScale(xValue)} ${yScale.range()[0] + 4})`);
+      .attr('transform', `translate(${xScale(xValue)} ${xAxisY})`);
 
     highlightX.select('text')
       .style('fill', color)
       .text(xFormatter(xValue));
+    highlightX.select('line')
+      .attr('y2', -(xAxisY - yScale(yValue)))
+      .style('stroke', color);
+
 
     // show the value in the y axis
     const highlightY = this.highlight.select('.highlight-y')
@@ -278,6 +289,9 @@ class ScatterPlot extends PureComponent {
     highlightY.select('text')
       .style('fill', color)
       .text(yFormatter(yValue));
+    highlightY.select('line')
+      .attr('x2', xScale(xValue))
+      .style('stroke', color);
   }
 
   /**
