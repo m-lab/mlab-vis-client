@@ -15,7 +15,6 @@ import './ScatterGroup.scss';
  * @prop {Number} height The height of the charts
  * @prop {Number} width The width of the charts
  * @prop {Func} onChange Metric change callback
- * @prop {Func} onHover Point hover callback
  */
 export default class ScatterGroup extends PureComponent {
   static propTypes = {
@@ -24,7 +23,6 @@ export default class ScatterGroup extends PureComponent {
     height: PropTypes.number,
     id: React.PropTypes.string,
     onChange: PropTypes.func,
-    onHover: PropTypes.func,
     summary: PropTypes.object,
     width: PropTypes.number,
   }
@@ -40,7 +38,12 @@ export default class ScatterGroup extends PureComponent {
   constructor(props) {
     super(props);
 
+    this.state = {
+      highlightPointId: null,
+    };
+
     this.onMetricChange = this.onMetricChange.bind(this);
+    this.onHighlightPoint = this.onHighlightPoint.bind(this);
   }
 
   /**
@@ -57,12 +60,24 @@ export default class ScatterGroup extends PureComponent {
   }
 
   /**
+   * Callback when a point is highlighted
+   * @param {Object} highlightPoint the point to highlight
+   */
+  onHighlightPoint(highlightPointId) {
+    this.setState({
+      highlightPointId,
+    });
+  }
+
+  /**
    * Renders plot
    * @param {Object} field Name and id of group of metrics to show in chart
    * @param {Object} allData Data for the field from summary
    */
   renderPlot(field, allData) {
     const { compareMetrics, width, height } = this.props;
+    const { highlightPointId } = this.state;
+
     const data = allData && allData.clientIspsData;
     const xMetric = (compareMetrics && compareMetrics.x) || metrics[0];
     const yMetric = (compareMetrics && compareMetrics.y) || metrics[1];
@@ -77,11 +92,15 @@ export default class ScatterGroup extends PureComponent {
           data={data}
           width={width}
           height={height}
+          highlightPointId={highlightPointId}
+          onHighlightPoint={this.onHighlightPoint}
           xAxisLabel={xMetric.label}
           xAxisUnit={xMetric.unit}
+          xFormatter={xMetric.formatter}
           xKey={xKey}
           yAxisLabel={yMetric.label}
           yAxisUnit={yMetric.unit}
+          yFormatter={yMetric.formatter}
           yKey={yKey}
         />
       </Col>
