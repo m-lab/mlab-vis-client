@@ -6,6 +6,7 @@ import { createSelector } from 'reselect';
 import { metrics, facetTypes } from '../../constants';
 import { mergeStatuses, status } from '../status';
 import { colorsFor } from '../../utils/color';
+import timeAggregationFromDates from '../../utils/timeAggregationFromDates';
 import * as LocationsSelectors from '../locations/selectors';
 import * as LocationClientIspSelectors from '../locationClientIsp/selectors';
 import * as LocationClientIspTransitIspSelectors from '../locationClientIspTransitIsp/selectors';
@@ -22,6 +23,20 @@ import makeClientIspTransitIspId from '../clientIspTransitIsp/makeId';
 // Input Selectors
 // ----------------------
 
+export function getAutoTimeAggregation(state) {
+  return state.comparePage.autoTimeAggregation;
+}
+
+export function getTimeAggregation(state, props) {
+  let { timeAggregation } = props;
+
+  // this sets the default value
+  if (timeAggregation == null) {
+    timeAggregation = timeAggregationFromDates(props.startDate, props.endDate);
+  }
+
+  return timeAggregation;
+}
 
 export function getHighlightHourly(state) {
   return state.comparePage.highlightHourly;

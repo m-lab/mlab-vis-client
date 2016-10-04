@@ -5,6 +5,7 @@ import { createSelector } from 'reselect';
 import { metrics } from '../../constants';
 import { mergeStatuses, status } from '../status';
 import { colorsFor } from '../../utils/color';
+import timeAggregationFromDates from '../../utils/timeAggregationFromDates';
 import * as LocationsSelectors from '../locations/selectors';
 import * as LocationClientIspSelectors from '../locationClientIsp/selectors';
 
@@ -13,6 +14,21 @@ import * as LocationClientIspSelectors from '../locationClientIsp/selectors';
 // ----------------------
 export function getLocationId(state, props) {
   return props.locationId;
+}
+
+export function getAutoTimeAggregation(state) {
+  return state.locationPage.autoTimeAggregation;
+}
+
+export function getTimeAggregation(state, props) {
+  let { timeAggregation } = props;
+
+  // this sets the default value
+  if (timeAggregation == null) {
+    timeAggregation = timeAggregationFromDates(props.startDate, props.endDate);
+  }
+
+  return timeAggregation;
 }
 
 export function getHighlightHourly(state) {

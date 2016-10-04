@@ -3,9 +3,22 @@
  */
 import { urlReplaceAction } from '../../url/actions';
 
+export const CHANGE_AUTO_TIME_AGGREGATION = 'locationPage/CHANGE_AUTO_TIME_AGGREGATION';
 export const HIGHLIGHT_HOURLY = 'locationPage/HIGHLIGHT_HOURLY';
 export const HIGHLIGHT_TIME_SERIES_DATE = 'locationPage/HIGHLIGHT_TIME_SERIES_DATE';
 export const HIGHLIGHT_TIME_SERIES_LINE = 'locationPage/HIGHLIGHT_TIME_SERIES_LINE';
+
+/**
+ * Action for changing whether or not we automatically determine
+ * time aggregate based on date range size.
+ */
+export function changeAutoTimeAggregation(autoTimeAggregation) {
+  return {
+    type: CHANGE_AUTO_TIME_AGGREGATION,
+    autoTimeAggregation,
+  };
+}
+
 
 /**
  * Action for highlighting the hourly chart
@@ -36,6 +49,7 @@ export function highlightTimeSeriesLine(highlightLine) {
     highlightLine,
   };
 }
+
 /** Actions that replace values in the URL */
 export const changeTimeAggregation = urlReplaceAction('timeAggregation');
 export const changeViewMetric = urlReplaceAction('viewMetric');

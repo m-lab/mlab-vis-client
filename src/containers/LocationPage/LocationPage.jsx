@@ -13,7 +13,7 @@ import * as LocationsSelectors from '../../redux/locations/selectors';
 import * as LocationsActions from '../../redux/locations/actions';
 import * as LocationClientIspActions from '../../redux/locationClientIsp/actions';
 
-import { colorsFor } from '../../utils/color';
+import timeAggregationFromDates from '../../utils/timeAggregationFromDates';
 import { metrics } from '../../constants';
 
 import {
@@ -52,7 +52,7 @@ const urlQueryConfig = {
   // TODO: change defaults to more recent time period when data is up-to-date
   startDate: { type: 'date', urlKey: 'start', defaultValue: moment('2015-10-1') },
   endDate: { type: 'date', urlKey: 'end', defaultValue: moment('2015-11-1') },
-  timeAggregation: { type: 'string', defaultValue: 'day', urlKey: 'aggr' },
+  timeAggregation: { type: 'string', urlKey: 'aggr' },
   selectedClientIspIds: { type: 'array', urlKey: 'isps', persist: false },
 };
 const urlHandler = new UrlHandler(urlQueryConfig, browserHistory);
@@ -66,6 +66,7 @@ const fixedFields = [
 function mapStateToProps(state, propsWithUrl) {
   return {
     ...propsWithUrl,
+    autoTimeAggregation: LocationPageSelectors.getAutoTimeAggregation(state, propsWithUrl),
     clientIspHourly: LocationPageSelectors.getLocationClientIspHourly(state, propsWithUrl),
     clientIspTimeSeries: LocationPageSelectors.getLocationClientIspTimeSeries(state, propsWithUrl),
     colors: LocationPageSelectors.getColors(state, propsWithUrl),
@@ -80,14 +81,17 @@ function mapStateToProps(state, propsWithUrl) {
     locationTimeSeries: LocationsSelectors.getLocationTimeSeries(state, propsWithUrl),
     selectedClientIspInfo: LocationPageSelectors.getLocationSelectedClientIspInfo(state, propsWithUrl),
     summary: LocationPageSelectors.getSummaryData(state, propsWithUrl),
+    timeAggregation: LocationPageSelectors.getTimeAggregation(state, propsWithUrl),
     timeSeriesStatus: LocationPageSelectors.getTimeSeriesStatus(state, propsWithUrl),
     topClientIsps: LocationsSelectors.getLocationTopClientIsps(state, propsWithUrl),
     viewMetric: LocationPageSelectors.getViewMetric(state, propsWithUrl),
   };
 }
 
+
 class LocationPage extends PureComponent {
   static propTypes = {
+    autoTimeAggregation: PropTypes.bool,
     clientIspHourly: PropTypes.array,
     clientIspTimeSeries: PropTypes.array,
     colors: PropTypes.object,
@@ -149,6 +153,7 @@ class LocationPage extends PureComponent {
       startDate,
       endDate,
     };
+
     dispatch(LocationsActions.fetchInfoIfNeeded(locationId));
     dispatch(LocationsActions.fetchTimeSeriesIfNeeded(timeAggregation, locationId, options));
     dispatch(LocationsActions.fetchHourlyIfNeeded(timeAggregation, locationId, options));
@@ -211,8 +216,13 @@ class LocationPage extends PureComponent {
    * Callback for time aggregation checkbox
    */
   onTimeAggregationChange(value) {
-    const { dispatch } = this.props;
+    const { dispatch, autoTimeAggregation } = this.props;
     dispatch(LocationPageActions.changeTimeAggregation(value));
+
+    // when we change time aggregation, we no longer want auto detection of it based on dates
+    if (autoTimeAggregation) {
+      dispatch(LocationPageActions.changeAutoTimeAggregation(false));
+    }
   }
 
   /**
@@ -275,7 +285,12 @@ class LocationPage extends PureComponent {
    * @param {Date} endDate new endDate
    */
   onDateRangeChange(newStartDate, newEndDate) {
-    const { dispatch, startDate, endDate } = this.props;
+    const { dispatch, autoTimeAggregation, startDate, endDate } = this.props;
+    // if we are auto-detecting time aggregation, set it based on the dates
+    if (autoTimeAggregation) {
+      dispatch(LocationPageActions.changeTimeAggregation(timeAggregationFromDates(newStartDate, newEndDate)));
+    }
+
     if ((!startDate && newStartDate) || (newStartDate && !newStartDate.isSame(startDate, 'day'))) {
       dispatch(LocationPageActions.changeStartDate(newStartDate.toDate()));
     }

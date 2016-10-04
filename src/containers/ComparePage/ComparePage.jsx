@@ -18,7 +18,7 @@ import * as LocationTransitIspActions from '../../redux/locationTransitIsp/actio
 import * as ClientIspTransitIspActions from '../../redux/clientIspTransitIsp/actions';
 import * as LocationClientIspTransitIspActions from '../../redux/locationClientIspTransitIsp/actions';
 
-// import { colorsFor } from '../../utils/color';
+import timeAggregationFromDates from '../../utils/timeAggregationFromDates';
 import { facetTypes } from '../../constants';
 
 import {
@@ -49,7 +49,7 @@ const urlQueryConfig = {
   // TODO: change defaults to more recent time period when data is up-to-date
   startDate: { type: 'date', urlKey: 'start', defaultValue: moment('2015-10-1') },
   endDate: { type: 'date', urlKey: 'end', defaultValue: moment('2015-11-1') },
-  timeAggregation: { type: 'string', defaultValue: 'day', urlKey: 'aggr' },
+  timeAggregation: { type: 'string', urlKey: 'aggr' },
   facetItemIds: { type: 'array', urlKey: 'selected', persist: false },
   filter1Ids: { type: 'array', urlKey: 'filter1', persist: false },
   filter2Ids: { type: 'array', urlKey: 'filter2', persist: false },
@@ -59,6 +59,7 @@ const urlHandler = new UrlHandler(urlQueryConfig, browserHistory);
 function mapStateToProps(state, propsWithUrl) {
   return {
     ...propsWithUrl,
+    autoTimeAggregation: ComparePageSelectors.getAutoTimeAggregation(state, propsWithUrl),
     colors: ComparePageSelectors.getColors(state, propsWithUrl),
     combinedHourly: ComparePageSelectors.getCombinedHourly(state, propsWithUrl),
     combinedTimeSeries: ComparePageSelectors.getCombinedTimeSeries(state, propsWithUrl),
@@ -72,6 +73,7 @@ function mapStateToProps(state, propsWithUrl) {
     highlightHourly: ComparePageSelectors.getHighlightHourly(state, propsWithUrl),
     highlightTimeSeriesDate: ComparePageSelectors.getHighlightTimeSeriesDate(state, propsWithUrl),
     highlightTimeSeriesLine: ComparePageSelectors.getHighlightTimeSeriesLine(state, propsWithUrl),
+    timeAggregation: ComparePageSelectors.getTimeAggregation(state, propsWithUrl),
     topFilter1: ComparePageSelectors.getTopFilter1(state, propsWithUrl),
     topFilter2: ComparePageSelectors.getTopFilter2(state, propsWithUrl),
     viewMetric: ComparePageSelectors.getViewMetric(state, propsWithUrl),
@@ -81,6 +83,7 @@ function mapStateToProps(state, propsWithUrl) {
 const pageTitle = 'Compare';
 class ComparePage extends PureComponent {
   static propTypes = {
+    autoTimeAggregation: PropTypes.bool,
     breakdownBy: PropTypes.string,
     colors: PropTypes.object,
     combinedHourly: PropTypes.object,
@@ -326,8 +329,13 @@ class ComparePage extends PureComponent {
    * Callback for time aggregation checkbox
    */
   onTimeAggregationChange(value) {
-    const { dispatch } = this.props;
+    const { dispatch, autoTimeAggregation } = this.props;
     dispatch(ComparePageActions.changeTimeAggregation(value));
+
+    // when we change time aggregation, we no longer want auto detection of it based on dates
+    if (autoTimeAggregation) {
+      dispatch(ComparePageActions.changeAutoTimeAggregation(false));
+    }
   }
 
   /**
@@ -358,7 +366,12 @@ class ComparePage extends PureComponent {
    * @param {Date} endDate new endDate
    */
   onDateRangeChange(newStartDate, newEndDate) {
-    const { dispatch, startDate, endDate } = this.props;
+    const { dispatch, autoTimeAggregation, startDate, endDate } = this.props;
+    // if we are auto-detecting time aggregation, set it based on the dates
+    if (autoTimeAggregation) {
+      dispatch(LocationPageActions.changeTimeAggregation(timeAggregationFromDates(newStartDate, newEndDate)));
+    }
+
     if ((!startDate && newStartDate) || (newStartDate && !newStartDate.isSame(startDate, 'day'))) {
       dispatch(ComparePageActions.changeStartDate(newStartDate.toDate()));
     }
