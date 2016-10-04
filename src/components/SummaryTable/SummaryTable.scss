@@ -1,0 +1,14 @@
+.SummaryTable {
+  // this is a wide table, so we need a small font.
+  font-size: 12px;
+
+  .rtt-group.group-header {
+    text-align: right;
+  }
+
+  // if we want to show highlighted mins/max for the "best" value in each column
+  // style it here. default is bold.
+  .highlight-max, .highlight-min {
+    font-weight: 300;
+  }
+}
