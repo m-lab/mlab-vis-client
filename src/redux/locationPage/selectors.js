@@ -214,7 +214,7 @@ export const getSummaryData = createSelector(
     const results = Object.keys(locationFixed).reduce((grouped, key) => {
       const locationData = {
         ...locationFixed[key],
-        label: locationInfo.name,
+        label: locationInfo.label,
         id: locationInfo.id,
       };
 
