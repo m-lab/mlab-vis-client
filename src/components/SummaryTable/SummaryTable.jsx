@@ -177,12 +177,7 @@ export default class SummaryData extends PureComponent {
 
   render() {
     const { data, bottomData } = this.props;
-    console.log('got data =', data);
-    console.log('got bottomData =', bottomData);
-    console.log({
-      summarize: Summarizers.minMaxSummarizer,
-      tdClassName: TdClassNames.maxClassName,
-    });
+
     return (
       <div className="SummaryTable">
         <TacoTable
