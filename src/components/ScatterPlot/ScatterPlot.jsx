@@ -48,14 +48,16 @@ function visProps(props) {
     xDomain[0] = 0;
   }
 
+  const domainPaddingFactor = 1.15;
+
   const xScale = d3.scaleLinear().range([0, plotAreaWidth]).clamp(true);
   if (xDomain) {
-    xScale.domain(xDomain);
+    xScale.domain([xDomain[0], xDomain[1] * domainPaddingFactor]);
   }
 
   const yScale = d3.scaleLinear().range([plotAreaHeight, 0]).clamp(true);
   if (yDomain) {
-    yScale.domain(yDomain);
+    yScale.domain([yDomain[0], yDomain[1] * domainPaddingFactor]);
   }
 
   return {
@@ -90,6 +92,7 @@ class ScatterPlot extends PureComponent {
     padding: PropTypes.object,
     plotAreaHeight: PropTypes.number,
     plotAreaWidth: PropTypes.number,
+    pointRadius: PropTypes.number,
     width: PropTypes.number,
     xAxisLabel: React.PropTypes.string,
     xAxisUnit: React.PropTypes.string,
@@ -111,6 +114,7 @@ class ScatterPlot extends PureComponent {
     xKey: 'x',
     width: 200,
     height: 200,
+    pointRadius: 6,
     xFormatter: d => d,
     yFormatter: d => d,
   }
@@ -179,6 +183,7 @@ class ScatterPlot extends PureComponent {
       data,
       padding,
       colors,
+      pointRadius,
       xKey,
       xScale,
       yKey,
@@ -196,8 +201,9 @@ class ScatterPlot extends PureComponent {
     binding.merge(entering)
       .attr('cx', (d) => (d[xKey] ? xScale(d[xKey]) : -100))
       .attr('cy', (d) => (d[yKey] ? yScale(d[yKey]) : -100))
-      .attr('r', 8)
-      .attr('fill', (d) => (d.id ? colors[d.id] : '#fff'));
+      .attr('r', pointRadius)
+      .attr('stroke', (d) => (d.id ? colors[d.id] : '#fff'))
+      .attr('fill', (d) => (d.id ? d3.color(colors[d.id]).brighter(0.3) : '#fff'));
   }
 
   /**
