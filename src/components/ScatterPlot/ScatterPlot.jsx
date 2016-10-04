@@ -23,7 +23,7 @@ function visProps(props) {
 
   const colors = colorsFor(data, (d) => d.id);
   const padding = {
-    top: 40,
+    top: 20,
     right: 20,
     bottom: 40,
     left: 50,
@@ -48,14 +48,16 @@ function visProps(props) {
     xDomain[0] = 0;
   }
 
+  const domainPaddingFactor = 1.15;
+
   const xScale = d3.scaleLinear().range([0, plotAreaWidth]).clamp(true);
   if (xDomain) {
-    xScale.domain(xDomain);
+    xScale.domain([xDomain[0], xDomain[1] * domainPaddingFactor]);
   }
 
   const yScale = d3.scaleLinear().range([plotAreaHeight, 0]).clamp(true);
   if (yDomain) {
-    yScale.domain(yDomain);
+    yScale.domain([yDomain[0], yDomain[1] * domainPaddingFactor]);
   }
 
   return {
@@ -73,7 +75,8 @@ function visProps(props) {
  *
  * @prop {Array} data array of objects with various metrics inside
  * @prop {Number} height The height of the chart
- * @prop {Function} onHover Callback for when a point is hovered on
+ * @prop {String} highlightPointId The ID of the point to highlight
+ * @prop {Function} onHighlightPoint Callback for when a point is hovered on
  * @prop {Number} width The width of the chart
  * @prop {Array} yExtent Optional. The min and max value of the yKey in the chart
  * @prop {String} yKey="y" The key in the data points to read the y value from
@@ -85,11 +88,13 @@ class ScatterPlot extends PureComponent {
     colors: PropTypes.object,
     data: PropTypes.array,
     height: PropTypes.number,
+    highlightPointId: PropTypes.string,
     id: React.PropTypes.string,
-    onHover: PropTypes.func,
+    onHighlightPoint: PropTypes.func,
     padding: PropTypes.object,
     plotAreaHeight: PropTypes.number,
     plotAreaWidth: PropTypes.number,
+    pointRadius: PropTypes.number,
     width: PropTypes.number,
     xAxisLabel: React.PropTypes.string,
     xAxisUnit: React.PropTypes.string,
@@ -111,6 +116,7 @@ class ScatterPlot extends PureComponent {
     xKey: 'x',
     width: 200,
     height: 200,
+    pointRadius: 6,
     xFormatter: d => d,
     yFormatter: d => d,
   }
@@ -129,6 +135,23 @@ class ScatterPlot extends PureComponent {
     this.update();
   }
 
+  onHoverPoint(d) {
+    this.props.onHighlightPoint(d && d.id);
+  }
+
+  /**
+   * Helper to find the highlight point based off the ID
+   */
+  getHighlightPoint() {
+    const { data, highlightPointId } = this.props;
+    if (!data || !data.length || highlightPointId == null) {
+      return null;
+    }
+
+    const highlightPoint = data.find(d => d.id === highlightPointId);
+    return highlightPoint;
+  }
+
   getXAxisLabel() {
     const { xAxisLabel, xAxisUnit } = this.props;
     return `${xAxisLabel}${xAxisUnit ? ` (${xAxisUnit})` : ''}`;
@@ -138,7 +161,6 @@ class ScatterPlot extends PureComponent {
     const { yAxisLabel, yAxisUnit } = this.props;
     return `${yAxisLabel}${yAxisUnit ? ` (${yAxisUnit})` : ''}`;
   }
-
 
   /**
    * Initialize the d3 chart - this is run once on mount
@@ -159,6 +181,44 @@ class ScatterPlot extends PureComponent {
       .attr('class', 'axis-label')
       .attr('text-anchor', 'middle');
 
+    // set up highlight
+    this.highlight = this.g.append('g')
+      .attr('class', 'highlight')
+      .attr('transform', 'translate(0 -5)');
+
+    this.highlight.append('text')
+      .attr('class', 'highlight-label');
+    const axisHighlight = this.highlight.append('g')
+      .attr('class', 'axis-highlights')
+      .attr('transform', 'translate(0 5)');
+
+    const highlightX = axisHighlight.append('g').attr('class', 'highlight-x');
+    // add in a rect to fill out the area beneath the hovered value in X axis
+    highlightX.append('rect')
+      .attr('x', -25)
+      .attr('width', 50)
+      .attr('height', 20)
+      .style('fill', '#fff');
+    highlightX.append('text')
+      .attr('dy', 15)
+      .attr('text-anchor', 'middle');
+    highlightX.append('line')
+      .attr('y1', 0);
+
+    const highlightY = axisHighlight.append('g').attr('class', 'highlight-y');
+    // add in a rect to fill out the area beneath the hovered value in Y axis
+    highlightY.append('rect')
+      .attr('x', -20)
+      .attr('width', 30)
+      .attr('y', -10)
+      .attr('height', 20)
+      .style('fill', '#fff');
+    highlightY.append('text')
+      .attr('dy', 4)
+      .attr('text-anchor', 'end');
+    highlightY.append('line')
+      .attr('transform', 'translate(10 0)')
+      .attr('x1', 0);
 
     this.update();
   }
@@ -169,6 +229,63 @@ class ScatterPlot extends PureComponent {
   update() {
     this.updateAxes();
     this.updateChart();
+    this.updateHighlight();
+  }
+
+  updateHighlight() {
+    const {
+      colors,
+      yKey,
+      xKey,
+      xFormatter,
+      yFormatter,
+      xScale,
+      yScale,
+    } = this.props;
+
+    const highlightPoint = this.getHighlightPoint();
+
+    // if no highlight, hide the highlight markers
+    if (!highlightPoint) {
+      this.highlight.style('display', 'none');
+      return;
+    }
+
+    // otherwise update an show them
+    this.highlight.style('display', '');
+
+    const color = colors[highlightPoint.id];
+
+    // show name in the label
+    this.highlight.select('text')
+      .style('fill', color)
+      .text(highlightPoint.label);
+
+    const xValue = highlightPoint[xKey];
+    const yValue = highlightPoint[yKey];
+
+    // show the value in the x axis
+    const xAxisY = yScale.range()[0] + 4;
+    const highlightX = this.highlight.select('.highlight-x')
+      .attr('transform', `translate(${xScale(xValue)} ${xAxisY})`);
+
+    highlightX.select('text')
+      .style('fill', color)
+      .text(xFormatter(xValue));
+    highlightX.select('line')
+      .attr('y2', -(xAxisY - yScale(yValue)))
+      .style('stroke', color);
+
+
+    // show the value in the y axis
+    const highlightY = this.highlight.select('.highlight-y')
+      .attr('transform', `translate(-10 ${yScale(yValue)})`);
+    highlightY.select('text')
+      .style('fill', color)
+      .text(yFormatter(yValue));
+    highlightY.select('line')
+      .attr('x2', xScale(xValue))
+      .style('stroke', color);
   }
 
   /**
@@ -179,6 +296,7 @@ class ScatterPlot extends PureComponent {
       data,
       padding,
       colors,
+      pointRadius,
       xKey,
       xScale,
       yKey,
@@ -190,14 +308,16 @@ class ScatterPlot extends PureComponent {
     const binding = this.g.selectAll('.data-point').data(data, d => d.id);
     binding.exit().remove();
     const entering = binding.enter().append('circle')
-      .classed('data-point', true);
+      .classed('data-point', true)
+      .on('mouseenter', d => this.onHoverPoint(d))
+      .on('mouseleave', () => this.onHoverPoint(null));
 
-    // TODO: the values inside our summary data don't all get populated at once?
     binding.merge(entering)
-      .attr('cx', (d) => (d[xKey] ? xScale(d[xKey]) : -100))
-      .attr('cy', (d) => (d[yKey] ? yScale(d[yKey]) : -100))
-      .attr('r', 8)
-      .attr('fill', (d) => (d.id ? colors[d.id] : '#fff'));
+      .attr('cx', (d) => xScale(d[xKey]))
+      .attr('cy', (d) => yScale(d[yKey]))
+      .attr('r', pointRadius)
+      .attr('stroke', (d) => colors[d.id])
+      .attr('fill', (d) => d3.color(colors[d.id]).brighter(0.3));
   }
 
   /**
@@ -230,7 +350,7 @@ class ScatterPlot extends PureComponent {
       <div>
         <svg
           id={id}
-          className="scatter-plot chart"
+          className="ScatterPlot chart"
           height={height}
           ref={node => { this.root = node; }}
           width={width}

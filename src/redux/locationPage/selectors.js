@@ -220,15 +220,18 @@ export const getSummaryData = createSelector(
 
       // add in the results for client ISPs here
       const clientIspsData = selectedClientIsps.map(clientIsp => {
-        const ispFixed = clientIsp.fixed.data || {};
-        const ispInfo = clientIsp.info.data || {};
+        const ispFixed = clientIsp.fixed.data;
+        const ispInfo = clientIsp.info.data;
+        if (!ispInfo || !ispFixed) {
+          return null;
+        }
 
         return {
           ...ispFixed[key],
           label: ispInfo.client_asn_name,
           id: ispInfo.client_asn_number,
         };
-      });
+      }).filter(d => d != null);
 
       grouped[key] = { locationData, clientIspsData };
 
