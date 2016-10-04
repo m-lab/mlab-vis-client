@@ -1,4 +1,7 @@
 .SummaryTable {
+  // this is a wide table, so we need a small font.
+  font-size: 12px;
+
   .rtt-group.group-header {
     text-align: right;
   }

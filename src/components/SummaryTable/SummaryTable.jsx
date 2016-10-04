@@ -184,7 +184,7 @@ export default class SummaryData extends PureComponent {
       tdClassName: TdClassNames.maxClassName,
     });
     return (
-      <div className="SummaryTable" style={{ fontSize: 12 }}>
+      <div className="SummaryTable">
         <TacoTable
           columns={columns}
           data={data}
