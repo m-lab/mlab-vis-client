@@ -5,6 +5,7 @@ import {
     HomePage,
     LocationPage,
     ComparePage,
+    DataPage,
     NotFoundPage,
   } from 'containers';
 
@@ -29,8 +30,9 @@ export default () => (
       <Route path=":facetType" />
     </Route>
 
+    <Route path="data" component={DataPage} />
+
     { /* Catch all route */ }
     <Route path="*" component={NotFoundPage} status={404} />
   </Route>
 );
-
