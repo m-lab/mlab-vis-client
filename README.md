@@ -61,6 +61,14 @@ npm run webpack-clean-cache
 
 This plugin dramatically speeds up build times, but does require you to clean the cache occasionally (when problems arise).
 
+If you see an error in your console similar to:
+
+```
+Uncaught TypeError: __webpack_require__(...) is not a function
+```
+
+Chances are you need to clean the cache. Run the command as described above.
+
 ### Using webpack-dashboard
 
 If you prefer to have webpack rendered in a dashboard, use two separate terminal windows.
