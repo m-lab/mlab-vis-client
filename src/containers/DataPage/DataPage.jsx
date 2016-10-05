@@ -14,6 +14,8 @@ import { LocationSearch } from '../../containers';
 import UrlHandler from '../../url/UrlHandler';
 import urlConnect from '../../url/urlConnect';
 
+import * as DataPageActions from '../../redux/dataPage/actions';
+
 import './DataPage.scss';
 
 
@@ -58,7 +60,8 @@ class DataPage extends PureComponent {
   }
 
   onDataFormatChange(dataFormat) {
-    console.log('TODO: got new data format', dataFormat);
+    const { dispatch } = this.props;
+    dispatch(DataPageActions.changeDataFormat(dataFormat));
   }
 
   renderFilters() {
