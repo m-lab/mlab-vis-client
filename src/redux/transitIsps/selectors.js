@@ -7,9 +7,11 @@
 // ----------------------
 // Input Selectors
 // ----------------------
+export function getTransitIsps(state) {
+  return state.transitIsps;
+}
 
 
 // ----------------------
 // Selectors
 // ----------------------
-

@@ -21,6 +21,9 @@ import urlConnect from '../../url/urlConnect';
 
 import * as DataPageActions from '../../redux/dataPage/actions';
 import * as DataPageSelectors from '../../redux/dataPage/selectors';
+import * as LocationsActions from '../../redux/locations/actions';
+import * as ClientIspsActions from '../../redux/clientIsps/actions';
+import * as TransitIspsActions from '../../redux/transitIsps/actions';
 
 import './DataPage.scss';
 
@@ -34,16 +37,19 @@ const urlQueryConfig = {
   startDate: { type: 'date', urlKey: 'start', defaultValue: moment('2015-10-1') },
   endDate: { type: 'date', urlKey: 'end', defaultValue: moment('2015-11-1') },
   timeAggregation: { type: 'string', urlKey: 'aggr' },
-  clientIspIds: { type: 'array', urlKey: 'clientIsps' },
-  transitIspIds: { type: 'array', urlKey: 'transitIsps' },
-  locationIds: { type: 'array', urlKey: 'locations' },
+  clientIspIds: { type: 'array', urlKey: 'clientIsps', defaultValue: [] },
+  transitIspIds: { type: 'array', urlKey: 'transitIsps', defaultValue: [] },
+  locationIds: { type: 'array', urlKey: 'locations', defaultValue: [] },
 };
 const urlHandler = new UrlHandler(urlQueryConfig, browserHistory);
 function mapStateToProps(state, propsWithUrl) {
   return {
     ...propsWithUrl,
     autoTimeAggregation: DataPageSelectors.getAutoTimeAggregation(state, propsWithUrl),
+    clientIspInfos: DataPageSelectors.getClientIspInfos(state, propsWithUrl),
+    locationInfos: DataPageSelectors.getLocationInfos(state, propsWithUrl),
     timeAggregation: DataPageSelectors.getTimeAggregation(state, propsWithUrl),
+    transitIspInfos: DataPageSelectors.getTransitIspInfos(state, propsWithUrl),
   };
 }
 
@@ -52,7 +58,6 @@ class DataPage extends PureComponent {
     autoTimeAggregation: PropTypes.bool,
     clientIspIds: PropTypes.array,
     clientIspInfos: PropTypes.array,
-    colors: PropTypes.object,
     dataFormat: PropTypes.string,
     dispatch: PropTypes.func,
     endDate: momentPropTypes.momentObj,
@@ -73,6 +78,36 @@ class DataPage extends PureComponent {
     this.onLocationsChange = this.onLocationsChange.bind(this);
     this.onClientIspsChange = this.onClientIspsChange.bind(this);
     this.onTransitIspsChange = this.onTransitIspsChange.bind(this);
+  }
+
+  componentDidMount() {
+    this.fetchData(this.props);
+  }
+
+  componentWillReceiveProps(nextProps) {
+    this.fetchData(nextProps);
+  }
+
+  /**
+   * Fetch the data for the page if needed
+   */
+  fetchData(props) {
+    const { dispatch, locationIds, clientIspIds, transitIspIds } = props;
+
+    // get location info if needed
+    locationIds.forEach(locationId => {
+      dispatch(LocationsActions.fetchInfoIfNeeded(locationId));
+    });
+
+    // get client ISP info if needed
+    clientIspIds.forEach(clientIspId => {
+      dispatch(ClientIspsActions.fetchInfoIfNeeded(clientIspId));
+    });
+
+    // get transit ISP info if needed
+    transitIspIds.forEach(transitIspId => {
+      dispatch(TransitIspsActions.fetchInfoIfNeeded(transitIspId));
+    });
   }
 
   onDataFormatChange(dataFormat) {
@@ -174,7 +209,7 @@ class DataPage extends PureComponent {
             <SearchSelect
               type="transitIsp"
               orientation="vertical"
-              onChange={this.onTransitIspChange}
+              onChange={this.onTransitIspsChange}
               selected={transitIspInfos}
             />
           </Col>
@@ -190,7 +225,7 @@ class DataPage extends PureComponent {
       <div className="section">
         <h4>Rest API URL</h4>
         <p>
-          This is the URL you can use to get the generated data directly from the REST API.
+          This is the URL you can use to get the generated data directly from the <a href={apiRoot}>REST API</a>.
         </p>
         <input className="form-control" readOnly value={restUrl} />
       </div>
