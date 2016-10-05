@@ -12,8 +12,10 @@ import Button from 'react-bootstrap/lib/Button';
 import timeAggregationFromDates from '../../utils/timeAggregationFromDates';
 import { timeAggregations } from '../../constants';
 import { apiRoot } from '../../config';
-import { LocationSearch } from '../../containers';
-import { DateRangeSelector } from '../../components';
+import {
+  DateRangeSelector,
+  SearchSelect,
+} from '../../components';
 import UrlHandler from '../../url/UrlHandler';
 import urlConnect from '../../url/urlConnect';
 
@@ -49,14 +51,17 @@ class DataPage extends PureComponent {
   static propTypes = {
     autoTimeAggregation: PropTypes.bool,
     clientIspIds: PropTypes.array,
+    clientIspInfos: PropTypes.array,
     colors: PropTypes.object,
     dataFormat: PropTypes.string,
     dispatch: PropTypes.func,
     endDate: momentPropTypes.momentObj,
     locationIds: PropTypes.array,
+    locationInfos: PropTypes.array,
     startDate: momentPropTypes.momentObj,
     timeAggregation: PropTypes.string,
     transitIspIds: PropTypes.array,
+    transitIspInfos: PropTypes.array,
   }
 
   constructor(props) {
@@ -65,6 +70,9 @@ class DataPage extends PureComponent {
     this.onDataFormatChange = this.onDataFormatChange.bind(this);
     this.onTimeAggregationChange = this.onTimeAggregationChange.bind(this);
     this.onDateRangeChange = this.onDateRangeChange.bind(this);
+    this.onLocationsChange = this.onLocationsChange.bind(this);
+    this.onClientIspsChange = this.onClientIspsChange.bind(this);
+    this.onTransitIspsChange = this.onTransitIspsChange.bind(this);
   }
 
   onDataFormatChange(dataFormat) {
@@ -106,7 +114,36 @@ class DataPage extends PureComponent {
     }
   }
 
+  /**
+   * Callback when the location list changes
+   * @param {Array} locations array of info objects
+   */
+  onLocationsChange(locations) {
+    const { dispatch } = this.props;
+    dispatch(DataPageActions.changeLocations(locations, dispatch));
+  }
+
+  /**
+   * Callback when the client ISP list changes
+   * @param {Array} clientIsps array of info objects
+   */
+  onClientIspsChange(clientIsps) {
+    const { dispatch } = this.props;
+    dispatch(DataPageActions.changeClientIsps(clientIsps, dispatch));
+  }
+
+  /**
+   * Callback when the transit ISP list changes
+   * @param {Array} transitIsps array of info objects
+   */
+  onTransitIspsChange(transitIsps) {
+    const { dispatch } = this.props;
+    dispatch(DataPageActions.changeTransitIsps(transitIsps, dispatch));
+  }
+
   renderFilters() {
+    const { locationInfos, clientIspInfos, transitIspInfos } = this.props;
+
     return (
       <div className="features-section">
         <h4>Features</h4>
@@ -116,15 +153,30 @@ class DataPage extends PureComponent {
         <Row>
           <Col md={4}>
             <h5>Locations</h5>
-            <input className="form-control" />
+            <SearchSelect
+              type="location"
+              orientation="vertical"
+              onChange={this.onLocationsChange}
+              selected={locationInfos}
+            />
           </Col>
           <Col md={4}>
             <h5>Client ISPs</h5>
-            <input className="form-control" />
+            <SearchSelect
+              type="clientIsp"
+              orientation="vertical"
+              onChange={this.onClientIspsChange}
+              selected={clientIspInfos}
+            />
           </Col>
           <Col md={4}>
             <h5>Transit ISPs</h5>
-            <input className="form-control" />
+            <SearchSelect
+              type="transitIsp"
+              orientation="vertical"
+              onChange={this.onTransitIspChange}
+              selected={transitIspInfos}
+            />
           </Col>
         </Row>
       </div>
