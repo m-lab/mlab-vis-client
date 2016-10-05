@@ -9,6 +9,7 @@ import Col from 'react-bootstrap/lib/Col';
 import ButtonGroup from 'react-bootstrap/lib/ButtonGroup';
 import Button from 'react-bootstrap/lib/Button';
 
+import { timeAggregations } from '../../constants';
 import { apiRoot } from '../../config';
 import { LocationSearch } from '../../containers';
 import UrlHandler from '../../url/UrlHandler';
@@ -57,11 +58,26 @@ class DataPage extends PureComponent {
     super(props);
 
     this.onDataFormatChange = this.onDataFormatChange.bind(this);
+    this.onTimeAggregationChange = this.onTimeAggregationChange.bind(this);
   }
 
   onDataFormatChange(dataFormat) {
     const { dispatch } = this.props;
     dispatch(DataPageActions.changeDataFormat(dataFormat));
+  }
+
+  /**
+   * Callback for time aggregation checkbox
+   */
+  onTimeAggregationChange(evt) {
+    const { dispatch, autoTimeAggregation } = this.props;
+    const { value } = evt.target;
+    dispatch(DataPageActions.changeTimeAggregation(value));
+
+    // when we change time aggregation, we no longer want auto detection of it based on dates
+    if (autoTimeAggregation) {
+      dispatch(DataPageActions.changeAutoTimeAggregation(false));
+    }
   }
 
   renderFilters() {
@@ -133,7 +149,10 @@ class DataPage extends PureComponent {
     return (
       <div>
         <h5>Time Aggregation</h5>
-        <select className="form-control" />
+        <select className="form-control" value={timeAggregation} onChange={this.onTimeAggregationChange}>
+          {timeAggregations.map(aggr =>
+            <option key={aggr.value} value={aggr.value}>{aggr.label}</option>)}
+        </select>
       </div>
     );
   }
