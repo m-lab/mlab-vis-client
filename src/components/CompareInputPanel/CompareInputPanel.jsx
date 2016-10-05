@@ -1,9 +1,9 @@
 import React, { PureComponent, PropTypes } from 'react';
-import classNames from 'classnames';
 import Row from 'react-bootstrap/lib/Row';
 import Col from 'react-bootstrap/lib/Col';
 
 import {
+  FilterSuggestions,
   SearchSelect,
 } from '../../components';
 
@@ -184,31 +184,9 @@ export default class CompareLocationsInput extends PureComponent {
   }
 
   renderFilterSuggestions(filterType, top, onAdd) {
-    const { data = [], status } = top;
-    const numSuggestions = 10;
-    const suggestions = data.slice(0, numSuggestions);
-    const { labelKey } = filterType;
-
-    const isLoading = !status || status === 'loading';
-    let loading;
-    if (isLoading) {
-      loading = <span className="loading-text">Loading...</span>;
-    }
-
     return (
-      <div className={classNames('filter-suggestions', { loading: isLoading })}>
-        <h5>Suggestions{loading}</h5>
-        <ul className="list-inline">
-          {suggestions.map((suggestion, i) => (
-            <li key={i}>
-              <button onClick={() => onAdd(suggestion)} className="filter-suggestion">
-                {suggestion[labelKey]}
-              </button>
-            </li>
-          ))}
-        </ul>
-      </div>
-    );
+      <FilterSuggestions suggestions={top} labelKey={filterType.labelKey} onSelect={onAdd} />
+    )
   }
 
   render() {

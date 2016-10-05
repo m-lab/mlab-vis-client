@@ -1,29 +1,2 @@
 .CompareInputPanel {
-  .filter-suggestions {
-    &.loading {
-      // set a min height while loading to minimize jumping
-      min-height: 150px;
-    }
-
-    .loading-text {
-      margin-left: 12px;
-      font-weight: 300;
-      color: #aaa;
-      font-size: 0.8em;
-    }
-  }
-
-  .filter-suggestion {
-    background: #eee;
-    color: #666;
-    border: 0;
-    font-size: 12px;
-    margin-bottom: 4px;
-    border-radius: 4px;
-
-    &:hover {
-      background: #f6f6f6;
-      color: #444;
-    }
-  }
 }
