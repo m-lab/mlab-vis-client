@@ -218,20 +218,6 @@ class DataPage extends PureComponent {
     );
   }
 
-  renderRestUrl() {
-    const restUrl = apiRoot;
-
-    return (
-      <div className="section">
-        <h4>Rest API URL</h4>
-        <p>
-          This is the URL you can use to get the generated data directly from the <a href={apiRoot}>REST API</a>.
-        </p>
-        <input className="form-control" readOnly value={restUrl} />
-      </div>
-    );
-  }
-
   renderDataFormatSelector() {
     const { dataFormat } = this.props;
 
@@ -313,7 +299,6 @@ class DataPage extends PureComponent {
         </Row>
         {this.renderFilters()}
         <button className="btn btn-primary download-btn">Download Data</button>
-        {this.renderRestUrl()}
       </div>
     );
   }
