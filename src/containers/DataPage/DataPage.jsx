@@ -124,6 +124,17 @@ class DataPage extends PureComponent {
     );
   }
 
+  renderTimeAggregationSelector() {
+    const { timeAggregation } = this.props;
+
+    return (
+      <div>
+        <h5>Time Aggregation</h5>
+        <select className="form-control" />
+      </div>
+    );
+  }
+
   render() {
     return (
       <div className="DataPage">
@@ -143,6 +154,9 @@ class DataPage extends PureComponent {
           <Col md={4}>
             <h5>Time Range</h5>
             <input className="form-control" />
+          </Col>
+          <Col md={4}>
+            {this.renderTimeAggregationSelector()}
           </Col>
           <Col md={4}>
             {this.renderDataFormatSelector()}
