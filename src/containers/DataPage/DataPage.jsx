@@ -10,10 +10,12 @@ import ButtonGroup from 'react-bootstrap/lib/ButtonGroup';
 import Button from 'react-bootstrap/lib/Button';
 
 import timeAggregationFromDates from '../../utils/timeAggregationFromDates';
-import { timeAggregations } from '../../constants';
+import { timeAggregations, facetTypes } from '../../constants';
+import facetTypeCombinations from '../../utils/facetTypeCombinations';
 import { apiRoot } from '../../config';
 import {
   DateRangeSelector,
+  ApiDownloadLink,
   FilterSuggestions,
   SearchSelect,
 } from '../../components';
@@ -90,11 +92,13 @@ class DataPage extends PureComponent {
 
     this.onDataFormatChange = this.onDataFormatChange.bind(this);
     this.onTimeAggregationChange = this.onTimeAggregationChange.bind(this);
-    this.onStartDownload = this.onStartDownload.bind(this);
     this.onDateRangeChange = this.onDateRangeChange.bind(this);
     this.onLocationsChange = this.onLocationsChange.bind(this);
     this.onClientIspsChange = this.onClientIspsChange.bind(this);
     this.onTransitIspsChange = this.onTransitIspsChange.bind(this);
+    this.onLocationsAdd = this.onLocationsAdd.bind(this);
+    this.onClientIspsAdd = this.onClientIspsAdd.bind(this);
+    this.onTransitIspsAdd = this.onTransitIspsAdd.bind(this);
   }
 
   componentDidMount() {
@@ -390,21 +394,85 @@ class DataPage extends PureComponent {
     );
   }
 
-  onStartDownload() {
-    const { dispatch } = this.props;
-    dispatch(DataPageActions.changeDownloadStatus('started'));
-  }
-
-  renderDownloadResults() {
-    const { downloadStatus } = this.props;
-
-    if (!downloadStatus) {
-      return null;
+  getDownloadCombinations() {
+    function makeEntry(id, type, infos) {
+      const info = infos.find(d => d.id === id) || { label: id };
+      return {
+        [`${type}Id`]: id,
+        [`${type}Label`]: info.label,
+      };
     }
 
+    function labelFromTypes(types) {
+      const labelMap = {
+        clientIsp: 'Client ISPs',
+        transitIsp: 'Transit ISPs',
+        location: 'Locations',
+      };
+      const separator = ' --- ';
+
+      return types.map(type => labelMap[type]).join(separator);
+    }
+
+    return facetTypeCombinations.filter(types => {
+      // only keep the combination types for which we have items for
+      const hasEntries = types.every(type => this.props[`${type}Ids`].length);
+      return hasEntries;
+    // build up all combinations for the types we have items for
+    }).map(combinationTypes => {
+      let entries = [];
+      combinationTypes.forEach(partType => {
+        const newEntries = [];
+        const ids = this.props[`${partType}Ids`];
+        const infos = this.props[`${partType}Infos`];
+
+        // if we don't have any entries, bootstrap by starting with all the items for the first type
+        if (!entries.length) {
+          entries = ids.map(id => makeEntry(id, partType, infos));
+
+        // we have entries, so augment them with data for this type (multiplying for each item of this type)
+        } else {
+          entries.forEach(entry => {
+            ids.forEach(id => {
+              newEntries.push({ ...entry, ...makeEntry(id, partType, infos) });
+            });
+          });
+
+          entries = newEntries;
+        }
+      });
+
+      return { label: labelFromTypes(combinationTypes), types: combinationTypes, entries };
+
+    // sort by number of types in a combination
+    }).sort((a, b) => a.types.length - b.types.length);
+  }
+
+
+  renderDownloadLinks() {
+    // build up all combinations based on facetTypes
+    const combinations = this.getDownloadCombinations();
+    console.log('got combinations', combinations);
+
     return (
-      <div>
-        I'm sorry Dave, I'm afraid I can't do that.
+      <div className="section download-plan">
+        <header>
+          <h4>Download Links</h4>
+        </header>
+        <Row>
+          {combinations.map(combination => {
+            const { label, entries } = combination;
+
+            return (
+              <Col md={12} key={label}>
+                <h5>{label}</h5>
+                <ul className="list-unstyled">
+                  {entries.map((entry, i) => <li key={i}><ApiDownloadLink {...entry} /></li>)}
+                </ul>
+              </Col>
+            );
+          })}
+        </Row>
       </div>
     );
   }
@@ -436,8 +504,7 @@ class DataPage extends PureComponent {
           </Col>
         </Row>
         {this.renderFilters()}
-        <button className="btn btn-primary download-btn" onClick={this.onStartDownload}>Download Data</button>
-        {this.renderDownloadResults()}
+        {this.renderDownloadLinks()}
       </div>
     );
   }
