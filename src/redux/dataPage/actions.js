@@ -7,6 +7,7 @@ import { saveClientIspInfoIfNeeded } from '../clientIsps/actions';
 import { saveTransitIspInfoIfNeeded } from '../transitIsps/actions';
 
 export const CHANGE_AUTO_TIME_AGGREGATION = 'dataPage/CHANGE_AUTO_TIME_AGGREGATION';
+export const CHANGE_DOWNLOAD_STATUS = 'dataPage/CHANGE_DOWNLOAD_STATUS';
 
 /**
  * Action for changing whether or not we automatically determine
@@ -18,6 +19,18 @@ export function changeAutoTimeAggregation(autoTimeAggregation) {
     autoTimeAggregation,
   };
 }
+
+
+/**
+ * Action for changing the current status of the data download
+ */
+export function changeDownloadStatus(downloadStatus) {
+  return {
+    type: CHANGE_DOWNLOAD_STATUS,
+    downloadStatus,
+  };
+}
+
 
 /** Actions that replace values in the URL */
 export const changeTimeAggregation = urlReplaceAction('timeAggregation');

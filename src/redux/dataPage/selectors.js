@@ -16,6 +16,10 @@ export function getAutoTimeAggregation(state) {
   return state.dataPage.autoTimeAggregation;
 }
 
+export function getDownloadStatus(state) {
+  return state.dataPage.downloadStatus;
+}
+
 export function getTimeAggregation(state, props) {
   let { timeAggregation } = props;
 

@@ -51,6 +51,7 @@ function mapStateToProps(state, propsWithUrl) {
     clientIspInfos: DataPageSelectors.getClientIspInfos(state, propsWithUrl),
     clientIspSuggestionsForLocations: DataPageSelectors.getClientIspSuggestionsForLocations(state, propsWithUrl),
     clientIspSuggestionsForTransitIsps: DataPageSelectors.getClientIspSuggestionsForTransitIsps(state, propsWithUrl),
+    downloadStatus: DataPageSelectors.getDownloadStatus(state, propsWithUrl),
     locationInfos: DataPageSelectors.getLocationInfos(state, propsWithUrl),
     locationSuggestionsForClientIsps: DataPageSelectors.getLocationSuggestionsForClientIsps(state, propsWithUrl),
     locationSuggestionsForTransitIsps: DataPageSelectors.getLocationSuggestionsForTransitIsps(state, propsWithUrl),
@@ -70,6 +71,7 @@ class DataPage extends PureComponent {
     clientIspSuggestionsForTransitIsps: PropTypes.object,
     dataFormat: PropTypes.string,
     dispatch: PropTypes.func,
+    downloadStatus: PropTypes.string,
     endDate: momentPropTypes.momentObj,
     locationIds: PropTypes.array,
     locationInfos: PropTypes.array,
@@ -88,6 +90,7 @@ class DataPage extends PureComponent {
 
     this.onDataFormatChange = this.onDataFormatChange.bind(this);
     this.onTimeAggregationChange = this.onTimeAggregationChange.bind(this);
+    this.onStartDownload = this.onStartDownload.bind(this);
     this.onDateRangeChange = this.onDateRangeChange.bind(this);
     this.onLocationsChange = this.onLocationsChange.bind(this);
     this.onClientIspsChange = this.onClientIspsChange.bind(this);
@@ -387,6 +390,25 @@ class DataPage extends PureComponent {
     );
   }
 
+  onStartDownload() {
+    const { dispatch } = this.props;
+    dispatch(DataPageActions.changeDownloadStatus('started'));
+  }
+
+  renderDownloadResults() {
+    const { downloadStatus } = this.props;
+
+    if (!downloadStatus) {
+      return null;
+    }
+
+    return (
+      <div>
+        I'm sorry Dave, I'm afraid I can't do that.
+      </div>
+    );
+  }
+
   render() {
     return (
       <div className="DataPage">
@@ -414,7 +436,8 @@ class DataPage extends PureComponent {
           </Col>
         </Row>
         {this.renderFilters()}
-        <button className="btn btn-primary download-btn">Download Data</button>
+        <button className="btn btn-primary download-btn" onClick={this.onStartDownload}>Download Data</button>
+        {this.renderDownloadResults()}
       </div>
     );
   }
