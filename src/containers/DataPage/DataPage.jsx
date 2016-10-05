@@ -9,13 +9,16 @@ import Col from 'react-bootstrap/lib/Col';
 import ButtonGroup from 'react-bootstrap/lib/ButtonGroup';
 import Button from 'react-bootstrap/lib/Button';
 
+import timeAggregationFromDates from '../../utils/timeAggregationFromDates';
 import { timeAggregations } from '../../constants';
 import { apiRoot } from '../../config';
 import { LocationSearch } from '../../containers';
+import { DateRangeSelector } from '../../components';
 import UrlHandler from '../../url/UrlHandler';
 import urlConnect from '../../url/urlConnect';
 
 import * as DataPageActions from '../../redux/dataPage/actions';
+import * as DataPageSelectors from '../../redux/dataPage/selectors';
 
 import './DataPage.scss';
 
@@ -37,6 +40,8 @@ const urlHandler = new UrlHandler(urlQueryConfig, browserHistory);
 function mapStateToProps(state, propsWithUrl) {
   return {
     ...propsWithUrl,
+    autoTimeAggregation: DataPageSelectors.getAutoTimeAggregation(state, propsWithUrl),
+    timeAggregation: DataPageSelectors.getTimeAggregation(state, propsWithUrl),
   };
 }
 
@@ -59,11 +64,32 @@ class DataPage extends PureComponent {
 
     this.onDataFormatChange = this.onDataFormatChange.bind(this);
     this.onTimeAggregationChange = this.onTimeAggregationChange.bind(this);
+    this.onDateRangeChange = this.onDateRangeChange.bind(this);
   }
 
   onDataFormatChange(dataFormat) {
     const { dispatch } = this.props;
     dispatch(DataPageActions.changeDataFormat(dataFormat));
+  }
+
+  /**
+   * Callback for when start or end date is changed
+   * @param {Date} startDate new startDate
+   * @param {Date} endDate new endDate
+   */
+  onDateRangeChange(newStartDate, newEndDate) {
+    const { dispatch, autoTimeAggregation, startDate, endDate } = this.props;
+    // if we are auto-detecting time aggregation, set it based on the dates
+    if (autoTimeAggregation) {
+      dispatch(DataPageActions.changeTimeAggregation(timeAggregationFromDates(newStartDate, newEndDate)));
+    }
+
+    if ((!startDate && newStartDate) || (newStartDate && !newStartDate.isSame(startDate, 'day'))) {
+      dispatch(DataPageActions.changeStartDate(newStartDate.toDate()));
+    }
+    if ((!endDate && newEndDate) || (newEndDate && !newEndDate.isSame(endDate, 'day'))) {
+      dispatch(DataPageActions.changeEndDate(newEndDate.toDate()));
+    }
   }
 
   /**
@@ -149,10 +175,25 @@ class DataPage extends PureComponent {
     return (
       <div>
         <h5>Time Aggregation</h5>
-        <select className="form-control" value={timeAggregation} onChange={this.onTimeAggregationChange}>
+        <select className="time-aggr form-control" value={timeAggregation} onChange={this.onTimeAggregationChange}>
           {timeAggregations.map(aggr =>
             <option key={aggr.value} value={aggr.value}>{aggr.label}</option>)}
         </select>
+      </div>
+    );
+  }
+
+  renderTimeRangeSelector() {
+    const { startDate, endDate } = this.props;
+
+    return (
+      <div>
+        <h5>Time Range</h5>
+        <DateRangeSelector
+          startDate={startDate}
+          endDate={endDate}
+          onChange={this.onDateRangeChange}
+        />
       </div>
     );
   }
@@ -174,8 +215,7 @@ class DataPage extends PureComponent {
         </Row>
         <Row>
           <Col md={4}>
-            <h5>Time Range</h5>
-            <input className="form-control" />
+            {this.renderTimeRangeSelector()}
           </Col>
           <Col md={4}>
             {this.renderTimeAggregationSelector()}

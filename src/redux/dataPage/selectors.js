@@ -1,5 +1,5 @@
 /**
- * Selectors for locationPage
+ * Selectors for dataPage
  */
 // import { createSelector } from 'reselect';
 // import { colorsFor } from '../../utils/color';
@@ -9,7 +9,7 @@ import timeAggregationFromDates from '../../utils/timeAggregationFromDates';
 // Input Selectors
 // ----------------------
 export function getAutoTimeAggregation(state) {
-  return state.locationPage.autoTimeAggregation;
+  return state.dataPage.autoTimeAggregation;
 }
 
 export function getTimeAggregation(state, props) {
