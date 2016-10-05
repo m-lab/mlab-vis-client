@@ -2,11 +2,12 @@
  * Selectors for dataPage
  */
 import { createSelector } from 'reselect';
-// import { colorsFor } from '../../utils/color';
+import { status } from '../status';
 import timeAggregationFromDates from '../../utils/timeAggregationFromDates';
 import * as LocationsSelectors from '../locations/selectors';
 import * as ClientIspsSelectors from '../clientIsps/selectors';
 import * as TransitIspsSelectors from '../transitIsps/selectors';
+import * as TopSelectors from '../top/selectors';
 
 // ----------------------
 // Input Selectors
@@ -58,7 +59,6 @@ export const getLocationInfos = createSelector(
   (locations) => locations.map(location => location.info.data)
     .filter(d => d != null));
 
-
 export const getClientIsps = createSelector(
   getClientIspIds, ClientIspsSelectors.getClientIsps,
   (clientIspIds, allClientIsps) => {
@@ -93,3 +93,46 @@ export const getTransitIspInfos = createSelector(
   getTransitIsps,
   (transitIsps) => transitIsps.map(transitIsp => transitIsp.info.data)
     .filter(d => d != null));
+
+
+/**
+ * Helper function to get top items excluding those already selected based on filterIds
+ */
+function getFilteredTopItems(top, filterIds, idKey) {
+  let topItems = top.data || [];
+  const statusStr = status(top);
+
+  // remove already selected ones
+  topItems = topItems.filter(d => !filterIds.includes(d[idKey]));
+
+  // let's limit it to 20. we aren't showing that many, so no need to keep them around in memory.
+  return {
+    data: topItems.slice(0, 20),
+    status: statusStr,
+  };
+}
+
+export const getLocationSuggestionsForClientIsps = createSelector(
+  TopSelectors.getTopLocationsForClientIsps, getLocationIds,
+  (top, locationIds) => getFilteredTopItems(top, locationIds, 'location_key'));
+
+export const getLocationSuggestionsForTransitIsps = createSelector(
+  TopSelectors.getTopLocationsForTransitIsps, getLocationIds,
+  (top, locationIds) => getFilteredTopItems(top, locationIds, 'location_key'));
+
+export const getClientIspSuggestionsForLocations = createSelector(
+  TopSelectors.getTopClientIspsForLocations, getClientIspIds,
+  (top, clientIspIds) => getFilteredTopItems(top, clientIspIds, 'client_asn_number'));
+
+export const getClientIspSuggestionsForTransitIsps = createSelector(
+  TopSelectors.getTopClientIspsForTransitIsps, getClientIspIds,
+  (top, clientIspIds) => getFilteredTopItems(top, clientIspIds, 'client_asn_number'));
+
+
+export const getTransitIspSuggestionsForLocations = createSelector(
+  TopSelectors.getTopTransitIspsForLocations, getTransitIspIds,
+  (top, transitIspIds) => getFilteredTopItems(top, transitIspIds, 'server_asn_number'));
+
+export const getTransitIspSuggestionsForClientIsps = createSelector(
+  TopSelectors.getTopTransitIspsForClientIsps, getTransitIspIds,
+  (top, transitIspIds) => getFilteredTopItems(top, transitIspIds, 'server_asn_number'));

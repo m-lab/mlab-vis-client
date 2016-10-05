@@ -14,6 +14,7 @@ import { timeAggregations } from '../../constants';
 import { apiRoot } from '../../config';
 import {
   DateRangeSelector,
+  FilterSuggestions,
   SearchSelect,
 } from '../../components';
 import UrlHandler from '../../url/UrlHandler';
@@ -24,6 +25,7 @@ import * as DataPageSelectors from '../../redux/dataPage/selectors';
 import * as LocationsActions from '../../redux/locations/actions';
 import * as ClientIspsActions from '../../redux/clientIsps/actions';
 import * as TransitIspsActions from '../../redux/transitIsps/actions';
+import * as TopActions from '../../redux/top/actions';
 
 import './DataPage.scss';
 
@@ -47,9 +49,15 @@ function mapStateToProps(state, propsWithUrl) {
     ...propsWithUrl,
     autoTimeAggregation: DataPageSelectors.getAutoTimeAggregation(state, propsWithUrl),
     clientIspInfos: DataPageSelectors.getClientIspInfos(state, propsWithUrl),
+    clientIspSuggestionsForLocations: DataPageSelectors.getClientIspSuggestionsForLocations(state, propsWithUrl),
+    clientIspSuggestionsForTransitIsps: DataPageSelectors.getClientIspSuggestionsForTransitIsps(state, propsWithUrl),
     locationInfos: DataPageSelectors.getLocationInfos(state, propsWithUrl),
+    locationSuggestionsForClientIsps: DataPageSelectors.getLocationSuggestionsForClientIsps(state, propsWithUrl),
+    locationSuggestionsForTransitIsps: DataPageSelectors.getLocationSuggestionsForTransitIsps(state, propsWithUrl),
     timeAggregation: DataPageSelectors.getTimeAggregation(state, propsWithUrl),
     transitIspInfos: DataPageSelectors.getTransitIspInfos(state, propsWithUrl),
+    transitIspSuggestionsForLocations: DataPageSelectors.getTransitIspSuggestionsForLocations(state, propsWithUrl),
+    transitIspSuggestionsForClientIsps: DataPageSelectors.getTransitIspSuggestionsForClientIsps(state, propsWithUrl),
   };
 }
 
@@ -58,15 +66,21 @@ class DataPage extends PureComponent {
     autoTimeAggregation: PropTypes.bool,
     clientIspIds: PropTypes.array,
     clientIspInfos: PropTypes.array,
+    clientIspSuggestionsForLocations: PropTypes.object,
+    clientIspSuggestionsForTransitIsps: PropTypes.object,
     dataFormat: PropTypes.string,
     dispatch: PropTypes.func,
     endDate: momentPropTypes.momentObj,
     locationIds: PropTypes.array,
     locationInfos: PropTypes.array,
+    locationSuggestionsForClientIsps: PropTypes.object,
+    locationSuggestionsForTransitIsps: PropTypes.object,
     startDate: momentPropTypes.momentObj,
     timeAggregation: PropTypes.string,
     transitIspIds: PropTypes.array,
     transitIspInfos: PropTypes.array,
+    transitIspSuggestionsForClientIsps: PropTypes.object,
+    transitIspSuggestionsForLocations: PropTypes.object,
   }
 
   constructor(props) {
@@ -108,6 +122,20 @@ class DataPage extends PureComponent {
     transitIspIds.forEach(transitIspId => {
       dispatch(TransitIspsActions.fetchInfoIfNeeded(transitIspId));
     });
+
+    // get suggestions
+    if (locationIds.length) {
+      dispatch(TopActions.fetchClientIspsForLocationsIfNeeded(locationIds));
+      dispatch(TopActions.fetchTransitIspsForLocationsIfNeeded(locationIds));
+    }
+    if (clientIspIds.length) {
+      dispatch(TopActions.fetchLocationsForClientIspsIfNeeded(clientIspIds));
+      dispatch(TopActions.fetchTransitIspsForClientIspsIfNeeded(clientIspIds));
+    }
+    if (transitIspIds.length) {
+      dispatch(TopActions.fetchClientIspsForTransitIspsIfNeeded(transitIspIds));
+      dispatch(TopActions.fetchLocationsForTransitIspsIfNeeded(transitIspIds));
+    }
   }
 
   onDataFormatChange(dataFormat) {
@@ -176,8 +204,54 @@ class DataPage extends PureComponent {
     dispatch(DataPageActions.changeTransitIsps(transitIsps, dispatch));
   }
 
+  onLocationsAdd(suggestion) {
+    const { locationInfos } = this.props;
+    const newValues = [...locationInfos, suggestion];
+    this.onLocationsChange(newValues);
+  }
+
+  onClientIspsAdd(suggestion) {
+    const { clientIspInfos } = this.props;
+    const newValues = [...clientIspInfos, suggestion];
+    this.onClientIspsChange(newValues);
+  }
+
+  onTransitIspsAdd(suggestion) {
+    const { transitIspInfos } = this.props;
+    const newValues = [...transitIspInfos, suggestion];
+    this.onTransitIspsChange(newValues);
+  }
+
+  renderSuggestions(header, filterIds, suggestions, labelKey, onSelect) {
+    if (!filterIds || !filterIds.length) {
+      return null;
+    }
+
+    return (
+      <FilterSuggestions
+        header={header}
+        suggestions={suggestions}
+        onSelect={onSelect}
+        labelKey={labelKey}
+      />
+    );
+  }
+
   renderFilters() {
-    const { locationInfos, clientIspInfos, transitIspInfos } = this.props;
+    const {
+      locationIds,
+      locationInfos,
+      locationSuggestionsForClientIsps,
+      locationSuggestionsForTransitIsps,
+      clientIspIds,
+      clientIspInfos,
+      clientIspSuggestionsForLocations,
+      clientIspSuggestionsForTransitIsps,
+      transitIspIds,
+      transitIspInfos,
+      transitIspSuggestionsForLocations,
+      transitIspSuggestionsForClientIsps,
+    } = this.props;
 
     return (
       <div className="features-section">
@@ -194,6 +268,20 @@ class DataPage extends PureComponent {
               onChange={this.onLocationsChange}
               selected={locationInfos}
             />
+            {this.renderSuggestions(
+              'Suggestions based on Client ISPs',
+              clientIspIds,
+              locationSuggestionsForClientIsps,
+              'client_location_label',
+              this.onLocationsAdd
+            )}
+            {this.renderSuggestions(
+              'Suggestions based on Transit ISPs',
+              transitIspIds,
+              locationSuggestionsForTransitIsps,
+              'client_location_label',
+              this.onLocationsAdd
+            )}
           </Col>
           <Col md={4}>
             <h5>Client ISPs</h5>
@@ -203,6 +291,20 @@ class DataPage extends PureComponent {
               onChange={this.onClientIspsChange}
               selected={clientIspInfos}
             />
+            {this.renderSuggestions(
+              'Suggestions based on Locations',
+              locationIds,
+              clientIspSuggestionsForLocations,
+              'client_asn_name',
+              this.onClientIspsAdd
+            )}
+            {this.renderSuggestions(
+              'Suggestions based on Transit ISPs',
+              transitIspIds,
+              clientIspSuggestionsForTransitIsps,
+              'client_asn_name',
+              this.onClientIspsAdd
+            )}
           </Col>
           <Col md={4}>
             <h5>Transit ISPs</h5>
@@ -212,6 +314,20 @@ class DataPage extends PureComponent {
               onChange={this.onTransitIspsChange}
               selected={transitIspInfos}
             />
+            {this.renderSuggestions(
+              'Suggestions based on Locations',
+              locationIds,
+              transitIspSuggestionsForLocations,
+              'server_asn_name',
+              this.onTransitIspsAdd
+            )}
+            {this.renderSuggestions(
+              'Suggestions based on Client ISPs',
+              clientIspIds,
+              transitIspSuggestionsForClientIsps,
+              'server_asn_name',
+              this.onTransitIspsAdd
+            )}
           </Col>
         </Row>
       </div>

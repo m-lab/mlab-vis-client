@@ -39,7 +39,6 @@ export default class CompareLocationsInput extends PureComponent {
   onFilter1Add(suggestion) {
     const { filter1Infos, onFilter1Change } = this.props;
     const newValues = [...filter1Infos, suggestion];
-    console.log(newValues);
     if (onFilter1Change) {
       onFilter1Change(newValues);
     }
