@@ -33,3 +33,4 @@ export SearchSelect from './SearchSelect/SearchSelect';
 export CompareInputPanel from './CompareInputPanel/CompareInputPanel';
 export CompareTimeSeriesCharts from './CompareTimeSeriesCharts/CompareTimeSeriesCharts';
 export CompareHourCharts from './CompareHourCharts/CompareHourCharts';
+export FilterSuggestions from './FilterSuggestions/FilterSuggestions';

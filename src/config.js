@@ -2,7 +2,6 @@
 const theGlobal = (typeof global === "object" ? global : typeof window === "object" ? window : {});
 
 if (!theGlobal._babelPolyfill) {
-  console.log('importing babel polyfill - config');
   require('babel-polyfill');
 }
 
