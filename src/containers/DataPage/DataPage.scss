@@ -1,4 +1,12 @@
 @import "../../assets/variables";
 
-.HomePage {
+.DataPage {
+  .features-section {
+    padding-top: 12px;
+    border-top: none;
+  }
+
+  .download-btn {
+    margin: 40px 0;
+  }
 }
