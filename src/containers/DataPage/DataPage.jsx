@@ -452,7 +452,6 @@ class DataPage extends PureComponent {
   renderDownloadLinks() {
     // build up all combinations based on facetTypes
     const combinations = this.getDownloadCombinations();
-    console.log('got combinations', combinations);
 
     return (
       <div className="section download-plan">
@@ -460,18 +459,22 @@ class DataPage extends PureComponent {
           <h4>Download Links</h4>
         </header>
         <Row>
-          {combinations.map(combination => {
-            const { label, entries } = combination;
+          {combinations.length ?
+            combinations.map(combination => {
+              const { label, entries } = combination;
 
-            return (
-              <Col md={12} key={label}>
-                <h5>{label}</h5>
-                <ul className="list-unstyled">
-                  {entries.map((entry, i) => <li key={i}><ApiDownloadLink {...entry} /></li>)}
-                </ul>
-              </Col>
-            );
-          })}
+              return (
+                <Col md={12} key={label}>
+                  <h5>{label}</h5>
+                  <ul className="list-unstyled">
+                    {entries.map((entry, i) => <li key={i}><ApiDownloadLink {...entry} /></li>)}
+                  </ul>
+                </Col>
+              );
+            }) :
+            <Col md={12}>
+              <p>Please select at least one feature to generate the links to download data.</p>
+            </Col>}
         </Row>
       </div>
     );
