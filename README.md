@@ -17,7 +17,19 @@ We are using webpack's DllPlugin, so **we need to build our DLL vendor package b
 npm run webpack-dll
 ```
 
-This puts all the vendor files in their own bundle so we don't need to scan them when rebuilding our files during development. Now to start the dev server, there are two options:
+
+This puts all the vendor files in their own bundle so we don't need to scan them when rebuilding our files during development.
+
+
+If you see this error:
+```
+Error: Cannot find module '.../mlab-vis-client/static/dist/vendor-manifest.json'
+```
+
+You need to run `npm run webpack-dll`.
+
+
+Now to start the dev server, there are two options:
 
 ### Web Server + Webpack Watch in one command
 
@@ -48,6 +60,14 @@ npm run webpack-clean-cache
 ```
 
 This plugin dramatically speeds up build times, but does require you to clean the cache occasionally (when problems arise).
+
+If you see an error in your console similar to:
+
+```
+Uncaught TypeError: __webpack_require__(...) is not a function
+```
+
+Chances are you need to clean the cache. Run the command as described above.
 
 ### Using webpack-dashboard
 

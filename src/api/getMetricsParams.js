@@ -23,6 +23,12 @@ export default function getMetricsParams(timeAggregation, options) {
   if (options.endDate) {
     params.enddate = options.endDate.format(dateFormat);
   }
+  if (options.dataFormat) {
+    params.format = options.dataFormat;
+  }
+  if (options.download) {
+    params.download = 1;
+  }
 
   params.timebin = timeAggregation;
 

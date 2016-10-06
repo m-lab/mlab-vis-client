@@ -7,9 +7,11 @@
 // ----------------------
 // Input Selectors
 // ----------------------
+export function getClientIsps(state) {
+  return state.clientIsps;
+}
 
 
 // ----------------------
 // Selectors
 // ----------------------
-
