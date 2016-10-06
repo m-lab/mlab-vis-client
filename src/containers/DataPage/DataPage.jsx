@@ -10,10 +10,12 @@ import ButtonGroup from 'react-bootstrap/lib/ButtonGroup';
 import Button from 'react-bootstrap/lib/Button';
 
 import timeAggregationFromDates from '../../utils/timeAggregationFromDates';
-import { timeAggregations } from '../../constants';
+import { timeAggregations, facetTypes } from '../../constants';
+import facetTypeCombinations from '../../utils/facetTypeCombinations';
 import { apiRoot } from '../../config';
 import {
   DateRangeSelector,
+  ApiDownloadLink,
   FilterSuggestions,
   SearchSelect,
 } from '../../components';
@@ -90,11 +92,13 @@ class DataPage extends PureComponent {
 
     this.onDataFormatChange = this.onDataFormatChange.bind(this);
     this.onTimeAggregationChange = this.onTimeAggregationChange.bind(this);
-    this.onStartDownload = this.onStartDownload.bind(this);
     this.onDateRangeChange = this.onDateRangeChange.bind(this);
     this.onLocationsChange = this.onLocationsChange.bind(this);
     this.onClientIspsChange = this.onClientIspsChange.bind(this);
     this.onTransitIspsChange = this.onTransitIspsChange.bind(this);
+    this.onLocationsAdd = this.onLocationsAdd.bind(this);
+    this.onClientIspsAdd = this.onClientIspsAdd.bind(this);
+    this.onTransitIspsAdd = this.onTransitIspsAdd.bind(this);
   }
 
   componentDidMount() {
@@ -390,21 +394,112 @@ class DataPage extends PureComponent {
     );
   }
 
-  onStartDownload() {
-    const { dispatch } = this.props;
-    dispatch(DataPageActions.changeDownloadStatus('started'));
-  }
-
-  renderDownloadResults() {
-    const { downloadStatus } = this.props;
-
-    if (!downloadStatus) {
-      return null;
+  getDownloadCombinations() {
+    function makeEntry(id, type, infos) {
+      const info = infos.find(d => d.id === id) || { label: id };
+      return {
+        [`${type}Id`]: id,
+        [`${type}Label`]: info.label,
+      };
     }
 
+    function labelFromTypes(types) {
+      const labelMap = {
+        clientIsp: 'Client ISPs',
+        transitIsp: 'Transit ISPs',
+        location: 'Locations',
+      };
+      const separator = ' --- ';
+
+      return types.map(type => labelMap[type]).join(separator);
+    }
+
+    /**
+     * Takes a combined type like location-clientIsp and creates entries for all combinations
+     * of those two types based on the selected data.
+     *
+     * @param {String[]} combinedType the combined type e.g. ['location', 'clientIsp']
+     * @return {Object[]} entries for this combined type
+     */
+    function getEntriesForCombinedType(combinedType, props) {
+      // start with all the items for the first type (e.g. all selected locations)
+      const firstType = combinedType[0];
+      const firstTypeIds = props[`${firstType}Ids`];
+      const firstTypeInfos = props[`${firstType}Infos`];
+      let entries = firstTypeIds.map(id => makeEntry(id, firstType, firstTypeInfos));
+
+      // now expand so we get an entry for each combination of types
+      // e.g. then for each location, add an entry for each client Isp, and so on for each type.
+      const remainingTypes = combinedType.slice(1);
+      remainingTypes.forEach(type => {
+        // here "type" is one of ('location', 'clientIsp', 'transitIsp')
+        const newEntries = [];
+        const ids = props[`${type}Ids`];
+        const infos = props[`${type}Infos`];
+
+        // augment entries with data for this type
+        entries.forEach(entry => {
+          // create a new entry for each selected item of this type
+          ids.forEach(id => {
+            // important to keep the attrs from the entry we are expanding with ...entry
+            newEntries.push({ ...entry, ...makeEntry(id, type, infos) });
+          });
+        });
+
+        entries = newEntries;
+      });
+
+      // wrap the results with some meta information: label, types.
+      return { label: labelFromTypes(combinedType), types: combinedType, entries };
+    }
+
+    // only keep the combination types for which we have items for
+    return facetTypeCombinations.filter(types =>
+      types.every(type => this.props[`${type}Ids`].length))
+    // build up all combinations for the types we have items for
+    .map(combinedType => getEntriesForCombinedType(combinedType, this.props))
+    .sort((a, b) => a.types.length - b.types.length);
+  }
+
+
+  renderDownloadLinks() {
+    const { timeAggregation, startDate, endDate, dataFormat } = this.props;
+
+    // build up all combinations based on facetTypes
+    const combinations = this.getDownloadCombinations();
+
     return (
-      <div>
-        I'm sorry Dave, I'm afraid I can't do that.
+      <div className="section download-plan">
+        <header>
+          <h4>Download Links</h4>
+        </header>
+        <Row>
+          {combinations.length ?
+            combinations.map(combination => {
+              const { label, entries } = combination;
+
+              return (
+                <Col md={12} key={label}>
+                  <h5>{label}</h5>
+                  <ul className="list-unstyled">
+                    {entries.map((entry, i) =>
+                      <li key={i}>
+                        <ApiDownloadLink
+                          {...entry}
+                          timeAggregation={timeAggregation}
+                          startDate={startDate}
+                          endDate={endDate}
+                          dataFormat={dataFormat}
+                        />
+                      </li>)}
+                  </ul>
+                </Col>
+              );
+            }) :
+            <Col md={12}>
+              <p>Please select at least one feature to generate the links to download data.</p>
+            </Col>}
+        </Row>
       </div>
     );
   }
@@ -436,8 +531,7 @@ class DataPage extends PureComponent {
           </Col>
         </Row>
         {this.renderFilters()}
-        <button className="btn btn-primary download-btn" onClick={this.onStartDownload}>Download Data</button>
-        {this.renderDownloadResults()}
+        {this.renderDownloadLinks()}
       </div>
     );
   }
