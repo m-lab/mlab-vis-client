@@ -1,12 +1,11 @@
 
-import { combineReducers } from 'redux';
 import { makeFetchState, reduceFetch, reduceFetchSuccess, reduceFetchFail } from '../shared/fetch';
 
 import * as Actions from './actions';
 
 const initialTopState = makeFetchState({ filterIds: null });
 
-function tests(state = initialTopState, action) {
+export default function tests(state = initialTopState, action) {
   switch (action.type) {
     case Actions.FETCH_RAW_TESTS:
       return reduceFetch({
@@ -27,7 +26,3 @@ function tests(state = initialTopState, action) {
       return state;
   }
 }
-
-export default combineReducers({
-  tests,
-});

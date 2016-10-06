@@ -2,21 +2,16 @@
 import createFetchAction from '../createFetchAction';
 import { shouldFetch } from '../shared/shouldFetch';
 
-
-function rawShouldFetch(state) {
-  return shouldFetch(state);
-}
-
 // ---------------------
 // Fetch Raw Tests
 // ---------------------
 const rawTestsFetch = createFetchAction({
-  typePrefix: 'raw/tests/',
+  typePrefix: 'raw/',
   key: 'RAW',
   args: [],
   shouldFetch(state) {
-    const rawTestsState = state.raw.tests;
-    return rawShouldFetch(rawTestsState);
+    const rawTestsState = state.raw;
+    return shouldFetch(rawTestsState);
   },
   promise() {
     return api => api.getRawSample();

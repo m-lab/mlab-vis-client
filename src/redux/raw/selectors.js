@@ -4,8 +4,8 @@
 
 
  export function getRawTests(state) {
-   if (state.raw.tests.data) {
-     return state.raw.tests.data;
+   if (state.raw.data) {
+     return state.raw.data;
    }
    return [];
  }

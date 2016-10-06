@@ -16,7 +16,7 @@
     "react/prefer-stateless-function": 0,
     "react/no-multi-comp": 0,
     "react/sort-prop-types": 1,
-    "react/no-unused-prop-types": 0, 
+    "react/no-unused-prop-types": 0,
     "import/default": 0,
     "import/no-duplicates": 0,
     "import/named": 0,
@@ -63,6 +63,8 @@
     "__DEBUG_COMPUTED_PROPS__": true,
     "socket": true,
     "webpackIsomorphicTools": true,
-    "sinon": true
+    "sinon": true,
+    "L": true,
+    "Tangram": true
   }
 }

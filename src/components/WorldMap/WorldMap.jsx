@@ -2,12 +2,10 @@ import React, { PureComponent, PropTypes } from 'react';
 import d3 from 'd3';
 import addComputedProps from '../../hoc/addComputedProps';
 
-
 import { pointToFeature, pointsToLine } from '../../utils/geo';
 
 import './leaflet.css';
 import './WorldMap.scss';
-
 
 /**
  * Convert data array to geoJson data object.
@@ -94,6 +92,7 @@ class WorldMap extends PureComponent {
   }
 
   static defaultProps = {
+    // position so we can see NA and EU/AS
     location: [25.8, -34.8],
     updateFrequency: 200,
     zoom: 3,
@@ -104,13 +103,16 @@ class WorldMap extends PureComponent {
 
     // TODO: this is a variable that is incremented by a timer
     // where should it go? Adding it to state causes unnecessary renders.
-    this.viewableIndex = 1;
+    this.numVisibleFeatures = 1;
 
     this.updatePoints = this.updatePoints.bind(this);
     this.updateViewable = this.updateViewable.bind(this);
     this.projectPoint = this.projectPoint.bind(this);
   }
 
+  /*
+   * componentDidMount
+   */
   componentDidMount() {
     this.setup();
   }
@@ -120,7 +122,7 @@ class WorldMap extends PureComponent {
    */
   projectPoint(geo, x, y) {
     // NEEDS the map here.
-    const point = this.map.latLngToLayerPoint(new L.LatLng(y, x)); // eslint-disable-line
+    const point = this.map.latLngToLayerPoint(new L.LatLng(y, x));
     geo.stream.point(point.x, point.y);
   }
 
@@ -129,11 +131,11 @@ class WorldMap extends PureComponent {
    */
   setup() {
     const { location, zoom, updateFrequency } = this.props;
-    this.map = L.map(this.root, // eslint-disable-line
+    this.map = L.map(this.root,
         { maxZoom: 4, minZoom: 1 }
     );
 
-    const layer = Tangram.leafletLayer({ // eslint-disable-line
+    const layer = Tangram.leafletLayer({
       scene: 'refill-style.yaml',
       attribution: '<a href="https://mapzen.com/tangram" target="_blank">Tangram</a> | &copy; OSM contributors | <a href="https://mapzen.com/" target="_blank">Mapzen</a>',
     });
@@ -159,7 +161,7 @@ class WorldMap extends PureComponent {
 
 
   /**
-   * Update viewable index.
+   * Update number of tests being viewed.
    */
   updateViewable() {
     const { geoData } = this.props;
@@ -168,11 +170,11 @@ class WorldMap extends PureComponent {
       return;
     }
 
-    this.viewableIndex += 1;
+    this.numVisibleFeatures += 1;
 
     this.updatePoints();
 
-    if (this.viewableIndex >= geoData.features.length) {
+    if (this.numVisibleFeatures >= geoData.features.length) {
       this.timer.stop();
     }
   }
@@ -182,7 +184,6 @@ class WorldMap extends PureComponent {
    */
   updatePoints() {
     const { geoData, servers } = this.props;
-    // const { viewableIndex } = this.state;
 
     if (!geoData || geoData.features.length === 0) {
       return;
@@ -204,10 +205,10 @@ class WorldMap extends PureComponent {
       .range([2, 18])
       .clamp(true);
 
-      // CLIENTS
+    // CLIENTS
     this.path.pointRadius((d) => pointScale(d.properties.data.download_speed_mbps));
 
-    const viewable = geoData.features.slice(0, this.viewableIndex);
+    const viewable = geoData.features.slice(0, this.numVisibleFeatures);
 
     const points = this.g.selectAll('.client')
       .data(viewable, (d) => d.id);
@@ -230,9 +231,7 @@ class WorldMap extends PureComponent {
       .attr('d', this.path)
       .style('fill', 'black');
 
-
-      // LINES
-
+    // LINES
     this.path.pointRadius(3);
     const minLineIndex = Math.max(0, viewable.length - 50);
 
@@ -261,7 +260,6 @@ class WorldMap extends PureComponent {
       .attr('d', (d) => this.path(pointsToLine([d.properties.clientPos, d.properties.serverPos])))
       .style('stroke', 'black');
 
-
     // SERVERS
     this.path.pointRadius(3);
     const server = this.g.selectAll('.server')
@@ -280,14 +278,17 @@ class WorldMap extends PureComponent {
    * Render
    */
   render() {
-    const styles = { width: '100%', height: '600px' };
+    const styles = { height: '600px' };
 
     return (
-      <div
-        className="WorldMap"
-        style={styles}
-        ref={node => { this.root = node; }}
-      />
+      <div className="WorldMapContainer">
+        <div
+          className="WorldMap"
+          style={styles}
+          ref={node => { this.root = node; }}
+        />
+        <p>Circle size represents download speed. MLab servers are in <span className="server">red</span>.</p>
+      </div>
     );
   }
 }
