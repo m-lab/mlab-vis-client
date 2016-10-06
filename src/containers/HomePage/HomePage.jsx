@@ -38,13 +38,19 @@ class HomePage extends PureComponent {
 
   render() {
     const { rawTests } = this.props;
-    console.log(rawTests)
     return (
       <div className="HomePage">
         <Helmet title="Home" />
-        <h1>Home</h1>
         <div>
+          <div className="writeup">
+            <p>Measurement Lab records and analyzes over <strong>5 billion</strong> user generated interet speed tests from over <strong>4,000 cities</strong>.</p>
+          </div>
+          <h2>Find Your City</h2>
           <LocationSearch />
+          <div className="writeup">
+            <p>Here is a sample of recent tests from around the globe.</p>
+          </div>
+
           <WorldMap
             data={rawTests}
           />
