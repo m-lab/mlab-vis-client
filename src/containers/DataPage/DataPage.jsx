@@ -414,38 +414,51 @@ class DataPage extends PureComponent {
       return types.map(type => labelMap[type]).join(separator);
     }
 
-    return facetTypeCombinations.filter(types => {
-      // only keep the combination types for which we have items for
-      const hasEntries = types.every(type => this.props[`${type}Ids`].length);
-      return hasEntries;
-    // build up all combinations for the types we have items for
-    }).map(combinationTypes => {
-      let entries = [];
-      combinationTypes.forEach(partType => {
+    /**
+     * Takes a combined type like location-clientIsp and creates entries for all combinations
+     * of those two types based on the selected data.
+     *
+     * @param {String[]} combinedType the combined type e.g. ['location', 'clientIsp']
+     * @return {Object[]} entries for this combined type
+     */
+    function getEntriesForCombinedType(combinedType, props) {
+      // start with all the items for the first type (e.g. all selected locations)
+      const firstType = combinedType[0];
+      const firstTypeIds = props[`${firstType}Ids`];
+      const firstTypeInfos = props[`${firstType}Infos`];
+      let entries = firstTypeIds.map(id => makeEntry(id, firstType, firstTypeInfos));
+
+      // now expand so we get an entry for each combination of types
+      // e.g. then for each location, add an entry for each client Isp, and so on for each type.
+      const remainingTypes = combinedType.slice(1);
+      remainingTypes.forEach(type => {
+        // here "type" is one of ('location', 'clientIsp', 'transitIsp')
         const newEntries = [];
-        const ids = this.props[`${partType}Ids`];
-        const infos = this.props[`${partType}Infos`];
+        const ids = props[`${type}Ids`];
+        const infos = props[`${type}Infos`];
 
-        // if we don't have any entries, bootstrap by starting with all the items for the first type
-        if (!entries.length) {
-          entries = ids.map(id => makeEntry(id, partType, infos));
-
-        // we have entries, so augment them with data for this type (multiplying for each item of this type)
-        } else {
-          entries.forEach(entry => {
-            ids.forEach(id => {
-              newEntries.push({ ...entry, ...makeEntry(id, partType, infos) });
-            });
+        // augment entries with data for this type
+        entries.forEach(entry => {
+          // create a new entry for each selected item of this type
+          ids.forEach(id => {
+            // important to keep the attrs from the entry we are expanding with ...entry
+            newEntries.push({ ...entry, ...makeEntry(id, type, infos) });
           });
+        });
 
-          entries = newEntries;
-        }
+        entries = newEntries;
       });
 
-      return { label: labelFromTypes(combinationTypes), types: combinationTypes, entries };
+      // wrap the results with some meta information: label, types.
+      return { label: labelFromTypes(combinedType), types: combinedType, entries };
+    }
 
-    // sort by number of types in a combination
-    }).sort((a, b) => a.types.length - b.types.length);
+    // only keep the combination types for which we have items for
+    return facetTypeCombinations.filter(types =>
+      types.every(type => this.props[`${type}Ids`].length))
+    // build up all combinations for the types we have items for
+    .map(combinedType => getEntriesForCombinedType(combinedType, this.props))
+    .sort((a, b) => a.types.length - b.types.length);
   }
 
 
