@@ -450,6 +450,8 @@ class DataPage extends PureComponent {
 
 
   renderDownloadLinks() {
+    const { timeAggregation, startDate, endDate, dataFormat } = this.props;
+
     // build up all combinations based on facetTypes
     const combinations = this.getDownloadCombinations();
 
@@ -467,7 +469,16 @@ class DataPage extends PureComponent {
                 <Col md={12} key={label}>
                   <h5>{label}</h5>
                   <ul className="list-unstyled">
-                    {entries.map((entry, i) => <li key={i}><ApiDownloadLink {...entry} /></li>)}
+                    {entries.map((entry, i) =>
+                      <li key={i}>
+                        <ApiDownloadLink
+                          {...entry}
+                          timeAggregation={timeAggregation}
+                          startDate={startDate}
+                          endDate={endDate}
+                          dataFormat={dataFormat}
+                        />
+                      </li>)}
                   </ul>
                 </Col>
               );
