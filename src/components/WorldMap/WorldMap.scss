@@ -1,0 +1,14 @@
+
+.WorldMapContainer {
+  .server {
+    color: red;
+  }
+}
+
+.WorldMap {
+  background: rgba(0, 0, 0, 0);
+  .server {
+    fill-opacity: 0.5;
+    fill: red;
+  }
+}

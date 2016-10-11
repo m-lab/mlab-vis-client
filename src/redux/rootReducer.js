@@ -13,6 +13,7 @@ import { reducer as locationPage } from './locationPage';
 import { reducer as dataPage } from './dataPage';
 import { reducer as globalSearch } from './globalSearch';
 import { reducer as top } from './top';
+import { reducer as raw } from './raw';
 
 export default combineReducers({
   clientIsps,
@@ -28,4 +29,5 @@ export default combineReducers({
   routing: routerReducer,
   transitIsps,
   top,
+  raw,
 });

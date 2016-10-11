@@ -35,3 +35,4 @@ export CompareTimeSeriesCharts from './CompareTimeSeriesCharts/CompareTimeSeries
 export CompareHourCharts from './CompareHourCharts/CompareHourCharts';
 export FilterSuggestions from './FilterSuggestions/FilterSuggestions';
 export ApiDownloadLink from './ApiDownloadLink/ApiDownloadLink';
+export WorldMap from './WorldMap/WorldMap';

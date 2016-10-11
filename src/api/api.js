@@ -6,6 +6,7 @@ import * as LocationClientIspTransitIsp from './calls/locationClientIspTransitIs
 import * as LocationTransitIsp from './calls/locationTransitIsp';
 import * as TransitIsp from './calls/transitIsp';
 import * as Search from './calls/search';
+import * as Raw from './calls/raw';
 
 const calls = {
   ...ClientIsp,
@@ -16,6 +17,7 @@ const calls = {
   ...LocationTransitIsp,
   ...TransitIsp,
   ...Search,
+  ...Raw,
 };
 
 export default calls;

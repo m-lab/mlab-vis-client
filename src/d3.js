@@ -18,6 +18,10 @@ import * as collection from 'd3-collection';
 import * as lineChunked from 'd3-line-chunked';
 import * as scaleInteractive from 'd3-scale-interactive';
 import * as format from 'd3-format';
+import * as timer from 'd3-timer';
+import * as geo from 'd3-geo';
+import * as ease from 'd3-ease';
+import * as interpolate from 'd3-interpolate';
 
 export default Object.assign({},
   array,
@@ -31,4 +35,9 @@ export default Object.assign({},
   lineChunked,
   transition,
   scaleInteractive,
-  collection);
+  collection,
+  timer,
+  geo,
+  ease,
+  interpolate,
+);
