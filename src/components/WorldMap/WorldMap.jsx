@@ -4,6 +4,8 @@ import addComputedProps from '../../hoc/addComputedProps';
 
 import { pointToFeature, pointsToLine } from '../../utils/geo';
 
+import { createJaggedPoints } from '../../utils/path';
+
 import './leaflet.css';
 import './WorldMap.scss';
 
@@ -68,9 +70,23 @@ function visProps(props) {
   const geoData = dataToGeoJson(data);
   const servers = geoData.features.map((d, i) => pointToFeature(i, d.properties.serverPos));
 
+  const rScale = d3.scaleSqrt()
+    .domain([0, 100])
+    .range([2, 18])
+    .clamp(true);
+
+  const colors = ['#fd150b', '#ff8314', '#ffc33b', '#f3f5e7', '#6fb7d0', '#2970ac'].reverse();
+  const colorScale = d3.scaleLinear()
+    .range(colors)
+    .domain([1, 5, 10, 15, 20, 30])
+    .clamp(true);
+
+
   return {
     geoData,
     servers,
+    rScale,
+    colorScale,
   };
 }
 
@@ -83,9 +99,11 @@ function visProps(props) {
  */
 class WorldMap extends PureComponent {
   static propTypes = {
+    colorScale: PropTypes.func,
     data: PropTypes.array,
     geoData: PropTypes.object,
     location: PropTypes.array,
+    rScale: PropTypes.func,
     servers: PropTypes.array,
     updateFrequency: PropTypes.number,
     zoom: PropTypes.number,
@@ -126,6 +144,40 @@ class WorldMap extends PureComponent {
     geo.stream.point(point.x, point.y);
   }
 
+  setupDefs(svg) {
+    const defs = svg.append('defs');
+
+    const filter = defs.append('filter')
+      .attr('width', '300%')
+      .attr('x', '-100%')
+      .attr('height', '300%')
+      .attr('y', '-100%')
+      .attr('id', 'glow');
+
+    filter.append('feGaussianBlur')
+      .attr('class', 'blur')
+      .attr('stdDeviation', '3')
+      .attr('result', 'coloredBlur');
+
+    const feMerge = filter.append('feMerge');
+    feMerge.append('feMergeNode')
+      .attr('in', 'coloredBlur');
+    feMerge.append('feMergeNode')
+      .attr('in', 'SourceGraphic');
+
+    const filterIntense = defs.append('filter')
+      .attr('width', '300%')
+      .attr('x', '-100%')
+      .attr('height', '300%')
+      .attr('y', '-100%')
+      .attr('id', 'glow-intense');
+
+    filterIntense.append('feGaussianBlur')
+      .attr('class', 'blur')
+      .attr('stdDeviation', '3')
+      .attr('result', 'coloredBlur');
+  }
+
   /**
    * Setup Map, background layer, and other globals.
    */
@@ -145,6 +197,8 @@ class WorldMap extends PureComponent {
 
     this.svg = d3.select(this.map.getPanes().overlayPane).append('svg');
     this.g = this.svg.append('g').attr('class', 'leaflet-zoom-hide');
+
+    this.setupDefs(this.svg);
 
     // pointProject needs access to itself (this) and this's (that) map
     const that = this;
@@ -183,7 +237,7 @@ class WorldMap extends PureComponent {
    * Redraw points on update or zoom
    */
   updatePoints() {
-    const { geoData, servers } = this.props;
+    const { geoData, servers, rScale, colorScale } = this.props;
 
     if (!geoData || geoData.features.length === 0) {
       return;
@@ -200,65 +254,83 @@ class WorldMap extends PureComponent {
 
     this.g.attr('transform', `translate(${-topLeft[0]},${-topLeft[1]})`);
 
-    const pointScale = d3.scaleSqrt()
-      .domain([0, 100])
-      .range([2, 18])
-      .clamp(true);
 
-    // CLIENTS
-    this.path.pointRadius((d) => pointScale(d.properties.data.download_speed_mbps));
-
+    // grab those points that are to be 'viewable'
     const viewable = geoData.features.slice(0, this.numVisibleFeatures);
 
+    // pointRadius determines radius size of points.
+    // set to 0 first.
+    this.path.pointRadius(0);
+
+
+    // CLIENTS
+    // bind to viewable points
     const points = this.g.selectAll('.client')
       .data(viewable, (d) => d.id);
 
+    // points enter
     const pointsE = points.enter()
       .append('path')
       .classed('client', true)
-      .style('fill-opacity', 0.0);
+      .style('fill-opacity', 0.0)
+      .attr('d', this.path);
 
+    // base point radius on download speed.
+    this.path.pointRadius((d) => rScale(d.properties.data.download_speed_mbps));
+
+    // transition entered points
     pointsE.transition()
       .duration(500)
-      .style('fill-opacity', 0.5);
+      .style('fill-opacity', 0.5)
+      .attr('d', this.path)
+      .style('fill', (d) => colorScale(d.properties.data.download_speed_mbps));
+
+    // existing points need to be reprojected in case of zoom
+    points
+      .style('fill-opacity', 0.5)
+      .attr('d', this.path);
 
     points
-      .style('fill-opacity', 0.5);
-
-    points.exit().remove();
-
-    points.merge(pointsE)
-      .attr('d', this.path)
-      .style('fill', 'black');
+      .exit()
+      .remove();
 
     // LINES
-    this.path.pointRadius(3);
-    const minLineIndex = Math.max(0, viewable.length - 50);
 
+    // reset the point radius to something static
+    this.path.pointRadius(3);
+
+    // right now we take the last 50 points to
+    // make lines for.
+    const minLineIndex = Math.max(0, viewable.length - 50);
     const lineData = viewable.slice(minLineIndex, viewable.length);
 
+    // bind to the line data
     const lines = this.g.selectAll('.line')
       .data(lineData, (d) => d.id);
 
     const linesE = lines.enter()
       .append('path')
       .classed('line', true)
-      .style('stroke', 'black')
-      .style('fill', 'none')
-      .style('stroke-opacity', 0.5);
+      .each((d) => {
+        d.points = createJaggedPoints(d.properties.clientPos, d.properties.serverPos, 1.1, 2);
+        return d;
+      });
 
+    // transition callback function
     linesE
-      .call(transitionLine);
+      .call(transitionLine)
+      .attr('d', (d) => this.path(pointsToLine(d.points)));
 
+    // Currently, lines are removed here in separate transition
     lines.exit()
       .transition()
       .duration(200)
       .style('stroke-opacity', 0.0)
       .remove();
 
-    lines.merge(linesE)
-      .attr('d', (d) => this.path(pointsToLine([d.properties.clientPos, d.properties.serverPos])))
-      .style('stroke', 'black');
+    lines
+      .attr('stroke-dasharray', 'none')
+      .attr('d', (d) => this.path(pointsToLine(d.points)));
 
     // SERVERS
     this.path.pointRadius(3);
@@ -268,7 +340,7 @@ class WorldMap extends PureComponent {
     const serverE = server.enter()
       .append('path')
       .classed('server', true)
-      .style('fill-opacity', 0.5);
+      .style('fill-opacity', 1.0);
 
     server.merge(serverE)
       .attr('d', this.path);
