@@ -50,7 +50,20 @@ function transitionLine(path) {
   path
     .attr('stroke-dasharray', '0,100000') // fix safari flash
     .transition()
-    .duration(6500)
+    .duration(function durationFromSpeed(d) {
+      // use download speed to determine transition duration
+      const [startX, startY] = d.properties.clientPos;
+      const [endX, endY] = d.properties.serverPos;
+      const length = Math.sqrt(Math.pow(startX - endX, 2) + Math.pow(startY - endY, 2));
+
+      // adjust factors and mins here to tune animation
+      const minDownloadSpeed = 2;
+      const maxDownloadSpeed = 40;
+      const speedFactor = 1000;
+      const downloadSpeed = Math.min(maxDownloadSpeed, Math.max(minDownloadSpeed, d.properties.data.download_speed_mbps));
+
+      return speedFactor * length / downloadSpeed;
+    })
     .ease(d3.easeQuadOut)
     .attrTween('stroke-dasharray', tweenDash)
     // this should remove dashing on transition end
