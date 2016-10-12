@@ -47,12 +47,18 @@ function tweenDash() {
  * adds dashed line transition
  */
 function transitionLine(path) {
-  path.transition()
+  path
+    .attr('stroke-dasharray', '0,100000') // fix safari flash
+    .transition()
     .duration(6500)
     .ease(d3.easeQuadOut)
     .attrTween('stroke-dasharray', tweenDash)
     // this should remove dashing on transition end
-    .on('end', function endDashTransition() { d3.select(this).attr('stroke-dasharray', 'none'); });
+    .on('end', function endDashTransition() { d3.select(this).attr('stroke-dasharray', 'none'); })
+    .transition()
+    .duration(200)
+    .style('stroke-opacity', 0.0)
+    .remove();
 }
 
 /*
@@ -136,6 +142,13 @@ class WorldMap extends PureComponent {
   }
 
   /*
+   * componentWillUnmount
+   */
+  componentWillUnmount() {
+
+  }
+
+  /*
    * Convert d3 / geojson point to leaflet point
    */
   projectPoint(geo, x, y) {
@@ -183,17 +196,20 @@ class WorldMap extends PureComponent {
    */
   setup() {
     const { location, zoom, updateFrequency } = this.props;
-    this.map = L.map(this.root,
+    if (!this.map) {
+      console.log('adding map')
+      this.map = L.map(this.root,
         { maxZoom: 4, minZoom: 1 }
-    );
+      );
+      const layer = Tangram.leafletLayer({
+        scene: 'refill-style.yaml',
+        attribution: '<a href="https://mapzen.com/tangram" target="_blank">Tangram</a> | &copy; OSM contributors | <a href="https://mapzen.com/" target="_blank">Mapzen</a>',
+      });
 
-    const layer = Tangram.leafletLayer({
-      scene: 'refill-style.yaml',
-      attribution: '<a href="https://mapzen.com/tangram" target="_blank">Tangram</a> | &copy; OSM contributors | <a href="https://mapzen.com/" target="_blank">Mapzen</a>',
-    });
+      this.map.setView(location, zoom);
+      layer.addTo(this.map);
+    }
 
-    this.map.setView(location, zoom);
-    layer.addTo(this.map);
 
     this.svg = d3.select(this.map.getPanes().overlayPane).append('svg');
     this.g = this.svg.append('g').attr('class', 'leaflet-zoom-hide');
@@ -294,6 +310,26 @@ class WorldMap extends PureComponent {
       .exit()
       .remove();
 
+    const blastData = [geoData.features[this.numVisibleFeatures]];
+    const blast = this.g.selectAll('.client')
+      .data(blastData, (d) => d.id);
+
+    this.path.pointRadius(0);
+    const blastE = blast.enter()
+      .append('path')
+      .classed('blast', true)
+      .style('fill', (d) => colorScale(d.properties.data.download_speed_mbps))
+      .attr('d', this.path)
+      .style('fill-opacity', 1.0)
+      .style('filter', 'url(#glow)');
+
+    this.path.pointRadius(50);
+    blastE.transition()
+      .duration(500)
+      .style('fill-opacity', 0.0)
+      .attr('d', this.path)
+      .remove();
+
     // LINES
 
     // reset the point radius to something static
@@ -359,7 +395,7 @@ class WorldMap extends PureComponent {
           style={styles}
           ref={node => { this.root = node; }}
         />
-        <p>Circle size represents download speed. MLab servers are in <span className="server">red</span>.</p>
+        <p>Circle size represents download speed. MLab servers are in <span className="server">black</span>.</p>
       </div>
     );
   }

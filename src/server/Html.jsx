@@ -27,7 +27,7 @@ export default class Html extends Component {
         <script key="vendor" src={assets.javascript.vendor} charSet="UTF-8" />,
         // TODO: we can switch to mapbox if we want.
         <script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.0.0-beta.2/leaflet.js" charSet="UTF-8" />,
-        <script src="https://mapzen.com/tangram/0.6/tangram.min.js" charSet="UTF-8" />,
+        <script src="https://mapzen.com/tangram/0.8/tangram.min.js" charSet="UTF-8" />,
         <script key="main" src="http://localhost:3001/dist/main.js" charSet="UTF-8" />,
       ];
     }
