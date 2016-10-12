@@ -143,13 +143,6 @@ class WorldMap extends PureComponent {
   }
 
   /*
-   * componentWillUnmount
-   */
-  componentWillUnmount() {
-
-  }
-
-  /*
    * Convert d3 / geojson point to leaflet point
    */
   projectPoint(geo, x, y) {
