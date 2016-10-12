@@ -288,7 +288,7 @@ class WorldMap extends PureComponent {
       .attr('d', this.path);
 
     // base point radius on download speed.
-    this.path.pointRadius((d) => rScale(d.properties.data.download_speed_mbps));
+    this.path.pointRadius(3); // TODO: try radius 3 for now. (d) => rScale(d.properties.data.download_speed_mbps));
 
     // transition entered points
     pointsE.transition()
@@ -306,7 +306,7 @@ class WorldMap extends PureComponent {
       .exit()
       .remove();
 
-    const blastRadius = 25;
+    const blastRadius = 15;
     const blastTransitionSpeed = 2000;
     const blastData = [geoData.features[this.numVisibleFeatures]];
     const blast = this.g.selectAll('.client')
