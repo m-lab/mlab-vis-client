@@ -56,7 +56,7 @@ function transitionLine(path) {
     // this should remove dashing on transition end
     .on('end', function endDashTransition() { d3.select(this).attr('stroke-dasharray', 'none'); })
     .transition()
-    .duration(1000)
+    .duration(500)
     .style('stroke-opacity', 0.0)
     .remove();
 }
@@ -358,16 +358,13 @@ class WorldMap extends PureComponent {
       .call(transitionLine)
       .attr('d', (d) => this.path(pointsToLine(d.points)));
 
-    // Currently, lines are removed here in separate transition
-    lines.exit()
-      .transition()
-      .duration(1000)
-      .style('stroke-opacity', 0.0)
-      .remove();
-
     lines
       .attr('stroke-dasharray', 'none')
       .attr('d', (d) => this.path(pointsToLine(d.points)));
+
+    // lines exit and remove themselves at the end of transitionLine.
+    // it's important to let them reach the end of that transition first
+    // since otherwise they'd start exiting before reaching their destination.
 
     // SERVERS
     this.path.pointRadius(3);
