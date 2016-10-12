@@ -56,7 +56,7 @@ function transitionLine(path) {
     // this should remove dashing on transition end
     .on('end', function endDashTransition() { d3.select(this).attr('stroke-dasharray', 'none'); })
     .transition()
-    .duration(200)
+    .duration(1000)
     .style('stroke-opacity', 0.0)
     .remove();
 }
@@ -82,6 +82,7 @@ function visProps(props) {
     .clamp(true);
 
   const colors = ['#fd150b', '#ff8314', '#ffc33b', '#f3f5e7', '#6fb7d0', '#2970ac'].reverse();
+
   const colorScale = d3.scaleLinear()
     .range(colors)
     .domain([1, 5, 10, 15, 20, 30])
@@ -280,6 +281,8 @@ class WorldMap extends PureComponent {
 
 
     // CLIENTS
+    const pointTransitionSpeed = 1000;
+
     // bind to viewable points
     const points = this.g.selectAll('.client')
       .data(viewable, (d) => d.id);
@@ -296,7 +299,7 @@ class WorldMap extends PureComponent {
 
     // transition entered points
     pointsE.transition()
-      .duration(500)
+      .duration(pointTransitionSpeed)
       .style('fill-opacity', 0.5)
       .attr('d', this.path)
       .style('fill', (d) => colorScale(d.properties.data.download_speed_mbps));
@@ -310,6 +313,8 @@ class WorldMap extends PureComponent {
       .exit()
       .remove();
 
+    const blastRadius = 25;
+    const blastTransitionSpeed = 2000;
     const blastData = [geoData.features[this.numVisibleFeatures]];
     const blast = this.g.selectAll('.client')
       .data(blastData, (d) => d.id);
@@ -318,15 +323,17 @@ class WorldMap extends PureComponent {
     const blastE = blast.enter()
       .append('path')
       .classed('blast', true)
-      .style('fill', (d) => colorScale(d.properties.data.download_speed_mbps))
+      .style('stroke', (d) => d3.color(colorScale(d.properties.data.download_speed_mbps)).brighter(0.4))
+      .style('stroke-width', 2)
+      .style('fill', 'none')
       .attr('d', this.path)
-      .style('fill-opacity', 1.0)
+      .style('stroke-opacity', 1.0)
       .style('filter', 'url(#glow)');
 
-    this.path.pointRadius(50);
+    this.path.pointRadius(blastRadius);
     blastE.transition()
-      .duration(500)
-      .style('fill-opacity', 0.0)
+      .duration(blastTransitionSpeed)
+      .style('stroke-opacity', 0.0)
       .attr('d', this.path)
       .remove();
 
@@ -354,13 +361,14 @@ class WorldMap extends PureComponent {
 
     // transition callback function
     linesE
+      .style('stroke', d => colorScale(d.properties.data.download_speed_mbps))
       .call(transitionLine)
       .attr('d', (d) => this.path(pointsToLine(d.points)));
 
     // Currently, lines are removed here in separate transition
     lines.exit()
       .transition()
-      .duration(200)
+      .duration(1000)
       .style('stroke-opacity', 0.0)
       .remove();
 
