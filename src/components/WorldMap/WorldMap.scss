@@ -1,7 +1,7 @@
 
 .WorldMapContainer {
   .server {
-    color: red;
+    color: #444;
   }
 }
 
@@ -9,6 +9,12 @@
   background: rgba(0, 0, 0, 0);
   .server {
     fill-opacity: 0.5;
-    fill: red;
+    fill: #444;
+  }
+  .line {
+    fill: none;
+    stroke: #444;
+    stroke-opacity: 0.4;
+    stroke-width: 2px;
   }
 }

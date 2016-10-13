@@ -4,6 +4,8 @@ import addComputedProps from '../../hoc/addComputedProps';
 
 import { pointToFeature, pointsToLine } from '../../utils/geo';
 
+import { createJaggedPoints } from '../../utils/path';
+
 import './leaflet.css';
 import './WorldMap.scss';
 
@@ -45,12 +47,31 @@ function tweenDash() {
  * adds dashed line transition
  */
 function transitionLine(path) {
-  path.transition()
-    .duration(6500)
+  path
+    .attr('stroke-dasharray', '0,100000') // fix safari flash
+    .transition()
+    .duration(function durationFromSpeed(d) {
+      // use download speed to determine transition duration
+      const [startX, startY] = d.properties.clientPos;
+      const [endX, endY] = d.properties.serverPos;
+      const length = Math.sqrt(Math.pow(startX - endX, 2) + Math.pow(startY - endY, 2));
+
+      // adjust factors and mins here to tune animation
+      const minDownloadSpeed = 2;
+      const maxDownloadSpeed = 40;
+      const speedFactor = 1000;
+      const downloadSpeed = Math.min(maxDownloadSpeed, Math.max(minDownloadSpeed, d.properties.data.download_speed_mbps));
+
+      return speedFactor * length / downloadSpeed;
+    })
     .ease(d3.easeQuadOut)
     .attrTween('stroke-dasharray', tweenDash)
     // this should remove dashing on transition end
-    .on('end', function endDashTransition() { d3.select(this).attr('stroke-dasharray', 'none'); });
+    .on('end', function endDashTransition() { d3.select(this).attr('stroke-dasharray', 'none'); })
+    .transition()
+    .duration(500)
+    .style('stroke-opacity', 0.0)
+    .remove();
 }
 
 /*
@@ -68,9 +89,24 @@ function visProps(props) {
   const geoData = dataToGeoJson(data);
   const servers = geoData.features.map((d, i) => pointToFeature(i, d.properties.serverPos));
 
+  const rScale = d3.scaleSqrt()
+    .domain([0, 100])
+    .range([2, 18])
+    .clamp(true);
+
+  const colors = ['#fd150b', '#ff8314', '#ffc33b', '#f3f5e7', '#6fb7d0', '#2970ac'].reverse();
+
+  const colorScale = d3.scaleLinear()
+    .range(colors)
+    .domain([1, 5, 10, 15, 20, 30])
+    .clamp(true);
+
+
   return {
     geoData,
     servers,
+    rScale,
+    colorScale,
   };
 }
 
@@ -83,9 +119,11 @@ function visProps(props) {
  */
 class WorldMap extends PureComponent {
   static propTypes = {
+    colorScale: PropTypes.func,
     data: PropTypes.array,
     geoData: PropTypes.object,
     location: PropTypes.array,
+    rScale: PropTypes.func,
     servers: PropTypes.array,
     updateFrequency: PropTypes.number,
     zoom: PropTypes.number,
@@ -126,25 +164,64 @@ class WorldMap extends PureComponent {
     geo.stream.point(point.x, point.y);
   }
 
+  setupDefs(svg) {
+    const defs = svg.append('defs');
+
+    const filter = defs.append('filter')
+      .attr('width', '300%')
+      .attr('x', '-100%')
+      .attr('height', '300%')
+      .attr('y', '-100%')
+      .attr('id', 'glow');
+
+    filter.append('feGaussianBlur')
+      .attr('class', 'blur')
+      .attr('stdDeviation', '3')
+      .attr('result', 'coloredBlur');
+
+    const feMerge = filter.append('feMerge');
+    feMerge.append('feMergeNode')
+      .attr('in', 'coloredBlur');
+    feMerge.append('feMergeNode')
+      .attr('in', 'SourceGraphic');
+
+    const filterIntense = defs.append('filter')
+      .attr('width', '300%')
+      .attr('x', '-100%')
+      .attr('height', '300%')
+      .attr('y', '-100%')
+      .attr('id', 'glow-intense');
+
+    filterIntense.append('feGaussianBlur')
+      .attr('class', 'blur')
+      .attr('stdDeviation', '3')
+      .attr('result', 'coloredBlur');
+  }
+
   /**
    * Setup Map, background layer, and other globals.
    */
   setup() {
     const { location, zoom, updateFrequency } = this.props;
-    this.map = L.map(this.root,
+    if (!this.map) {
+      console.log('adding map')
+      this.map = L.map(this.root,
         { maxZoom: 4, minZoom: 1 }
-    );
+      );
+      const layer = Tangram.leafletLayer({
+        scene: 'refill-style.yaml',
+        attribution: '<a href="https://mapzen.com/tangram" target="_blank">Tangram</a> | &copy; OSM contributors | <a href="https://mapzen.com/" target="_blank">Mapzen</a>',
+      });
 
-    const layer = Tangram.leafletLayer({
-      scene: 'refill-style.yaml',
-      attribution: '<a href="https://mapzen.com/tangram" target="_blank">Tangram</a> | &copy; OSM contributors | <a href="https://mapzen.com/" target="_blank">Mapzen</a>',
-    });
+      this.map.setView(location, zoom);
+      layer.addTo(this.map);
+    }
 
-    this.map.setView(location, zoom);
-    layer.addTo(this.map);
 
     this.svg = d3.select(this.map.getPanes().overlayPane).append('svg');
     this.g = this.svg.append('g').attr('class', 'leaflet-zoom-hide');
+
+    this.setupDefs(this.svg);
 
     // pointProject needs access to itself (this) and this's (that) map
     const that = this;
@@ -183,7 +260,7 @@ class WorldMap extends PureComponent {
    * Redraw points on update or zoom
    */
   updatePoints() {
-    const { geoData, servers } = this.props;
+    const { geoData, servers, rScale, colorScale } = this.props;
 
     if (!geoData || geoData.features.length === 0) {
       return;
@@ -200,65 +277,107 @@ class WorldMap extends PureComponent {
 
     this.g.attr('transform', `translate(${-topLeft[0]},${-topLeft[1]})`);
 
-    const pointScale = d3.scaleSqrt()
-      .domain([0, 100])
-      .range([2, 18])
-      .clamp(true);
 
-    // CLIENTS
-    this.path.pointRadius((d) => pointScale(d.properties.data.download_speed_mbps));
-
+    // grab those points that are to be 'viewable'
     const viewable = geoData.features.slice(0, this.numVisibleFeatures);
 
+    // pointRadius determines radius size of points.
+    // set to 0 first.
+    this.path.pointRadius(0);
+
+
+    // CLIENTS
+    const pointTransitionSpeed = 1000;
+
+    // bind to viewable points
     const points = this.g.selectAll('.client')
       .data(viewable, (d) => d.id);
 
+    // points enter
     const pointsE = points.enter()
       .append('path')
       .classed('client', true)
-      .style('fill-opacity', 0.0);
+      .style('fill-opacity', 0.0)
+      .attr('d', this.path);
 
+    // base point radius on download speed.
+    this.path.pointRadius(3); // TODO: try radius 3 for now. (d) => rScale(d.properties.data.download_speed_mbps));
+
+    // transition entered points
     pointsE.transition()
-      .duration(500)
-      .style('fill-opacity', 0.5);
+      .duration(pointTransitionSpeed)
+      .style('fill-opacity', 0.5)
+      .attr('d', this.path)
+      .style('fill', (d) => colorScale(d.properties.data.download_speed_mbps));
+
+    // existing points need to be reprojected in case of zoom
+    points
+      .style('fill-opacity', 0.5)
+      .attr('d', this.path);
 
     points
-      .style('fill-opacity', 0.5);
+      .exit()
+      .remove();
 
-    points.exit().remove();
+    const blastRadius = 15;
+    const blastTransitionSpeed = 2000;
+    const blastData = [geoData.features[this.numVisibleFeatures]];
+    const blast = this.g.selectAll('.client')
+      .data(blastData, (d) => d.id);
 
-    points.merge(pointsE)
+    this.path.pointRadius(0);
+    const blastE = blast.enter()
+      .append('path')
+      .classed('blast', true)
+      .style('stroke', (d) => d3.color(colorScale(d.properties.data.download_speed_mbps)).brighter(0.4))
+      .style('stroke-width', 2)
+      .style('fill', 'none')
       .attr('d', this.path)
-      .style('fill', 'black');
+      .style('stroke-opacity', 1.0)
+      .style('filter', 'url(#glow)');
+
+    this.path.pointRadius(blastRadius);
+    blastE.transition()
+      .duration(blastTransitionSpeed)
+      .style('stroke-opacity', 0.0)
+      .attr('d', this.path)
+      .remove();
 
     // LINES
-    this.path.pointRadius(3);
-    const minLineIndex = Math.max(0, viewable.length - 50);
 
+    // reset the point radius to something static
+    this.path.pointRadius(3);
+
+    // right now we take the last 50 points to
+    // make lines for.
+    const minLineIndex = Math.max(0, viewable.length - 50);
     const lineData = viewable.slice(minLineIndex, viewable.length);
 
+    // bind to the line data
     const lines = this.g.selectAll('.line')
       .data(lineData, (d) => d.id);
 
     const linesE = lines.enter()
       .append('path')
       .classed('line', true)
-      .style('stroke', 'black')
-      .style('fill', 'none')
-      .style('stroke-opacity', 0.5);
+      .each((d) => {
+        d.points = createJaggedPoints(d.properties.clientPos, d.properties.serverPos, 1.1, 2);
+        return d;
+      });
 
+    // transition callback function
     linesE
-      .call(transitionLine);
+      .style('stroke', d => colorScale(d.properties.data.download_speed_mbps))
+      .call(transitionLine)
+      .attr('d', (d) => this.path(pointsToLine(d.points)));
 
-    lines.exit()
-      .transition()
-      .duration(200)
-      .style('stroke-opacity', 0.0)
-      .remove();
+    lines
+      .attr('stroke-dasharray', 'none')
+      .attr('d', (d) => this.path(pointsToLine(d.points)));
 
-    lines.merge(linesE)
-      .attr('d', (d) => this.path(pointsToLine([d.properties.clientPos, d.properties.serverPos])))
-      .style('stroke', 'black');
+    // lines exit and remove themselves at the end of transitionLine.
+    // it's important to let them reach the end of that transition first
+    // since otherwise they'd start exiting before reaching their destination.
 
     // SERVERS
     this.path.pointRadius(3);
@@ -268,7 +387,7 @@ class WorldMap extends PureComponent {
     const serverE = server.enter()
       .append('path')
       .classed('server', true)
-      .style('fill-opacity', 0.5);
+      .style('fill-opacity', 1.0);
 
     server.merge(serverE)
       .attr('d', this.path);
@@ -287,7 +406,7 @@ class WorldMap extends PureComponent {
           style={styles}
           ref={node => { this.root = node; }}
         />
-        <p>Circle size represents download speed. MLab servers are in <span className="server">red</span>.</p>
+        <p>Circle size represents download speed. MLab servers are in <span className="server">black</span>.</p>
       </div>
     );
   }
