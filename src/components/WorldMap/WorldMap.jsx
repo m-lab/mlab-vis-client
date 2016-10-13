@@ -400,7 +400,7 @@ class WorldMap extends PureComponent {
           style={styles}
           ref={node => { this.root = node; }}
         />
-        <p>Circle size represents download speed. MLab servers are in <span className="server">black</span>.</p>
+        <p>Color represents download speed, with blue being slow and red being fast. MLab servers are in <span className="server">black</span>.</p>
       </div>
     );
   }

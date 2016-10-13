@@ -1,10 +1,20 @@
 @import "../../assets/variables";
 
 .HomePage {
-  .writeup {
-    padding-top: 20px;
-    padding-bottom: 20px;
-    text-align: center;
-    font-size: 20px;
+  .feature {
+    h1 {
+      margin-bottom: 24px;
+    }
+  }
+  p {
+    font-size: 1.2em;
+  }
+
+  .WorldMapContainer {
+    margin-top: 15px;
+
+    p {
+      font-size: 1em;
+    }
   }
 }

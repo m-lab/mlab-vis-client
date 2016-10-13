@@ -28,7 +28,7 @@ body {
   }
 }
 
-.section:first-child {
+.section:first-child, .section.no-border {
   border-top: none;
 }
 

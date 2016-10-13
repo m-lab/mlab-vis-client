@@ -2,11 +2,13 @@
 .WorldMapContainer {
   .server {
     color: #444;
+    font-weight: 600;
   }
 }
 
 .WorldMap {
   background: rgba(0, 0, 0, 0);
+  margin-bottom: 6px;
   .server {
     fill-opacity: 0.5;
     fill: #444;
