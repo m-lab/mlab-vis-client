@@ -47,22 +47,16 @@ function tweenDash() {
  * adds dashed line transition
  */
 function transitionLine(path) {
+  const durationScale = d3.scalePow().exponent(2).domain([0, 20]).range([8000, 500]).clamp(true);
+
   path
     .attr('stroke-dasharray', '0,100000') // fix safari flash
     .transition()
     .duration(function durationFromSpeed(d) {
       // use download speed to determine transition duration
-      const [startX, startY] = d.properties.clientPos;
-      const [endX, endY] = d.properties.serverPos;
-      const length = Math.sqrt(Math.pow(startX - endX, 2) + Math.pow(startY - endY, 2));
+      const downloadSpeed = d.properties.data.download_speed_mbps;
 
-      // adjust factors and mins here to tune animation
-      const minDownloadSpeed = 2;
-      const maxDownloadSpeed = 40;
-      const speedFactor = 1000;
-      const downloadSpeed = Math.min(maxDownloadSpeed, Math.max(minDownloadSpeed, d.properties.data.download_speed_mbps));
-
-      return speedFactor * length / downloadSpeed;
+      return durationScale(downloadSpeed);
     })
     .ease(d3.easeQuadOut)
     .attrTween('stroke-dasharray', tweenDash)
@@ -321,7 +315,7 @@ class WorldMap extends PureComponent {
 
     const blastRadius = 15;
     const blastTransitionSpeed = 2000;
-    const blastData = [geoData.features[this.numVisibleFeatures]];
+    const blastData = [geoData.features[this.numVisibleFeatures]].filter(d => d != null);
     const blast = this.g.selectAll('.client')
       .data(blastData, (d) => d.id);
 
