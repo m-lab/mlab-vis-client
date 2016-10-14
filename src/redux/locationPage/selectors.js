@@ -3,7 +3,7 @@
  */
 import { createSelector } from 'reselect';
 import { metrics } from '../../constants';
-import { mergeStatuses, status } from '../status';
+import status from '../status';
 import { colorsFor } from '../../utils/color';
 import timeAggregationFromDates from '../../utils/timeAggregationFromDates';
 import * as LocationsSelectors from '../locations/selectors';
@@ -170,7 +170,7 @@ export const getLocationClientIspTimeSeriesStatus = createSelector(
  */
 export const getTimeSeriesStatus = createSelector(
   getLocationClientIspTimeSeriesStatus, LocationsSelectors.getLocationTimeSeriesStatus,
-  (ispStatus, locationStatus) => mergeStatuses(ispStatus, locationStatus));
+  (ispStatus, locationStatus) => status([ispStatus, locationStatus]));
 
 
 /**

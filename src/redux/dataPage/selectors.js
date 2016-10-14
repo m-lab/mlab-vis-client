@@ -2,7 +2,7 @@
  * Selectors for dataPage
  */
 import { createSelector } from 'reselect';
-import { status } from '../status';
+import status from '../status';
 import timeAggregationFromDates from '../../utils/timeAggregationFromDates';
 import * as LocationsSelectors from '../locations/selectors';
 import * as ClientIspsSelectors from '../clientIsps/selectors';

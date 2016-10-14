@@ -2,10 +2,14 @@
  * Given a standard data object in a store, return the status of it.
  * Looks at `isFetching`, `isFetched`, and `error`.
  *
- * @param {Object} obj The data object
+ * @param {Object|String} obj The data object. If string, just returns it directly.
  * @return {String} The status ('loading', 'ready', 'error', 'unknown')
  */
 function objStatus(obj) {
+  if (typeof obj === 'string') {
+    return obj;
+  }
+
   if (obj) {
     if (obj.isFetching) {
       return 'loading';
@@ -25,11 +29,16 @@ function objStatus(obj) {
  * @param {String[]} statuses The status strings to merge (e.g. ['loading', 'unknown'])
  * @return {String} status
  */
-export function mergeStatuses(statuses) {
+function mergeStatuses(statuses) {
   if (statuses) {
     if (statuses.includes('error')) {
       return 'error';
+    } else if (statuses.includes('partially-loaded')) {
+      return 'partially-loaded';
     } else if (statuses.includes('loading')) {
+      if (statuses.includes('ready')) {
+        return 'partially-loaded';
+      }
       return 'loading';
     } else if (statuses.includes('ready')) {
       return 'ready';
@@ -46,9 +55,10 @@ export function mergeStatuses(statuses) {
  * @param {Array|Object} input A data object or an array of data objects
  * @return {String} The status ('loading', 'ready', 'error', 'unknown')
  */
-export function status(input) {
+export default function status(input) {
   if (Array.isArray(input)) {
-    return mergeStatuses(input.map(objStatus));
+    const result = mergeStatuses(input.map(objStatus));
+    return result;
   }
 
   return objStatus(input);
