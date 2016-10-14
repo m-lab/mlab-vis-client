@@ -4,7 +4,7 @@
 import d3 from 'd3';
 import { createSelector } from 'reselect';
 import { metrics, facetTypes } from '../../constants';
-import { mergeStatuses, status } from '../status';
+import status from '../status';
 import { colorsFor } from '../../utils/color';
 import timeAggregationFromDates from '../../utils/timeAggregationFromDates';
 import * as LocationsSelectors from '../locations/selectors';
@@ -355,7 +355,7 @@ export const getFacetItemTimeSeries = createSelector(
         return combined;
       }, { statuses: [], data: [] });
 
-    combined.status = mergeStatuses(combined.statuses);
+    combined.status = status(combined.statuses);
 
     return { combined, timeSeries };
   }
@@ -599,7 +599,7 @@ function combineTimeSeries(itemsToCombine) {
   }, { statuses: [], data: [] });
 
   // compute the overall status for this facet group
-  combinedTimeSeries.status = mergeStatuses(combinedTimeSeries.statuses);
+  combinedTimeSeries.status = status(combinedTimeSeries.statuses);
   return combinedTimeSeries;
 }
 

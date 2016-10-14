@@ -1,6 +1,7 @@
 import React, { PureComponent, PropTypes } from 'react';
 
 import './StatusWrapper.scss';
+import loadingImage from '../../assets/loading.gif';
 
 /**
  * A component that lets the user choose a metric to view
@@ -16,10 +17,14 @@ export default class StatusWrapper extends PureComponent {
 
   render() {
     const { children, status } = this.props;
+    const showSpinner = status === 'loading' || status === 'unknown' || status === 'partially-loaded';
 
     return (
       <div className={`status-wrapper status-${status}`}>
-        {children}
+        <div className="status-wrapper-inner">
+          {children}
+        </div>
+        {showSpinner ? <img src={loadingImage} className="loading-spinner" alt="Loading..." /> : null}
       </div>
     );
   }
