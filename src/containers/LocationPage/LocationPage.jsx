@@ -14,7 +14,7 @@ import * as LocationsActions from '../../redux/locations/actions';
 import * as LocationClientIspActions from '../../redux/locationClientIsp/actions';
 
 import timeAggregationFromDates from '../../utils/timeAggregationFromDates';
-import { prepareMetricsLineChartForCsv } from '../../utils/exports';
+import { prepareMetricsLineChartForCsv, mergeMetaIntoResults } from '../../utils/exports';
 import { metrics } from '../../constants';
 
 import {
@@ -542,7 +542,8 @@ class LocationPage extends PureComponent {
             </AutoWidth>
             <ChartExportControls
               chartId={chartId}
-              data={hourlyData.results}
+              data={hourlyData}
+              prepareForCsv={mergeMetaIntoResults}
               filename={`${locationId}${id === locationId ? '' : `_${id}`}_${viewMetric.value}_${chartId}`}
             />
           </StatusWrapper>

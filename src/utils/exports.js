@@ -80,7 +80,7 @@ export function createCsv(data) {
  * Take metrics data of form { meta, results: [...] } and flatten it
  * to integrate meta into each result item
  */
-function mergeMetaIntoResults({ meta = {}, results = [] } = {}) {
+export function mergeMetaIntoResults({ meta = {}, results = [] } = {}) {
   return results.map(d => ({ ...meta, ...d }));
 }
 
