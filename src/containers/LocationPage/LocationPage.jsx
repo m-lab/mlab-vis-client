@@ -459,6 +459,7 @@ class LocationPage extends PureComponent {
             />
           </AutoWidth>
           <ChartExportControls
+            className="for-line-chart"
             chartId={chartId}
             data={[clientIspTimeSeries, locationTimeSeries]}
             prepareForCsv={prepareMetricsLineChartForCsv}
@@ -541,6 +542,7 @@ class LocationPage extends PureComponent {
               />
             </AutoWidth>
             <ChartExportControls
+              className="for-hour-chart"
               chartId={chartId}
               data={hourlyData}
               prepareForCsv={mergeMetaIntoResults}

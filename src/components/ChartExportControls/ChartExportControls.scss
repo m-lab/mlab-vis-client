@@ -2,6 +2,17 @@
 
 .chart-export-controls {
   float: right;
+
+  // optimize spacing to account for margin right in chart and the count bar
+  &.for-hour-chart {
+    margin-right: 35px;
+  }
+
+  // optimize spacing to account for margin right in chart and the count bar
+  &.for-line-chart {
+    margin-right: 25px;
+  }
+
   li {
     margin-right: 0;
     padding: 0 2px;

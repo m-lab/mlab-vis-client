@@ -1,4 +1,5 @@
 import React, { PureComponent, PropTypes } from 'react';
+import classNames from 'classnames';
 import { saveSvg, saveSvgAsPng } from 'save-svg-as-png';
 import { createCsv, download } from '../../utils/exports';
 
@@ -13,6 +14,7 @@ import './ChartExportControls.scss';
 export default class ChartExportControls extends PureComponent {
   static propTypes = {
     chartId: PropTypes.string.isRequired,
+    className: PropTypes.string,
     data: PropTypes.any,
     filename: PropTypes.string,
     prepareForCsv: PropTypes.func,
@@ -65,7 +67,7 @@ export default class ChartExportControls extends PureComponent {
 
   render() {
     return (
-      <div className="chart-export-controls">
+      <div className={classNames('chart-export-controls', this.props.className)}>
         <ul className="list-inline">
           {this.outputs.map(output => (
             <li key={output.label}>
