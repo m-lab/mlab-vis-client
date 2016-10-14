@@ -32,6 +32,8 @@ import {
   SummaryTable,
 } from '../../components';
 
+import { LocationSearch } from '../../containers';
+
 import UrlHandler from '../../url/UrlHandler';
 import urlConnect from '../../url/urlConnect';
 import queryRebuild from '../../url/queryRebuild';
@@ -641,14 +643,37 @@ class LocationPage extends PureComponent {
     );
   }
 
+  renderLocationSearch() {
+    const { location } = this.props;
+
+    return (
+      <LocationSearch
+        query={queryRebuild(location.query, urlQueryConfig)}
+      />
+    );
+  }
+
+  renderLocationHeader() {
+    return (
+      <Row className="location-header">
+        <Col md={8}>
+          {this.renderBreadCrumbs()}
+        </Col>
+        <Col md={4} className="pull-left">
+          {this.renderLocationSearch()}
+        </Col>
+      </Row>
+    );
+  }
+
   render() {
     const { locationInfo } = this.props;
     const locationName = (locationInfo && (locationInfo.shortLabel || locationInfo.label)) || 'Location';
 
     return (
-      <div className="location-page">
+      <div className="LocationPage">
         <Helmet title={locationName} />
-        {this.renderBreadCrumbs()}
+        {this.renderLocationHeader()}
         {this.renderCityProviders()}
         {this.renderFixedTimeFrames()}
       </div>
