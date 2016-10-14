@@ -6,12 +6,20 @@ import './ChartExportControls.scss';
 
 /**
  * A component that exports charts in a variety of ways
+ *
+ * @prop {Function} prepareForCsv if provided, data is transformed by this into a flat array of
+ *   objects before being used to create a CSV file
  */
 export default class ChartExportControls extends PureComponent {
   static propTypes = {
     chartId: PropTypes.string.isRequired,
     data: PropTypes.any,
     filename: PropTypes.string,
+    prepareForCsv: PropTypes.func,
+  }
+
+  static defaultProps = {
+    prepareForCsv: d => d,
   }
 
   constructor(props) {
@@ -50,8 +58,8 @@ export default class ChartExportControls extends PureComponent {
   }
 
   onSaveCsv() {
-    const { data, filename } = this.props;
-    const csvDataString = createCsv(data);
+    const { data, filename, prepareForCsv } = this.props;
+    const csvDataString = createCsv(prepareForCsv(data));
     download(csvDataString, 'application/csv', `${filename}.csv`);
   }
 
