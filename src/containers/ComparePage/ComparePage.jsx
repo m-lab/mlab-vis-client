@@ -18,7 +18,7 @@ import * as LocationTransitIspActions from '../../redux/locationTransitIsp/actio
 import * as ClientIspTransitIspActions from '../../redux/clientIspTransitIsp/actions';
 import * as LocationClientIspTransitIspActions from '../../redux/locationClientIspTransitIsp/actions';
 
-import { prepareMetricsLineChartForCsv } from '../../utils/exports';
+import { multiMergeMetaIntoResults } from '../../utils/exports';
 import timeAggregationFromDates from '../../utils/timeAggregationFromDates';
 import { facetTypes } from '../../constants';
 
@@ -606,8 +606,8 @@ class ComparePage extends PureComponent {
         <ChartExportControls
           className="for-line-chart"
           chartId={chartId}
-          data={[seriesData]}
-          prepareForCsv={prepareMetricsLineChartForCsv}
+          data={seriesData}
+          prepareForCsv={multiMergeMetaIntoResults}
           filename={`compare_${viewMetric.value}_${chartId}`}
         />
       </StatusWrapper>

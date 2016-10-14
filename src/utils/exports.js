@@ -85,13 +85,11 @@ export function mergeMetaIntoResults({ meta = {}, results = [] } = {}) {
 }
 
 /**
- * Take metrics data for line charts and convertthem for CSV.
- * Uses mergeMetaIntoResults.
+ * Applies mergeMetaIntoResults into multiple datasets and flattens the result
+ * into a single array.
  */
-export function prepareMetricsLineChartForCsv(data = []) {
-  const [series = [], annotationSeries = []] = data;
-
-  return [].concat(series, annotationSeries).reduce((combined, dataset) => {
+export function multiMergeMetaIntoResults(datasets = []) {
+  return datasets.filter(d => d != null).reduce((combined, dataset) => {
     const flattened = mergeMetaIntoResults(dataset);
     return combined.concat(flattened);
   }, []);
