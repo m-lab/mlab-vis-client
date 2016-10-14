@@ -6,6 +6,7 @@ import {
     LocationPage,
     ComparePage,
     DataPage,
+    AboutPage,
     NotFoundPage,
   } from 'containers';
 
@@ -31,6 +32,8 @@ export default () => (
     </Route>
 
     <Route path="data" component={DataPage} />
+
+    <Route path="about" component={AboutPage} />
 
     { /* Catch all route */ }
     <Route path="*" component={NotFoundPage} status={404} />

@@ -46,6 +46,7 @@ class App extends PureComponent {
           <LinkContainer to="/location"><NavItem eventKey={3}>Location</NavItem></LinkContainer>
           <LinkContainer to="/compare"><NavItem eventKey={4}>Compare</NavItem></LinkContainer>
           <LinkContainer to="/data"><NavItem eventKey={4}>Data</NavItem></LinkContainer>
+          <LinkContainer to="/about"><NavItem eventKey={5}>About</NavItem></LinkContainer>
         </Nav>
       </Navbar>
     );
