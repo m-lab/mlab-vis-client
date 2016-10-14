@@ -19,10 +19,15 @@ class LocationSearch extends PureComponent {
     // eslint-disable-next-line
     exclude: PropTypes.array, // this prop is read in the searchResults selector
     onSuggestionSelected: PropTypes.func,
+    query: PropTypes.object,
     router: PropTypes.object,
     searchFilterItemIds: PropTypes.array,
     searchFilterType: PropTypes.string,
     searchResults: PropTypes.array,
+  }
+
+  static defaultProps = {
+    query: {},
   }
 
   constructor(props) {
@@ -38,11 +43,11 @@ class LocationSearch extends PureComponent {
    * if no `onSuggestionSelected` prop is passed in.
    */
   onSuggestionSelected(suggestion) {
-    const { router } = this.props;
+    const { router, query } = this.props;
 
     const suggestionId = suggestion.meta.id;
     const path = `/location/${suggestionId}`;
-    router.push(path);
+    router.push({ pathname: path, query });
   }
 
   /**
