@@ -136,7 +136,6 @@ class LocationPage extends PureComponent {
     this.onTimeAggregationChange = this.onTimeAggregationChange.bind(this);
     this.onSelectedClientIspsChange = this.onSelectedClientIspsChange.bind(this);
     this.onDateRangeChange = this.onDateRangeChange.bind(this);
-    this.onChangeLocation = this.onChangeLocation.bind(this);
   }
 
   componentDidMount() {
@@ -301,14 +300,6 @@ class LocationPage extends PureComponent {
       dispatch(LocationPageActions.changeEndDate(newEndDate.toDate()));
     }
   }
-
-  /**
-   *
-   */
-  onChangeLocation() {
-
-  }
-
 
   /**
    * Helper to get the extent key based on the metric
