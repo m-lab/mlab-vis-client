@@ -74,12 +74,12 @@ function visProps(props) {
 
   // set up the domains based on extent. Use the prop if provided, otherwise calculate
   let xDomain = xExtent;
-  if (!xDomain && series) {
-    xDomain = multiExtent(series, d => d[xKey], oneSeries => oneSeries.results);
+  if (!xDomain) {
+    xDomain = multiExtent([...series, ...annotationSeries], d => d[xKey], oneSeries => oneSeries.results);
   }
   let yDomain = yExtent;
-  if (!yDomain && series) {
-    yDomain = multiExtent(series, d => d[yKey], oneSeries => oneSeries.results);
+  if (!yDomain) {
+    yDomain = multiExtent([...series, ...annotationSeries], d => d[yKey], oneSeries => oneSeries.results);
   }
 
   // force 0 as the min in the yDomain if specified

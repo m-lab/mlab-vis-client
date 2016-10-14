@@ -50,10 +50,15 @@ function prepareData(props) {
  */
 function visProps(props) {
   const { width, xExtent, xKey, idKey } = props;
-  let { highlightLine, colors } = props;
+  let { highlightLine, colors, annotationSeries } = props;
 
   const preparedData = prepareData(props);
   const { series } = preparedData;
+
+  // ensure annotation series is an array
+  if (annotationSeries && !Array.isArray(annotationSeries)) {
+    annotationSeries = [annotationSeries];
+  }
 
   const padding = {
     right: 50,
@@ -66,7 +71,7 @@ function visProps(props) {
 
   let xDomain = xExtent;
   if (!xDomain && series) {
-    xDomain = multiExtent(series, d => d[xKey], oneSeries => oneSeries.results);
+    xDomain = multiExtent([...series, ...annotationSeries], d => d[xKey], oneSeries => oneSeries.results);
   }
 
   const xScale = d3.scaleTime().range([xMin, xMax]);
