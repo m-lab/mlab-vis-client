@@ -77,10 +77,9 @@ function mapStateToProps(state, propsWithUrl) {
     highlightHourly: LocationPageSelectors.getHighlightHourly(state, propsWithUrl),
     highlightTimeSeriesDate: LocationPageSelectors.getHighlightTimeSeriesDate(state, propsWithUrl),
     highlightTimeSeriesLine: LocationPageSelectors.getHighlightTimeSeriesLine(state, propsWithUrl),
-    hourlyStatus: LocationsSelectors.getLocationHourlyStatus(state, propsWithUrl),
     locationInfo: LocationsSelectors.getLocationInfo(state, propsWithUrl),
     locationAndClientIspTimeSeries: LocationPageSelectors.getLocationAndClientIspTimeSeries(state, propsWithUrl),
-    locationHourly: LocationsSelectors.getLocationHourly(state, propsWithUrl),
+    locationHourly: LocationPageSelectors.getLocationHourly(state, propsWithUrl),
     locationTimeSeries: LocationsSelectors.getLocationTimeSeries(state, propsWithUrl),
     selectedClientIspInfo: LocationPageSelectors.getLocationSelectedClientIspInfo(state, propsWithUrl),
     summary: LocationPageSelectors.getSummaryData(state, propsWithUrl),
@@ -104,7 +103,6 @@ class LocationPage extends PureComponent {
     highlightHourly: PropTypes.number,
     highlightTimeSeriesDate: PropTypes.object,
     highlightTimeSeriesLine: PropTypes.object,
-    hourlyStatus: PropTypes.string,
     location: PropTypes.object, // route location
     locationAndClientIspTimeSeries: PropTypes.array,
     locationHourly: PropTypes.object,
@@ -505,15 +503,22 @@ class LocationPage extends PureComponent {
         </header>
         <Row>
           {this.renderHourChart(locationHourly)}
-          {clientIspHourly.map(hourly => this.renderHourChart(hourly, colors[hourly.meta.id]))}
+          {clientIspHourly.map(hourly => this.renderHourChart(hourly,
+            colors[hourly.data && hourly.data.meta.id]))}
         </Row>
       </div>
     );
   }
 
-  renderHourChart(hourlyData, color) {
-    const { hourlyStatus, highlightHourly, locationId, viewMetric } = this.props;
+  renderHourChart(hourly, color) {
+    const { highlightHourly, locationId, viewMetric } = this.props;
     const extentKey = this.extentKey(viewMetric);
+
+    if (!hourly) {
+      return null;
+    }
+
+    const { data: hourlyData, status: hourlyStatus } = hourly;
 
     if (!hourlyData || !hourlyData.meta) {
       return null;

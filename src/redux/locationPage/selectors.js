@@ -242,6 +242,14 @@ export const getSummaryData = createSelector(
   }
 );
 
+
+/**
+ * Selector to get the location hourly data
+ */
+export const getLocationHourly = createSelector(
+  LocationsSelectors.getLocationHourly, LocationsSelectors.getLocationHourlyStatus,
+  (data, status) => ({ data, status }));
+
 /**
  * Selector to get the data objects for location+client ISP hourly data
  * for the selected client ISPs
@@ -268,8 +276,7 @@ export const getLocationClientIspHourly = createSelector(
       return undefined;
     }
 
-    return hourlyObjects.map(hourly => hourly && hourly.data)
-      .filter(hourly => hourly != null);
+    return hourlyObjects.map(hourly => ({ data: hourly && hourly.data, status: status(hourly) }));
   }
 );
 
