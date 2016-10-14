@@ -1,4 +1,5 @@
 import React, { PureComponent, PropTypes } from 'react';
+import classNames from 'classnames';
 import { saveSvg, saveSvgAsPng } from 'save-svg-as-png';
 import { createCsv, download } from '../../utils/exports';
 
@@ -6,12 +7,21 @@ import './ChartExportControls.scss';
 
 /**
  * A component that exports charts in a variety of ways
+ *
+ * @prop {Function} prepareForCsv if provided, data is transformed by this into a flat array of
+ *   objects before being used to create a CSV file
  */
 export default class ChartExportControls extends PureComponent {
   static propTypes = {
     chartId: PropTypes.string.isRequired,
+    className: PropTypes.string,
     data: PropTypes.any,
     filename: PropTypes.string,
+    prepareForCsv: PropTypes.func,
+  }
+
+  static defaultProps = {
+    prepareForCsv: d => d,
   }
 
   constructor(props) {
@@ -50,14 +60,14 @@ export default class ChartExportControls extends PureComponent {
   }
 
   onSaveCsv() {
-    const { data, filename } = this.props;
-    const csvDataString = createCsv(data);
+    const { data, filename, prepareForCsv } = this.props;
+    const csvDataString = createCsv(prepareForCsv(data));
     download(csvDataString, 'application/csv', `${filename}.csv`);
   }
 
   render() {
     return (
-      <div className="chart-export-controls">
+      <div className={classNames('chart-export-controls', this.props.className)}>
         <ul className="list-inline">
           {this.outputs.map(output => (
             <li key={output.label}>

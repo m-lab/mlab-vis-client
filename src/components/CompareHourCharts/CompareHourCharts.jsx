@@ -2,6 +2,7 @@ import React, { PureComponent, PropTypes } from 'react';
 import Row from 'react-bootstrap/lib/Row';
 import Col from 'react-bootstrap/lib/Col';
 import AutoWidth from 'react-auto-width';
+import { mergeMetaIntoResults } from '../../utils/exports';
 
 import {
   ChartExportControls,
@@ -68,8 +69,10 @@ export default class CompareHourCharts extends PureComponent {
           />
         </AutoWidth>
         <ChartExportControls
+          className="for-hour-chart"
           chartId={chartId}
-          data={hourlyData.results}
+          data={hourlyData}
+          prepareForCsv={mergeMetaIntoResults}
           filename={`compare_hourly_${viewMetric.value}_${chartId}`}
         />
       </StatusWrapper>

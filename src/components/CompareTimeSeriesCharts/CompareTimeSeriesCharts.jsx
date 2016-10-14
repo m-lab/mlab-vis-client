@@ -1,5 +1,6 @@
 import React, { PureComponent, PropTypes } from 'react';
 import AutoWidth from 'react-auto-width';
+import { multiMergeMetaIntoResults } from '../../utils/exports';
 
 import {
   ChartExportControls,
@@ -72,8 +73,10 @@ export default class CompareTimeSeriesCharts extends PureComponent {
           />
         </AutoWidth>
         <ChartExportControls
+          className="for-line-chart"
           chartId={chartId}
           data={seriesData}
+          prepareForCsv={multiMergeMetaIntoResults}
           filename={`compare_${viewMetric.value}_${chartId}`}
         />
       </StatusWrapper>

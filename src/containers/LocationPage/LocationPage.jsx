@@ -14,6 +14,7 @@ import * as LocationsActions from '../../redux/locations/actions';
 import * as LocationClientIspActions from '../../redux/locationClientIsp/actions';
 
 import timeAggregationFromDates from '../../utils/timeAggregationFromDates';
+import { multiMergeMetaIntoResults, mergeMetaIntoResults } from '../../utils/exports';
 import { metrics } from '../../constants';
 
 import {
@@ -458,8 +459,10 @@ class LocationPage extends PureComponent {
             />
           </AutoWidth>
           <ChartExportControls
+            className="for-line-chart"
             chartId={chartId}
-            data={locationTimeSeries && locationTimeSeries.results}
+            data={[...clientIspTimeSeries, locationTimeSeries]}
+            prepareForCsv={multiMergeMetaIntoResults}
             filename={`${locationId}_${viewMetric.value}_${chartId}`}
           />
         </StatusWrapper>
@@ -539,8 +542,10 @@ class LocationPage extends PureComponent {
               />
             </AutoWidth>
             <ChartExportControls
+              className="for-hour-chart"
               chartId={chartId}
-              data={hourlyData.results}
+              data={hourlyData}
+              prepareForCsv={mergeMetaIntoResults}
               filename={`${locationId}${id === locationId ? '' : `_${id}`}_${viewMetric.value}_${chartId}`}
             />
           </StatusWrapper>
