@@ -15,7 +15,7 @@ function visProps(props) {
   const {
     idKey,
     labelKey,
-    series,
+    series = [],
     forceZeroMin,
     height,
     paddingLeft = 50,
@@ -29,7 +29,7 @@ function visProps(props) {
   } = props;
   let {
     colors,
-    annotationSeries,
+    annotationSeries = [],
     xScale,
   } = props;
 
@@ -53,9 +53,11 @@ function visProps(props) {
 
   const plotAreaWidth = width - padding.left - padding.right;
 
+  const combinedData = [...series, ...annotationSeries];
+
   // compute legend properties and make room for it at the top.
   const legend = new Legend({
-    data: (series || []).concat(annotationSeries || []),
+    data: combinedData,
     colors,
     formatter: yFormatter,
     width: plotAreaWidth,
@@ -75,11 +77,11 @@ function visProps(props) {
   // set up the domains based on extent. Use the prop if provided, otherwise calculate
   let xDomain = xExtent;
   if (!xDomain) {
-    xDomain = multiExtent([...series, ...annotationSeries], d => d[xKey], oneSeries => oneSeries.results);
+    xDomain = multiExtent(combinedData, d => d[xKey], oneSeries => oneSeries.results);
   }
   let yDomain = yExtent;
   if (!yDomain) {
-    yDomain = multiExtent([...series, ...annotationSeries], d => d[yKey], oneSeries => oneSeries.results);
+    yDomain = multiExtent(combinedData, d => d[yKey], oneSeries => oneSeries.results);
   }
 
   // force 0 as the min in the yDomain if specified
@@ -514,7 +516,7 @@ class LineChart extends PureComponent {
   updateAnnotationLines() {
     const { annotationSeries, annotationLineChunked } = this.props;
 
-    if (!annotationSeries) {
+    if (!annotationSeries || !annotationSeries.length) {
       this.annotationLines.selectAll('*').remove();
       return;
     }

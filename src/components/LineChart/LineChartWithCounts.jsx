@@ -50,7 +50,7 @@ function prepareData(props) {
  */
 function visProps(props) {
   const { width, xExtent, xKey, idKey } = props;
-  let { highlightLine, colors, annotationSeries } = props;
+  let { highlightLine, colors, annotationSeries = [] } = props;
 
   const preparedData = prepareData(props);
   const { series } = preparedData;
