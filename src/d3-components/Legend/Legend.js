@@ -193,6 +193,12 @@ export default class Legend {
           entry.select('.legend-entry-value').style('display', 'none');
           entry.select('.legend-entry-value-bg').style('display', 'none');
         }
+
+        // ensure we have the right width for entries in case it updated
+        // add in the clipping rects to prevent text from extending beyond the width
+        entry.select('defs').selectAll('clipPath').selectAll('rect')
+            .attr('width', entryConfig.width)
+            .attr('height', entryConfig.height);
       });
   }
 }
