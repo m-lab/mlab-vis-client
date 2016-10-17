@@ -1,5 +1,6 @@
 import React, { PureComponent, PropTypes } from 'react';
 import Helmet from 'react-helmet';
+import { batchActions } from 'redux-batched-actions';
 import moment from 'moment';
 import { browserHistory } from 'react-router';
 import momentPropTypes from 'react-moment-proptypes';
@@ -287,16 +288,24 @@ class LocationPage extends PureComponent {
    */
   onDateRangeChange(newStartDate, newEndDate) {
     const { dispatch, autoTimeAggregation, startDate, endDate } = this.props;
+    const actions = [];
     // if we are auto-detecting time aggregation, set it based on the dates
     if (autoTimeAggregation) {
-      dispatch(LocationPageActions.changeTimeAggregation(timeAggregationFromDates(newStartDate, newEndDate)));
+      actions.push(LocationPageActions.changeTimeAggregation(timeAggregationFromDates(newStartDate, newEndDate)));
     }
 
-    if ((!startDate && newStartDate) || (newStartDate && !newStartDate.isSame(startDate, 'day'))) {
-      dispatch(LocationPageActions.changeStartDate(newStartDate.toDate()));
+    const changedStartDate = (!startDate && newStartDate) || (newStartDate && !newStartDate.isSame(startDate, 'day'));
+    const changedEndDate = (!endDate && newEndDate) || (newEndDate && !newEndDate.isSame(endDate, 'day'));
+
+    if (changedStartDate) {
+      actions.push(LocationPageActions.changeStartDate(newStartDate.toDate()));
     }
-    if ((!endDate && newEndDate) || (newEndDate && !newEndDate.isSame(endDate, 'day'))) {
-      dispatch(LocationPageActions.changeEndDate(newEndDate.toDate()));
+    if (changedEndDate) {
+      actions.push(LocationPageActions.changeEndDate(newEndDate.toDate()));
+    }
+
+    if (actions.length) {
+      dispatch(batchActions(actions));
     }
   }
 
