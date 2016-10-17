@@ -98,23 +98,25 @@ export function decodeJson(jsonStr) {
 }
 
 /**
- * Encodes anything as a JSON string.
+ * Encodes an array as a string
  *
- * @param {Any} any The thing to be encoded
- * @return {String} The JSON string representation of any
+ * @param {Array} array The array to be encoded
+ * @param {String} entrySeparator="_" The separator between entries
+ * @return {String} The JSON string representation of the array
  */
-export function encodeArray(any, entrySeparator = '_') {
-  if (!any) {
+export function encodeArray(array, entrySeparator = '_') {
+  if (!array) {
     return undefined;
   }
 
-  return any.join(entrySeparator);
+  return array.join(entrySeparator);
 }
 
 /**
- * Decodes a JSON string into javascript
+ * Decodes an array string into a javascript array
  *
- * @param {String} jsonStr The JSON string representation
+ * @param {String} arrayStr The array string representation
+ * @param {String} entrySeparator="_" The separator between entries
  * @return {Any} The javascript representation
  */
 export function decodeArray(arrayStr, entrySeparator = '_') {
@@ -126,6 +128,41 @@ export function decodeArray(arrayStr, entrySeparator = '_') {
 
   return arrayStr.split(entrySeparator);
 }
+
+/**
+ * Encodes a set (an array with unique values) as a string
+ *
+ * @param {Array} set The set to be encoded
+ * @param {String} entrySeparator="_" The separator between entries
+ * @return {String} The JSON string representation of the set
+ */
+export function encodeSet(set, entrySeparator = '_') {
+  if (!set) {
+    return undefined;
+  }
+
+  const filtered = set.filter((d, i) => set.indexOf(d) === i);
+  return encodeArray(filtered, entrySeparator);
+}
+
+/**
+ * Decodes a set (an array with unique values) string into a javascript array
+ *
+ * @param {String} setStr The set string representation
+ * @param {String} entrySeparator="_" The separator between entries
+ * @return {Any} The javascript representation
+ */
+export function decodeSet(setStr, entrySeparator = '_') {
+  if (setStr == null) {
+    return undefined;
+  } else if (setStr === '') {
+    return [];
+  }
+
+  const array = decodeArray(setStr, entrySeparator);
+  return array.filter((d, i) => array.indexOf(d) === i);
+}
+
 
 /**
  * Encode simple objects as readable strings. Currently works only for simple,
@@ -191,6 +228,10 @@ export const Decoders = {
     return decodeArray(d);
   },
 
+  set(d) {
+    return decodeSet(d);
+  },
+
   json(d) {
     return decodeJson(d);
   },
@@ -248,6 +289,10 @@ export const Encoders = {
 
   array(d) {
     return encodeArray(d);
+  },
+
+  set(d) {
+    return encodeSet(d);
   },
 
   json(d) {
