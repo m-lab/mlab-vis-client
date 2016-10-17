@@ -329,7 +329,7 @@ class LineChartSmallMult extends PureComponent {
    */
   renderChartLabels(series, chartId, seriesIndex, yKey, metricIndex) {
     const { hover, mouse } = this.state;
-    const { xScale, yScales, colors, xKey, showBaseline, metrics } = this.props;
+    const { xScale, yScales, colors, xKey, showBaseline, metrics, smallMultWidth } = this.props;
 
     // find the value closest to the mouse's x coordinate
     const closest = findClosestSorted(series.results, mouse[0], d => xScale(d[xKey]));
@@ -344,14 +344,23 @@ class LineChartSmallMult extends PureComponent {
     const unit = metric.unit === '%' ? undefined : metric.unit;
 
     if (hover && yValue) {
+      // determine text anchor based on how close to the edges it is
+      const xPosition = xScale(xValue);
+      let textAnchor = 'middle';
+      if (xPosition < smallMultWidth / 4) {
+        textAnchor = 'start';
+      } else if (xPosition > (3 * smallMultWidth) / 4) {
+        textAnchor = 'end';
+      }
+
       return (
-        <g transform={`translate(${xScale(xValue)} ${yScales[metricIndex](yValue)})`}>
+        <g transform={`translate(${xPosition} ${yScales[metricIndex](yValue)})`}>
           <TextWithBackground
             x={0}
-            y={0}
+            y={-11}
             dy={3}
             dx={6}
-            textAnchor="start"
+            textAnchor={textAnchor}
             textClassName="small-mult-label small-mult-hover-label"
             background="#fff"
             padding={{ top: 3, bottom: 3, left: 3, right: 3 }}
