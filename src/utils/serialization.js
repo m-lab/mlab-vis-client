@@ -118,8 +118,10 @@ export function encodeArray(any, entrySeparator = '_') {
  * @return {Any} The javascript representation
  */
 export function decodeArray(arrayStr, entrySeparator = '_') {
-  if (!arrayStr) {
+  if (arrayStr == null) {
     return undefined;
+  } else if (arrayStr === '') {
+    return [];
   }
 
   return arrayStr.split(entrySeparator);
