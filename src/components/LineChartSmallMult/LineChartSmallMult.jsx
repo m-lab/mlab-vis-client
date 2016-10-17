@@ -27,7 +27,7 @@ function visProps(props) {
   // padding inside the component
   const padding = {
     top: 25,
-    right: 20,
+    right: 5,
     bottom: 35,
     left: 0,
   };
@@ -39,7 +39,8 @@ function visProps(props) {
   const plotAreaWidth = width - padding.left - padding.right;
 
   // width for an individual small multiple
-  const smallMultWidth = Math.floor(plotAreaWidth / metrics.length) - smallMultMargin;
+  const smallMultWidth = Math.floor(plotAreaWidth / metrics.length) -
+    (smallMultMargin * ((metrics.length - 1) / metrics.length)); // we dont count the margin at the far right
 
   // height for the whole component (add enough height for each row)
   let height = padding.top + padding.bottom;
@@ -329,7 +330,7 @@ class LineChartSmallMult extends PureComponent {
    */
   renderChartLabels(series, chartId, seriesIndex, yKey, metricIndex) {
     const { hover, mouse } = this.state;
-    const { xScale, yScales, colors, xKey, showBaseline, metrics } = this.props;
+    const { xScale, yScales, colors, xKey, showBaseline, metrics, smallMultWidth } = this.props;
 
     // find the value closest to the mouse's x coordinate
     const closest = findClosestSorted(series.results, mouse[0], d => xScale(d[xKey]));
@@ -338,22 +339,34 @@ class LineChartSmallMult extends PureComponent {
 
     const color = ((showBaseline && seriesIndex === 0) ? '#bbb' : colors[series.meta.client_asn_number]);
     const lightColor = d3.color(color).brighter(0.3);
-    const yFormatter = metrics[metricIndex].formatter || (d => d);
+
+    const metric = metrics[metricIndex];
+    const yFormatter = metric.formatter || (d => d);
+    const unit = metric.unit === '%' ? undefined : metric.unit;
 
     if (hover && yValue) {
+      // determine text anchor based on how close to the edges it is
+      const xPosition = xScale(xValue);
+      let textAnchor = 'middle';
+      if (xPosition < smallMultWidth / 4 && metricIndex === 0) {
+        textAnchor = 'start';
+      } else if (xPosition > (3 * smallMultWidth) / 4 && metricIndex === metrics.length - 1) {
+        textAnchor = 'end';
+      }
+
       return (
-        <g transform={`translate(${xScale(xValue)} ${yScales[metricIndex](yValue)})`}>
+        <g transform={`translate(${xPosition} ${yScales[metricIndex](yValue)})`}>
           <TextWithBackground
             x={0}
-            y={0}
+            y={-11}
             dy={3}
             dx={6}
-            textAnchor="start"
+            textAnchor={textAnchor}
             textClassName="small-mult-label small-mult-hover-label"
             background="#fff"
             padding={{ top: 3, bottom: 3, left: 3, right: 3 }}
           >
-            {yFormatter(yValue)}
+            {`${yFormatter(yValue)}${unit ? ` ${unit}` : ''}`}
           </TextWithBackground>
           <circle cx={0} cy={0} r={3} fill={lightColor} stroke={color} />
         </g>
