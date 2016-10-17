@@ -136,6 +136,7 @@ class ComparePage extends PureComponent {
     this.onHighlightTimeSeriesLine = this.onHighlightTimeSeriesLine.bind(this);
     this.onTimeAggregationChange = this.onTimeAggregationChange.bind(this);
     this.onViewMetricChange = this.onViewMetricChange.bind(this);
+    this.onReset = this.onReset.bind(this);
   }
 
   componentDidMount() {
@@ -326,6 +327,17 @@ class ComparePage extends PureComponent {
 
     router.push({ pathname: path, query });
   }
+
+  /**
+   * Callback for when reset is clicked
+   */
+  onReset() {
+    const { facetType, router } = this.props;
+    const path = `/compare/${facetType.value}`;
+
+    router.push({ pathname: path });
+  }
+
 
   /**
    * Callback for time aggregation checkbox
@@ -755,8 +767,11 @@ class ComparePage extends PureComponent {
               <Col md={3}>
                 <h2>{pageTitle}</h2>
               </Col>
-              <Col md={9}>
+              <Col md={8}>
                 {this.renderTimeRangeSelector()}
+              </Col>
+              <Col md={1}>
+                <button className="btn btn-default" onClick={this.onReset}>Reset</button>
               </Col>
             </Row>
           </header>
