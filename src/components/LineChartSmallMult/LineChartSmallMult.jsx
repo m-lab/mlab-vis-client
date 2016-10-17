@@ -338,7 +338,10 @@ class LineChartSmallMult extends PureComponent {
 
     const color = ((showBaseline && seriesIndex === 0) ? '#bbb' : colors[series.meta.client_asn_number]);
     const lightColor = d3.color(color).brighter(0.3);
-    const yFormatter = metrics[metricIndex].formatter || (d => d);
+
+    const metric = metrics[metricIndex];
+    const yFormatter = metric.formatter || (d => d);
+    const unit = metric.unit === '%' ? undefined : metric.unit;
 
     if (hover && yValue) {
       return (
@@ -353,7 +356,7 @@ class LineChartSmallMult extends PureComponent {
             background="#fff"
             padding={{ top: 3, bottom: 3, left: 3, right: 3 }}
           >
-            {yFormatter(yValue)}
+            {`${yFormatter(yValue)}${unit ? ` ${unit}` : ''}`}
           </TextWithBackground>
           <circle cx={0} cy={0} r={3} fill={lightColor} stroke={color} />
         </g>
