@@ -183,9 +183,14 @@ export default class CompareLocationsInput extends PureComponent {
   }
 
   renderFilterSuggestions(filterType, top, onAdd) {
+    const { facetItemIds } = this.props;
+    if (!facetItemIds || !facetItemIds.length) {
+      return null;
+    }
+
     return (
       <FilterSuggestions suggestions={top} labelKey={filterType.labelKey} onSelect={onAdd} />
-    )
+    );
   }
 
   render() {

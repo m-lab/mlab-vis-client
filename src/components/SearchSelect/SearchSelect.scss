@@ -27,4 +27,25 @@
       }
     }
   }
+
+  .search-container {
+    position: relative;
+  }
+
+  .clear-selection-btn {
+    position: absolute;
+    right: 13px;
+    top: 7px;
+    background: #eee;
+    color: #666;
+    border: 0;
+    font-size: 12px;
+    margin-bottom: 4px;
+    border-radius: 4px;
+
+    &:hover {
+      background: #f6f6f6;
+      color: #444;
+    }
+  }
 }

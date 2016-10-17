@@ -2,7 +2,7 @@ import React, { PureComponent, PropTypes } from 'react';
 import moment from 'moment';
 import momentPropTypes from 'react-moment-proptypes';
 import classNames from 'classnames';
-import { browserHistory } from 'react-router';
+import { withRouter, browserHistory } from 'react-router';
 import Helmet from 'react-helmet';
 import Row from 'react-bootstrap/lib/Row';
 import Col from 'react-bootstrap/lib/Col';
@@ -79,6 +79,7 @@ class DataPage extends PureComponent {
     locationInfos: PropTypes.array,
     locationSuggestionsForClientIsps: PropTypes.object,
     locationSuggestionsForTransitIsps: PropTypes.object,
+    router: PropTypes.object, // react-router
     startDate: momentPropTypes.momentObj,
     timeAggregation: PropTypes.string,
     transitIspIds: PropTypes.array,
@@ -90,6 +91,7 @@ class DataPage extends PureComponent {
   constructor(props) {
     super(props);
 
+    this.onReset = this.onReset.bind(this);
     this.onDataFormatChange = this.onDataFormatChange.bind(this);
     this.onTimeAggregationChange = this.onTimeAggregationChange.bind(this);
     this.onDateRangeChange = this.onDateRangeChange.bind(this);
@@ -148,6 +150,16 @@ class DataPage extends PureComponent {
   onDataFormatChange(dataFormat) {
     const { dispatch } = this.props;
     dispatch(DataPageActions.changeDataFormat(dataFormat));
+  }
+
+  /**
+   * Callback for when reset is clicked
+   */
+  onReset() {
+    const { router } = this.props;
+    const path = '/data';
+
+    router.push({ pathname: path });
   }
 
   /**
@@ -518,6 +530,9 @@ class DataPage extends PureComponent {
               visualizations directly, or you can use the interface below.
             </p>
           </Col>
+          <Col md={1}>
+            <button className="btn btn-default" onClick={this.onReset}>Reset</button>
+          </Col>
         </Row>
         <Row>
           <Col md={4}>
@@ -537,4 +552,4 @@ class DataPage extends PureComponent {
   }
 }
 
-export default urlConnect(urlHandler, mapStateToProps)(DataPage);
+export default urlConnect(urlHandler, mapStateToProps)(withRouter(DataPage));
