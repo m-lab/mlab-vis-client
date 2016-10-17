@@ -41,9 +41,9 @@ const urlQueryConfig = {
   startDate: { type: 'date', urlKey: 'start', defaultValue: moment('2015-10-1') },
   endDate: { type: 'date', urlKey: 'end', defaultValue: moment('2015-11-1') },
   timeAggregation: { type: 'string', urlKey: 'aggr' },
-  clientIspIds: { type: 'array', urlKey: 'clientIsps', defaultValue: [] },
-  transitIspIds: { type: 'array', urlKey: 'transitIsps', defaultValue: [] },
-  locationIds: { type: 'array', urlKey: 'locations', defaultValue: [] },
+  clientIspIds: { type: 'set', urlKey: 'clientIsps', defaultValue: [] },
+  transitIspIds: { type: 'set', urlKey: 'transitIsps', defaultValue: [] },
+  locationIds: { type: 'set', urlKey: 'locations', defaultValue: [] },
 };
 const urlHandler = new UrlHandler(urlQueryConfig, browserHistory);
 function mapStateToProps(state, propsWithUrl) {

@@ -52,9 +52,9 @@ const urlQueryConfig = {
   startDate: { type: 'date', urlKey: 'start', defaultValue: moment('2015-10-1') },
   endDate: { type: 'date', urlKey: 'end', defaultValue: moment('2015-11-1') },
   timeAggregation: { type: 'string', urlKey: 'aggr' },
-  facetItemIds: { type: 'array', urlKey: 'selected', persist: false },
-  filter1Ids: { type: 'array', urlKey: 'filter1', persist: false },
-  filter2Ids: { type: 'array', urlKey: 'filter2', persist: false },
+  facetItemIds: { type: 'set', urlKey: 'selected', persist: false },
+  filter1Ids: { type: 'set', urlKey: 'filter1', persist: false },
+  filter2Ids: { type: 'set', urlKey: 'filter2', persist: false },
 };
 const urlHandler = new UrlHandler(urlQueryConfig, browserHistory);
 
