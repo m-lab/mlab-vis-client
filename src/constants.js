@@ -2,6 +2,11 @@
  * This file contains constants that are used throughout the site.
  */
 import d3 from 'd3';
+import moment from 'moment';
+
+// TODO: change defaults to more recent time period when data is up-to-date
+export const defaultStartDate = moment('2015-07-01');
+export const defaultEndDate = moment('2016-07-01');
 
 export const timeAggregations = [
   { value: 'day', label: 'Day' },

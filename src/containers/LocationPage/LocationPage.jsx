@@ -1,7 +1,6 @@
 import React, { PureComponent, PropTypes } from 'react';
 import Helmet from 'react-helmet';
 import { batchActions } from 'redux-batched-actions';
-import moment from 'moment';
 import { browserHistory } from 'react-router';
 import momentPropTypes from 'react-moment-proptypes';
 import Row from 'react-bootstrap/lib/Row';
@@ -16,7 +15,7 @@ import * as LocationClientIspActions from '../../redux/locationClientIsp/actions
 
 import timeAggregationFromDates from '../../utils/timeAggregationFromDates';
 import { multiMergeMetaIntoResults, mergeMetaIntoResults } from '../../utils/exports';
-import { metrics } from '../../constants';
+import { metrics, defaultStartDate, defaultEndDate } from '../../constants';
 
 import {
   ChartExportControls,
@@ -53,9 +52,8 @@ const urlQueryConfig = {
   showRegionalValues: { type: 'boolean', defaultValue: false, urlKey: 'regional' },
 
   // selected time
-  // TODO: change defaults to more recent time period when data is up-to-date
-  startDate: { type: 'date', urlKey: 'start', defaultValue: moment('2015-10-1') },
-  endDate: { type: 'date', urlKey: 'end', defaultValue: moment('2015-11-1') },
+  startDate: { type: 'date', urlKey: 'start', defaultValue: defaultStartDate },
+  endDate: { type: 'date', urlKey: 'end', defaultValue: defaultEndDate },
   timeAggregation: { type: 'string', urlKey: 'aggr' },
   selectedClientIspIds: { type: 'set', urlKey: 'isps', persist: false },
 };
