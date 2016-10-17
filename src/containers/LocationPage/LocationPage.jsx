@@ -503,8 +503,10 @@ class LocationPage extends PureComponent {
         </header>
         <Row>
           {this.renderHourChart(locationHourly)}
-          {clientIspHourly.map(hourly => this.renderHourChart(hourly,
-            colors[hourly.data && hourly.data.meta.id]))}
+          {clientIspHourly.map((hourly, i) => [
+            this.renderHourChart(hourly, colors[hourly.data && hourly.data.meta.id]),
+            i % 2 === 0 ? <div className="clearfix" key={i} /> : null,
+          ])}
         </Row>
       </div>
     );
