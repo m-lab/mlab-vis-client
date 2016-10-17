@@ -338,7 +338,6 @@ class ComparePage extends PureComponent {
     router.push({ pathname: path });
   }
 
-
   /**
    * Callback for time aggregation checkbox
    */
