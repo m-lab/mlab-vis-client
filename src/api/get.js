@@ -38,6 +38,13 @@ function urlCacheKey(path, params) {
  * @return {Promise} The promise for the request
  */
 export default function get(path, query) {
+  // simple validation by ensuring no consecutive slashes. since we work with relative
+  // URLs, this is fine (does not receive paths including http://)
+  if (path.includes('//')) {
+    return Promise.reject(`Missing URL parameters: ${path}`);
+  }
+
+
   return new Promise((resolve, reject) => {
     // check for a cached response
     const cacheKey = urlCacheKey(path, query);
