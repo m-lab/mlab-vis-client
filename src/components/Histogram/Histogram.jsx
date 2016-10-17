@@ -138,9 +138,9 @@ class Histogram extends PureComponent {
   }
 
   onMouseMove([mouseX]) {
-    const { xScale, highlightBin, onHighlightBin } = this.props;
+    const { xScale, highlightBin, onHighlightBin, bins } = this.props;
     const barWidth = xScale.bandwidth();
-    const barIndex = Math.floor(mouseX / barWidth);
+    const barIndex = Math.min(Math.floor(mouseX / barWidth), bins.length - 1);
     if (highlightBin !== barIndex) {
       onHighlightBin(barIndex);
     }
