@@ -1,6 +1,7 @@
 import React, { PureComponent, PropTypes } from 'react';
 import d3 from 'd3';
 import addComputedProps from '../../hoc/addComputedProps';
+import { testThreshold } from '../../constants';
 
 import './HourChart.scss';
 
@@ -119,7 +120,7 @@ class HourChart extends PureComponent {
     data: [],
     color: '#aaa',
     forceZeroMin: true,
-    threshold: 30,
+    threshold: testThreshold,
     yFormatter: d => d,
     yKey: 'y',
   }

@@ -4,6 +4,7 @@ import d3 from 'd3';
 import { HourChart, CountChart } from '../../components';
 import { sum, average } from '../../utils/math';
 import addComputedProps from '../../hoc/addComputedProps';
+import { testThreshold } from '../../constants';
 
 
 /**
@@ -12,7 +13,7 @@ import addComputedProps from '../../hoc/addComputedProps';
  * @return {Object} the prepared data { filteredData, dataByHour, dataByDate }
  */
 function prepareData(props) {
-  const { data, yKey, threshold } = props;
+  const { data, yKey } = props;
 
   // filter so all data has a value for yKey
   const filteredData = (data || []).filter(d => d[yKey] != null);
@@ -29,7 +30,6 @@ function prepareData(props) {
       hour,
       points: hourPoints || [],
       count,
-      belowThreshold: count < threshold,
       overall: average(hourPoints, yKey),
     };
   });
@@ -44,7 +44,6 @@ function prepareData(props) {
       date: datePoints[0].date,
       points: datePoints,
       count,
-      belowThreshold: count < threshold,
     };
 
     return byDate;
@@ -135,7 +134,7 @@ class HourChartWithCounts extends PureComponent {
   }
 
   static defaultProps = {
-    threshold: 30,
+    threshold: testThreshold,
   }
 
   /**

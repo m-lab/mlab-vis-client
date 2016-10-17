@@ -549,7 +549,6 @@ class LocationPage extends PureComponent {
                 highlightHour={highlightHourly}
                 id={chartId}
                 onHighlightHour={this.onHighlightHourly}
-                threshold={30}
                 yAxisLabel={viewMetric.label}
                 yAxisUnit={viewMetric.unit}
                 yExtent={hourlyData.extents[extentKey]}

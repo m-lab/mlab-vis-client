@@ -64,3 +64,5 @@ export const facetTypes = [
     labelKey: 'server_asn_name',
   },
 ];
+
+export const testThreshold = 30;
