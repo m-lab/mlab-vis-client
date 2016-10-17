@@ -1,6 +1,7 @@
 import React, { Component, PropTypes } from 'react';
 import { connect } from 'react-redux';
 import { URL_REPLACE } from './actions';
+import { BATCH, batchActions } from 'redux-batched-actions';
 
 /**
  * Decorator for a react component class that adds in dispatching for URL actions
@@ -75,7 +76,25 @@ export default function urlConnect(urlHandler, mapStateToProps, mapDispatchToPro
         if (type === URL_REPLACE) {
           const { key, value } = action;
           urlHandler.replaceInQuery(location, key, value);
+        } else if (type === BATCH) {
+          // filter out the url updating ones
+          const { payload } = action;
+          const urlActions = payload.filter(action => action.type === URL_REPLACE);
+          const nonUrlActions = payload.filter(action => action.type !== URL_REPLACE);
 
+          // update the URL with the new values
+          if (urlActions.length) {
+            let newLocation = location;
+            urlActions.forEach(({ key, value }, i) => {
+              // only update the actual URL on the last replacement
+              const updateUrl = i === urlActions.length - 1;
+              newLocation = urlHandler.replaceInQuery(newLocation, key, value, updateUrl);
+            });
+          }
+
+          if (nonUrlActions.length) {
+            dispatch(batchActions(nonUrlActions));
+          }
         // otherwise handle in Redux
         } else {
           dispatch(action, ...other);
