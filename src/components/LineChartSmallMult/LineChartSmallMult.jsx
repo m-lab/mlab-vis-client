@@ -27,7 +27,7 @@ function visProps(props) {
   // padding inside the component
   const padding = {
     top: 25,
-    right: 20,
+    right: 5,
     bottom: 35,
     left: 0,
   };
@@ -39,7 +39,8 @@ function visProps(props) {
   const plotAreaWidth = width - padding.left - padding.right;
 
   // width for an individual small multiple
-  const smallMultWidth = Math.floor(plotAreaWidth / metrics.length) - smallMultMargin;
+  const smallMultWidth = Math.floor(plotAreaWidth / metrics.length) -
+    (smallMultMargin * ((metrics.length - 1) / metrics.length)); // we dont count the margin at the far right
 
   // height for the whole component (add enough height for each row)
   let height = padding.top + padding.bottom;
