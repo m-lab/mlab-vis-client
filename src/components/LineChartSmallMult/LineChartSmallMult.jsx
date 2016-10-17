@@ -347,9 +347,9 @@ class LineChartSmallMult extends PureComponent {
       // determine text anchor based on how close to the edges it is
       const xPosition = xScale(xValue);
       let textAnchor = 'middle';
-      if (xPosition < smallMultWidth / 4) {
+      if (xPosition < smallMultWidth / 4 && metricIndex === 0) {
         textAnchor = 'start';
-      } else if (xPosition > (3 * smallMultWidth) / 4) {
+      } else if (xPosition > (3 * smallMultWidth) / 4 && metricIndex === metrics.length - 1) {
         textAnchor = 'end';
       }
 
