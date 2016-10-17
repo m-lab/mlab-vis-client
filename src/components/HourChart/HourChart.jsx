@@ -10,8 +10,18 @@ import './HourChart.scss';
  * based on the props of the component
  */
 function visProps(props) {
-  const { data, forceZeroMin, height, paddingLeft = 50, paddingRight = 20,
-    width, yExtent, yKey } = props;
+  const {
+    color,
+    data,
+    forceZeroMin,
+    height,
+    paddingLeft = 50,
+    paddingRight = 20,
+    threshold,
+    width,
+    yExtent,
+    yKey
+  } = props;
   let { xScale } = props;
 
   const padding = {
@@ -47,10 +57,15 @@ function visProps(props) {
   const binWidth = (xMax - yMax) / 24;
 
   // function to generate paths for each series
-  const line = d3.line()
+  const lineChunked = d3.lineChunked()
     .curve(d3.curveMonotoneX)
     .x((d) => xScale(d.hour) + (binWidth / 2))
-    .y((d) => yScale(d[yKey]));
+    .y((d) => yScale(d[yKey]))
+    .defined(d => d[yKey] != null && d.count > threshold)
+    .lineStyles({
+      stroke: color,
+      'stroke-width': 1.5,
+    });
 
   return {
     binWidth,
@@ -59,7 +74,7 @@ function visProps(props) {
     plotAreaHeight,
     padding,
     plotAreaWidth,
-    line,
+    lineChunked,
     width,
     xScale,
     yScale,
@@ -97,7 +112,7 @@ class HourChart extends PureComponent {
     highlightHour: PropTypes.number,
     id: React.PropTypes.string,
     inSvg: React.PropTypes.bool,
-    line: PropTypes.func,
+    lineChunked: PropTypes.func,
     onHighlightHour: PropTypes.func,
     overallData: PropTypes.array,
     padding: PropTypes.object,
@@ -341,8 +356,19 @@ class HourChart extends PureComponent {
   }
 
   updateOverallLine() {
-    const { overallData, color } = this.props;
-    this.updateLine(overallData, this.gOverallLine, { stroke: color });
+    const { overallData, lineChunked } = this.props;
+
+    const binding = this.gOverallLine.selectAll('g').data([overallData]);
+
+    // ENTER
+    const entering = binding.enter().append('g');
+
+    // ENTER + UPDATE
+    binding.merge(entering)
+      .call(lineChunked);
+
+    // EXIT
+    binding.exit().remove();
   }
 
   /**
@@ -416,27 +442,6 @@ class HourChart extends PureComponent {
         .text(highlightPoint.hour);
     }
   }
-
-  /**
-   * Render a line
-   */
-  updateLine(dateData, parent, options = {}) {
-    const { line } = this.props;
-
-    // draw the line
-    const lineBinding = parent.selectAll('path').data([dateData]);
-
-    const lineEntering = lineBinding.enter()
-      .append('path')
-      .style('fill', 'none');
-
-    lineBinding.merge(lineEntering)
-      .style('stroke', options.stroke || '#c0c')
-      .attr('d', line);
-
-    lineBinding.exit().remove();
-  }
-
 
   /**
    * The main render method. Defers chart rendering to d3 in `update` and `setup`

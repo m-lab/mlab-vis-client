@@ -4,6 +4,7 @@ import { multiExtent, findClosestSorted, findEqualSorted } from '../../utils/arr
 import { colorsFor } from '../../utils/color';
 import { Legend } from '../../d3-components';
 import addComputedProps from '../../hoc/addComputedProps';
+import { testThreshold } from '../../constants';
 
 import './LineChart.scss';
 
@@ -20,6 +21,7 @@ function visProps(props) {
     height,
     paddingLeft = 50,
     paddingRight = 20,
+    threshold,
     width,
     xExtent,
     xKey,
@@ -107,7 +109,7 @@ function visProps(props) {
     .x((d) => xScale(d[xKey]))
     .y((d) => yScale(d[yKey]))
     .curve(d3.curveMonotoneX)
-    .defined(d => d[yKey] != null)
+    .defined(d => d[yKey] != null && d.count > threshold)
     .accessData(d => d.results)
     .lineStyles({
       stroke: (d) => colors[d.meta[idKey]] || '#aaa',
@@ -185,6 +187,7 @@ class LineChart extends PureComponent {
     plotAreaHeight: PropTypes.number,
     plotAreaWidth: PropTypes.number,
     series: PropTypes.array,
+    threshold: PropTypes.number,
     width: React.PropTypes.number,
     xExtent: PropTypes.array,
     xKey: React.PropTypes.string,
@@ -201,6 +204,7 @@ class LineChart extends PureComponent {
     forceZeroMin: true,
     idKey: 'id',
     labelKey: 'label',
+    threshold: testThreshold,
     xKey: 'x',
     yFormatter: d => d,
     yKey: 'y',

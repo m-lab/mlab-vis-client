@@ -53,6 +53,7 @@ function prepareData(props) {
   const overallData = dataByHour.map(d => ({
     [yKey]: d.overall,
     hour: d.hour,
+    count: d.count,
   })).filter(d => d[yKey] != null);
 
   return {

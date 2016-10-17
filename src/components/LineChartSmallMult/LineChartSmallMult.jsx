@@ -4,6 +4,7 @@ import { multiExtent, findClosestSorted } from '../../utils/array';
 import { colorsFor } from '../../utils/color';
 import { TextWithBackground } from '../../components';
 import addComputedProps from '../../hoc/addComputedProps';
+import { testThreshold } from '../../constants';
 
 import './LineChartSmallMult.scss';
 
@@ -21,6 +22,7 @@ function visProps(props) {
     xKey,
     metrics,
     smallMultHeight,
+    threshold,
   } = props;
   let { xScale } = props;
 
@@ -100,7 +102,7 @@ function visProps(props) {
         .x((d) => xScale(d[xKey]))
         .y((d) => yScale(d[metrics[yIndex].dataKey]))
         .curve(d3.curveMonotoneX)
-        .defined(d => d[metrics[yIndex].dataKey] != null)
+        .defined(d => d[metrics[yIndex].dataKey] != null && d.count > threshold)
         .accessData(d => d.results)
         .lineStyles({
           // first element is baseline value
@@ -155,6 +157,7 @@ class LineChartSmallMult extends PureComponent {
     smallMultHeight: PropTypes.number,
     smallMultMargin: PropTypes.number,
     smallMultWidth: PropTypes.number,
+    threshold: PropTypes.number,
     width: React.PropTypes.number,
     xExtent: PropTypes.array,
     xKey: PropTypes.string,
@@ -168,6 +171,7 @@ class LineChartSmallMult extends PureComponent {
     showBaseline: true,
     xKey: 'date',
     metrics: [],
+    threshold: testThreshold,
   }
 
   constructor(props) {
