@@ -9,6 +9,8 @@ import {
   decodeJson,
   encodeArray,
   decodeArray,
+  encodeSet,
+  decodeSet,
   encodeObject,
   decodeObject,
   encode,
@@ -99,6 +101,22 @@ describe('utils', () => {
     describe('decodeArray', () => {
       it('produces the correct value', () => {
         const output = decodeArray('a_b_c');
+        const expectedOutput = ['a', 'b', 'c'];
+
+        expect(output).to.deep.equal(expectedOutput);
+      });
+    });
+
+    describe('encodeSet', () => {
+      it('produces the correct value', () => {
+        const input = ['a', 'b', 'c', 'b'];
+        expect(encodeSet(input)).to.equal('a_b_c');
+      });
+    });
+
+    describe('decodeSet', () => {
+      it('produces the correct value', () => {
+        const output = decodeSet('a_b_c_b');
         const expectedOutput = ['a', 'b', 'c'];
 
         expect(output).to.deep.equal(expectedOutput);

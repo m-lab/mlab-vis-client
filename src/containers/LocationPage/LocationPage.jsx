@@ -57,7 +57,7 @@ const urlQueryConfig = {
   startDate: { type: 'date', urlKey: 'start', defaultValue: moment('2015-10-1') },
   endDate: { type: 'date', urlKey: 'end', defaultValue: moment('2015-11-1') },
   timeAggregation: { type: 'string', urlKey: 'aggr' },
-  selectedClientIspIds: { type: 'array', urlKey: 'isps', persist: false },
+  selectedClientIspIds: { type: 'set', urlKey: 'isps', persist: false },
 };
 const urlHandler = new UrlHandler(urlQueryConfig, browserHistory);
 
