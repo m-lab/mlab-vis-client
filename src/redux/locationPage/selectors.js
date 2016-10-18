@@ -3,7 +3,7 @@
  */
 import { createSelector } from 'reselect';
 import { metrics } from '../../constants';
-import { mergeStatuses, status } from '../status';
+import status from '../status';
 import { colorsFor } from '../../utils/color';
 import timeAggregationFromDates from '../../utils/timeAggregationFromDates';
 import * as LocationsSelectors from '../locations/selectors';
@@ -170,7 +170,7 @@ export const getLocationClientIspTimeSeriesStatus = createSelector(
  */
 export const getTimeSeriesStatus = createSelector(
   getLocationClientIspTimeSeriesStatus, LocationsSelectors.getLocationTimeSeriesStatus,
-  (ispStatus, locationStatus) => mergeStatuses(ispStatus, locationStatus));
+  (ispStatus, locationStatus) => status([ispStatus, locationStatus]));
 
 
 /**
@@ -242,6 +242,14 @@ export const getSummaryData = createSelector(
   }
 );
 
+
+/**
+ * Selector to get the location hourly data
+ */
+export const getLocationHourly = createSelector(
+  LocationsSelectors.getLocationHourly, LocationsSelectors.getLocationHourlyStatus,
+  (data, status) => ({ data, status }));
+
 /**
  * Selector to get the data objects for location+client ISP hourly data
  * for the selected client ISPs
@@ -268,8 +276,7 @@ export const getLocationClientIspHourly = createSelector(
       return undefined;
     }
 
-    return hourlyObjects.map(hourly => hourly && hourly.data)
-      .filter(hourly => hourly != null);
+    return hourlyObjects.map(hourly => ({ data: hourly && hourly.data, status: status(hourly) }));
   }
 );
 

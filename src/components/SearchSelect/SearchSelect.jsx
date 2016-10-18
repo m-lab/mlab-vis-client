@@ -38,6 +38,7 @@ export default class SearchSelect extends PureComponent {
 
     // bind handlers
     this.onAdd = this.onAdd.bind(this);
+    this.onClear = this.onClear.bind(this);
     this.onRemove = this.onRemove.bind(this);
   }
 
@@ -63,6 +64,14 @@ export default class SearchSelect extends PureComponent {
 
     if (onChange) {
       onChange(newValues);
+    }
+  }
+
+  onClear() {
+    const { onChange } = this.props;
+
+    if (onChange) {
+      onChange([]);
     }
   }
 
@@ -104,6 +113,19 @@ export default class SearchSelect extends PureComponent {
   }
 
   /**
+   * Renders the clear selection control if there are items selected.
+   */
+  renderClearSelection(selected) {
+    if (!selected || !selected.length) {
+      return null;
+    }
+
+    return (
+      <button className="clear-selection-btn" onClick={this.onClear}>Clear</button>
+    );
+  }
+
+  /**
    * The main render method.
    * @return {React.Component} The rendered component
    */
@@ -125,13 +147,16 @@ export default class SearchSelect extends PureComponent {
       <div className="SearchSelect">
         <Row>
           <Col md={colSize}>
-            <SearchComponent
-              disabled={disabled}
-              onSuggestionSelected={this.onAdd}
-              exclude={selected}
-              searchFilterItemIds={searchFilterItemIds}
-              searchFilterType={searchFilterType}
-            />
+            <div className="search-container">
+              <SearchComponent
+                disabled={disabled}
+                onSuggestionSelected={this.onAdd}
+                exclude={selected}
+                searchFilterItemIds={searchFilterItemIds}
+                searchFilterType={searchFilterType}
+              />
+              {this.renderClearSelection(selected)}
+            </div>
           </Col>
           <Col md={colSize}>
             {this.renderSelectedItems(selected)}

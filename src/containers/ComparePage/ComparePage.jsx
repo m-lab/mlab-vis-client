@@ -1,6 +1,6 @@
 import React, { PureComponent, PropTypes } from 'react';
+import { batchActions } from 'redux-batched-actions';
 import Helmet from 'react-helmet';
-import moment from 'moment';
 import { browserHistory, withRouter } from 'react-router';
 import momentPropTypes from 'react-moment-proptypes';
 import Row from 'react-bootstrap/lib/Row';
@@ -18,8 +18,9 @@ import * as LocationTransitIspActions from '../../redux/locationTransitIsp/actio
 import * as ClientIspTransitIspActions from '../../redux/clientIspTransitIsp/actions';
 import * as LocationClientIspTransitIspActions from '../../redux/locationClientIspTransitIsp/actions';
 
+import { multiMergeMetaIntoResults } from '../../utils/exports';
 import timeAggregationFromDates from '../../utils/timeAggregationFromDates';
-import { facetTypes } from '../../constants';
+import { facetTypes, defaultStartDate, defaultEndDate } from '../../constants';
 
 import {
   ChartExportControls,
@@ -46,13 +47,12 @@ const urlQueryConfig = {
   breakdownBy: { type: 'string', defaultValue: 'filter1', urlKey: 'breakdownBy' },
 
   // selected time
-  // TODO: change defaults to more recent time period when data is up-to-date
-  startDate: { type: 'date', urlKey: 'start', defaultValue: moment('2015-10-1') },
-  endDate: { type: 'date', urlKey: 'end', defaultValue: moment('2015-11-1') },
+  startDate: { type: 'date', urlKey: 'start', defaultValue: defaultStartDate },
+  endDate: { type: 'date', urlKey: 'end', defaultValue: defaultEndDate },
   timeAggregation: { type: 'string', urlKey: 'aggr' },
-  facetItemIds: { type: 'array', urlKey: 'selected', persist: false },
-  filter1Ids: { type: 'array', urlKey: 'filter1', persist: false },
-  filter2Ids: { type: 'array', urlKey: 'filter2', persist: false },
+  facetItemIds: { type: 'set', urlKey: 'selected', persist: false },
+  filter1Ids: { type: 'set', urlKey: 'filter1', persist: false },
+  filter2Ids: { type: 'set', urlKey: 'filter2', persist: false },
 };
 const urlHandler = new UrlHandler(urlQueryConfig, browserHistory);
 
@@ -134,6 +134,7 @@ class ComparePage extends PureComponent {
     this.onHighlightTimeSeriesLine = this.onHighlightTimeSeriesLine.bind(this);
     this.onTimeAggregationChange = this.onTimeAggregationChange.bind(this);
     this.onViewMetricChange = this.onViewMetricChange.bind(this);
+    this.onReset = this.onReset.bind(this);
   }
 
   componentDidMount() {
@@ -326,6 +327,16 @@ class ComparePage extends PureComponent {
   }
 
   /**
+   * Callback for when reset is clicked
+   */
+  onReset() {
+    const { facetType, router } = this.props;
+    const path = `/compare/${facetType.value}`;
+
+    router.push({ pathname: path });
+  }
+
+  /**
    * Callback for time aggregation checkbox
    */
   onTimeAggregationChange(value) {
@@ -367,16 +378,24 @@ class ComparePage extends PureComponent {
    */
   onDateRangeChange(newStartDate, newEndDate) {
     const { dispatch, autoTimeAggregation, startDate, endDate } = this.props;
+    const actions = [];
     // if we are auto-detecting time aggregation, set it based on the dates
     if (autoTimeAggregation) {
-      dispatch(LocationPageActions.changeTimeAggregation(timeAggregationFromDates(newStartDate, newEndDate)));
+      actions.push(ComparePageActions.changeTimeAggregation(timeAggregationFromDates(newStartDate, newEndDate)));
     }
 
-    if ((!startDate && newStartDate) || (newStartDate && !newStartDate.isSame(startDate, 'day'))) {
-      dispatch(ComparePageActions.changeStartDate(newStartDate.toDate()));
+    const changedStartDate = (!startDate && newStartDate) || (newStartDate && !newStartDate.isSame(startDate, 'day'));
+    const changedEndDate = (!endDate && newEndDate) || (newEndDate && !newEndDate.isSame(endDate, 'day'));
+
+    if (changedStartDate) {
+      actions.push(ComparePageActions.changeStartDate(newStartDate.toDate()));
     }
-    if ((!endDate && newEndDate) || (newEndDate && !newEndDate.isSame(endDate, 'day'))) {
-      dispatch(ComparePageActions.changeEndDate(newEndDate.toDate()));
+    if (changedEndDate) {
+      actions.push(ComparePageActions.changeEndDate(newEndDate.toDate()));
+    }
+
+    if (actions.length) {
+      dispatch(batchActions(actions));
     }
   }
 
@@ -603,8 +622,10 @@ class ComparePage extends PureComponent {
           />
         </AutoWidth>
         <ChartExportControls
+          className="for-line-chart"
           chartId={chartId}
           data={seriesData}
+          prepareForCsv={multiMergeMetaIntoResults}
           filename={`compare_${viewMetric.value}_${chartId}`}
         />
       </StatusWrapper>
@@ -743,8 +764,11 @@ class ComparePage extends PureComponent {
               <Col md={3}>
                 <h2>{pageTitle}</h2>
               </Col>
-              <Col md={9}>
+              <Col md={8}>
                 {this.renderTimeRangeSelector()}
+              </Col>
+              <Col md={1}>
+                <button className="btn btn-default" onClick={this.onReset}>Reset</button>
               </Col>
             </Row>
           </header>

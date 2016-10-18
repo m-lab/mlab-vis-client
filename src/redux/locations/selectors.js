@@ -4,7 +4,7 @@
 
 // import { createSelector } from 'reselect';
 import { initialState } from './reducer';
-import { status } from '../status';
+import status from '../status';
 
 // ----------------------
 // Input Selectors / Helpers

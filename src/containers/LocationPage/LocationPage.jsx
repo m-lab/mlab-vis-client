@@ -1,6 +1,6 @@
 import React, { PureComponent, PropTypes } from 'react';
 import Helmet from 'react-helmet';
-import moment from 'moment';
+import { batchActions } from 'redux-batched-actions';
 import { browserHistory } from 'react-router';
 import momentPropTypes from 'react-moment-proptypes';
 import Row from 'react-bootstrap/lib/Row';
@@ -14,7 +14,8 @@ import * as LocationsActions from '../../redux/locations/actions';
 import * as LocationClientIspActions from '../../redux/locationClientIsp/actions';
 
 import timeAggregationFromDates from '../../utils/timeAggregationFromDates';
-import { metrics } from '../../constants';
+import { multiMergeMetaIntoResults, mergeMetaIntoResults } from '../../utils/exports';
+import { metrics, defaultStartDate, defaultEndDate } from '../../constants';
 
 import {
   ChartExportControls,
@@ -51,11 +52,10 @@ const urlQueryConfig = {
   showRegionalValues: { type: 'boolean', defaultValue: false, urlKey: 'regional' },
 
   // selected time
-  // TODO: change defaults to more recent time period when data is up-to-date
-  startDate: { type: 'date', urlKey: 'start', defaultValue: moment('2015-10-1') },
-  endDate: { type: 'date', urlKey: 'end', defaultValue: moment('2015-11-1') },
+  startDate: { type: 'date', urlKey: 'start', defaultValue: defaultStartDate },
+  endDate: { type: 'date', urlKey: 'end', defaultValue: defaultEndDate },
   timeAggregation: { type: 'string', urlKey: 'aggr' },
-  selectedClientIspIds: { type: 'array', urlKey: 'isps', persist: false },
+  selectedClientIspIds: { type: 'set', urlKey: 'isps', persist: false },
 };
 const urlHandler = new UrlHandler(urlQueryConfig, browserHistory);
 
@@ -76,10 +76,9 @@ function mapStateToProps(state, propsWithUrl) {
     highlightHourly: LocationPageSelectors.getHighlightHourly(state, propsWithUrl),
     highlightTimeSeriesDate: LocationPageSelectors.getHighlightTimeSeriesDate(state, propsWithUrl),
     highlightTimeSeriesLine: LocationPageSelectors.getHighlightTimeSeriesLine(state, propsWithUrl),
-    hourlyStatus: LocationsSelectors.getLocationHourlyStatus(state, propsWithUrl),
     locationInfo: LocationsSelectors.getLocationInfo(state, propsWithUrl),
     locationAndClientIspTimeSeries: LocationPageSelectors.getLocationAndClientIspTimeSeries(state, propsWithUrl),
-    locationHourly: LocationsSelectors.getLocationHourly(state, propsWithUrl),
+    locationHourly: LocationPageSelectors.getLocationHourly(state, propsWithUrl),
     locationTimeSeries: LocationsSelectors.getLocationTimeSeries(state, propsWithUrl),
     selectedClientIspInfo: LocationPageSelectors.getLocationSelectedClientIspInfo(state, propsWithUrl),
     summary: LocationPageSelectors.getSummaryData(state, propsWithUrl),
@@ -103,7 +102,6 @@ class LocationPage extends PureComponent {
     highlightHourly: PropTypes.number,
     highlightTimeSeriesDate: PropTypes.object,
     highlightTimeSeriesLine: PropTypes.object,
-    hourlyStatus: PropTypes.string,
     location: PropTypes.object, // route location
     locationAndClientIspTimeSeries: PropTypes.array,
     locationHourly: PropTypes.object,
@@ -288,16 +286,24 @@ class LocationPage extends PureComponent {
    */
   onDateRangeChange(newStartDate, newEndDate) {
     const { dispatch, autoTimeAggregation, startDate, endDate } = this.props;
+    const actions = [];
     // if we are auto-detecting time aggregation, set it based on the dates
     if (autoTimeAggregation) {
-      dispatch(LocationPageActions.changeTimeAggregation(timeAggregationFromDates(newStartDate, newEndDate)));
+      actions.push(LocationPageActions.changeTimeAggregation(timeAggregationFromDates(newStartDate, newEndDate)));
     }
 
-    if ((!startDate && newStartDate) || (newStartDate && !newStartDate.isSame(startDate, 'day'))) {
-      dispatch(LocationPageActions.changeStartDate(newStartDate.toDate()));
+    const changedStartDate = (!startDate && newStartDate) || (newStartDate && !newStartDate.isSame(startDate, 'day'));
+    const changedEndDate = (!endDate && newEndDate) || (newEndDate && !newEndDate.isSame(endDate, 'day'));
+
+    if (changedStartDate) {
+      actions.push(LocationPageActions.changeStartDate(newStartDate.toDate()));
     }
-    if ((!endDate && newEndDate) || (newEndDate && !newEndDate.isSame(endDate, 'day'))) {
-      dispatch(LocationPageActions.changeEndDate(newEndDate.toDate()));
+    if (changedEndDate) {
+      actions.push(LocationPageActions.changeEndDate(newEndDate.toDate()));
+    }
+
+    if (actions.length) {
+      dispatch(batchActions(actions));
     }
   }
 
@@ -458,8 +464,10 @@ class LocationPage extends PureComponent {
             />
           </AutoWidth>
           <ChartExportControls
+            className="for-line-chart"
             chartId={chartId}
-            data={locationTimeSeries && locationTimeSeries.results}
+            data={[...clientIspTimeSeries, locationTimeSeries]}
+            prepareForCsv={multiMergeMetaIntoResults}
             filename={`${locationId}_${viewMetric.value}_${chartId}`}
           />
         </StatusWrapper>
@@ -502,15 +510,24 @@ class LocationPage extends PureComponent {
         </header>
         <Row>
           {this.renderHourChart(locationHourly)}
-          {clientIspHourly.map(hourly => this.renderHourChart(hourly, colors[hourly.meta.id]))}
+          {clientIspHourly.map((hourly, i) => [
+            this.renderHourChart(hourly, colors[hourly.data && hourly.data.meta.id]),
+            i % 2 === 0 ? <div className="clearfix" key={i} /> : null,
+          ])}
         </Row>
       </div>
     );
   }
 
-  renderHourChart(hourlyData, color) {
-    const { hourlyStatus, highlightHourly, locationId, viewMetric } = this.props;
+  renderHourChart(hourly, color) {
+    const { highlightHourly, locationId, viewMetric } = this.props;
     const extentKey = this.extentKey(viewMetric);
+
+    if (!hourly) {
+      return null;
+    }
+
+    const { data: hourlyData, status: hourlyStatus } = hourly;
 
     if (!hourlyData || !hourlyData.meta) {
       return null;
@@ -539,8 +556,10 @@ class LocationPage extends PureComponent {
               />
             </AutoWidth>
             <ChartExportControls
+              className="for-hour-chart"
               chartId={chartId}
-              data={hourlyData.results}
+              data={hourlyData}
+              prepareForCsv={mergeMetaIntoResults}
               filename={`${locationId}${id === locationId ? '' : `_${id}`}_${viewMetric.value}_${chartId}`}
             />
           </StatusWrapper>

@@ -82,8 +82,8 @@ export default class UrlHandler {
       },
     };
 
-    // remove if it is an empty string when encoded
-    if (encoded === '') {
+    // remove if it is an empty string when encoded unless it is an empty array
+    if (encoded === '' && !Array.isArray(value)) {
       delete newLocation.query[urlKey];
     }
 

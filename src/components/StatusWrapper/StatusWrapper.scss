@@ -1,8 +1,49 @@
+$spinner-width: 24px;
+$spinner-transition-time: 1s;
+
 .status-wrapper {
-  transition: opacity 200ms, background-color 200ms;
+  position: relative;
+
+  .status-wrapper-inner {
+    transition: opacity 200ms, background-color 200ms;
+  }
+
+  .loading-spinner {
+    pointer-events: none;
+    position: absolute;
+    top: 50%;
+    right: 50%;
+    width: $spinner-width;
+    height: $spinner-width;
+    margin-right: -($spinner-width / 2);
+    margin-top: -($spinner-width / 2);
+    opacity: 0;
+    transition: opacity 200ms;
+  }
 
   &.status-loading, &.status-unknown {
-    opacity: 0.2;
+    .status-wrapper-inner {
+      opacity: 0.2;
+    }
+
+    .loading-spinner {
+      opacity: 1;
+    }
+  }
+
+
+  &.status-partially-loaded {
+    .loading-spinner {
+      top: $spinner-width;
+      right: $spinner-width;
+      transition-timing-function: ease-in;
+      transition: top $spinner-transition-time, right $spinner-transition-time;
+      opacity: 1;
+    }
+
+    .status-wrapper-inner {
+      opacity: 1;
+    }
   }
 
   &.status-error {

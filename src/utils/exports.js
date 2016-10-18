@@ -2,6 +2,7 @@
  * Module for handling exporting data (e.g. as JSON or CSV)
  */
 import { encodeDate } from './serialization';
+import moment from 'moment';
 
 /**
  * Create a Blob object from the data string
@@ -63,7 +64,7 @@ export function createCsv(data) {
       // escape double quotes for strings and wrap them in double quotes
       if (typeof value === 'string') {
         return `"${value.replace(/"/g, '""')}"`;
-      } else if (value instanceof Date) {
+      } else if (value instanceof Date || moment.isMoment(value)) {
         return encodeDate(value);
       }
 
@@ -73,4 +74,23 @@ export function createCsv(data) {
 
   // join all lines with new line character to make one big string and return it
   return `${[columns.join(','), ...lines].join('\n')}\n`;
+}
+
+/**
+ * Take metrics data of form { meta, results: [...] } and flatten it
+ * to integrate meta into each result item
+ */
+export function mergeMetaIntoResults({ meta = {}, results = [] } = {}) {
+  return results.map(d => ({ ...meta, ...d }));
+}
+
+/**
+ * Applies mergeMetaIntoResults into multiple datasets and flattens the result
+ * into a single array.
+ */
+export function multiMergeMetaIntoResults(datasets = []) {
+  return datasets.filter(d => d != null).reduce((combined, dataset) => {
+    const flattened = mergeMetaIntoResults(dataset);
+    return combined.concat(flattened);
+  }, []);
 }
