@@ -69,3 +69,12 @@ export const facetTypes = [
     labelKey: 'server_asn_name',
   },
 ];
+
+// Find and replace on ISP names.
+export const ispLabelReplacements = [
+  { find: /(d\/\s*b\s*\/a|)/, replace: '' }, // anywhere in the label
+  { find: /\s+(LLC|INC|Inc\.|L\.L\.C\.|LTD|Ltd\.)$/i, replace: '' }, // english suffixes
+  { find: /(-AS|-ASN)$/, replace: '' }, // international suffixes
+  { find: /^(http:\/\/)/, replace: '' }, // prefixes
+  { find: /\s*(,|\.)\s*$/, replace: '' }, //ending punctuation
+];

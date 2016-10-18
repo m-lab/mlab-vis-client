@@ -1,5 +1,5 @@
 import d3 from 'd3';
-import { metrics } from '../constants';
+import { metrics, ispLabelReplacements } from '../constants';
 import { decodeDate } from '../utils/serialization';
 
 // ----------------
@@ -28,6 +28,19 @@ export function transform(...transformFuncs) {
 
     return body;
   };
+}
+
+/**
+ * Performs find and replace of strings to clean up ISP labels
+ * @param {String} ISP label
+ * @return {String} Cleaned ISP label
+ */
+function cleanIspLabel(label) {
+  ispLabelReplacements.forEach((r) => {
+    label = label.replace(r.find, r.replace);
+  });
+
+  return label;
 }
 
 /**
@@ -208,7 +221,7 @@ export function transformClientIspSearchResults(body) {
   if (body.results) {
     const results = body.results;
     results.forEach(d => {
-      d.meta.label = d.meta.client_asn_name;
+      d.meta.label = cleanIspLabel(d.meta.client_asn_name);
     });
 
     // add new entries to the body object
@@ -243,6 +256,7 @@ export function transformTransitIspSearchResults(body) {
   return body;
 }
 
+
 /**
  * Transforms client ISP meta to have label
  *
@@ -259,6 +273,7 @@ export function transformClientIspLabel(body) {
     if (!meta.client_asn_name || !meta.client_asn_name.length) {
       meta.client_asn_name = meta.client_asn_number;
     }
+    meta.client_asn_name = cleanIspLabel(meta.client_asn_name);
     meta.label = meta.client_asn_name;
   }
 
@@ -410,6 +425,7 @@ export function transformTopClientIsps(body) {
   if (body.results) {
     body.results = body.results.map(d => {
       const { meta, data } = d;
+      meta.client_asn_name = cleanIspLabel(meta.client_asn_name);
       meta.id = meta.client_asn_number;
       meta.label = meta.client_asn_name;
 
@@ -439,6 +455,7 @@ export function transformTopTransitIsps(body) {
     body.results = body.results.map(d => {
       const { meta, data } = d;
       meta.id = meta.server_asn_number;
+      meta.server_asn_name = cleanIspLabel(meta.server_asn_name);
       meta.label = meta.server_asn_name;
 
       // ensure we have a test_count value
@@ -498,6 +515,30 @@ export function transformTopLocations(body) {
 }
 
 /**
+ * Transforms transit ISP meta to have label
+ *
+ * - adds in a `label` property to meta
+ *
+ * @param {Object} body The response body
+ * @return {Object} The transformed response body
+ */
+export function transformTransitIspLabel(body) {
+  // NOTE: modifying body directly means it modifies what is stored in the API cache
+  if (body.meta) {
+    const { meta } = body;
+
+    if (!meta.server_asn_name || !meta.server_asn_name.length) {
+      meta.server_asn_name = meta.server_asn_number;
+    }
+
+    meta.server_asn_name = cleanIspLabel(meta.server_asn_name);
+    meta.label = meta.server_asn_name;
+  }
+
+  return body;
+}
+
+/**
  * Transforms the response from client ISP info before passing it into
  * the application.
  *
@@ -525,29 +566,6 @@ export function transformTransitIspInfo(body) {
   // NOTE: modifying body directly means it modifies what is stored in the API cache
   if (body.meta) {
     transformTransitIspLabel(body);
-  }
-
-  return body;
-}
-
-
-/**
- * Transforms transit ISP meta to have label
- *
- * - adds in a `label` property to meta
- *
- * @param {Object} body The response body
- * @return {Object} The transformed response body
- */
-export function transformTransitIspLabel(body) {
-  // NOTE: modifying body directly means it modifies what is stored in the API cache
-  if (body.meta) {
-    const { meta } = body;
-
-    if (!meta.server_asn_name || !meta.server_asn_name.length) {
-      meta.server_asn_name = meta.server_asn_number;
-    }
-    meta.label = meta.server_asn_name;
   }
 
   return body;
