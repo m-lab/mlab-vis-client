@@ -241,6 +241,9 @@ class CountChart extends PureComponent {
 
     const d3Color = d3.color(color);
     const lighterColor = d3Color ? d3Color.brighter(0.3) : undefined;
+    const belowThresholdFill = d3.color(lighterColor);
+    belowThresholdFill.opacity = 0.2;
+    const belowThresholdStroke = belowThresholdFill.darker(0.3);
 
     const binding = root.selectAll('rect').data(data);
 
@@ -252,8 +255,8 @@ class CountChart extends PureComponent {
         .attr('width', binWidth)
         .attr('height', 0)
         .style('shape-rendering', 'crispEdges')
-        .style('fill', d => (d.count < threshold ? '#fff' : lighterColor))
-        .style('stroke', d => (d.count < threshold ? '#ddd' : color));
+        .style('fill', d => (d.count < threshold ? belowThresholdFill : lighterColor))
+        .style('stroke', d => (d.count < threshold ? belowThresholdStroke : color));
 
     if (addHandlers) {
       entering
@@ -268,9 +271,8 @@ class CountChart extends PureComponent {
       .transition()
         .attr('y', d => yScale(d[yKey] || 0))
         .attr('height', d => plotAreaHeight - yScale(d[yKey] || 0))
-        .style('fill', d => (d.count < threshold ? '#fff' : lighterColor))
-        .style('stroke', d => (d.count < threshold ? '#ddd' : color));
-
+        .style('fill', d => (d.count < threshold ? belowThresholdFill : lighterColor))
+        .style('stroke', d => (d.count < threshold ? belowThresholdStroke : color));
 
     // EXIT
     binding.exit()
