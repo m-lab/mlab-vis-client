@@ -34,7 +34,7 @@ export default class Html extends Component {
 
     return [
       <script key="leaflet" src="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.0.0-beta.2/leaflet.js" charSet="UTF-8" />,
-      <script key="tangram" src="https://mapzen.com/tangram/0.6/tangram.min.js" charSet="UTF-8" />,
+      <script key="tangram" src="https://mapzen.com/tangram/0.8/tangram.min.js" charSet="UTF-8" />,
       <script key="main" src={assets.javascript.main} charSet="UTF-8" />,
     ];
   }
