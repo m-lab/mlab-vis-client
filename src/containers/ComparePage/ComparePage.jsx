@@ -542,7 +542,7 @@ class ComparePage extends PureComponent {
   }
 
   renderInputSection() {
-    const { facetItemIds, facetItemInfos, facetType, filter1Ids, filter1Infos,
+    const { colors, facetItemIds, facetItemInfos, facetType, filter1Ids, filter1Infos,
       filter2Ids, filter2Infos, filterTypes, topFilter1, topFilter2 } = this.props;
 
     return (
@@ -552,6 +552,7 @@ class ComparePage extends PureComponent {
         </Col>
         <Col md={9}>
           <CompareInputPanel
+            colors={colors}
             facetItemIds={facetItemIds}
             facetItemInfos={facetItemInfos}
             facetType={facetType}

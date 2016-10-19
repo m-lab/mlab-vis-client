@@ -17,6 +17,7 @@ import './SearchSelect.scss';
  */
 export default class SearchSelect extends PureComponent {
   static propTypes = {
+    colors: PropTypes.object,
     disabled: PropTypes.bool,
     onChange: PropTypes.func,
     orientation: PropTypes.oneOf(['horizontal', 'vertical']),
@@ -102,7 +103,8 @@ export default class SearchSelect extends PureComponent {
    * @return {React.Component}
    */
   renderSelectedItems(selected) {
-    const colors = this.getColors(selected);
+    const { colors } = this.props;
+
     return (
       <div className="active-items">
         {selected.map((item) =>
