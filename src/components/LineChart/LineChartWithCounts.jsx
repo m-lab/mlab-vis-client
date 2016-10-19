@@ -5,6 +5,7 @@ import { colorsFor } from '../../utils/color';
 import { LineChart, CountChart } from '../../components';
 import { multiExtent } from '../../utils/array';
 import addComputedProps from '../../hoc/addComputedProps';
+import { testThreshold } from '../../constants';
 
 /**
  * Filter the data
@@ -156,7 +157,7 @@ class LineChartWithCounts extends PureComponent {
   }
 
   static defaultProps = {
-    threshold: 30,
+    threshold: testThreshold,
     idKey: 'id',
     labelKey: 'label',
   }

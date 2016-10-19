@@ -2,8 +2,10 @@ import React, { PureComponent, PropTypes } from 'react';
 import d3 from 'd3';
 import { multiExtent, findClosestSorted, findEqualSorted } from '../../utils/array';
 import { colorsFor } from '../../utils/color';
+import { standardLineChunkedDefinitions } from '../../utils/chart';
 import { Legend } from '../../d3-components';
 import addComputedProps from '../../hoc/addComputedProps';
+import { testThreshold } from '../../constants';
 
 import './LineChart.scss';
 
@@ -20,6 +22,7 @@ function visProps(props) {
     height,
     paddingLeft = 50,
     paddingRight = 20,
+    threshold,
     width,
     xExtent,
     xKey,
@@ -112,7 +115,10 @@ function visProps(props) {
     .lineStyles({
       stroke: (d) => colors[d.meta[idKey]] || '#aaa',
       'stroke-width': 1.5,
-    });
+    })
+    .chunk(d => (d.count > threshold ? 'line' : 'below-threshold'))
+    .chunkDefinitions(standardLineChunkedDefinitions());
+
 
   // function to generate paths for each annotation series
   const annotationLineChunked = d3.lineChunked()
@@ -124,7 +130,9 @@ function visProps(props) {
     .lineStyles({
       stroke: '#aaa',
       'stroke-width': 1,
-    });
+    })
+    .chunk(d => (d.count > threshold ? 'line' : 'below-threshold'))
+    .chunkDefinitions(standardLineChunkedDefinitions());
 
 
   return {
@@ -185,6 +193,7 @@ class LineChart extends PureComponent {
     plotAreaHeight: PropTypes.number,
     plotAreaWidth: PropTypes.number,
     series: PropTypes.array,
+    threshold: PropTypes.number,
     width: React.PropTypes.number,
     xExtent: PropTypes.array,
     xKey: React.PropTypes.string,
@@ -201,6 +210,7 @@ class LineChart extends PureComponent {
     forceZeroMin: true,
     idKey: 'id',
     labelKey: 'label',
+    threshold: testThreshold,
     xKey: 'x',
     yFormatter: d => d,
     yKey: 'y',

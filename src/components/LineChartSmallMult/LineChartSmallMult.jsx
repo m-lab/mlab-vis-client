@@ -2,8 +2,10 @@ import React, { PureComponent, PropTypes } from 'react';
 import d3 from 'd3';
 import { multiExtent, findClosestSorted } from '../../utils/array';
 import { colorsFor } from '../../utils/color';
+import { standardLineChunkedDefinitions } from '../../utils/chart';
 import { TextWithBackground } from '../../components';
 import addComputedProps from '../../hoc/addComputedProps';
+import { testThreshold } from '../../constants';
 
 import './LineChartSmallMult.scss';
 
@@ -21,6 +23,7 @@ function visProps(props) {
     xKey,
     metrics,
     smallMultHeight,
+    threshold,
   } = props;
   let { xScale } = props;
 
@@ -107,6 +110,8 @@ function visProps(props) {
           stroke: (d, i) => ((showBaseline && i === 0) ? '#bbb' : colors[d.meta.client_asn_number]),
           'stroke-width': (d, i) => ((showBaseline && i === 0) ? 1 : 1.5),
         })
+        .chunk(d => (d.count > threshold ? 'line' : 'below-threshold'))
+        .chunkDefinitions(standardLineChunkedDefinitions())
     );
   }
 
@@ -155,6 +160,7 @@ class LineChartSmallMult extends PureComponent {
     smallMultHeight: PropTypes.number,
     smallMultMargin: PropTypes.number,
     smallMultWidth: PropTypes.number,
+    threshold: PropTypes.number,
     width: React.PropTypes.number,
     xExtent: PropTypes.array,
     xKey: PropTypes.string,
@@ -168,6 +174,7 @@ class LineChartSmallMult extends PureComponent {
     showBaseline: true,
     xKey: 'date',
     metrics: [],
+    threshold: testThreshold,
   }
 
   constructor(props) {

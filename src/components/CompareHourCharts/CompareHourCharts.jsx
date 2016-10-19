@@ -60,7 +60,6 @@ export default class CompareHourCharts extends PureComponent {
             highlightHour={highlightHourly}
             id={chartId}
             onHighlightHour={onHighlightHourly}
-            threshold={30}
             yAxisLabel={viewMetric.label}
             yAxisUnit={viewMetric.unit}
             yExtent={hourlyData.extents[viewMetric.dataKey]}

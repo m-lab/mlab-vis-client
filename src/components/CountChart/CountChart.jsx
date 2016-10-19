@@ -1,6 +1,7 @@
 import React, { PureComponent, PropTypes } from 'react';
 import d3 from 'd3';
 import addComputedProps from '../../hoc/addComputedProps';
+import { testThreshold } from '../../constants';
 
 import './CountChart.scss';
 
@@ -94,6 +95,7 @@ class CountChart extends PureComponent {
     padding: PropTypes.object,
     plotAreaHeight: PropTypes.number,
     plotAreaWidth: PropTypes.number,
+    threshold: PropTypes.number,
     width: PropTypes.number,
     xExtent: PropTypes.array,
     xKey: React.PropTypes.string,
@@ -109,6 +111,7 @@ class CountChart extends PureComponent {
     yKey: 'count',
     highlightColor: '#aaa',
     maxBinWidth: 40,
+    threshold: testThreshold,
   };
 
   /**
@@ -233,10 +236,14 @@ class CountChart extends PureComponent {
       yScale,
       binWidth,
       plotAreaHeight,
+      threshold,
     } = this.props;
 
     const d3Color = d3.color(color);
     const lighterColor = d3Color ? d3Color.brighter(0.3) : undefined;
+    const belowThresholdFill = d3.color(lighterColor);
+    belowThresholdFill.opacity = 0.2;
+    const belowThresholdStroke = belowThresholdFill.darker(0.3);
 
     const binding = root.selectAll('rect').data(data);
 
@@ -248,8 +255,8 @@ class CountChart extends PureComponent {
         .attr('width', binWidth)
         .attr('height', 0)
         .style('shape-rendering', 'crispEdges')
-        .style('fill', d => (d.belowThreshold ? '#fff' : lighterColor))
-        .style('stroke', d => (d.belowThreshold ? '#ddd' : color));
+        .style('fill', d => (d.count < threshold ? belowThresholdFill : lighterColor))
+        .style('stroke', d => (d.count < threshold ? belowThresholdStroke : color));
 
     if (addHandlers) {
       entering
@@ -264,9 +271,8 @@ class CountChart extends PureComponent {
       .transition()
         .attr('y', d => yScale(d[yKey] || 0))
         .attr('height', d => plotAreaHeight - yScale(d[yKey] || 0))
-        .style('fill', d => (d.belowThreshold ? '#fff' : lighterColor))
-        .style('stroke', d => (d.belowThreshold ? '#ddd' : color));
-
+        .style('fill', d => (d.count < threshold ? belowThresholdFill : lighterColor))
+        .style('stroke', d => (d.count < threshold ? belowThresholdStroke : color));
 
     // EXIT
     binding.exit()

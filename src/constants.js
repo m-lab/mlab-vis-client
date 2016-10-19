@@ -70,6 +70,8 @@ export const facetTypes = [
   },
 ];
 
+export const testThreshold = 30;
+
 // Find and replace on ISP names.
 export const ispLabelReplacements = [
   { find: /(d\/\s*b\s*\/a|)/, replace: '' }, // anywhere in the label
