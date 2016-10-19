@@ -84,7 +84,8 @@ function visProps(props) {
   }
   let yDomain = yExtent;
   if (!yDomain) {
-    yDomain = multiExtent(combinedData, d => d[yKey], oneSeries => oneSeries.results);
+    yDomain = multiExtent(combinedData, d => d[yKey], oneSeries => oneSeries.results) || [];
+
     if (yDomain[0] == null) {
       yDomain[0] = 0;
     }
@@ -137,7 +138,8 @@ function visProps(props) {
       'stroke-width': 1,
     })
     .chunk(d => (d.count > threshold ? 'line' : 'below-threshold'))
-    .chunkDefinitions(standardLineChunkedDefinitions());
+    .chunkDefinitions(standardLineChunkedDefinitions())
+    .transitionInitial(false);
 
 
   return {
@@ -535,8 +537,6 @@ class LineChart extends PureComponent {
       this.annotationLines.selectAll('*').remove();
       return;
     }
-
-    console.log('annotationSeries', annotationSeries);
 
     // handle normal lines via line chunked
     const normalLines = annotationSeries.filter(oneSeries => Array.isArray(oneSeries.results));
