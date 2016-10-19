@@ -38,7 +38,7 @@ function visProps(props) {
 
   // Convert our bin stats to actual values
   const binEnd = (binStart) + (binWidth * (bins.length - 1));
-  const xValues = d3.range(binStart, binEnd, binWidth);
+  const xValues = d3.range(binStart, binEnd + binWidth, binWidth);
 
   // This is a histogram, so lets use a band scale.
   const xScale = d3.scaleBand()
@@ -102,7 +102,7 @@ class Histogram extends PureComponent {
 
   static defaultProps = {
     bins: [],
-    binStart: 4,
+    binStart: 0,
     binWidth: 4,
     color: '#888',
     id: 'histogram',
@@ -130,17 +130,11 @@ class Histogram extends PureComponent {
     this.update();
   }
 
-  /**
-   * callback for when mouse hovers over a bar
-   */
-  onHoverBar(xValue) {
-    this.props.onHighlightBin(xValue);
-  }
-
   onMouseMove([mouseX]) {
     const { xScale, highlightBin, onHighlightBin, bins } = this.props;
     const barWidth = xScale.bandwidth();
     const barIndex = Math.min(Math.floor(mouseX / barWidth), bins.length - 1);
+
     if (highlightBin !== barIndex) {
       onHighlightBin(barIndex);
     }
@@ -289,7 +283,8 @@ class Histogram extends PureComponent {
         .attr('width', valueTextBox.width + boxPadding);
 
       // show the x value as a range (e.g., 0-4)
-      const xPrevValue = highlightBin === 0 ? 0 : xValues[highlightBin - 1];
+      const xNextValue = xValues[highlightBin + 1];
+
       let binLabel;
       // if it is the last item, it contains all values greater than it
       if (highlightBin === xValues.length - 1) {
@@ -297,7 +292,7 @@ class Histogram extends PureComponent {
 
       // otherwise, show a range of values
       } else {
-        binLabel = `${xFormatter(xPrevValue)}-${xFormatter(xValue)}`;
+        binLabel = `${xFormatter(xValue)}-${xFormatter(xNextValue)}`;
       }
 
       const highlightBinGroup = this.highlightBar.select('.highlight-bin')
