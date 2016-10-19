@@ -2,6 +2,7 @@ import React, { PureComponent, PropTypes } from 'react';
 import d3 from 'd3';
 import addComputedProps from '../../hoc/addComputedProps';
 import { testThreshold } from '../../constants';
+import { standardLineChunkedDefinitions } from '../../utils/chart';
 
 import './HourChart.scss';
 
@@ -20,7 +21,7 @@ function visProps(props) {
     threshold,
     width,
     yExtent,
-    yKey
+    yKey,
   } = props;
   let { xScale } = props;
 
@@ -61,11 +62,13 @@ function visProps(props) {
     .curve(d3.curveMonotoneX)
     .x((d) => xScale(d.hour) + (binWidth / 2))
     .y((d) => yScale(d[yKey]))
-    .defined(d => d[yKey] != null && d.count > threshold)
+    .defined(d => d[yKey] != null)
     .lineStyles({
       stroke: color,
       'stroke-width': 1.5,
-    });
+    })
+    .chunk(d => (d.count > threshold ? 'line' : 'below-threshold'))
+    .chunkDefinitions(standardLineChunkedDefinitions());
 
   return {
     binWidth,

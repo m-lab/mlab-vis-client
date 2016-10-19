@@ -2,6 +2,7 @@ import React, { PureComponent, PropTypes } from 'react';
 import d3 from 'd3';
 import { multiExtent, findClosestSorted, findEqualSorted } from '../../utils/array';
 import { colorsFor } from '../../utils/color';
+import { standardLineChunkedDefinitions } from '../../utils/chart';
 import { Legend } from '../../d3-components';
 import addComputedProps from '../../hoc/addComputedProps';
 import { testThreshold } from '../../constants';
@@ -109,12 +110,15 @@ function visProps(props) {
     .x((d) => xScale(d[xKey]))
     .y((d) => yScale(d[yKey]))
     .curve(d3.curveMonotoneX)
-    .defined(d => d[yKey] != null && d.count > threshold)
+    .defined(d => d[yKey] != null)
     .accessData(d => d.results)
     .lineStyles({
       stroke: (d) => colors[d.meta[idKey]] || '#aaa',
       'stroke-width': 1.5,
-    });
+    })
+    .chunk(d => (d.count > threshold ? 'line' : 'below-threshold'))
+    .chunkDefinitions(standardLineChunkedDefinitions());
+
 
   // function to generate paths for each annotation series
   const annotationLineChunked = d3.lineChunked()
@@ -126,7 +130,9 @@ function visProps(props) {
     .lineStyles({
       stroke: '#aaa',
       'stroke-width': 1,
-    });
+    })
+    .chunk(d => (d.count > threshold ? 'line' : 'below-threshold'))
+    .chunkDefinitions(standardLineChunkedDefinitions());
 
 
   return {

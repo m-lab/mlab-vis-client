@@ -2,6 +2,7 @@ import React, { PureComponent, PropTypes } from 'react';
 import d3 from 'd3';
 import { multiExtent, findClosestSorted } from '../../utils/array';
 import { colorsFor } from '../../utils/color';
+import { standardLineChunkedDefinitions } from '../../utils/chart';
 import { TextWithBackground } from '../../components';
 import addComputedProps from '../../hoc/addComputedProps';
 import { testThreshold } from '../../constants';
@@ -102,13 +103,15 @@ function visProps(props) {
         .x((d) => xScale(d[xKey]))
         .y((d) => yScale(d[metrics[yIndex].dataKey]))
         .curve(d3.curveMonotoneX)
-        .defined(d => d[metrics[yIndex].dataKey] != null && d.count > threshold)
+        .defined(d => d[metrics[yIndex].dataKey] != null)
         .accessData(d => d.results)
         .lineStyles({
           // first element is baseline value
           stroke: (d, i) => ((showBaseline && i === 0) ? '#bbb' : colors[d.meta.client_asn_number]),
           'stroke-width': (d, i) => ((showBaseline && i === 0) ? 1 : 1.5),
         })
+        .chunk(d => (d.count > threshold ? 'line' : 'below-threshold'))
+        .chunkDefinitions(standardLineChunkedDefinitions())
     );
   }
 
