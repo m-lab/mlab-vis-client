@@ -93,6 +93,15 @@ function getLocationSelectedClientIspIds(state, props) {
   return props.selectedClientIspIds;
 }
 
+function getShowRegionalValues(state, props) {
+  return props.showRegionalValues;
+}
+
+function getShowBaselines(state, props) {
+  return props.showBaselines;
+}
+
+
 // ----------------------
 // Selectors
 // ----------------------
@@ -301,5 +310,35 @@ export const getColors = createSelector(
       clientIspId => `${locationId}_${clientIspId}`);
 
     return colors;
+  }
+);
+
+
+/**
+ * Gets the annotation series to show int he main time series chart
+ */
+export const getAnnotationTimeSeries = createSelector(
+  getShowRegionalValues, getShowBaselines, LocationsSelectors.getLocationTimeSeries,
+  (showRegionalValues, showBaselines, locationTimeSeries) => {
+    const results = [];
+
+    if (showRegionalValues && locationTimeSeries) {
+      results.push(locationTimeSeries);
+    }
+
+    if (showBaselines) {
+      // TODO: add in base lines for the chart here.
+      // results.push({
+      //   meta: { id: 'baseline1', label: 'Baseline 1' },
+      //   results: {
+      //     download_speed_mbps_median: 10,
+      //     retransmit_avg: 0.01,
+      //     rtt_avg: 50,
+      //     upload_speed_mbps_median: 2,
+      //   },
+      // });
+    }
+
+    return results;
   }
 );
