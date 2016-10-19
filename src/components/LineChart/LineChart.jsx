@@ -117,7 +117,7 @@ function visProps(props) {
       'stroke-width': 1.5,
     })
     .chunk(d => (d.count > threshold ? 'line' : 'below-threshold'))
-    .chunkDefinitions(standardLineChunkedDefinitions());
+    .chunkDefinitions(standardLineChunkedDefinitions((d) => colors[d.meta[idKey]] || '#aaa'));
 
 
   // function to generate paths for each annotation series
@@ -132,7 +132,7 @@ function visProps(props) {
       'stroke-width': 1,
     })
     .chunk(d => (d.count > threshold ? 'line' : 'below-threshold'))
-    .chunkDefinitions(standardLineChunkedDefinitions());
+    .chunkDefinitions(standardLineChunkedDefinitions('#aaa'));
 
 
   return {
