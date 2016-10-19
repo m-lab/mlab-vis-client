@@ -47,7 +47,11 @@ function tweenDash() {
  * adds dashed line transition
  */
 function transitionLine(path) {
-  const durationScale = d3.scalePow().exponent(2).domain([0, 20]).range([8000, 500]).clamp(true);
+  const durationScale = d3.scalePow()
+    .exponent(2)
+    .domain([0, 20])
+    .range([8000, 500])
+    .clamp(true);
 
   path
     .attr('stroke-dasharray', '0,100000') // fix safari flash
@@ -125,9 +129,9 @@ class WorldMap extends PureComponent {
 
   static defaultProps = {
     // position so we can see NA and EU/AS
-    location: [25.8, -34.8],
+    location: [25.8, 0],
     updateFrequency: 200,
-    zoom: 3,
+    zoom: 2,
   }
 
   constructor(props) {
@@ -198,7 +202,6 @@ class WorldMap extends PureComponent {
   setup() {
     const { location, zoom, updateFrequency } = this.props;
     if (!this.map) {
-      console.log('adding map')
       this.map = L.map(this.root,
         { maxZoom: 4, minZoom: 1 }
       );
@@ -246,7 +249,7 @@ class WorldMap extends PureComponent {
     this.updatePoints();
 
     if (this.numVisibleFeatures >= geoData.features.length) {
-      this.timer.stop();
+      this.numVisibleFeatures = 1;
     }
   }
 
@@ -254,7 +257,7 @@ class WorldMap extends PureComponent {
    * Redraw points on update or zoom
    */
   updatePoints() {
-    const { geoData, servers, rScale, colorScale } = this.props;
+    const { geoData, servers, colorScale } = this.props;
 
     if (!geoData || geoData.features.length === 0) {
       return;
