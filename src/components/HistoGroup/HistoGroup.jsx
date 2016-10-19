@@ -63,7 +63,7 @@ export default class HistoGroup extends PureComponent {
 
     return (
       <Col md={4} key={info.id}>
-        <h5>{info.label}</h5>
+        <h5 className="truncate">{info.label}</h5>
         <Histogram
           bins={bins}
           width={width}
