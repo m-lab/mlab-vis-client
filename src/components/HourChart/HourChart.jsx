@@ -68,7 +68,7 @@ function visProps(props) {
       'stroke-width': 1.5,
     })
     .chunk(d => (d.count > threshold ? 'line' : 'below-threshold'))
-    .chunkDefinitions(standardLineChunkedDefinitions());
+    .chunkDefinitions(standardLineChunkedDefinitions(color));
 
   return {
     binWidth,
