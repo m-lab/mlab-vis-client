@@ -84,7 +84,14 @@ function visProps(props) {
   }
   let yDomain = yExtent;
   if (!yDomain) {
-    yDomain = multiExtent(combinedData, d => d[yKey], oneSeries => oneSeries.results);
+    yDomain = multiExtent(combinedData, d => d[yKey], oneSeries => oneSeries.results) || [];
+
+    if (yDomain[0] == null) {
+      yDomain[0] = 0;
+    }
+    if (yDomain[1] == null) {
+      yDomain[1] = 1;
+    }
   }
 
   // force 0 as the min in the yDomain if specified
@@ -103,7 +110,6 @@ function visProps(props) {
   if (yDomain) {
     yScale.domain(yDomain);
   }
-
 
   // function to generate paths for each series
   const lineChunked = d3.lineChunked()
@@ -132,7 +138,8 @@ function visProps(props) {
       'stroke-width': 1,
     })
     .chunk(d => (d.count > threshold ? 'line' : 'below-threshold'))
-    .chunkDefinitions(standardLineChunkedDefinitions());
+    .chunkDefinitions(standardLineChunkedDefinitions())
+    .transitionInitial(false);
 
 
   return {
@@ -524,14 +531,17 @@ class LineChart extends PureComponent {
    * Render the annotation lines in the chart
    */
   updateAnnotationLines() {
-    const { annotationSeries, annotationLineChunked } = this.props;
+    const { annotationSeries, annotationLineChunked, xScale, yScale, yKey } = this.props;
 
     if (!annotationSeries || !annotationSeries.length) {
       this.annotationLines.selectAll('*').remove();
       return;
     }
 
-    const binding = this.annotationLines.selectAll('g').data(annotationSeries);
+    // handle normal lines via line chunked
+    const normalLines = annotationSeries.filter(oneSeries => Array.isArray(oneSeries.results));
+
+    const binding = this.annotationLines.selectAll('g').data(normalLines);
 
     // ENTER
     const entering = binding.enter().append('g');
@@ -543,6 +553,22 @@ class LineChart extends PureComponent {
 
     // EXIT
     binding.exit().remove();
+
+    // handle constant lines
+    const constantLines = annotationSeries.filter(oneSeries => !Array.isArray(oneSeries.results));
+    const constantBinding = this.annotationLines.selectAll('.constant-line').data(constantLines);
+    const constantEntering = constantBinding.enter().append('line');
+
+    const [xMin, xMax] = xScale.range();
+
+    constantBinding.merge(constantEntering)
+      .classed('constant-line', true)
+      .attr('x1', xMin)
+      .attr('x2', xMax)
+      .attr('y1', d => yScale(d.results[yKey]))
+      .attr('y2', d => yScale(d.results[yKey]));
+
+    constantBinding.exit().remove();
   }
 
   /**
