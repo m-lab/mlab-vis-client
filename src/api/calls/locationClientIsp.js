@@ -19,7 +19,7 @@ import {
  */
 export function getLocationClientIspInfo(locationId, clientIspId) {
   return get(`/locations/${locationId}/clients/${clientIspId}/info`)
-    .then(transform(transformFixedData));
+    .then(transform(transformFixedData, transformClientIspLabel));
 }
 
 /**

@@ -1,5 +1,4 @@
 import React, { PureComponent, PropTypes } from 'react';
-import moment from 'moment';
 import momentPropTypes from 'react-moment-proptypes';
 import classNames from 'classnames';
 import { withRouter, browserHistory } from 'react-router';
@@ -10,7 +9,7 @@ import ButtonGroup from 'react-bootstrap/lib/ButtonGroup';
 import Button from 'react-bootstrap/lib/Button';
 
 import timeAggregationFromDates from '../../utils/timeAggregationFromDates';
-import { timeAggregations, facetTypes } from '../../constants';
+import { timeAggregations, defaultStartDate, defaultEndDate } from '../../constants';
 import facetTypeCombinations from '../../utils/facetTypeCombinations';
 import { apiRoot } from '../../config';
 import {
@@ -37,9 +36,8 @@ const urlQueryConfig = {
   dataFormat: { type: 'string', defaultValue: 'csv', urlKey: 'format' },
 
   // selected time
-  // TODO: change defaults to more recent time period when data is up-to-date
-  startDate: { type: 'date', urlKey: 'start', defaultValue: moment('2015-10-1') },
-  endDate: { type: 'date', urlKey: 'end', defaultValue: moment('2015-11-1') },
+  startDate: { type: 'date', urlKey: 'start', defaultValue: defaultStartDate },
+  endDate: { type: 'date', urlKey: 'end', defaultValue: defaultEndDate },
   timeAggregation: { type: 'string', urlKey: 'aggr' },
   clientIspIds: { type: 'set', urlKey: 'clientIsps', defaultValue: [] },
   transitIspIds: { type: 'set', urlKey: 'transitIsps', defaultValue: [] },

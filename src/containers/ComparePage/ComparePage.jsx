@@ -1,7 +1,6 @@
 import React, { PureComponent, PropTypes } from 'react';
 import { batchActions } from 'redux-batched-actions';
 import Helmet from 'react-helmet';
-import moment from 'moment';
 import { browserHistory, withRouter } from 'react-router';
 import momentPropTypes from 'react-moment-proptypes';
 import Row from 'react-bootstrap/lib/Row';
@@ -21,7 +20,7 @@ import * as LocationClientIspTransitIspActions from '../../redux/locationClientI
 
 import { multiMergeMetaIntoResults } from '../../utils/exports';
 import timeAggregationFromDates from '../../utils/timeAggregationFromDates';
-import { facetTypes } from '../../constants';
+import { facetTypes, defaultStartDate, defaultEndDate } from '../../constants';
 
 import {
   ChartExportControls,
@@ -48,9 +47,8 @@ const urlQueryConfig = {
   breakdownBy: { type: 'string', defaultValue: 'filter1', urlKey: 'breakdownBy' },
 
   // selected time
-  // TODO: change defaults to more recent time period when data is up-to-date
-  startDate: { type: 'date', urlKey: 'start', defaultValue: moment('2015-10-1') },
-  endDate: { type: 'date', urlKey: 'end', defaultValue: moment('2015-11-1') },
+  startDate: { type: 'date', urlKey: 'start', defaultValue: defaultStartDate },
+  endDate: { type: 'date', urlKey: 'end', defaultValue: defaultEndDate },
   timeAggregation: { type: 'string', urlKey: 'aggr' },
   facetItemIds: { type: 'set', urlKey: 'selected', persist: false },
   filter1Ids: { type: 'set', urlKey: 'filter1', persist: false },
