@@ -49,7 +49,7 @@ const urlQueryConfig = {
 
   // chart options
   showBaselines: { type: 'boolean', defaultValue: false, urlKey: 'baselines' },
-  showRegionalValues: { type: 'boolean', defaultValue: false, urlKey: 'regional' },
+  showRegionalValues: { type: 'boolean', defaultValue: true, urlKey: 'regional' },
 
   // selected time
   startDate: { type: 'date', urlKey: 'start', defaultValue: defaultStartDate },
@@ -80,6 +80,7 @@ function mapStateToProps(state, propsWithUrl) {
     locationAndClientIspTimeSeries: LocationPageSelectors.getLocationAndClientIspTimeSeries(state, propsWithUrl),
     locationHourly: LocationPageSelectors.getLocationHourly(state, propsWithUrl),
     locationTimeSeries: LocationsSelectors.getLocationTimeSeries(state, propsWithUrl),
+    annotationTimeSeries: LocationPageSelectors.getAnnotationTimeSeries(state, propsWithUrl),
     selectedClientIspInfo: LocationPageSelectors.getLocationSelectedClientIspInfo(state, propsWithUrl),
     summary: LocationPageSelectors.getSummaryData(state, propsWithUrl),
     timeAggregation: LocationPageSelectors.getTimeAggregation(state, propsWithUrl),
@@ -92,6 +93,7 @@ function mapStateToProps(state, propsWithUrl) {
 
 class LocationPage extends PureComponent {
   static propTypes = {
+    annotationTimeSeries: PropTypes.array,
     autoTimeAggregation: PropTypes.bool,
     clientIspHourly: PropTypes.array,
     clientIspTimeSeries: PropTypes.array,
@@ -401,22 +403,25 @@ class LocationPage extends PureComponent {
 
   renderChartOptions() {
     const { showBaselines, showRegionalValues } = this.props;
+    const enableShowBaselinesToggle = false;
     return (
       <div className="chart-options">
         <ul className="list-inline">
-          <li>
-            <div className="checkbox">
-              <label htmlFor="show-baselines">
-                <input
-                  type="checkbox"
-                  checked={showBaselines}
-                  id="show-baselines"
-                  onChange={this.onShowBaselinesChange}
-                />
-                {' Show Baselines'}
-              </label>
-            </div>
-          </li>
+          {enableShowBaselinesToggle ? (
+            <li>
+              <div className="checkbox">
+                <label htmlFor="show-baselines">
+                  <input
+                    type="checkbox"
+                    checked={showBaselines}
+                    id="show-baselines"
+                    onChange={this.onShowBaselinesChange}
+                  />
+                  {' Show Baselines'}
+                </label>
+              </div>
+            </li>
+          ) : null}
           <li>
             <div className="checkbox">
               <label htmlFor="show-regional-values">
@@ -438,7 +443,8 @@ class LocationPage extends PureComponent {
 
   renderCompareProviders() {
     const { clientIspTimeSeries, highlightTimeSeriesDate, highlightTimeSeriesLine,
-      locationId, locationTimeSeries, timeSeriesStatus, viewMetric, colors } = this.props;
+      locationId, locationTimeSeries, timeSeriesStatus, viewMetric, colors,
+      annotationTimeSeries } = this.props;
     const chartId = 'providers-time-series';
     return (
       <div className="subsection">
@@ -451,7 +457,7 @@ class LocationPage extends PureComponent {
               id={chartId}
               colors={colors}
               series={clientIspTimeSeries}
-              annotationSeries={locationTimeSeries}
+              annotationSeries={annotationTimeSeries}
               onHighlightDate={this.onHighlightTimeSeriesDate}
               highlightDate={highlightTimeSeriesDate}
               onHighlightLine={this.onHighlightTimeSeriesLine}
