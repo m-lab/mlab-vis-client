@@ -1,5 +1,6 @@
 import React, { PureComponent, PropTypes } from 'react';
 import classNames from 'classnames';
+import { HelpTip } from '../../components';
 
 import './SelectableList.scss';
 
@@ -17,6 +18,16 @@ export default class SelectableList extends PureComponent {
     onChange: PropTypes.func,
   }
 
+  renderHelpTip(item) {
+    if (item.description) {
+      return (
+        <HelpTip id={`${item.value}-tip`} content={item.description} />
+      );
+    }
+
+    return null;
+  }
+
   render() {
     const { active, items, onChange } = this.props;
 
@@ -29,7 +40,7 @@ export default class SelectableList extends PureComponent {
                 className={classNames({ active: active === item.value })}
                 onClick={() => onChange && onChange(item.value)}
               >
-                {item.label}
+                {item.label} {this.renderHelpTip(item)}
               </button>
             </li>
           ))}
