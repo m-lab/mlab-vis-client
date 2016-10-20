@@ -5,6 +5,7 @@ import Col from 'react-bootstrap/lib/Col';
 import {
   FilterSuggestions,
   SearchSelect,
+  HelpTip,
 } from '../../components';
 
 import './CompareInputPanel.scss';
@@ -83,7 +84,9 @@ export default class CompareLocationsInput extends PureComponent {
 
     return (
       <div>
-        <h4>Filter by Transit ISP</h4>
+        <h4>
+          Filter by Transit ISP <HelpTip id="transit-compare-tip" />
+        </h4>
         <p>Select one or more Transit ISPs to filter the measurements by.</p>
         <SearchSelect
           type="transitIsp"

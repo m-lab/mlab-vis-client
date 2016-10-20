@@ -84,3 +84,8 @@ export const ispLabelReplacements = [
   { find: /^(http:\/\/)/, replace: '' }, // prefixes
   { find: /\s*(,|\.)\s*$/, replace: '' }, //ending punctuation
 ];
+
+export const helpTipContent = {
+  'transit-compare-tip': 'Transit ISPs serve to support the backbone of the Internet. Client ISPs send traffic to Transit ISPs to be routed worldwide. MLab servers are located within Transit ISP switching stations.',
+  'client-isp-tip': 'Add or remove ISPs to compare. ISP names come from volunteer process of mapping ASNs to names and so are at times confusingly inconsistent with actual ISP names. Multiple ASNs can be owned by a single ISP and so near duplicate names can appear.',
+};

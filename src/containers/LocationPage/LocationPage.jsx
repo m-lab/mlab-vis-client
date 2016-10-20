@@ -383,7 +383,7 @@ class LocationPage extends PureComponent {
 
     return (
       <div className="client-isp-selector">
-        <h5>Client ISPs <HelpTip id="client-isp-tip" content="Add or remove ISPs to compare. ISP names come from volunteer process of mapping ASNs to names and so are at times confusingly inconsistent with actual ISP names. Multiple ASNs can be owned by a single ISP and so near duplicate names can appear." /></h5>
+        <h5>Client ISPs <HelpTip id="client-isp-tip" /></h5>
         <IspSelect
           isps={topClientIsps}
           selected={selectedClientIspInfo}
