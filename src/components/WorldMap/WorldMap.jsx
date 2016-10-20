@@ -203,7 +203,7 @@ class WorldMap extends PureComponent {
     const { location, zoom, updateFrequency } = this.props;
     if (!this.map) {
       this.map = L.map(this.root,
-        { maxZoom: 4, minZoom: 1 }
+        { maxZoom: 4, minZoom: 2, scrollWheelZoom: false }
       );
       const layer = Tangram.leafletLayer({
         scene: 'refill-style.yaml',
@@ -403,7 +403,13 @@ class WorldMap extends PureComponent {
           style={styles}
           ref={node => { this.root = node; }}
         />
-        <p>Color represents download speed, with blue being slow and red being fast. MLab servers are in <span className="server">black</span>.</p>
+        <p>
+          Color and line speed represents download speed, with blue being slow and red being fast.
+          <br />
+          Lines go from a speed test client's location to a MLab's server location. MLab servers are in <span className="server">black</span>.
+          <br />
+          Data displayed is only a small sample of speed test data from the last three months, with tests extracted from countries worldwide. 
+        </p>
       </div>
     );
   }
