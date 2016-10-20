@@ -52,7 +52,6 @@ class HourChartWithCounts extends PureComponent {
     color: PropTypes.string,
     countExtent: PropTypes.array,
     dataByHour: PropTypes.array,
-    filteredData: PropTypes.array,
     forceZeroMin: PropTypes.bool,
     highlightHour: PropTypes.number,
     id: React.PropTypes.string,
@@ -80,7 +79,7 @@ class HourChartWithCounts extends PureComponent {
    */
   render() {
     const { id, width, color, highlightHour, onHighlightHour, dataByHour,
-      filteredData, padding, overallData, xScale, numBins, countExtent } = this.props;
+      padding, overallData, xScale, numBins, countExtent } = this.props;
 
     const hourHeight = 250;
     const countHeight = 80;
@@ -99,7 +98,6 @@ class HourChartWithCounts extends PureComponent {
             <HourChart
               {...this.props}
               color={color}
-              data={filteredData}
               dataByHour={dataByHour}
               overallData={overallData}
               id={undefined}

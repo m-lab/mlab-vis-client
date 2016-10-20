@@ -545,7 +545,7 @@ class LocationPage extends PureComponent {
       return null;
     }
 
-    const { data: hourlyData, status: hourlyStatus, wrangled = {} } = hourly;
+    const { data: hourlyData, status: hourlyStatus, wrangled } = hourly;
 
     if (!hourlyData || !hourlyData.meta) {
       return null;
@@ -564,7 +564,6 @@ class LocationPage extends PureComponent {
                 countExtent={hourlyExtents.count}
                 dataByHour={wrangled.dataByHour}
                 overallData={wrangled.overallData}
-                filteredData={wrangled.filteredData}
                 highlightHour={highlightHourly}
                 id={chartId}
                 onHighlightHour={this.onHighlightHourly}

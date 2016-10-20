@@ -63,8 +63,10 @@ function mapStateToProps(state, propsWithUrl) {
     autoTimeAggregation: ComparePageSelectors.getAutoTimeAggregation(state, propsWithUrl),
     colors: ComparePageSelectors.getColors(state, propsWithUrl),
     combinedHourly: ComparePageSelectors.getCombinedHourly(state, propsWithUrl),
+    combinedHourlyExtents: ComparePageSelectors.getCombinedHourlyExtents(state, propsWithUrl),
     combinedTimeSeries: ComparePageSelectors.getCombinedTimeSeries(state, propsWithUrl),
     facetItemHourly: ComparePageSelectors.getFacetItemHourly(state, propsWithUrl),
+    facetItemHourlyExtents: ComparePageSelectors.getFacetItemHourlyExtents(state, propsWithUrl),
     facetItemInfos: ComparePageSelectors.getFacetItemInfos(state, propsWithUrl),
     facetItemTimeSeries: ComparePageSelectors.getFacetItemTimeSeries(state, propsWithUrl),
     facetType: ComparePageSelectors.getFacetType(state, propsWithUrl),
@@ -88,10 +90,12 @@ class ComparePage extends PureComponent {
     breakdownBy: PropTypes.string,
     colors: PropTypes.object,
     combinedHourly: PropTypes.object,
+    combinedHourlyExtents: PropTypes.object,
     combinedTimeSeries: PropTypes.object,
     dispatch: PropTypes.func,
     endDate: momentPropTypes.momentObj,
     facetItemHourly: PropTypes.array,
+    facetItemHourlyExtents: PropTypes.object,
     facetItemIds: PropTypes.array,
     facetItemInfos: PropTypes.array,
     facetItemTimeSeries: PropTypes.object,
@@ -672,9 +676,13 @@ class ComparePage extends PureComponent {
     const {
       breakdownBy,
       colors,
+      combinedHourly,
+      combinedHourlyExtents,
+      combinedTimeSeries,
       facetItemInfos,
       facetItemTimeSeries,
       facetItemHourly,
+      facetItemHourlyExtents,
       facetType,
       filter1Ids,
       filter1Infos,
@@ -684,8 +692,6 @@ class ComparePage extends PureComponent {
       highlightHourly,
       highlightTimeSeriesDate,
       highlightTimeSeriesLine,
-      combinedTimeSeries,
-      combinedHourly,
       viewMetric,
     } = this.props;
 
@@ -693,67 +699,78 @@ class ComparePage extends PureComponent {
     // if one filter has items, show the lines for those filter items in the chart
     // if both filters have items, group by `breakdownBy` filter and have the other filter items have lines in those charts
     return (
-      <Row>
-        <Col md={3}>
-          {this.renderBreakdownOptions()}
-        </Col>
-        <Col md={9}>
-          <div className="subsection">
-            <header>
-              <h3>Breakdown</h3>
-            </header>
-            {facetItemInfos.map((facetItemInfo) => (
-              <CompareTimeSeriesCharts
-                key={facetItemInfo.id}
-                breakdownBy={breakdownBy}
-                colors={colors}
-                combinedTimeSeries={combinedTimeSeries && combinedTimeSeries[facetItemInfo.id]}
-                facetItemId={facetItemInfo.id}
-                facetItemInfo={facetItemInfo}
-                facetItemTimeSeries={facetItemTimeSeries}
-                facetType={facetType}
-                filter1Ids={filter1Ids}
-                filter1Infos={filter1Infos}
-                filter2Ids={filter2Ids}
-                filter2Infos={filter2Infos}
-                filterTypes={filterTypes}
-                highlightTimeSeriesDate={highlightTimeSeriesDate}
-                highlightTimeSeriesLine={highlightTimeSeriesLine}
-                onHighlightTimeSeriesDate={this.onHighlightTimeSeriesDate}
-                onHighlightTimeSeriesLine={this.onHighlightTimeSeriesLine}
-                viewMetric={viewMetric}
-              />
-            ))}
-          </div>
-          <div className="subsection">
-            <header>
-              <h3>By Hour</h3>
-            </header>
-            <Row>
+      <div>
+        <Row>
+          <Col md={3}>
+            {this.renderBreakdownOptions()}
+          </Col>
+          <Col md={9}>
+            <div className="subsection">
+              <header>
+                <h3>Breakdown</h3>
+              </header>
               {facetItemInfos.map((facetItemInfo) => (
-                <CompareHourCharts
+                <CompareTimeSeriesCharts
                   key={facetItemInfo.id}
                   breakdownBy={breakdownBy}
                   colors={colors}
-                  combinedHourly={combinedHourly && combinedHourly[facetItemInfo.id]}
+                  combinedTimeSeries={combinedTimeSeries && combinedTimeSeries[facetItemInfo.id]}
                   facetItemId={facetItemInfo.id}
                   facetItemInfo={facetItemInfo}
-                  facetItemHourly={facetItemHourly}
+                  facetItemTimeSeries={facetItemTimeSeries}
                   facetType={facetType}
                   filter1Ids={filter1Ids}
                   filter1Infos={filter1Infos}
                   filter2Ids={filter2Ids}
                   filter2Infos={filter2Infos}
                   filterTypes={filterTypes}
-                  highlightHourly={highlightHourly}
-                  onHighlightHourly={this.onHighlightHourly}
+                  highlightTimeSeriesDate={highlightTimeSeriesDate}
+                  highlightTimeSeriesLine={highlightTimeSeriesLine}
+                  onHighlightTimeSeriesDate={this.onHighlightTimeSeriesDate}
+                  onHighlightTimeSeriesLine={this.onHighlightTimeSeriesLine}
                   viewMetric={viewMetric}
                 />
-            ))}
-            </Row>
-          </div>
-        </Col>
-      </Row>
+              ))}
+            </div>
+          </Col>
+        </Row>
+        <Row>
+          <Col md={3}>
+            {this.renderMetricSelector()}
+          </Col>
+          <Col md={9}>
+            <div className="subsection">
+              <header>
+                <h3>By Hour</h3>
+              </header>
+              <Row>
+                {facetItemInfos.map((facetItemInfo) => (
+                  <CompareHourCharts
+                    key={facetItemInfo.id}
+                    breakdownBy={breakdownBy}
+                    colors={colors}
+                    combinedHourly={combinedHourly && combinedHourly[facetItemInfo.id]}
+                    combinedHourlyExtents={combinedHourlyExtents}
+                    facetItemId={facetItemInfo.id}
+                    facetItemInfo={facetItemInfo}
+                    facetItemHourly={facetItemHourly}
+                    facetItemHourlyExtents={facetItemHourlyExtents}
+                    facetType={facetType}
+                    filter1Ids={filter1Ids}
+                    filter1Infos={filter1Infos}
+                    filter2Ids={filter2Ids}
+                    filter2Infos={filter2Infos}
+                    filterTypes={filterTypes}
+                    highlightHourly={highlightHourly}
+                    onHighlightHourly={this.onHighlightHourly}
+                    viewMetric={viewMetric}
+                  />
+              ))}
+              </Row>
+            </div>
+          </Col>
+        </Row>
+      </div>
     );
   }
 

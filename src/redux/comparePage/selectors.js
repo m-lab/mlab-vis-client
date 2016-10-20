@@ -12,6 +12,8 @@ import * as LocationClientIspSelectors from '../locationClientIsp/selectors';
 import * as LocationClientIspTransitIspSelectors from '../locationClientIspTransitIsp/selectors';
 import * as LocationTransitIspSelectors from '../locationTransitIsp/selectors';
 import * as ClientTransitIspSelectors from '../clientIspTransitIsp/selectors';
+import wrangleHourly from '../../utils/wrangleHourly';
+import computeHourlyExtents from '../../utils/computeHourlyExtents';
 
 import makeLocationClientIspId from '../locationClientIsp/makeId';
 import makeLocationClientIspTransitIspId from '../locationClientIspTransitIsp/makeId';
@@ -365,18 +367,33 @@ export const getFacetItemTimeSeries = createSelector(
  * Selector to get the data objects for the overall hourly data
  */
 export const getFacetItemHourly = createSelector(
-  getFacetItems,
-  (facetItems) => {
+  getFacetItems, getViewMetric,
+  (facetItems, viewMetric) => {
     if (!facetItems) {
       return undefined;
     }
 
     return facetItems.map(facetItem => {
       const hourly = facetItem.time.hourly;
-      return { id: facetItem.id, data: hourly.data, status: status(hourly) };
+      return {
+        id: facetItem.id,
+        data: hourly.data,
+        status: status(hourly),
+        wrangled: wrangleHourly(hourly.data, viewMetric),
+      };
     });
   }
 );
+
+
+/**
+ * Get shared extents of all the facet item hourly data
+ */
+export const getFacetItemHourlyExtents = createSelector(
+  getFacetItemHourly, getViewMetric,
+  (facetItemHourly, viewMetric) =>
+    computeHourlyExtents(facetItemHourly, viewMetric.dataKey));
+
 
 /**
  * Compute the combined type and create the IDs for the combined items
@@ -546,7 +563,7 @@ export const getCombinedItems = createSelector(
  *
  * where combined happens by sending a subset of combinedItems to combine()
  */
-function combineData(combine, combinedType, combinedItems) {
+function combineData(combine, combinedType, combinedItems, viewMetric) {
   if (!combinedItems || !combinedItems.length) {
     return undefined;
   }
@@ -567,7 +584,7 @@ function combineData(combine, combinedType, combinedItems) {
       const byBreakdown = byFacetItem[facetItemId];
       Object.keys(byBreakdown).forEach(breakdownByItemId => {
         // replace the array of items with a combined time series object
-        byBreakdown[breakdownByItemId] = combine(byBreakdown[breakdownByItemId]);
+        byBreakdown[breakdownByItemId] = combine(byBreakdown[breakdownByItemId], viewMetric);
       });
     });
 
@@ -576,7 +593,7 @@ function combineData(combine, combinedType, combinedItems) {
     byFacetItem = nest.object(combinedItems);
     Object.keys(byFacetItem).forEach(facetItemId => {
       // replace the array of items with a combined time series object
-      byFacetItem[facetItemId] = combine(byFacetItem[facetItemId]);
+      byFacetItem[facetItemId] = combine(byFacetItem[facetItemId], viewMetric);
     });
   }
 
@@ -586,7 +603,7 @@ function combineData(combine, combinedType, combinedItems) {
 // helper function to combine the time series into a single object of form:
 // {facetId: { status: "", statuses: [], data: [] }, ...}
 // where each data entry corresponds to a line
-function combineTimeSeries(itemsToCombine) {
+function combineTimeSeries(itemsToCombine, viewMetric) {
   const timeSeriesToCombine = itemsToCombine.map(item => item.data.time.timeSeries);
 
   // group them together by the facet ID
@@ -610,18 +627,20 @@ export const getCombinedTimeSeries = createSelector(
   getCombinedTypeAndIds,
   getFacetItemIds,
   getCombinedItems,
-  ({ combinedType }, facetItemIds, combinedItems) => {
-    const combined = combineData(combineTimeSeries, combinedType, combinedItems);
+  getViewMetric,
+  ({ combinedType }, facetItemIds, combinedItems, viewMetric) => {
+    const combined = combineData(combineTimeSeries, combinedType, combinedItems, viewMetric);
     return combined;
   }
 );
 
 // helper function to combine items into combined hourly objects
-function combineHourly(itemsToCombine) {
+function combineHourly(itemsToCombine, viewMetric) {
   const hourlyObjects = itemsToCombine.map(item => ({
     id: item.id.filterItemId,
     data: item.data.time.hourly.data,
     status: status(item.data.time.hourly),
+    wrangled: wrangleHourly(item.data.time.hourly.data, viewMetric),
   }));
 
   return hourlyObjects;
@@ -634,12 +653,20 @@ export const getCombinedHourly = createSelector(
   getCombinedTypeAndIds,
   getFacetItemIds,
   getCombinedItems,
-  ({ combinedType }, facetItemIds, combinedItems) => {
-    const combined = combineData(combineHourly, combinedType, combinedItems);
+  getViewMetric,
+  ({ combinedType }, facetItemIds, combinedItems, viewMetric) => {
+    const combined = combineData(combineHourly, combinedType, combinedItems, viewMetric);
     return combined;
   }
 );
 
+/**
+ * Get shared extents of all the hourly data
+ */
+export const getCombinedHourlyExtents = createSelector(
+  getCombinedHourly, getViewMetric,
+  (combinedHourly, viewMetric) =>
+    computeHourlyExtents(d3.merge(d3.values(combinedHourly)), viewMetric.dataKey));
 
 /**
  * Selector to get the colors given all the selected ISPs and locations

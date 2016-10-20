@@ -5,12 +5,12 @@ import { createSelector } from 'reselect';
 import { metrics } from '../../constants';
 import status from '../status';
 import { colorsFor } from '../../utils/color';
-import { multiExtent } from '../../utils/array';
 import timeAggregationFromDates from '../../utils/timeAggregationFromDates';
 import * as LocationsSelectors from '../locations/selectors';
 import * as LocationClientIspSelectors from '../locationClientIsp/selectors';
 import wrangleHourly from '../../utils/wrangleHourly';
-import d3 from '../../d3';
+import computeHourlyExtents from '../../utils/computeHourlyExtents';
+
 // ----------------------
 // Input Selectors
 // ----------------------
@@ -260,9 +260,8 @@ export const getSummaryData = createSelector(
 export const getLocationHourly = createSelector(
   LocationsSelectors.getLocationHourly, LocationsSelectors.getLocationHourlyStatus,
   getViewMetric,
-  (data, status, viewMetric) => {
-    return { data, status, wrangled: wrangleHourly(data, viewMetric) };
-  }
+  (data, status, viewMetric) =>
+    ({ data, status, wrangled: wrangleHourly(data, viewMetric) })
 );
 
 /**
@@ -359,30 +358,5 @@ export const getAnnotationTimeSeries = createSelector(
  */
 export const getHourlyExtents = createSelector(
   getLocationHourly, getLocationClientIspHourly, getViewMetric,
-  (locationHourly, clientIspsHourly, viewMetric) => {
-    const extents = {};
-
-    const combined = [].concat(locationHourly, clientIspsHourly)
-      .map(d => d.wrangled)
-      .filter(d => d != null);
-
-    if (combined.length) {
-      // get the extents filtered to the 95% percentile while making sure overallData fits
-      const key = viewMetric.dataKey;
-      const extent = multiExtent(combined, d => d[key], d => d.filteredData, 0.95);
-
-      // check the overallData extent
-      const overallExtent = multiExtent(combined, d => d[key], d => d.overallData);
-      extent[0] = Math.min(extent[0], overallExtent[0]);
-      extent[1] = Math.max(extent[1], overallExtent[1]);
-
-      extents[key] = extent;
-
-
-      // get the count extent
-      extents.count = multiExtent(combined, d => d.count, d => d.overallData);
-    }
-
-    return extents;
-  }
-);
+  (locationHourly, clientIspsHourly, viewMetric) =>
+    computeHourlyExtents([locationHourly].concat(clientIspsHourly), viewMetric.dataKey));

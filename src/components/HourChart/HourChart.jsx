@@ -12,7 +12,6 @@ import './HourChart.scss';
  */
 function visProps(props) {
   const {
-    data,
     color,
     forceZeroMin,
     height,
@@ -41,10 +40,9 @@ function visProps(props) {
   const yMax = 0;
 
 
-  // const data = []; console.warn('TODO data in HourChart');
-  // set up the domains based on extent. Use the prop if provided, otherwise calculate
+  // set up the domains based on extent.
   const xDomain = [0, 23];
-  let yDomain = yExtent || d3.extent(data, d => d[yKey]);
+  let yDomain = yExtent || [0, 1];
 
   // force 0 as the min in the yDomain if specified
   if (forceZeroMin) {

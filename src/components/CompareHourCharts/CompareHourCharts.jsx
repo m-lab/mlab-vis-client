@@ -18,7 +18,9 @@ export default class CompareHourCharts extends PureComponent {
     breakdownBy: PropTypes.string,
     colors: PropTypes.object,
     combinedHourly: PropTypes.oneOfType([PropTypes.array, PropTypes.object]),
+    combinedHourlyExtents: PropTypes.object,
     facetItemHourly: PropTypes.array,
+    facetItemHourlyExtents: PropTypes.object,
     facetItemId: PropTypes.string,
     facetItemInfo: PropTypes.object,
     facetType: PropTypes.object,
@@ -32,7 +34,7 @@ export default class CompareHourCharts extends PureComponent {
     viewMetric: PropTypes.object,
   }
 
-  renderHourly(chartId, hourly, dataType) {
+  renderHourly(chartId, hourly, dataType, hourlyExtents) {
     const {
       highlightHourly,
       viewMetric,
@@ -44,25 +46,28 @@ export default class CompareHourCharts extends PureComponent {
       return null;
     }
 
-    const { status, data: hourlyData } = hourly;
+    const { status, data: hourlyData, wrangled } = hourly;
 
     if (!hourlyData || hourlyData.length === 0) {
       return null;
     }
     const color = colors[hourlyData.meta[dataType.idKey]];
+    // const hourlyExtents = hourlyData.extents;
 
     return (
       <StatusWrapper status={status}>
         <AutoWidth>
           <HourChartWithCounts
             color={color}
-            data={hourlyData.results}
+            countExtent={hourlyExtents.count}
+            dataByHour={wrangled.dataByHour}
+            overallData={wrangled.overallData}
             highlightHour={highlightHourly}
             id={chartId}
             onHighlightHour={onHighlightHourly}
             yAxisLabel={viewMetric.label}
             yAxisUnit={viewMetric.unit}
-            yExtent={hourlyData.extents[viewMetric.dataKey]}
+            yExtent={hourlyExtents[viewMetric.dataKey]}
             yFormatter={viewMetric.formatter}
             yKey={viewMetric.dataKey}
           />
@@ -82,6 +87,7 @@ export default class CompareHourCharts extends PureComponent {
   renderNoFilters(facetItemInfo) {
     const {
       facetItemHourly,
+      facetItemHourlyExtents,
       facetType,
     } = this.props;
 
@@ -92,13 +98,14 @@ export default class CompareHourCharts extends PureComponent {
     const chartId = `facet-hourly-${facetItemInfo.id}`;
     const hourly = facetItemHourly.find(hourly => hourly.id === facetItemInfo.id);
 
-    return this.renderHourly(chartId, hourly, facetType);
+    return this.renderHourly(chartId, hourly, facetType, facetItemHourlyExtents);
   }
 
   // if one filter has items, show the lines for those filter items in the chart
   renderSingleFilter(facetItemInfo, filterInfos, dataType) {
     const {
       combinedHourly,
+      combinedHourlyExtents,
     } = this.props;
 
     if (!combinedHourly) {
@@ -116,7 +123,7 @@ export default class CompareHourCharts extends PureComponent {
           return (
             <Col key={hourlyObject.id} md={6}>
               <h5>{info.label}</h5>
-              {this.renderHourly(chartId, hourlyObject, dataType)}
+              {this.renderHourly(chartId, hourlyObject, dataType, combinedHourlyExtents)}
             </Col>
           );
         })}
