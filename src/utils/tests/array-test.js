@@ -40,6 +40,16 @@ describe('utils', () => {
         const result = multiExtent(null);
         expect(result).to.be.undefined;
       });
+
+      it('produces the correct value with quantile limit', () => {
+        const outerArray = [
+          [1, 2, 3],
+          [0, 2, 1],
+          [2, 5, 9],
+        ];
+        const result = multiExtent(outerArray, undefined, undefined, 0.6);
+        expect(result).to.deep.equal([0, 2]);
+      });
     });
 
     describe('findClosestSorted', () => {

@@ -2,76 +2,14 @@ import React, { PureComponent, PropTypes } from 'react';
 import d3 from 'd3';
 
 import { HourChart, CountChart } from '../../components';
-import { sum, average } from '../../utils/math';
 import addComputedProps from '../../hoc/addComputedProps';
 import { testThreshold } from '../../constants';
-
-
-/**
- * Filter the data and group it by hour and by date
- * @param {Object} props the component props
- * @return {Object} the prepared data { filteredData, dataByHour, dataByDate }
- */
-function prepareData(props) {
-  const { data, yKey } = props;
-
-  // filter so all data has a value for yKey
-  const filteredData = (data || []).filter(d => d[yKey] != null);
-
-  // produce the byHour array
-  const groupedByHour = d3.nest().key(d => d.hour).object(filteredData);
-
-  // use d3.range(24) instead of Object.keys to ensure we get an entry for each hour
-  const dataByHour = d3.range(24).map(hour => {
-    const hourPoints = groupedByHour[hour];
-    const count = sum(hourPoints, 'count') || 0;
-
-    return {
-      hour,
-      points: hourPoints || [],
-      count,
-      overall: average(hourPoints, yKey),
-    };
-  });
-
-  // produce the byDate array
-  const groupedByDate = d3.nest().key(d => d.date.format('YYYY-MM-DD')).object(filteredData);
-  const dataByDate = Object.keys(groupedByDate).reduce((byDate, date) => {
-    const datePoints = groupedByDate[date];
-    const count = sum(datePoints, 'count') || 0;
-
-    byDate[date] = {
-      date: datePoints[0].date,
-      points: datePoints,
-      count,
-    };
-
-    return byDate;
-  }, {});
-
-  // compute the overall data for an average line
-  const overallData = dataByHour.map(d => ({
-    [yKey]: d.overall,
-    hour: d.hour,
-    count: d.count,
-  })).filter(d => d[yKey] != null);
-
-  return {
-    filteredData,
-    dataByHour,
-    dataByDate,
-    overallData,
-  };
-}
-
 
 /**
  * Figure out what is needed for both charts
  */
 function visProps(props) {
   const { width } = props;
-
-  const preparedData = prepareData(props);
 
   const padding = {
     right: 50,
@@ -87,7 +25,6 @@ function visProps(props) {
   const numBins = 24; // one for each hour
 
   return {
-    ...preparedData,
     padding,
     numBins,
     xScale,
@@ -113,10 +50,8 @@ function visProps(props) {
 class HourChartWithCounts extends PureComponent {
   static propTypes = {
     color: PropTypes.string,
-    data: PropTypes.array,
-    dataByDate: PropTypes.object,
+    countExtent: PropTypes.array,
     dataByHour: PropTypes.array,
-    filteredData: PropTypes.array,
     forceZeroMin: PropTypes.bool,
     highlightHour: PropTypes.number,
     id: React.PropTypes.string,
@@ -143,8 +78,8 @@ class HourChartWithCounts extends PureComponent {
    * @return {React.Component} The rendered container
    */
   render() {
-    const { id, width, color, highlightHour, onHighlightHour, dataByHour, dataByDate,
-      filteredData, padding, overallData, xScale, numBins } = this.props;
+    const { id, width, color, highlightHour, onHighlightHour, dataByHour,
+      padding, overallData, xScale, numBins, countExtent } = this.props;
 
     const hourHeight = 250;
     const countHeight = 80;
@@ -163,9 +98,7 @@ class HourChartWithCounts extends PureComponent {
             <HourChart
               {...this.props}
               color={color}
-              data={filteredData}
               dataByHour={dataByHour}
-              dataByDate={dataByDate}
               overallData={overallData}
               id={undefined}
               inSvg
@@ -187,6 +120,7 @@ class HourChartWithCounts extends PureComponent {
               width={width}
               xKey="hour"
               xScale={xScale}
+              yExtent={countExtent}
             />
           </g>
         </svg>

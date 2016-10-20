@@ -77,6 +77,7 @@ function mapStateToProps(state, propsWithUrl) {
     highlightHourly: LocationPageSelectors.getHighlightHourly(state, propsWithUrl),
     highlightTimeSeriesDate: LocationPageSelectors.getHighlightTimeSeriesDate(state, propsWithUrl),
     highlightTimeSeriesLine: LocationPageSelectors.getHighlightTimeSeriesLine(state, propsWithUrl),
+    hourlyExtents: LocationPageSelectors.getHourlyExtents(state, propsWithUrl),
     locationInfo: LocationsSelectors.getLocationInfo(state, propsWithUrl),
     locationAndClientIspTimeSeries: LocationPageSelectors.getLocationAndClientIspTimeSeries(state, propsWithUrl),
     locationHourly: LocationPageSelectors.getLocationHourly(state, propsWithUrl),
@@ -105,6 +106,7 @@ class LocationPage extends PureComponent {
     highlightHourly: PropTypes.number,
     highlightTimeSeriesDate: PropTypes.object,
     highlightTimeSeriesLine: PropTypes.object,
+    hourlyExtents: PropTypes.object,
     location: PropTypes.object, // route location
     locationAndClientIspTimeSeries: PropTypes.array,
     locationHourly: PropTypes.object,
@@ -536,14 +538,14 @@ class LocationPage extends PureComponent {
   }
 
   renderHourChart(hourly, color) {
-    const { highlightHourly, locationId, viewMetric } = this.props;
-    const extentKey = this.extentKey(viewMetric);
+    const { highlightHourly, hourlyExtents, locationId, viewMetric } = this.props;
+    const extentKey = viewMetric.dataKey;
 
     if (!hourly) {
       return null;
     }
 
-    const { data: hourlyData, status: hourlyStatus } = hourly;
+    const { data: hourlyData, status: hourlyStatus, wrangled } = hourly;
 
     if (!hourlyData || !hourlyData.meta) {
       return null;
@@ -559,13 +561,15 @@ class LocationPage extends PureComponent {
             <AutoWidth>
               <HourChartWithCounts
                 color={color}
-                data={hourlyData.results}
+                countExtent={hourlyExtents.count}
+                dataByHour={wrangled.dataByHour}
+                overallData={wrangled.overallData}
                 highlightHour={highlightHourly}
                 id={chartId}
                 onHighlightHour={this.onHighlightHourly}
                 yAxisLabel={viewMetric.label}
                 yAxisUnit={viewMetric.unit}
-                yExtent={hourlyData.extents[extentKey]}
+                yExtent={hourlyExtents[extentKey]}
                 yFormatter={viewMetric.formatter}
                 yKey={viewMetric.dataKey}
               />
