@@ -3,6 +3,8 @@ import d3 from 'd3';
 import addComputedProps from '../../hoc/addComputedProps';
 import { testThreshold } from '../../constants';
 
+import { formatNumber } from '../../utils/format';
+
 import './CountChart.scss';
 
 /**
@@ -199,7 +201,10 @@ class CountChart extends PureComponent {
    */
   updateAxes() {
     const { yScale, plotAreaHeight, padding } = this.props;
-    const yAxis = d3.axisLeft(yScale).ticks(4).tickSizeOuter(0);
+    const yAxis = d3.axisLeft(yScale)
+      .ticks(4)
+      .tickSizeOuter(0)
+      .tickFormat((d) => formatNumber(d, true));
 
     this.yAxis.call(yAxis);
     this.yAxisLabel
@@ -245,7 +250,26 @@ class CountChart extends PureComponent {
     belowThresholdFill.opacity = 0.2;
     const belowThresholdStroke = belowThresholdFill.darker(0.3);
 
-    const binding = root.selectAll('rect').data(data);
+    if (addHandlers) {
+      const backBinding = root.selectAll('.background').data(data);
+      const backEnter = backBinding.enter()
+        .append('rect')
+          .attr('x', d => xScale(d[xKey]))
+          .attr('y', 0)
+          .attr('width', binWidth)
+          .attr('height', yScale.range()[0])
+          .attr('class', 'background')
+          .style('pointer-events', 'all')
+          .style('fill', 'none')
+          .style('fill-opacity', 0.0)
+          .style('stroke', 'none');
+
+      backEnter
+        .on('mouseenter', d => this.onHoverCountBar(d[xKey]))
+        .on('mouseleave', () => this.onHoverCountBar(null));
+    }
+
+    const binding = root.selectAll('.data-bar').data(data);
 
     // ENTER
     const entering = binding.enter()
@@ -254,6 +278,7 @@ class CountChart extends PureComponent {
         .attr('y', yScale(0))
         .attr('width', binWidth)
         .attr('height', 0)
+        .attr('class', 'data-bar')
         .style('shape-rendering', 'crispEdges')
         .style('fill', d => (d.count < threshold ? belowThresholdFill : lighterColor))
         .style('stroke', d => (d.count < threshold ? belowThresholdStroke : color));
@@ -322,8 +347,8 @@ class CountChart extends PureComponent {
 
       this.highlightCountBar.select('text')
         .attr('x', binWidth / 2)
-        .attr('y', barHeight < 15 ? -14 : 0)
-        .text(d[yKey]);
+        .attr('y', -15)
+        .text(formatNumber(d[yKey]));
     }
   }
 
