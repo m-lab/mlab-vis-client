@@ -52,7 +52,6 @@ export default class CompareHourCharts extends PureComponent {
       return null;
     }
     const color = colors[hourlyData.meta[dataType.idKey]];
-    // const hourlyExtents = hourlyData.extents;
 
     return (
       <StatusWrapper status={status}>
@@ -135,6 +134,7 @@ export default class CompareHourCharts extends PureComponent {
   renderBothFilters(facetItemInfo, filter1Infos, filter2Infos) {
     const {
       combinedHourly,
+      combinedHourlyExtents,
       breakdownBy,
       filterTypes,
     } = this.props;
@@ -166,7 +166,7 @@ export default class CompareHourCharts extends PureComponent {
                   return (
                     <Col key={`${breakdownId}-${filterId}`} md={6}>
                       <h6>{filterInfo.label}</h6>
-                      {this.renderHourly(chartId, hourObject, dataType)}
+                      {this.renderHourly(chartId, hourObject, dataType, combinedHourlyExtents)}
                     </Col>
                   );
                 })}
