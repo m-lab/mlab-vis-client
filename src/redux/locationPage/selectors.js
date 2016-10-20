@@ -5,9 +5,11 @@ import { createSelector } from 'reselect';
 import { metrics } from '../../constants';
 import status from '../status';
 import { colorsFor } from '../../utils/color';
+import { multiExtent } from '../../utils/array';
 import timeAggregationFromDates from '../../utils/timeAggregationFromDates';
 import * as LocationsSelectors from '../locations/selectors';
 import * as LocationClientIspSelectors from '../locationClientIsp/selectors';
+import wrangleHourly from '../../utils/wrangleHourly';
 
 // ----------------------
 // Input Selectors
@@ -257,7 +259,11 @@ export const getSummaryData = createSelector(
  */
 export const getLocationHourly = createSelector(
   LocationsSelectors.getLocationHourly, LocationsSelectors.getLocationHourlyStatus,
-  (data, status) => ({ data, status }));
+  getViewMetric,
+  (data, status, viewMetric) => {
+    return { data, status, wrangled: wrangleHourly(data, viewMetric) };
+  }
+);
 
 /**
  * Selector to get the data objects for location+client ISP hourly data
@@ -279,13 +285,17 @@ export const getLocationClientIspHourlyObjects = createSelector(
  * for the selected client ISPs
  */
 export const getLocationClientIspHourly = createSelector(
-  getLocationClientIspHourlyObjects,
-  (hourlyObjects) => {
+  getLocationClientIspHourlyObjects, getViewMetric,
+  (hourlyObjects, viewMetric) => {
     if (!hourlyObjects) {
       return undefined;
     }
 
-    return hourlyObjects.map(hourly => ({ data: hourly && hourly.data, status: status(hourly) }));
+    return hourlyObjects.map(hourly => ({
+      data: hourly && hourly.data,
+      status: status(hourly),
+      wrangled: wrangleHourly(hourly && hourly.data, viewMetric),
+    }));
   }
 );
 
@@ -340,5 +350,36 @@ export const getAnnotationTimeSeries = createSelector(
     }
 
     return results;
+  }
+);
+
+
+/**
+ * Get shared extents of all the hourly data
+ */
+export const getHourlyExtents = createSelector(
+  getLocationHourly, getLocationClientIspHourly,
+  (locationHourly, clientIspsHourly) => {
+    let extents = {};
+
+    console.log('got locationHourly', locationHourly);
+    console.log('got clientIspsHourly', clientIspsHourly);
+    const combined = [].concat(locationHourly, clientIspsHourly)
+      .map(d => d.data && d.data.extents)
+      .filter(d => d != null);
+
+    if (combined.length) {
+      extents = Object.keys(combined[0]).reduce((carry, key) => {
+        const extent = multiExtent(combined, d => d, d => d[key]);
+        carry[key] = extent;
+        return carry;
+      }, {});
+    }
+    console.log('combined = ', combined);
+    console.log('extent', extents);
+
+
+
+    return extents;
   }
 );

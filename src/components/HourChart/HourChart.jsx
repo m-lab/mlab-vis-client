@@ -12,8 +12,8 @@ import './HourChart.scss';
  */
 function visProps(props) {
   const {
-    color,
     data,
+    color,
     forceZeroMin,
     height,
     paddingLeft = 50,
@@ -40,6 +40,8 @@ function visProps(props) {
   const yMin = plotAreaHeight;
   const yMax = 0;
 
+
+  // const data = []; console.warn('TODO data in HourChart');
   // set up the domains based on extent. Use the prop if provided, otherwise calculate
   const xDomain = [0, 23];
   let yDomain = yExtent || d3.extent(data, d => d[yKey]);
@@ -72,7 +74,6 @@ function visProps(props) {
 
   return {
     binWidth,
-    data,
     height,
     plotAreaHeight,
     padding,
@@ -90,8 +91,6 @@ function visProps(props) {
  * Chart for showing data by hour
  *
  * @prop {String} color The color to render the chart in
- * @prop {Array} data The array of data points indexed by hour. Should be
- *   an array of length 24 of form [{ hour:Number(0..23), points: [{ yKey:Number }, ...]}, ...]
  * @prop {Boolean} forceZeroMin=true Whether the min y value should always be 0.
  * @prop {Number} height The height of the chart
  * @prop {Number} highlightHour The hour being highlighted in the chart
@@ -107,8 +106,6 @@ class HourChart extends PureComponent {
   static propTypes = {
     binWidth: PropTypes.number,
     color: PropTypes.string,
-    data: PropTypes.array,
-    dataByDate: PropTypes.object,
     dataByHour: PropTypes.array,
     forceZeroMin: PropTypes.bool,
     height: PropTypes.number,
