@@ -18,18 +18,25 @@ import binarySearch from 'binary-search';
  * @param {Array} outerArray An array of arrays or objects
  * @param {Function} [valueAccessor] How to read a value in the array (defaults to identity)
  * @param {Function} [arrayAccessor] How to read an inner array (defaults to identity)
+ * @param {Number} [quantile] If provided, limits the max to this percentile value.
  * @return {Array} the extent
  */
-export function multiExtent(outerArray, valueAccessor = d => d, arrayAccessor = d => d) {
+export function multiExtent(outerArray, valueAccessor = d => d, arrayAccessor = d => d, quantile) {
   if (!outerArray || !outerArray.length) {
     return undefined;
   }
 
+  // flatten the arrays into one big array
+  const combined = outerArray.reduce((carry, inner) => carry.concat(arrayAccessor(inner)), []);
 
-  const innerExtents = outerArray.map(inner => arrayAccessor(inner))
-    .map(inner => d3.extent(inner, valueAccessor));
+  const extent = d3.extent(combined, valueAccessor);
 
-  const extent = [d3.min(innerExtents, d => d[0]), d3.max(innerExtents, d => d[1])];
+  // limit to quantile if passed in
+  if (quantile != null) {
+    combined.sort((a, b) => valueAccessor(a) - valueAccessor(b));
+    extent[1] = d3.quantile(combined, quantile, valueAccessor);
+  }
+
   return extent;
 }
 

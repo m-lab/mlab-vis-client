@@ -529,7 +529,7 @@ class LocationPage extends PureComponent {
 
   renderHourChart(hourly, color) {
     const { highlightHourly, hourlyExtents, locationId, viewMetric } = this.props;
-    const extentKey = this.extentKey(viewMetric);
+    const extentKey = viewMetric.dataKey;
 
     if (!hourly) {
       return null;
