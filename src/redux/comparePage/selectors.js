@@ -661,12 +661,31 @@ export const getCombinedHourly = createSelector(
 );
 
 /**
+ * Helper to merge the possibly two levels of nesting of combined hourly
+ * into a flat array
+ */
+function flattenCombinedHourly(combinedHourly) {
+  if (!combinedHourly) {
+    return [];
+  }
+
+  let values = d3.values(combinedHourly);
+  if (values.length && !Array.isArray(values[0])) {
+    // run one level deeper
+    values = d3.values(combinedHourly).reduce((carry, d) => carry.concat(d3.values(d)), []);
+  }
+
+  const results = d3.merge(values);
+  return results;
+}
+
+/**
  * Get shared extents of all the hourly data
  */
 export const getCombinedHourlyExtents = createSelector(
   getCombinedHourly, getViewMetric,
   (combinedHourly, viewMetric) =>
-    computeHourlyExtents(d3.merge(d3.values(combinedHourly)), viewMetric.dataKey));
+    computeHourlyExtents(flattenCombinedHourly(combinedHourly), viewMetric.dataKey));
 
 /**
  * Selector to get the colors given all the selected ISPs and locations
