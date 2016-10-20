@@ -261,8 +261,8 @@ class ScatterPlot extends PureComponent {
       .style('fill', color)
       .text(highlightPoint.label);
 
-    const xValue = highlightPoint[xKey];
-    const yValue = highlightPoint[yKey];
+    const xValue = highlightPoint[xKey] || 0;
+    const yValue = highlightPoint[yKey] || 0;
 
     // show the value in the x axis
     const xAxisY = yScale.range()[0] + 4;
@@ -305,7 +305,9 @@ class ScatterPlot extends PureComponent {
 
     this.g.attr('transform', `translate(${padding.left} ${padding.top})`);
 
-    const binding = this.g.selectAll('.data-point').data(data, d => d.id);
+    const filteredData = data.filter((d) => d[xKey] && d[yKey]);
+
+    const binding = this.g.selectAll('.data-point').data(filteredData, d => d.id);
     binding.exit().remove();
     const entering = binding.enter().append('circle')
       .classed('data-point', true)
@@ -313,8 +315,8 @@ class ScatterPlot extends PureComponent {
       .on('mouseleave', () => this.onHoverPoint(null));
 
     binding.merge(entering)
-      .attr('cx', (d) => xScale(d[xKey]))
-      .attr('cy', (d) => yScale(d[yKey]))
+      .attr('cx', (d) => xScale(d[xKey] || 0))
+      .attr('cy', (d) => yScale(d[yKey] || 0))
       .attr('r', pointRadius)
       .attr('stroke', (d) => colors[d.id])
       .attr('fill', (d) => d3.color(colors[d.id]).brighter(0.3));

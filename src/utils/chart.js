@@ -4,7 +4,7 @@
  *
  * @param {Function|String} color the color of the the line (typical d3.. takes arg `d`)
  */
-export function standardLineChunkedDefinitions() {
+export function standardLineChunkedDefinitions(color) {
   return {
     gap: {
       styles: {
@@ -16,6 +16,11 @@ export function standardLineChunkedDefinitions() {
         'stroke-dasharray': '2, 2',
         'stroke-opacity': 0.35,
       },
+      pointStyles: {
+        'fill': '#fff',
+        'stroke': color,
+        'stroke-opacity': 0.7,
+      }
     },
   };
 }

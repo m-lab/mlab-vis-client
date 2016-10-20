@@ -111,7 +111,8 @@ function visProps(props) {
           'stroke-width': (d, i) => ((showBaseline && i === 0) ? 1 : 1.5),
         })
         .chunk(d => (d.count > threshold ? 'line' : 'below-threshold'))
-        .chunkDefinitions(standardLineChunkedDefinitions())
+        .chunkDefinitions(standardLineChunkedDefinitions((d, i) =>
+          ((showBaseline && i === 0) ? '#bbb' : colors[d.meta.client_asn_number])))
     );
   }
 

@@ -1,6 +1,10 @@
 .line-chart {
   .highlight-line path {
     stroke-width: 3px !important;
+
+    &.d3-line-chunked-undefined {
+      stroke-width: 0 !important;
+    }
   }
 
   .series-overlay {
@@ -11,5 +15,12 @@
   .highlight-ref-line {
     stroke: rgba(0, 0, 0, 0.2);
     stroke-width: 1px;
+  }
+
+  .constant-line {
+    pointer-events: none;
+    stroke-dasharray: 4, 2;
+    stroke: #aaa;
+    stroke-opacity: 0.5;
   }
 }

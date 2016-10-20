@@ -14,6 +14,7 @@ import './CompareInputPanel.scss';
  */
 export default class CompareLocationsInput extends PureComponent {
   static propTypes = {
+    colors: PropTypes.object,
     facetItemIds: PropTypes.array,
     facetItemInfos: PropTypes.array,
     facetType: PropTypes.object,
@@ -53,7 +54,7 @@ export default class CompareLocationsInput extends PureComponent {
   }
 
   renderFilterClientIspsInput(changeCallback) {
-    const { facetItemIds, filter1Infos, filter2Infos, filterTypes, facetType } = this.props;
+    const { colors, facetItemIds, filter1Infos, filter2Infos, filterTypes, facetType } = this.props;
     const infos = filterTypes[0].value === 'clientIsp' ? filter1Infos : filter2Infos;
     const hasFacetItems = facetItemIds.length;
 
@@ -69,13 +70,14 @@ export default class CompareLocationsInput extends PureComponent {
           searchFilterItemIds={facetItemIds}
           searchFilterType={facetType.value}
           selected={infos}
+          colors={colors}
         />
       </div>
     );
   }
 
   renderFilterTransitIspsInput(changeCallback) {
-    const { facetItemIds, filter1Infos, filter2Infos, filterTypes, facetType } = this.props;
+    const { colors, facetItemIds, filter1Infos, filter2Infos, filterTypes, facetType } = this.props;
     const infos = filterTypes[0].value === 'transitIsp' ? filter1Infos : filter2Infos;
     const hasFacetItems = facetItemIds.length;
 
@@ -91,13 +93,14 @@ export default class CompareLocationsInput extends PureComponent {
           searchFilterItemIds={facetItemIds}
           searchFilterType={facetType.value}
           selected={infos}
+          colors={colors}
         />
       </div>
     );
   }
 
   renderFilterLocationsInput(changeCallback) {
-    const { facetItemIds, filter1Infos, filter2Infos, filterTypes, facetType } = this.props;
+    const { colors, facetItemIds, filter1Infos, filter2Infos, filterTypes, facetType } = this.props;
     const infos = filterTypes[0].value === 'location' ? filter1Infos : filter2Infos;
 
     const hasFacetItems = facetItemIds.length;
@@ -113,6 +116,7 @@ export default class CompareLocationsInput extends PureComponent {
           searchFilterItemIds={facetItemIds}
           searchFilterType={facetType.value}
           selected={infos}
+          colors={colors}
         />
       </div>
     );
@@ -131,40 +135,55 @@ export default class CompareLocationsInput extends PureComponent {
   }
 
   renderFacetLocationsInput() {
-    const { facetItemInfos, onFacetItemsChange } = this.props;
+    const { colors, facetItemInfos, onFacetItemsChange } = this.props;
     return (
       <div>
         <header>
           <h3>Locations</h3>
         </header>
         <p>Select one or more locations to explore measurements in. Each location will get its own chart.</p>
-        <SearchSelect type="location" onChange={onFacetItemsChange} selected={facetItemInfos} />
+        <SearchSelect
+          type="location"
+          onChange={onFacetItemsChange}
+          selected={facetItemInfos}
+          colors={colors}
+        />
       </div>
     );
   }
 
   renderFacetClientIspsInput() {
-    const { facetItemInfos, onFacetItemsChange } = this.props;
+    const { colors, facetItemInfos, onFacetItemsChange } = this.props;
     return (
       <div>
         <header>
           <h3>Client ISPs</h3>
         </header>
         <p>Select one or more client ISPs to explore measurements in. Each client ISP will get its own chart.</p>
-        <SearchSelect type="clientIsp" onChange={onFacetItemsChange} selected={facetItemInfos} />
+        <SearchSelect
+          type="clientIsp"
+          onChange={onFacetItemsChange}
+          selected={facetItemInfos}
+          colors={colors}
+        />
       </div>
     );
   }
 
   renderFacetTransitIspsInput() {
-    const { facetItemInfos, onFacetItemsChange } = this.props;
+    const { colors, facetItemInfos, onFacetItemsChange } = this.props;
     return (
       <div>
         <header>
           <h3>Transit ISPs</h3>
         </header>
         <p>Select one or more transit ISPs to explore measurements in. Each transit ISP will get its own chart.</p>
-        <SearchSelect type="transitIsp" onChange={onFacetItemsChange} selected={facetItemInfos} />
+        <SearchSelect
+          type="transitIsp"
+          onChange={onFacetItemsChange}
+          selected={facetItemInfos}
+          colors={colors}
+        />
       </div>
     );
   }

@@ -51,6 +51,7 @@ function mapStateToProps(state, propsWithUrl) {
     clientIspInfos: DataPageSelectors.getClientIspInfos(state, propsWithUrl),
     clientIspSuggestionsForLocations: DataPageSelectors.getClientIspSuggestionsForLocations(state, propsWithUrl),
     clientIspSuggestionsForTransitIsps: DataPageSelectors.getClientIspSuggestionsForTransitIsps(state, propsWithUrl),
+    colors: DataPageSelectors.getColors(state, propsWithUrl),
     downloadStatus: DataPageSelectors.getDownloadStatus(state, propsWithUrl),
     locationInfos: DataPageSelectors.getLocationInfos(state, propsWithUrl),
     locationSuggestionsForClientIsps: DataPageSelectors.getLocationSuggestionsForClientIsps(state, propsWithUrl),
@@ -69,6 +70,7 @@ class DataPage extends PureComponent {
     clientIspInfos: PropTypes.array,
     clientIspSuggestionsForLocations: PropTypes.object,
     clientIspSuggestionsForTransitIsps: PropTypes.object,
+    colors: PropTypes.object,
     dataFormat: PropTypes.string,
     dispatch: PropTypes.func,
     downloadStatus: PropTypes.string,
@@ -256,6 +258,7 @@ class DataPage extends PureComponent {
 
   renderFilters() {
     const {
+      colors,
       locationIds,
       locationInfos,
       locationSuggestionsForClientIsps,
@@ -284,6 +287,7 @@ class DataPage extends PureComponent {
               orientation="vertical"
               onChange={this.onLocationsChange}
               selected={locationInfos}
+              colors={colors}
             />
             {this.renderSuggestions(
               'Suggestions based on Client ISPs',
@@ -307,6 +311,7 @@ class DataPage extends PureComponent {
               orientation="vertical"
               onChange={this.onClientIspsChange}
               selected={clientIspInfos}
+              colors={colors}
             />
             {this.renderSuggestions(
               'Suggestions based on Locations',
@@ -330,6 +335,7 @@ class DataPage extends PureComponent {
               orientation="vertical"
               onChange={this.onTransitIspsChange}
               selected={transitIspInfos}
+              colors={colors}
             />
             {this.renderSuggestions(
               'Suggestions based on Locations',

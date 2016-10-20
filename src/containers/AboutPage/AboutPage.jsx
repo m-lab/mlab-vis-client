@@ -1,11 +1,13 @@
 import React, { PureComponent } from 'react';
 import { Link } from 'react-router';
 import Helmet from 'react-helmet';
-
+import Row from 'react-bootstrap/lib/Row';
+import Col from 'react-bootstrap/lib/Col';
 
 import './AboutPage.scss';
 
 class AboutPage extends PureComponent {
+  /* eslint-disable max-len */
   static sections = [
     {
       id: 'about',
@@ -79,11 +81,14 @@ class AboutPage extends PureComponent {
       ],
     },
   ]
+  /* eslint-enable max-len */
 
   renderSection(section) {
     return (
       <div key={section.id} className="section">
-        <h2 id={section.id}>{section.title}</h2>
+        <header>
+          <h2 id={section.id}>{section.title}</h2>
+        </header>
         <div className="content">
           {section.content.map((c, i) => React.cloneElement(c, { key: i }))}
         </div>
@@ -95,7 +100,11 @@ class AboutPage extends PureComponent {
     return (
       <div className="AboutPage">
         <Helmet title="About" />
-        {AboutPage.sections.map((s) => this.renderSection(s))}
+        <Row>
+          <Col md={10} lg={8}>
+            {AboutPage.sections.map((s) => this.renderSection(s))}
+          </Col>
+        </Row>
       </div>
     );
   }
