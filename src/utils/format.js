@@ -31,13 +31,16 @@ export function addCommas(nStr) {
  * @param {Number} number Number to format
  * @return {String} number with commas and M/B instaed of million / billion
  */
-export function formatNumber(number) {
+export function formatNumber(number, thousand = false) {
   if (number > 999999999) {
     number = roundNumber(number / 1000000000.0, 1);
     return `${addCommas(number)}B`;
   } else if (number > 999999) {
     number = roundNumber(number / 1000000.0, 1);
     return `${addCommas(number)}M`;
+  } else if (number > 999 && thousand) {
+    number = roundNumber(number / 1000.0, 1);
+    return `${addCommas(number)}K`;
   }
   return addCommas(number);
 }
