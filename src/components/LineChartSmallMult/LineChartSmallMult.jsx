@@ -413,7 +413,7 @@ class LineChartSmallMult extends PureComponent {
     // position text below charts for now
     const yPosText = 0;
     const seriesKey = series.meta.id;
-    const seriesName = (showBaseline && seriesIndex === 0) ? series.meta.client_city : series.meta.client_asn_name;
+    const seriesName = (showBaseline && seriesIndex === 0) ? series.meta.label : series.meta.client_asn_name;
 
     return (
       <g
