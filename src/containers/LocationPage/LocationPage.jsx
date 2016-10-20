@@ -31,6 +31,7 @@ import {
   ScatterGroup,
   HistoGroup,
   SummaryTable,
+  HelpTip,
 } from '../../components';
 
 import { LocationSearch } from '../../containers';
@@ -483,7 +484,8 @@ class LocationPage extends PureComponent {
     return (
       <div className="subsection">
         <header>
-          <h3>Compare Metrics</h3>
+          <h3>Compare Metrics <HelpTip content="Shows all metrics for each ISP selected along with location data for reference." id="compare-metrics-tip" />
+          </h3>
         </header>
         <StatusWrapper status={timeSeriesStatus}>
           <AutoWidth>
@@ -501,12 +503,12 @@ class LocationPage extends PureComponent {
   }
 
   renderProvidersByHour() {
-    const { locationHourly, clientIspHourly, colors } = this.props;
+    const { locationHourly, clientIspHourly, colors, viewMetric } = this.props;
 
     return (
       <div className="subsection">
         <header>
-          <h3>By Hour, Median download speeds</h3>
+          <h3>{viewMetric.label} - Hour By Hour <HelpTip content="Aggregates metric for each hour over time range. Line indicates Average value for each hour." id="hour-metric-tip" /></h3>
         </header>
         <Row>
           {this.renderHourChart(locationHourly)}
