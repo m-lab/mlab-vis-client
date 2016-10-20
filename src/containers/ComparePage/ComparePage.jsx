@@ -698,42 +698,46 @@ class ComparePage extends PureComponent {
     // if filters are empty, show the facet item line in the chart
     // if one filter has items, show the lines for those filter items in the chart
     // if both filters have items, group by `breakdownBy` filter and have the other filter items have lines in those charts
+    const renderBreakdownTimeSeries = filter1Ids.length || filter2Ids.length;
+
     return (
       <div>
-        <Row>
-          <Col md={3}>
-            {this.renderBreakdownOptions()}
-          </Col>
-          <Col md={9}>
-            <div className="subsection">
-              <header>
-                <h3>Breakdown</h3>
-              </header>
-              {facetItemInfos.map((facetItemInfo) => (
-                <CompareTimeSeriesCharts
-                  key={facetItemInfo.id}
-                  breakdownBy={breakdownBy}
-                  colors={colors}
-                  combinedTimeSeries={combinedTimeSeries && combinedTimeSeries[facetItemInfo.id]}
-                  facetItemId={facetItemInfo.id}
-                  facetItemInfo={facetItemInfo}
-                  facetItemTimeSeries={facetItemTimeSeries}
-                  facetType={facetType}
-                  filter1Ids={filter1Ids}
-                  filter1Infos={filter1Infos}
-                  filter2Ids={filter2Ids}
-                  filter2Infos={filter2Infos}
-                  filterTypes={filterTypes}
-                  highlightTimeSeriesDate={highlightTimeSeriesDate}
-                  highlightTimeSeriesLine={highlightTimeSeriesLine}
-                  onHighlightTimeSeriesDate={this.onHighlightTimeSeriesDate}
-                  onHighlightTimeSeriesLine={this.onHighlightTimeSeriesLine}
-                  viewMetric={viewMetric}
-                />
-              ))}
-            </div>
-          </Col>
-        </Row>
+        {renderBreakdownTimeSeries ? (
+          <Row>
+            <Col md={3}>
+              {this.renderBreakdownOptions()}
+            </Col>
+            <Col md={9}>
+              <div className="subsection">
+                <header>
+                  <h3>Breakdown</h3>
+                </header>
+                {facetItemInfos.map((facetItemInfo) => (
+                  <CompareTimeSeriesCharts
+                    key={facetItemInfo.id}
+                    breakdownBy={breakdownBy}
+                    colors={colors}
+                    combinedTimeSeries={combinedTimeSeries && combinedTimeSeries[facetItemInfo.id]}
+                    facetItemId={facetItemInfo.id}
+                    facetItemInfo={facetItemInfo}
+                    facetItemTimeSeries={facetItemTimeSeries}
+                    facetType={facetType}
+                    filter1Ids={filter1Ids}
+                    filter1Infos={filter1Infos}
+                    filter2Ids={filter2Ids}
+                    filter2Infos={filter2Infos}
+                    filterTypes={filterTypes}
+                    highlightTimeSeriesDate={highlightTimeSeriesDate}
+                    highlightTimeSeriesLine={highlightTimeSeriesLine}
+                    onHighlightTimeSeriesDate={this.onHighlightTimeSeriesDate}
+                    onHighlightTimeSeriesLine={this.onHighlightTimeSeriesLine}
+                    viewMetric={viewMetric}
+                  />
+                ))}
+              </div>
+            </Col>
+          </Row>
+        ) : null}
         <Row>
           <Col md={3}>
             {this.renderMetricSelector()}
@@ -741,7 +745,7 @@ class ComparePage extends PureComponent {
           <Col md={9}>
             <div className="subsection">
               <header>
-                <h3>By Hour</h3>
+                <h3>{`${viewMetric.label} by Hour`}</h3>
               </header>
               <Row>
                 {facetItemInfos.map((facetItemInfo) => (
