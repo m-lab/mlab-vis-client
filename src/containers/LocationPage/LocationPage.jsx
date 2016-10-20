@@ -351,6 +351,13 @@ class LocationPage extends PureComponent {
           <Col md={9}>
             {this.renderCompareProviders()}
             {this.renderCompareMetrics()}
+          </Col>
+        </Row>
+        <Row>
+          <Col md={3}>
+            {this.renderMetricSelector()}
+          </Col>
+          <Col md={9}>
             {this.renderProvidersByHour()}
           </Col>
         </Row>
@@ -507,12 +514,12 @@ class LocationPage extends PureComponent {
   }
 
   renderProvidersByHour() {
-    const { locationHourly, clientIspHourly, colors } = this.props;
+    const { locationHourly, viewMetric, clientIspHourly, colors } = this.props;
 
     return (
       <div className="subsection">
         <header>
-          <h3>By Hour, Median download speeds</h3>
+          <h3>{`${viewMetric.label} by Hour`}</h3>
         </header>
         <Row>
           {this.renderHourChart(locationHourly)}
