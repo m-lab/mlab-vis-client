@@ -757,15 +757,41 @@ class ComparePage extends PureComponent {
     );
   }
 
+  renderAboutCompare() {
+    return (
+      <div className="about">
+        <Row>
+          <Col md={3}>
+            <h2>{pageTitle}</h2>
+          </Col>
+          <Col md={8}>
+            <p>
+              The compare tool provides a way to compare speed tests along different aggregations.
+              <br />
+              <br />
+              The "Facet By" selector on the left allows you to split the data by either Location, Client ISP or Transit ISP.
+
+              <br />
+              Once a facet is selected, fill in the search bars on the right with the specific locations and ISPs you want to look at.
+
+              Selecting values from these lists, or from the suggestions provided, will automatically update the charts below.
+            </p>
+          </Col>
+        </Row>
+      </div>
+    );
+  }
+
   render() {
     return (
       <div className="ComparePage">
         <Helmet title={pageTitle} />
+        {this.renderAboutCompare()}
         <div className="section">
           <header>
             <Row>
               <Col md={3}>
-                <h2>{pageTitle}</h2>
+                <p />
               </Col>
               <Col md={8}>
                 {this.renderTimeRangeSelector()}
