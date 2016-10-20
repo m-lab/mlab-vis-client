@@ -22,12 +22,19 @@ export default class HelpTip extends PureComponent {
 
   render() {
     const { id, style, content, place } = this.props;
+    const offset = { top: -5, left: -8 };
 
     return (
       <span className="HelpTip">
-        <a data-tip data-for={id} ><Icon name="question-circle" id={id} /></a>
-        <ReactTooltip id={id} place={place} type={style} effect="solid">
-          <span>{content}</span>
+        <a data-tip data-for={id}><Icon name="question-circle" id={id} /></a>
+        <ReactTooltip
+          id={id}
+          place={place}
+          type={style}
+          effect="solid"
+          offset={offset}
+        >
+          <span dangerouslySetInnerHTML={{ __html: content }} />
         </ReactTooltip>
       </span>
     );
