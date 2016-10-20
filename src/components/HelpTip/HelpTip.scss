@@ -1,0 +1,16 @@
+
+.HelpTip {
+  font-size: 12px;
+  font-style: normal;
+  font-weight: 300;
+  a {
+    font-size: 1.2em;
+    color: black;
+    margin-left: 3px;
+    opacity: 0.3;
+    &:hover {
+      opacity: 0.7;
+    }
+  }
+
+}

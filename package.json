@@ -143,6 +143,7 @@
     "react-router-scroll": "^0.3.1",
     "react-select": "^1.0.0-beta14",
     "react-taco-table": "^0.4.0",
+    "react-tooltip": "^3.2.1",
     "react-transform-hmr": "^1.0.1",
     "redux": "^3.0.4",
     "redux-batched-actions": "^0.1.3",

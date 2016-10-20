@@ -31,6 +31,7 @@ import {
   ScatterGroup,
   HistoGroup,
   SummaryTable,
+  HelpTip,
 } from '../../components';
 
 import { LocationSearch } from '../../containers';
@@ -60,8 +61,8 @@ const urlQueryConfig = {
 const urlHandler = new UrlHandler(urlQueryConfig, browserHistory);
 
 const fixedFields = [
-  { id: 'lastWeek', label: 'Last Week' },
   { id: 'lastMonth', label: 'Last Month' },
+  { id: 'lastSixMonths', label: 'Last Six Months' },
   { id: 'lastYear', label: 'Last Year' },
 ];
 
@@ -353,6 +354,13 @@ class LocationPage extends PureComponent {
           <Col md={9}>
             {this.renderCompareProviders()}
             {this.renderCompareMetrics()}
+          </Col>
+        </Row>
+        <Row>
+          <Col md={3}>
+            {this.renderMetricSelector()}
+          </Col>
+          <Col md={9}>
             {this.renderProvidersByHour()}
           </Col>
         </Row>
@@ -433,7 +441,8 @@ class LocationPage extends PureComponent {
                   id="show-regional-values"
                   onChange={this.onShowRegionalValuesChange}
                 />
-                {' Show Regional Values'}
+                {' Show Regional Values '}
+                <HelpTip content="Show or hide baseline value for the location you are viewing." id="regional-tip" />
               </label>
             </div>
           </li>
@@ -491,7 +500,8 @@ class LocationPage extends PureComponent {
     return (
       <div className="subsection">
         <header>
-          <h3>Compare Metrics</h3>
+          <h3>Compare Metrics <HelpTip content="Shows all metrics for each ISP selected along with location data for reference." id="compare-metrics-tip" />
+          </h3>
         </header>
         <StatusWrapper status={timeSeriesStatus}>
           <AutoWidth>
@@ -509,12 +519,12 @@ class LocationPage extends PureComponent {
   }
 
   renderProvidersByHour() {
-    const { locationHourly, clientIspHourly, colors } = this.props;
+    const { locationHourly, viewMetric, clientIspHourly, colors } = this.props;
 
     return (
       <div className="subsection">
         <header>
-          <h3>By Hour, Median download speeds</h3>
+          <h3>{`${viewMetric.label} by Hour`} <HelpTip content="Aggregates metric for each hour over time range. Line indicates Average value for each hour." id="hour-metric-tip" /></h3>
         </header>
         <Row>
           {this.renderHourChart(locationHourly)}
@@ -584,7 +594,7 @@ class LocationPage extends PureComponent {
         <Row>
           <Col md={12}>
             <header>
-              <h2>Compare Fixed Time Frame</h2>
+              <h2>Compare Fixed Time Frame <HelpTip content="Charts below are based on fixed time data instead of using the selected time from above." id="fixed-time-tip" /></h2>
             </header>
           </Col>
         </Row>
@@ -614,7 +624,8 @@ class LocationPage extends PureComponent {
     return (
       <div className="subsection">
         <header>
-          <h3>Compare Metrics</h3>
+          <h3>Compare Metrics <HelpTip content="Compare one metric against another over a set of fixed time ranges." id="fixed-compare-metrics-tip" />
+          </h3>
         </header>
         <ScatterGroup
           summary={summary}
@@ -631,7 +642,8 @@ class LocationPage extends PureComponent {
     return (
       <div className="subsection">
         <header>
-          <h3>Distributions of Metrics</h3>
+          <h3>Distribution of {viewMetric.label} <HelpTip content="Shows a histogram of metric data broken up into evenly spaced bins. Each bar shows percent of total tests that fall into that bin." id="fixed-metric-tip" />
+          </h3>
         </header>
         <HistoGroup
           summary={summary}
@@ -644,17 +656,17 @@ class LocationPage extends PureComponent {
 
   renderFixedSummaryData() {
     const { summary = {} } = this.props;
-    const { lastWeek = {}, lastMonth = {}, lastYear = {} } = summary;
+    const { lastMonth = {}, lastSixMonths = {}, lastYear = {} } = summary;
 
     return (
       <div className="subsection">
         <header>
           <h3>Summary Data</h3>
         </header>
-        <h4>Last Week</h4>
-        <SummaryTable data={lastWeek.clientIspsData} bottomData={lastWeek.locationData} />
         <h4>Last Month</h4>
         <SummaryTable data={lastMonth.clientIspsData} bottomData={lastMonth.locationData} />
+        <h4>Last Six Months</h4>
+        <SummaryTable data={lastSixMonths.clientIspsData} bottomData={lastSixMonths.locationData} />
         <h4>Last Year</h4>
         <SummaryTable data={lastYear.clientIspsData} bottomData={lastYear.locationData} />
       </div>

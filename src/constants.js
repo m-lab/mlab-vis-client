@@ -23,6 +23,7 @@ export const metrics = [
     countBinKey: 'download_speed_mbps_bins',
     percentBinKey: 'download_speed_mbps_percent_bins',
     formatter: d3.format('.1f'),
+    description: 'Median download speed for provided time range<br> at the selected time aggregation.',
   },
   {
     value: 'upload',
@@ -32,6 +33,7 @@ export const metrics = [
     countBinKey: 'upload_speed_mbps_bins',
     percentBinKey: 'upload_speed_mbps_percent_bins',
     formatter: d3.format('.1f'),
+    description: 'Median upload speed for provided time range<br> at the selected time aggregation.',
   },
   {
     value: 'rtt',
@@ -39,6 +41,7 @@ export const metrics = [
     unit: 'ms',
     dataKey: 'rtt_avg',
     formatter: d3.format('.1f'),
+    description: 'Average round-trip time for the speed tests to complete.',
   },
   {
     value: 'retransmission',
@@ -46,6 +49,7 @@ export const metrics = [
     unit: '%',
     dataKey: 'retransmit_avg',
     formatter: d3.format('.1p'),
+    description: 'Average Retransmission rate during the speed tests.',
   },
 ];
 

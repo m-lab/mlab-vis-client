@@ -5,6 +5,8 @@ import jquery from 'jquery';
 import daterangepicker from 'bootstrap-daterangepicker'; // eslint-disable-line
 
 import momentPropTypes from 'react-moment-proptypes';
+
+import { HelpTip } from '../../components';
 import '../../assets/daterangepicker.scss';
 import './DateRangeSelector.scss';
 

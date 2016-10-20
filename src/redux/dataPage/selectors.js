@@ -8,6 +8,7 @@ import * as LocationsSelectors from '../locations/selectors';
 import * as ClientIspsSelectors from '../clientIsps/selectors';
 import * as TransitIspsSelectors from '../transitIsps/selectors';
 import * as TopSelectors from '../top/selectors';
+import { colorsFor } from '../../utils/color';
 
 // ----------------------
 // Input Selectors
@@ -140,3 +141,18 @@ export const getTransitIspSuggestionsForLocations = createSelector(
 export const getTransitIspSuggestionsForClientIsps = createSelector(
   TopSelectors.getTopTransitIspsForClientIsps, getTransitIspIds,
   (top, transitIspIds) => getFilteredTopItems(top, transitIspIds, 'server_asn_number'));
+
+/**
+ * Selector to get the colors given all the selected ISPs and locations
+ */
+export const getColors = createSelector(
+  getLocationIds, getClientIspIds, getTransitIspIds,
+  (locationIds, clientIspIds, transitIspIds) => {
+    const combined = [locationIds, clientIspIds, transitIspIds]
+      .filter(d => d != null)
+      .reduce((combined, ids) => combined.concat(ids), []);
+
+    const colors = colorsFor(combined);
+    return colors;
+  }
+);
