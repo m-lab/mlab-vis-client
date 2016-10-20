@@ -23,7 +23,7 @@ export const metrics = [
     countBinKey: 'download_speed_mbps_bins',
     percentBinKey: 'download_speed_mbps_percent_bins',
     formatter: d3.format('.1f'),
-    description: 'Median download speed for provided time range<br> at the selected time aggregation.',
+    description: 'Median download speed for provided time range at the selected time aggregation.',
   },
   {
     value: 'upload',
@@ -33,7 +33,7 @@ export const metrics = [
     countBinKey: 'upload_speed_mbps_bins',
     percentBinKey: 'upload_speed_mbps_percent_bins',
     formatter: d3.format('.1f'),
-    description: 'Median upload speed for provided time range<br> at the selected time aggregation.',
+    description: 'Median upload speed for provided time range at the selected time aggregation.',
   },
   {
     value: 'rtt',
