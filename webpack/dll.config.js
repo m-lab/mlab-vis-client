@@ -116,6 +116,7 @@ module.exports = {
       'jquery',
       'bootstrap-daterangepicker',
       'react-auto-width',
+      'react-tooltip'
     ]
   },
   output: {
