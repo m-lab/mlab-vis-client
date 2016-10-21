@@ -773,7 +773,7 @@ styles:
                     }
                 color: |
                     vec2 st = getConstantCoords();
-                    color = mix(vec4(color.rgb, 0.9), vec4(0.0), stripes(st*130.))*.8; // transparent stripes
+                    color = vec4(0.850, 0.850, 0.850, 0.9); //mix(vec4(color.rgb, 0.9), vec4(0.0), stripes(st*130.))*.8; // transparent stripes
 
     dots:
         mix: [space-tile, tiling-tile, shapes-circle]
