@@ -82,7 +82,7 @@ function transitionLine(path) {
     .attrTween('stroke-dasharray', tweenDash)
     .style('stroke-dashoffset', '0%')
     .transition()
-    .duration(500)
+    .duration(d => durationScale(d.properties.data.download_speed_mbps) / 2)
     // make the line disappear the way it came
     .styleTween('stroke-dashoffset', function dashoffsetTween() {
       const l = this.getTotalLength();
