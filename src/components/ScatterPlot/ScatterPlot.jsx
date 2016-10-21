@@ -20,8 +20,13 @@ function visProps(props) {
     height,
     clampToZero = true,
   } = props;
+  let {
+    colors,
+  } = props;
 
-  const colors = colorsFor(data, (d) => d.id);
+  if (!colors) {
+    colors = colorsFor(data, (d) => d.id);
+  }
   const padding = {
     top: 20,
     right: 20,
@@ -288,7 +293,7 @@ class ScatterPlot extends PureComponent {
     // otherwise update an show them
     this.highlight.style('display', '');
 
-    const color = colors[highlightPoint.id];
+    const color = colors[highlightPoint.id] || '#aaa';
 
     // show name in the label
     this.highlight.select('text')
@@ -350,8 +355,8 @@ class ScatterPlot extends PureComponent {
       .attr('cx', (d) => xScale(d[xKey] || 0))
       .attr('cy', (d) => yScale(d[yKey] || 0))
       .attr('r', pointRadius)
-      .attr('stroke', (d) => colors[d.id])
-      .attr('fill', (d) => d3.color(colors[d.id]).brighter(0.3));
+      .attr('stroke', (d) => colors[d.id] || '#aaa')
+      .attr('fill', (d) => d3.color(colors[d.id] || '#aaa').brighter(0.3));
   }
 
   /**
