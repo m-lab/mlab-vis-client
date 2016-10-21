@@ -42,12 +42,12 @@ export default class CompareTimeSeriesCharts extends PureComponent {
       onHighlightTimeSeriesLine,
       viewMetric,
     } = this.props;
-    console.log('rendering timeSeries with ', extents);
+
     if (!timeSeries) {
       return null;
     }
 
-    const { status, data: seriesData } = timeSeries;
+    const { status, data: seriesData, counts } = timeSeries;
 
     if (!seriesData || seriesData.length === 0) {
       return null;
@@ -62,6 +62,7 @@ export default class CompareTimeSeriesCharts extends PureComponent {
             labelKey={lineDataType.labelKey}
             colors={colors}
             countExtent={extents && extents.count}
+            counts={counts}
             series={seriesData}
             onHighlightDate={onHighlightTimeSeriesDate}
             highlightDate={highlightTimeSeriesDate}

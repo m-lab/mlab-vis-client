@@ -15,6 +15,7 @@ import * as LocationTransitIspSelectors from '../locationTransitIsp/selectors';
 import * as ClientTransitIspSelectors from '../clientIspTransitIsp/selectors';
 import wrangleHourly from '../../utils/wrangleHourly';
 import computeHourlyExtents from '../../utils/computeHourlyExtents';
+import computeTimeSeriesCounts from '../../utils/computeTimeSeriesCounts';
 
 import makeLocationClientIspId from '../locationClientIsp/makeId';
 import makeLocationClientIspTransitIspId from '../locationClientIspTransitIsp/makeId';
@@ -359,6 +360,7 @@ export const getFacetItemTimeSeries = createSelector(
       }, { statuses: [], data: [] });
 
     combined.status = status(combined.statuses);
+    combined.counts = computeTimeSeriesCounts(combined);
 
     return { combined, timeSeries };
   }
@@ -604,7 +606,7 @@ function combineData(combine, combinedType, combinedItems, viewMetric) {
 // helper function to combine the time series into a single object of form:
 // {facetId: { status: "", statuses: [], data: [] }, ...}
 // where each data entry corresponds to a line
-function combineTimeSeries(itemsToCombine, viewMetric) {
+function combineTimeSeries(itemsToCombine) {
   const timeSeriesToCombine = itemsToCombine.map(item => item.data.time.timeSeries);
 
   // group them together by the facet ID
@@ -618,6 +620,9 @@ function combineTimeSeries(itemsToCombine, viewMetric) {
 
   // compute the overall status for this facet group
   combinedTimeSeries.status = status(combinedTimeSeries.statuses);
+
+  combinedTimeSeries.counts = computeTimeSeriesCounts(combinedTimeSeries);
+
   return combinedTimeSeries;
 }
 
@@ -638,9 +643,12 @@ export const getCombinedTimeSeries = createSelector(
 function computeTimeSeriesExtents(flattenedTimeSeries, dataKey) {
   const extents = {};
 
-  if (flattenedTimeSeries && flattenedTimeSeries.length) {
-    extents[dataKey] = multiExtent(flattenedTimeSeries, d => d[dataKey]);
-    extents.count = multiExtent(flattenedTimeSeries, d => d.count);
+  if (flattenedTimeSeries.data && flattenedTimeSeries.data.length) {
+    extents[dataKey] = multiExtent(flattenedTimeSeries.data, d => d[dataKey], d => d.results);
+  }
+
+  if (flattenedTimeSeries.counts && flattenedTimeSeries.counts.length) {
+    extents.count = multiExtent(flattenedTimeSeries.counts, d => d.count);
   }
 
   return extents;
@@ -653,7 +661,7 @@ function computeTimeSeriesExtents(flattenedTimeSeries, dataKey) {
  */
 function flattenCombinedTimeSeries(combinedTimeSeries) {
   if (!combinedTimeSeries) {
-    return [];
+    return {};
   }
 
   let values = d3.values(combinedTimeSeries);
@@ -662,8 +670,12 @@ function flattenCombinedTimeSeries(combinedTimeSeries) {
     values = d3.values(combinedTimeSeries).reduce((carry, d) => carry.concat(d3.values(d)), []);
   }
 
-  const results = d3.merge(values.map(d => d.data).filter(d => d != null)).map(d => d.results);
-  return results;
+  const results = values.filter(d => d != null && d.data != null);
+
+  return {
+    data: d3.merge(results.map(d => d.data)),
+    counts: results.map(d => d.counts),
+  };
 }
 
 /**

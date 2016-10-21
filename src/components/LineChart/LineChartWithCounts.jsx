@@ -8,53 +8,13 @@ import addComputedProps from '../../hoc/addComputedProps';
 import { testThreshold } from '../../constants';
 
 /**
- * Filter the data
- * @param {Object} props the component props
- * @return {Array} the prepared data
- */
-function prepareData(props) {
-  let { series } = props;
-
-  if (!series) {
-    return {};
-  }
-
-  series = Array.isArray(series) ? series : [series];
-
-  // create counts
-  const countsByDate = series.reduce((countsByDate, oneSeries) => {
-    oneSeries.results.forEach(d => {
-      const { count = 0, date } = d;
-      if (!countsByDate[date]) {
-        countsByDate[date] = {
-          count,
-          date,
-        };
-      } else {
-        countsByDate[date].count += count;
-      }
-    });
-
-    return countsByDate;
-  }, {});
-  const counts = Object.keys(countsByDate).map(key => countsByDate[key]);
-
-  return {
-    series,
-    counts,
-  };
-}
-
-
-/**
  * Figure out what is needed for both charts
  */
 function visProps(props) {
   const { width, xExtent, xKey, idKey } = props;
-  let { highlightLine, colors, annotationSeries = [] } = props;
+  let { highlightLine, colors, annotationSeries = [], series } = props;
 
-  const preparedData = prepareData(props);
-  const { series } = preparedData;
+  series = Array.isArray(series) ? series : [series];
 
   // ensure annotation series is an array
   if (annotationSeries && !Array.isArray(annotationSeries)) {
@@ -95,8 +55,7 @@ function visProps(props) {
   // assumes the first series has the max length
   const numBins = series && series.length ? series[0].length : 1;
   return {
-    series: preparedData.series,
-    counts: preparedData.counts,
+    series,
     padding,
     numBins,
     xScale,

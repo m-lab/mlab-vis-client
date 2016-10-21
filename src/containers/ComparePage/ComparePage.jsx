@@ -600,7 +600,7 @@ class ComparePage extends PureComponent {
     );
   }
 
-  renderTimeSeries(chartId, status, seriesData) {
+  renderTimeSeries(chartId, status, seriesData, counts) {
     const {
       highlightTimeSeriesDate,
       highlightTimeSeriesLine,
@@ -618,6 +618,7 @@ class ComparePage extends PureComponent {
           <LineChartWithCounts
             id={chartId}
             series={seriesData}
+            counts={counts}
             colors={colors}
             onHighlightDate={this.onHighlightTimeSeriesDate}
             highlightDate={highlightTimeSeriesDate}
@@ -648,7 +649,7 @@ class ComparePage extends PureComponent {
 
     const { combined } = facetItemTimeSeries;
     const chartId = 'overall-time-series';
-    return this.renderTimeSeries(chartId, combined.status, combined.data);
+    return this.renderTimeSeries(chartId, combined.status, combined.data, combined.counts);
   }
 
   renderBreakdownOptions() {
