@@ -16,6 +16,7 @@ export default class CompareTimeSeriesCharts extends PureComponent {
     breakdownBy: PropTypes.string,
     colors: PropTypes.object,
     combinedTimeSeries: PropTypes.object,
+    combinedTimeSeriesExtents: PropTypes.object,
     facetItemId: PropTypes.string,
     facetItemInfo: PropTypes.object,
     facetItemTimeSeries: PropTypes.object,
@@ -32,7 +33,7 @@ export default class CompareTimeSeriesCharts extends PureComponent {
     viewMetric: PropTypes.object,
   }
 
-  renderTimeSeries(chartId, timeSeries, lineDataType) {
+  renderTimeSeries(chartId, timeSeries, lineDataType, extents) {
     const {
       colors,
       highlightTimeSeriesDate,
@@ -46,7 +47,7 @@ export default class CompareTimeSeriesCharts extends PureComponent {
       return null;
     }
 
-    const { status, data: seriesData } = timeSeries;
+    const { status, data: seriesData, counts } = timeSeries;
 
     if (!seriesData || seriesData.length === 0) {
       return null;
@@ -60,6 +61,8 @@ export default class CompareTimeSeriesCharts extends PureComponent {
             idKey={lineDataType.idKey}
             labelKey={lineDataType.labelKey}
             colors={colors}
+            countExtent={extents && extents.count}
+            counts={counts}
             series={seriesData}
             onHighlightDate={onHighlightTimeSeriesDate}
             highlightDate={highlightTimeSeriesDate}
@@ -69,6 +72,7 @@ export default class CompareTimeSeriesCharts extends PureComponent {
             xKey="date"
             yAxisLabel={viewMetric.label}
             yAxisUnit={viewMetric.unit}
+            yExtent={extents && extents[viewMetric.dataKey]}
             yKey={viewMetric.dataKey}
           />
         </AutoWidth>
@@ -104,6 +108,7 @@ export default class CompareTimeSeriesCharts extends PureComponent {
   renderSingleFilter(facetItemInfo, filterType) {
     const {
       combinedTimeSeries,
+      combinedTimeSeriesExtents,
     } = this.props;
 
     if (!combinedTimeSeries) {
@@ -113,13 +118,14 @@ export default class CompareTimeSeriesCharts extends PureComponent {
     const chartId = `facet-single-filtered-time-series-${facetItemInfo.id}`;
 
     const timeSeriesObject = combinedTimeSeries;
-    return this.renderTimeSeries(chartId, timeSeriesObject, filterType);
+    return this.renderTimeSeries(chartId, timeSeriesObject, filterType, combinedTimeSeriesExtents);
   }
 
   // if both filters have items, group by `breakdownBy` filter and have the other filter items have lines in those charts
   renderBothFilters(facetItemInfo, filter1Infos, filter2Infos) {
     const {
       combinedTimeSeries,
+      combinedTimeSeriesExtents,
       breakdownBy,
       filterTypes,
     } = this.props;
@@ -141,7 +147,7 @@ export default class CompareTimeSeriesCharts extends PureComponent {
           return (
             <div key={breakdownId}>
               <h5>{breakdownInfo.label}</h5>
-              {this.renderTimeSeries(chartId, timeSeriesObject, lineDataType)}
+              {this.renderTimeSeries(chartId, timeSeriesObject, lineDataType, combinedTimeSeriesExtents)}
             </div>
           );
         })}

@@ -98,7 +98,7 @@ class LocationPage extends PureComponent {
     annotationTimeSeries: PropTypes.array,
     autoTimeAggregation: PropTypes.bool,
     clientIspHourly: PropTypes.array,
-    clientIspTimeSeries: PropTypes.array,
+    clientIspTimeSeries: PropTypes.object,
     colors: PropTypes.object,
     compareMetrics: PropTypes.object,
     dispatch: PropTypes.func,
@@ -457,6 +457,9 @@ class LocationPage extends PureComponent {
       locationId, locationTimeSeries, timeSeriesStatus, viewMetric, colors,
       annotationTimeSeries } = this.props;
     const chartId = 'providers-time-series';
+
+    const { data: clientIspTimeSeriesData, counts } = clientIspTimeSeries;
+
     return (
       <div className="subsection">
         <header>
@@ -467,7 +470,8 @@ class LocationPage extends PureComponent {
             <LineChartWithCounts
               id={chartId}
               colors={colors}
-              series={clientIspTimeSeries}
+              counts={counts}
+              series={clientIspTimeSeriesData}
               annotationSeries={annotationTimeSeries}
               onHighlightDate={this.onHighlightTimeSeriesDate}
               highlightDate={highlightTimeSeriesDate}
@@ -483,7 +487,7 @@ class LocationPage extends PureComponent {
           <ChartExportControls
             className="for-line-chart"
             chartId={chartId}
-            data={[...clientIspTimeSeries, locationTimeSeries]}
+            data={[...clientIspTimeSeriesData, locationTimeSeries]}
             prepareForCsv={multiMergeMetaIntoResults}
             filename={`${locationId}_${viewMetric.value}_${chartId}`}
           />

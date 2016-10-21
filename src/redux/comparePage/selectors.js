@@ -6,6 +6,7 @@ import { createSelector } from 'reselect';
 import { metrics, facetTypes } from '../../constants';
 import status from '../status';
 import { colorsFor } from '../../utils/color';
+import { multiExtent } from '../../utils/array';
 import timeAggregationFromDates from '../../utils/timeAggregationFromDates';
 import * as LocationsSelectors from '../locations/selectors';
 import * as LocationClientIspSelectors from '../locationClientIsp/selectors';
@@ -14,6 +15,7 @@ import * as LocationTransitIspSelectors from '../locationTransitIsp/selectors';
 import * as ClientTransitIspSelectors from '../clientIspTransitIsp/selectors';
 import wrangleHourly from '../../utils/wrangleHourly';
 import computeHourlyExtents from '../../utils/computeHourlyExtents';
+import computeTimeSeriesCounts from '../../utils/computeTimeSeriesCounts';
 
 import makeLocationClientIspId from '../locationClientIsp/makeId';
 import makeLocationClientIspTransitIspId from '../locationClientIspTransitIsp/makeId';
@@ -358,6 +360,7 @@ export const getFacetItemTimeSeries = createSelector(
       }, { statuses: [], data: [] });
 
     combined.status = status(combined.statuses);
+    combined.counts = computeTimeSeriesCounts(combined);
 
     return { combined, timeSeries };
   }
@@ -603,7 +606,7 @@ function combineData(combine, combinedType, combinedItems, viewMetric) {
 // helper function to combine the time series into a single object of form:
 // {facetId: { status: "", statuses: [], data: [] }, ...}
 // where each data entry corresponds to a line
-function combineTimeSeries(itemsToCombine, viewMetric) {
+function combineTimeSeries(itemsToCombine) {
   const timeSeriesToCombine = itemsToCombine.map(item => item.data.time.timeSeries);
 
   // group them together by the facet ID
@@ -617,6 +620,9 @@ function combineTimeSeries(itemsToCombine, viewMetric) {
 
   // compute the overall status for this facet group
   combinedTimeSeries.status = status(combinedTimeSeries.statuses);
+
+  combinedTimeSeries.counts = computeTimeSeriesCounts(combinedTimeSeries);
+
   return combinedTimeSeries;
 }
 
@@ -633,6 +639,54 @@ export const getCombinedTimeSeries = createSelector(
     return combined;
   }
 );
+
+function computeTimeSeriesExtents(flattenedTimeSeries, dataKey) {
+  const extents = {};
+
+  if (flattenedTimeSeries.data && flattenedTimeSeries.data.length) {
+    extents[dataKey] = multiExtent(flattenedTimeSeries.data, d => d[dataKey], d => d.results);
+  }
+
+  if (flattenedTimeSeries.counts && flattenedTimeSeries.counts.length) {
+    extents.count = multiExtent(flattenedTimeSeries.counts, d => d.count);
+  }
+
+  return extents;
+}
+
+
+/**
+ * Helper to merge the possibly two levels of nesting of combined time series
+ * into a flat array
+ */
+function flattenCombinedTimeSeries(combinedTimeSeries) {
+  if (!combinedTimeSeries) {
+    return {};
+  }
+
+  let values = d3.values(combinedTimeSeries);
+  if (values.length && !values[0].status) {
+    // run one level deeper
+    values = d3.values(combinedTimeSeries).reduce((carry, d) => carry.concat(d3.values(d)), []);
+  }
+
+  const results = values.filter(d => d != null && d.data != null);
+
+  return {
+    data: d3.merge(results.map(d => d.data)),
+    counts: results.map(d => d.counts),
+  };
+}
+
+/**
+ * Get shared extents of all the hourly data
+ */
+export const getCombinedTimeSeriesExtents = createSelector(
+  getCombinedTimeSeries, getViewMetric,
+  (combinedTimeSeries, viewMetric) =>
+    computeTimeSeriesExtents(flattenCombinedTimeSeries(combinedTimeSeries), viewMetric.dataKey));
+
+
 
 // helper function to combine items into combined hourly objects
 function combineHourly(itemsToCombine, viewMetric) {

@@ -10,6 +10,7 @@ import * as LocationsSelectors from '../locations/selectors';
 import * as LocationClientIspSelectors from '../locationClientIsp/selectors';
 import wrangleHourly from '../../utils/wrangleHourly';
 import computeHourlyExtents from '../../utils/computeHourlyExtents';
+import computeTimeSeriesCounts from '../../utils/computeTimeSeriesCounts';
 
 // ----------------------
 // Input Selectors
@@ -161,8 +162,12 @@ export const getLocationClientIspTimeSeries = createSelector(
       return undefined;
     }
 
-    return timeSeriesObjects.map(timeSeries => timeSeries && timeSeries.data)
+    const data = timeSeriesObjects.map(timeSeries => timeSeries && timeSeries.data)
       .filter(timeSeries => timeSeries != null);
+
+    const counts = computeTimeSeriesCounts({ data });
+
+    return { data, counts };
   }
 );
 
@@ -197,7 +202,7 @@ export const getLocationAndClientIspTimeSeries = createSelector(
     }
 
     if (clientIspTimeSeries) {
-      result = result.concat(clientIspTimeSeries);
+      result = result.concat(clientIspTimeSeries.data);
     }
 
     return result;

@@ -65,6 +65,7 @@ function mapStateToProps(state, propsWithUrl) {
     combinedHourly: ComparePageSelectors.getCombinedHourly(state, propsWithUrl),
     combinedHourlyExtents: ComparePageSelectors.getCombinedHourlyExtents(state, propsWithUrl),
     combinedTimeSeries: ComparePageSelectors.getCombinedTimeSeries(state, propsWithUrl),
+    combinedTimeSeriesExtents: ComparePageSelectors.getCombinedTimeSeriesExtents(state, propsWithUrl),
     facetItemHourly: ComparePageSelectors.getFacetItemHourly(state, propsWithUrl),
     facetItemHourlyExtents: ComparePageSelectors.getFacetItemHourlyExtents(state, propsWithUrl),
     facetItemInfos: ComparePageSelectors.getFacetItemInfos(state, propsWithUrl),
@@ -92,6 +93,7 @@ class ComparePage extends PureComponent {
     combinedHourly: PropTypes.object,
     combinedHourlyExtents: PropTypes.object,
     combinedTimeSeries: PropTypes.object,
+    combinedTimeSeriesExtents: PropTypes.object,
     dispatch: PropTypes.func,
     endDate: momentPropTypes.momentObj,
     facetItemHourly: PropTypes.array,
@@ -598,7 +600,7 @@ class ComparePage extends PureComponent {
     );
   }
 
-  renderTimeSeries(chartId, status, seriesData) {
+  renderTimeSeries(chartId, status, seriesData, counts) {
     const {
       highlightTimeSeriesDate,
       highlightTimeSeriesLine,
@@ -616,6 +618,7 @@ class ComparePage extends PureComponent {
           <LineChartWithCounts
             id={chartId}
             series={seriesData}
+            counts={counts}
             colors={colors}
             onHighlightDate={this.onHighlightTimeSeriesDate}
             highlightDate={highlightTimeSeriesDate}
@@ -646,7 +649,7 @@ class ComparePage extends PureComponent {
 
     const { combined } = facetItemTimeSeries;
     const chartId = 'overall-time-series';
-    return this.renderTimeSeries(chartId, combined.status, combined.data);
+    return this.renderTimeSeries(chartId, combined.status, combined.data, combined.counts);
   }
 
   renderBreakdownOptions() {
@@ -698,6 +701,7 @@ class ComparePage extends PureComponent {
       combinedHourly,
       combinedHourlyExtents,
       combinedTimeSeries,
+      combinedTimeSeriesExtents,
       facetItemInfos,
       facetItemTimeSeries,
       facetItemHourly,
@@ -738,6 +742,7 @@ class ComparePage extends PureComponent {
                     breakdownBy={breakdownBy}
                     colors={colors}
                     combinedTimeSeries={combinedTimeSeries && combinedTimeSeries[facetItemInfo.id]}
+                    combinedTimeSeriesExtents={combinedTimeSeriesExtents}
                     facetItemId={facetItemInfo.id}
                     facetItemInfo={facetItemInfo}
                     facetItemTimeSeries={facetItemTimeSeries}
