@@ -32,6 +32,22 @@ function dataToGeoJson(data) {
   return { type: 'FeatureCollection', features };
 }
 
+function serversToFeatures(geoData) {
+  const serversById = {};
+  const serverId = (lat, lng) => `${lat}_${lng}`;
+
+  geoData.features.forEach((d, i) => {
+    const { serverPos } = d.properties;
+    const id = serverId(serverPos[0], serverPos[1]);
+
+    if (!serversById[id]) {
+      serversById[id] = pointToFeature(id, serverPos);
+    }
+  });
+
+  return d3.values(serversById);
+}
+
 /*
  * Dashed line interpolation hack from
  * https://bl.ocks.org/mbostock/5649592
@@ -85,7 +101,7 @@ function visProps(props) {
   }
 
   const geoData = dataToGeoJson(data);
-  const servers = geoData.features.map((d, i) => pointToFeature(i, d.properties.serverPos));
+  const servers = serversToFeatures(geoData);
 
   const rScale = d3.scaleSqrt()
     .domain([0, 100])
