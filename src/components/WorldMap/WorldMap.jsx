@@ -32,11 +32,16 @@ function dataToGeoJson(data) {
   return { type: 'FeatureCollection', features };
 }
 
+/**
+ * Extract server features from the geoData. Only add one server
+ * for each unique lat,lng position.
+ * @return {Object[]} The server features
+ */
 function serversToFeatures(geoData) {
   const serversById = {};
   const serverId = (lat, lng) => `${lat}_${lng}`;
 
-  geoData.features.forEach((d, i) => {
+  geoData.features.forEach((d) => {
     const { serverPos } = d.properties;
     const id = serverId(serverPos[0], serverPos[1]);
 
@@ -75,8 +80,6 @@ function transitionLine(path) {
     .duration(d => durationScale(d.properties.data.download_speed_mbps))
     .ease(d3.easeQuadOut)
     .attrTween('stroke-dasharray', tweenDash)
-    // this should remove dashing on transition end
-    // .on('end', function endDashTransition() { d3.select(this).attr('stroke-dasharray', 'none'); })
     .style('stroke-dashoffset', '0%')
     .transition()
     .duration(500)
@@ -108,7 +111,7 @@ function visProps(props) {
     .range([2, 18])
     .clamp(true);
 
-  const colors = ['#fd150b', '#ff8314', '#ffc33b', '#f3f5e7', '#6fb7d0', '#2970ac'].reverse();
+  const colors = ['#2970ac', '#6fb7d0', '#f3f5e7', '#ffc33b', '#ff8314', '#fd150b'];
 
   const colorScale = d3.scaleLinear()
     .range(colors)
