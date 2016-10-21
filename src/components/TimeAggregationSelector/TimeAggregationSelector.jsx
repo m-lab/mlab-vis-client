@@ -19,7 +19,7 @@ export default class TimeAggregationSelector extends PureComponent {
 
     return (
       <div className="time-aggregation-selector">
-        <h5>Time Aggregation <HelpTip id="time-agg-tip" content="Specify how the data should be binned by time." /></h5>
+        <h5>Time Aggregation <HelpTip id="time-agg-tip" /></h5>
         <SelectableList items={timeAggregations} active={active} onChange={onChange} />
       </div>
     );

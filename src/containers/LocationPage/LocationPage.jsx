@@ -440,7 +440,7 @@ class LocationPage extends PureComponent {
                   onChange={this.onShowRegionalValuesChange}
                 />
                 {' Show Regional Values '}
-                <HelpTip content="Show or hide baseline value for the location you are viewing." id="regional-tip" />
+                <HelpTip id="regional-tip" />
               </label>
             </div>
           </li>
@@ -498,7 +498,7 @@ class LocationPage extends PureComponent {
     return (
       <div className="subsection">
         <header>
-          <h3>Compare Metrics <HelpTip content="Shows all metrics for each ISP selected along with location data for reference." id="compare-metrics-tip" />
+          <h3>Compare Metrics <HelpTip id="compare-metrics-tip" />
           </h3>
         </header>
         <StatusWrapper status={timeSeriesStatus}>
@@ -522,7 +522,7 @@ class LocationPage extends PureComponent {
     return (
       <div className="subsection">
         <header>
-          <h3>{`${viewMetric.label} by Hour`} <HelpTip content="Aggregates metric for each hour over time range. Line indicates Average value for each hour." id="hour-metric-tip" /></h3>
+          <h3>{`${viewMetric.label} by Hour`} <HelpTip id="hour-metric-tip" /></h3>
         </header>
         <Row>
           {this.renderHourChart(locationHourly)}
@@ -589,7 +589,7 @@ class LocationPage extends PureComponent {
         <Row>
           <Col md={12}>
             <header>
-              <h2>Compare Fixed Time Frame <HelpTip content="Charts below are based on fixed time data instead of using the selected time from above." id="fixed-time-tip" /></h2>
+              <h2>Compare Fixed Time Frame <HelpTip id="fixed-time-tip" /></h2>
             </header>
           </Col>
         </Row>
@@ -619,7 +619,7 @@ class LocationPage extends PureComponent {
     return (
       <div className="subsection">
         <header>
-          <h3>Compare Metrics <HelpTip content="Compare one metric against another over a set of fixed time ranges." id="fixed-compare-metrics-tip" />
+          <h3>Compare Metrics <HelpTip id="fixed-compare-metrics-tip" />
           </h3>
         </header>
         <ScatterGroup
@@ -637,7 +637,7 @@ class LocationPage extends PureComponent {
     return (
       <div className="subsection">
         <header>
-          <h3>Distribution of {viewMetric.label} <HelpTip content="Shows a histogram of metric data broken up into evenly spaced bins. Each bar shows percent of total tests that fall into that bin." id="fixed-metric-tip" />
+          <h3>Distribution of {viewMetric.label} <HelpTip id="fixed-metric-tip" />
           </h3>
         </header>
         <HistoGroup

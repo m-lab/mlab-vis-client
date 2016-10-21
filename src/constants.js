@@ -88,4 +88,13 @@ export const ispLabelReplacements = [
 export const helpTipContent = {
   'transit-compare-tip': 'Transit ISPs serve to support the backbone of the Internet. Client ISPs send traffic to Transit ISPs to be routed worldwide. MLab servers are located within Transit ISP switching stations.',
   'client-isp-tip': 'Add or remove ISPs to compare. ISP names come from volunteer process of mapping ASNs to names and so are at times confusingly inconsistent with actual ISP names. Multiple ASNs can be owned by a single ISP and so near duplicate names can appear.',
+  'metric-tip': 'Specify which metric to visualize.',
+  'time-agg-tip': 'Specify how the data should be binned by time.',
+  'regional-tip': 'Show or hide baseline value for the location you are viewing.',
+  'compare-metrics-tip': 'Shows all metrics for each ISP selected along with location data for reference.',
+  'hour-metric-tip': 'Aggregates metric for each hour over time range. Line indicates Average value for each hour.',
+  'fixed-time-tip': 'Charts below are based on fixed time data instead of using the selected time from above.',
+  'fixed-compare-metrics-tip': 'Compare one metric against another over a set of fixed time ranges.',
+  'fixed-metric-tip': 'Shows a histogram of metric data broken up into evenly spaced bins. Each bar shows percent of total tests that fall into that bin.',
+  'facet-tip': 'Toggle what to aggregate data by.',
 };
