@@ -719,8 +719,8 @@ styles:
         mix: [space-constant, patterns-stripes]
         shaders:
             defines:
-                COLOR1: vec3(0.915)
-                COLOR2: vec3(0.950)
+                COLOR1: vec3(0.95) # thin line
+                COLOR2: vec3(0.98) # thick line
             blocks:
                 global: |
                     float stripes2(vec2 st){
@@ -733,9 +733,10 @@ styles:
                     const float wave_height = .01;
                     st.y += sin(st.x*wave_width)*wave_height;
 
+                    color = mix(vec4(COLOR1, 1.0),vec4(COLOR2,1.0),stripes(st*92.,.5))*1.0;
                     // gradient
-                    color.rgb = mix(COLOR1, color.rgb, gl_FragCoord.x / u_resolution.x);
-                    color = mix(color,vec4(COLOR2,1.0),stripes(st*92.,.5))*1.0;
+                    // color.rgb = mix(COLOR1, color.rgb, gl_FragCoord.x / u_resolution.x);
+                    // color = mix(color,vec4(COLOR2,1.0),stripes(st*92.,.5))*1.0;
 
     waves2:
         base: polygons
