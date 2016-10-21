@@ -158,6 +158,7 @@ class WorldMap extends PureComponent {
 
     this.visibleFeatures = [];
 
+    this.resetView = this.resetView.bind(this);
     this.update = this.update.bind(this);
     this.updateViewable = this.updateViewable.bind(this);
     this.projectPoint = this.projectPoint.bind(this);
@@ -249,12 +250,11 @@ class WorldMap extends PureComponent {
     this.path = d3.geoPath().projection(transform);
 
     // happens when zooming
-    this.map.on('viewreset', this.update());
+    this.map.on('viewreset', this.resetView);
 
     // update visual
     this.timer = d3.interval(this.updateViewable, updateFrequency);
   }
-
 
   update() {
     const { geoData } = this.props;
@@ -279,8 +279,6 @@ class WorldMap extends PureComponent {
     if (!geoData || geoData.features.length === 0) {
       return;
     }
-
-    // if (this.visibleFeatures.length > 10) return;
 
     // reset if we reached the limit
     if (this.visibleFeatures.length === geoData.features.length) {
@@ -438,10 +436,25 @@ class WorldMap extends PureComponent {
       .call(transitionLine)
       .attr('d', (d) => this.path(pointsToLine(d.points)));
 
+    // reproject lines on zoom change otherwise they lose their location
+    lines
+      .attr('d', (d) => this.path(pointsToLine(d.points)));
+
     // lines exit and remove themselves at the end of transitionLine.
     // it's important to let them reach the end of that transition first
     // since otherwise they'd start exiting before reaching their destination.
   }
+
+  /**
+   * Callback for when the map is zoomed
+   */
+  resetView() {
+    // remove blasts when resetting view since they do not exist outside of their
+    // enter animation
+    this.g.selectAll('.blast').remove();
+    this.update();
+  }
+
 
   /**
    * Render
