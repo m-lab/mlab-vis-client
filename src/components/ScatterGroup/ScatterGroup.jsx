@@ -2,7 +2,9 @@ import React, { PureComponent, PropTypes } from 'react';
 import Row from 'react-bootstrap/lib/Row';
 import Col from 'react-bootstrap/lib/Col';
 import { metrics } from '../../constants';
-
+import { colorsFor } from '../../utils/color';
+import { multiExtent } from '../../utils/array';
+import d3 from '../../d3';
 import { ScatterPlot, SelectableDropdown } from '../../components';
 
 import './ScatterGroup.scss';
@@ -72,13 +74,12 @@ export default class ScatterGroup extends PureComponent {
   /**
    * Renders plot
    * @param {Object} field Name and id of group of metrics to show in chart
-   * @param {Object} allData Data for the field from summary
+   * @param {Object} data Data for the field from summary
    */
-  renderPlot(field, allData) {
+  renderPlot(field, data, xExtent, yExtent, colors) {
     const { compareMetrics, width, height } = this.props;
     const { highlightPointId } = this.state;
 
-    const data = allData && allData.clientIspsData;
     const xMetric = (compareMetrics && compareMetrics.x) || metrics[0];
     const yMetric = (compareMetrics && compareMetrics.y) || metrics[1];
     const xKey = xMetric.dataKey;
@@ -89,6 +90,7 @@ export default class ScatterGroup extends PureComponent {
         <h4>{field.label}</h4>
         <ScatterPlot
           key={field.id}
+          colors={colors}
           data={data}
           width={width}
           height={height}
@@ -96,10 +98,12 @@ export default class ScatterGroup extends PureComponent {
           onHighlightPoint={this.onHighlightPoint}
           xAxisLabel={xMetric.label}
           xAxisUnit={xMetric.unit}
+          xExtent={xExtent}
           xFormatter={xMetric.formatter}
           xKey={xKey}
           yAxisLabel={yMetric.label}
           yAxisUnit={yMetric.unit}
+          yExtent={yExtent}
           yFormatter={yMetric.formatter}
           yKey={yKey}
         />
@@ -130,7 +134,37 @@ export default class ScatterGroup extends PureComponent {
    * Render
    */
   render() {
-    const { fields, summary } = this.props;
+    const { fields, summary, compareMetrics } = this.props;
+
+    // find the x and y keys
+    const xMetric = (compareMetrics && compareMetrics.x) || metrics[0];
+    const yMetric = (compareMetrics && compareMetrics.y) || metrics[1];
+    const xKey = xMetric.dataKey;
+    const yKey = yMetric.dataKey;
+
+    // compute the shared extents
+    const combinedData = {};
+    const dataIds = {};
+    fields.forEach(f => {
+      const allData = summary[f.id];
+
+      if (allData) {
+        // filter out those with no data
+        combinedData[f.id] = [allData.locationData].concat(allData.clientIspsData)
+          .filter(d => d != null && d[yKey] != null && d[xKey] != null);
+
+        // register the client ISP ID exists
+        allData.clientIspsData.forEach(d => { dataIds[d.id] = d.id; });
+      }
+    });
+
+    // compute the max extents across all data in all charts
+    const xExtent = multiExtent(d3.values(combinedData), d => d[xKey]);
+    const yExtent = multiExtent(d3.values(combinedData), d => d[yKey]);
+
+    // compute the shared colors based only on client ISP IDs (location gets default: gray)
+    const colors = colorsFor(d3.values(dataIds));
+
     return (
       <div className="ScatterGroup">
         <Row>
@@ -141,7 +175,7 @@ export default class ScatterGroup extends PureComponent {
           </Col>
         </Row>
         <Row>
-          {fields.map((f) => this.renderPlot(f, summary[f.id]))}
+          {fields.map((f) => this.renderPlot(f, combinedData[f.id], xExtent, yExtent, colors))}
         </Row>
       </div>
     );

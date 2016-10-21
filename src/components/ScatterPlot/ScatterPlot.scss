@@ -1,4 +1,7 @@
 .ScatterPlot {
+  circle {
+    pointer-events: none;
+  }
   .highlight-label {
     font-size: 12px;
     font-weight: 500;

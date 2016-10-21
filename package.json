@@ -111,6 +111,7 @@
     "d3-time-format": "^2.0.2",
     "d3-timer": "^1.0.3",
     "d3-transition": "^1.0.2",
+    "d3-voronoi": "^1.0.2",
     "express": "^4.13.3",
     "express-session": "^1.12.1",
     "extract-text-webpack-plugin": "^0.9.1",

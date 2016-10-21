@@ -60,6 +60,7 @@ module.exports = {
       'd3-shape',
       'd3-time-format',
       'd3-transition',
+      'd3-voronoi',
       'core-js',
       'superagent',
       'moment',
