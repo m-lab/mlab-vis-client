@@ -3,6 +3,8 @@ import ReactTooltip from 'react-tooltip';
 
 import { Icon } from '../../components';
 
+import { helpTipContent } from '../../constants';
+
 import './HelpTip.scss';
 
 /**
@@ -21,7 +23,11 @@ export default class HelpTip extends PureComponent {
   }
 
   render() {
-    const { id, style, content, place } = this.props;
+    const { id, style, place } = this.props;
+    let { content } = this.props;
+    if (!content) {
+      content = helpTipContent[id];
+    }
     const offset = { top: -5, left: -8 };
 
     return (

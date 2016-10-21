@@ -19,7 +19,7 @@ export default class MetricSelector extends PureComponent {
 
     return (
       <div className="metric-selector">
-        <h5>Metric <HelpTip content="Specify which metric to visualize." id="metric-tip" />
+        <h5>Metric <HelpTip id="metric-tip" />
         </h5>
         <SelectableList items={metrics} active={active} onChange={onChange} />
       </div>

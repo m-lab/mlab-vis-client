@@ -524,7 +524,7 @@ class ComparePage extends PureComponent {
 
     return (
       <div className="facet-by-selector">
-        <h5>Facet By <HelpTip content="Toggle what to aggregate data by." id="facet-tip" />
+        <h5>Facet By <HelpTip id="facet-tip" />
         </h5>
         <SelectableList items={facetTypes} active={facetType.value} onChange={this.onFacetTypeChange} />
       </div>
