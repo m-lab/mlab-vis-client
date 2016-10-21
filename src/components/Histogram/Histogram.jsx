@@ -21,7 +21,7 @@ function visProps(props) {
     width,
     height,
     paddingLeft = 50,
-    paddingRight = 10,
+    paddingRight = 20,
     paddingTop = 20,
   } = props;
 
