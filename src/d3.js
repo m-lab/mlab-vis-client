@@ -22,6 +22,7 @@ import * as timer from 'd3-timer';
 import * as geo from 'd3-geo';
 import * as ease from 'd3-ease';
 import * as interpolate from 'd3-interpolate';
+import * as voronoi from 'd3-voronoi';
 
 export default Object.assign({},
   array,
@@ -40,4 +41,5 @@ export default Object.assign({},
   geo,
   ease,
   interpolate,
+  voronoi,
 );

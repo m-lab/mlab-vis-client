@@ -60,11 +60,17 @@ function visProps(props) {
     yScale.domain([yDomain[0], yDomain[1] * domainPaddingFactor]);
   }
 
+  const voronoiDiagram = d3.voronoi()
+    .x(d => xScale(d[xKey]))
+    .y(d => yScale(d[yKey]))
+    .size([plotAreaWidth, plotAreaHeight])(data.filter(d => d[yKey] != null));
+
   return {
     colors,
     padding,
     plotAreaWidth,
     plotAreaHeight,
+    voronoiDiagram,
     xScale,
     yScale,
   };
@@ -95,6 +101,7 @@ class ScatterPlot extends PureComponent {
     plotAreaHeight: PropTypes.number,
     plotAreaWidth: PropTypes.number,
     pointRadius: PropTypes.number,
+    voronoiDiagram: PropTypes.object,
     width: PropTypes.number,
     xAxisLabel: React.PropTypes.string,
     xAxisUnit: React.PropTypes.string,
@@ -220,6 +227,10 @@ class ScatterPlot extends PureComponent {
       .attr('transform', 'translate(10 0)')
       .attr('x1', 0);
 
+    this.voronoi = this.g.append('g')
+      .attr('class', 'voronoi')
+      .on('mouseleave', () => this.onHoverPoint(null));
+
     this.update();
   }
 
@@ -230,6 +241,29 @@ class ScatterPlot extends PureComponent {
     this.updateAxes();
     this.updateChart();
     this.updateHighlight();
+    this.updateVoronoi();
+  }
+
+  /**
+   * Update the voronoi diagram used for mouse handlers
+   */
+  updateVoronoi() {
+    const { voronoiDiagram } = this.props;
+
+    const binding = this.voronoi.selectAll('path')
+      .data(voronoiDiagram.polygons());
+
+    binding.exit().remove();
+
+    const entering = binding.enter().append('path');
+
+
+    binding.merge(entering)
+      .style('stroke', 'tomato')
+      .style('fill', '#fff')
+      .style('opacity', 0)
+      .attr('d', d => (d ? `M${d.join('L')}Z` : null))
+      .on('mouseenter', d => this.onHoverPoint(d.data));
   }
 
   updateHighlight() {
@@ -310,9 +344,7 @@ class ScatterPlot extends PureComponent {
     const binding = this.g.selectAll('.data-point').data(filteredData, d => d.id);
     binding.exit().remove();
     const entering = binding.enter().append('circle')
-      .classed('data-point', true)
-      .on('mouseenter', d => this.onHoverPoint(d))
-      .on('mouseleave', () => this.onHoverPoint(null));
+      .classed('data-point', true);
 
     binding.merge(entering)
       .attr('cx', (d) => xScale(d[xKey] || 0))

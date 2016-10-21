@@ -131,6 +131,7 @@ export default class ScatterGroup extends PureComponent {
    */
   render() {
     const { fields, summary } = this.props;
+
     return (
       <div className="ScatterGroup">
         <Row>
@@ -141,7 +142,7 @@ export default class ScatterGroup extends PureComponent {
           </Col>
         </Row>
         <Row>
-          {fields.map((f) => this.renderPlot(f, summary[f.id]))}
+          {fields.filter(f => f.id === 'lastSixMonths').map((f) => this.renderPlot(f, summary[f.id]))}
         </Row>
       </div>
     );
