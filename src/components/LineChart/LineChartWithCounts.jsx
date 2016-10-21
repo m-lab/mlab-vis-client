@@ -133,6 +133,7 @@ class LineChartWithCounts extends PureComponent {
   static propTypes = {
     annotationSeries: PropTypes.oneOfType([PropTypes.array, PropTypes.object]),
     colors: PropTypes.object,
+    countExtent: PropTypes.array,
     counts: PropTypes.array,
     forceZeroMin: PropTypes.bool,
     height: React.PropTypes.number,
@@ -168,7 +169,7 @@ class LineChartWithCounts extends PureComponent {
    */
   render() {
     const { id, width, xKey, annotationSeries, series, highlightLine, highlightDate,
-      onHighlightDate, counts, padding, xScale, numBins, colors, idKey } = this.props;
+      onHighlightDate, counts, padding, xScale, numBins, colors, idKey, countExtent } = this.props;
 
     const lineChartHeight = 350;
     const countHeight = 80;
@@ -213,6 +214,7 @@ class LineChartWithCounts extends PureComponent {
               width={width}
               xKey={xKey}
               xScale={xScale}
+              yExtent={countExtent}
             />
           </g>
         </svg>

@@ -6,6 +6,7 @@ import { createSelector } from 'reselect';
 import { metrics, facetTypes } from '../../constants';
 import status from '../status';
 import { colorsFor } from '../../utils/color';
+import { multiExtent } from '../../utils/array';
 import timeAggregationFromDates from '../../utils/timeAggregationFromDates';
 import * as LocationsSelectors from '../locations/selectors';
 import * as LocationClientIspSelectors from '../locationClientIsp/selectors';
@@ -633,6 +634,47 @@ export const getCombinedTimeSeries = createSelector(
     return combined;
   }
 );
+
+function computeTimeSeriesExtents(flattenedTimeSeries, dataKey) {
+  const extents = {};
+
+  if (flattenedTimeSeries && flattenedTimeSeries.length) {
+    extents[dataKey] = multiExtent(flattenedTimeSeries, d => d[dataKey]);
+    extents.count = multiExtent(flattenedTimeSeries, d => d.count);
+  }
+
+  return extents;
+}
+
+
+/**
+ * Helper to merge the possibly two levels of nesting of combined time series
+ * into a flat array
+ */
+function flattenCombinedTimeSeries(combinedTimeSeries) {
+  if (!combinedTimeSeries) {
+    return [];
+  }
+
+  let values = d3.values(combinedTimeSeries);
+  if (values.length && !values[0].status) {
+    // run one level deeper
+    values = d3.values(combinedTimeSeries).reduce((carry, d) => carry.concat(d3.values(d)), []);
+  }
+
+  const results = d3.merge(values.map(d => d.data).filter(d => d != null)).map(d => d.results);
+  return results;
+}
+
+/**
+ * Get shared extents of all the hourly data
+ */
+export const getCombinedTimeSeriesExtents = createSelector(
+  getCombinedTimeSeries, getViewMetric,
+  (combinedTimeSeries, viewMetric) =>
+    computeTimeSeriesExtents(flattenCombinedTimeSeries(combinedTimeSeries), viewMetric.dataKey));
+
+
 
 // helper function to combine items into combined hourly objects
 function combineHourly(itemsToCombine, viewMetric) {

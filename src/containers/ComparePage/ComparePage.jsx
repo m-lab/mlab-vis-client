@@ -65,6 +65,7 @@ function mapStateToProps(state, propsWithUrl) {
     combinedHourly: ComparePageSelectors.getCombinedHourly(state, propsWithUrl),
     combinedHourlyExtents: ComparePageSelectors.getCombinedHourlyExtents(state, propsWithUrl),
     combinedTimeSeries: ComparePageSelectors.getCombinedTimeSeries(state, propsWithUrl),
+    combinedTimeSeriesExtents: ComparePageSelectors.getCombinedTimeSeriesExtents(state, propsWithUrl),
     facetItemHourly: ComparePageSelectors.getFacetItemHourly(state, propsWithUrl),
     facetItemHourlyExtents: ComparePageSelectors.getFacetItemHourlyExtents(state, propsWithUrl),
     facetItemInfos: ComparePageSelectors.getFacetItemInfos(state, propsWithUrl),
@@ -92,6 +93,7 @@ class ComparePage extends PureComponent {
     combinedHourly: PropTypes.object,
     combinedHourlyExtents: PropTypes.object,
     combinedTimeSeries: PropTypes.object,
+    combinedTimeSeriesExtents: PropTypes.object,
     dispatch: PropTypes.func,
     endDate: momentPropTypes.momentObj,
     facetItemHourly: PropTypes.array,
@@ -698,6 +700,7 @@ class ComparePage extends PureComponent {
       combinedHourly,
       combinedHourlyExtents,
       combinedTimeSeries,
+      combinedTimeSeriesExtents,
       facetItemInfos,
       facetItemTimeSeries,
       facetItemHourly,
@@ -738,6 +741,7 @@ class ComparePage extends PureComponent {
                     breakdownBy={breakdownBy}
                     colors={colors}
                     combinedTimeSeries={combinedTimeSeries && combinedTimeSeries[facetItemInfo.id]}
+                    combinedTimeSeriesExtents={combinedTimeSeriesExtents}
                     facetItemId={facetItemInfo.id}
                     facetItemInfo={facetItemInfo}
                     facetItemTimeSeries={facetItemTimeSeries}
