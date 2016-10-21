@@ -239,6 +239,10 @@ class WorldMap extends PureComponent {
 
     this.svg = d3.select(this.map.getPanes().overlayPane).append('svg');
     this.g = this.svg.append('g').attr('class', 'leaflet-zoom-hide');
+    this.g.append('g').attr('class', 'clients');
+    this.g.append('g').attr('class', 'client-server-lines');
+    this.g.append('g').attr('class', 'servers');
+    this.g.append('g').attr('class', 'blasts');
 
     this.setupDefs(this.svg);
 
@@ -254,6 +258,16 @@ class WorldMap extends PureComponent {
 
     // update visual
     this.timer = d3.interval(this.updateViewable, updateFrequency);
+  }
+
+  /**
+   * Callback for when the map is zoomed
+   */
+  resetView() {
+    // remove blasts when resetting view since they do not exist outside of their
+    // enter animation
+    this.g.selectAll('.blast').remove();
+    this.update();
   }
 
   update() {
@@ -325,7 +339,7 @@ class WorldMap extends PureComponent {
     const clientRadius = 3;
 
     // bind to viewable points
-    const points = this.g.selectAll('.client')
+    const points = this.g.select('.clients').selectAll('.client')
       .data(viewable, (d) => d.id);
 
     // // points enter
@@ -366,7 +380,7 @@ class WorldMap extends PureComponent {
     const blastTransitionSpeed = 2000;
     const blastData = viewable[viewable.length - 1];
 
-    const blast = this.g.selectAll('.blast')
+    const blast = this.g.select('.blasts').selectAll('.blast')
       .data([blastData], (d) => d.id);
 
     this.path.pointRadius(0);
@@ -392,7 +406,7 @@ class WorldMap extends PureComponent {
     const { servers } = this.props;
     // SERVERS
     this.path.pointRadius(3);
-    const server = this.g.selectAll('.server')
+    const server = this.g.select('.servers').selectAll('.server')
       .data(servers, (d) => d.id);
 
     const serverE = server.enter()
@@ -419,7 +433,7 @@ class WorldMap extends PureComponent {
     const lineData = viewable.slice(minLineIndex, viewable.length);
 
     // bind to the line data
-    const lines = this.g.selectAll('.line')
+    const lines = this.g.select('.client-server-lines').selectAll('.line')
       .data(lineData, (d) => d.id);
 
     const linesE = lines.enter()
@@ -446,22 +460,12 @@ class WorldMap extends PureComponent {
   }
 
   /**
-   * Callback for when the map is zoomed
-   */
-  resetView() {
-    // remove blasts when resetting view since they do not exist outside of their
-    // enter animation
-    this.g.selectAll('.blast').remove();
-    this.update();
-  }
-
-
-  /**
    * Render
    */
   render() {
     const styles = { height: '600px' };
 
+    /* eslint-disable max-len */
     return (
       <div className="WorldMapContainer">
         <div
