@@ -49,7 +49,7 @@ function visProps(props) {
   // height for the whole component (add enough height for each row)
   let height = padding.top + padding.bottom;
   if (series && series.length > 0) {
-    height += (series.length * (smallMultHeight + smallMultMarginBottom));
+    height += (series.length * (smallMultHeight + smallMultMarginBottom)) - smallMultMarginBottom;
   }
 
   // height for the whole drawing area
