@@ -32,6 +32,27 @@ function dataToGeoJson(data) {
   return { type: 'FeatureCollection', features };
 }
 
+/**
+ * Extract server features from the geoData. Only add one server
+ * for each unique lat,lng position.
+ * @return {Object[]} The server features
+ */
+function serversToFeatures(geoData) {
+  const serversById = {};
+  const serverId = (lat, lng) => `${lat}_${lng}`;
+
+  geoData.features.forEach((d) => {
+    const { serverPos } = d.properties;
+    const id = serverId(serverPos[0], serverPos[1]);
+
+    if (!serversById[id]) {
+      serversById[id] = pointToFeature(id, serverPos);
+    }
+  });
+
+  return d3.values(serversById);
+}
+
 /*
  * Dashed line interpolation hack from
  * https://bl.ocks.org/mbostock/5649592
@@ -56,19 +77,17 @@ function transitionLine(path) {
   path
     .attr('stroke-dasharray', '0,100000') // fix safari flash
     .transition()
-    .duration(function durationFromSpeed(d) {
-      // use download speed to determine transition duration
-      const downloadSpeed = d.properties.data.download_speed_mbps;
-
-      return durationScale(downloadSpeed);
-    })
+    .duration(d => durationScale(d.properties.data.download_speed_mbps))
     .ease(d3.easeQuadOut)
     .attrTween('stroke-dasharray', tweenDash)
-    // this should remove dashing on transition end
-    .on('end', function endDashTransition() { d3.select(this).attr('stroke-dasharray', 'none'); })
+    .style('stroke-dashoffset', '0%')
     .transition()
-    .duration(500)
-    .style('stroke-opacity', 0.0)
+    .duration(d => durationScale(d.properties.data.download_speed_mbps) / 2)
+    // make the line disappear the way it came
+    .styleTween('stroke-dashoffset', function dashoffsetTween() {
+      const l = this.getTotalLength();
+      return t => `-${t * l}px`;
+    })
     .remove();
 }
 
@@ -85,14 +104,14 @@ function visProps(props) {
   }
 
   const geoData = dataToGeoJson(data);
-  const servers = geoData.features.map((d, i) => pointToFeature(i, d.properties.serverPos));
+  const servers = serversToFeatures(geoData);
 
   const rScale = d3.scaleSqrt()
     .domain([0, 100])
     .range([2, 18])
     .clamp(true);
 
-  const colors = ['#fd150b', '#ff8314', '#ffc33b', '#f3f5e7', '#6fb7d0', '#2970ac'].reverse();
+  const colors = ['#2970ac', '#6fb7d0', '#f3f5e7', '#ffc33b', '#ff8314', '#fd150b'];
 
   const colorScale = d3.scaleLinear()
     .range(colors)
@@ -137,11 +156,10 @@ class WorldMap extends PureComponent {
   constructor(props) {
     super(props);
 
-    // TODO: this is a variable that is incremented by a timer
-    // where should it go? Adding it to state causes unnecessary renders.
-    this.numVisibleFeatures = 1;
+    this.visibleFeatures = [];
 
-    this.updatePoints = this.updatePoints.bind(this);
+    this.resetView = this.resetView.bind(this);
+    this.update = this.update.bind(this);
     this.updateViewable = this.updateViewable.bind(this);
     this.projectPoint = this.projectPoint.bind(this);
   }
@@ -151,6 +169,10 @@ class WorldMap extends PureComponent {
    */
   componentDidMount() {
     this.setup();
+  }
+
+  componentWillUnmount() {
+    this.timer.stop();
   }
 
   /*
@@ -217,6 +239,10 @@ class WorldMap extends PureComponent {
 
     this.svg = d3.select(this.map.getPanes().overlayPane).append('svg');
     this.g = this.svg.append('g').attr('class', 'leaflet-zoom-hide');
+    this.g.append('g').attr('class', 'clients');
+    this.g.append('g').attr('class', 'client-server-lines');
+    this.g.append('g').attr('class', 'servers');
+    this.g.append('g').attr('class', 'blasts');
 
     this.setupDefs(this.svg);
 
@@ -227,12 +253,36 @@ class WorldMap extends PureComponent {
     // Used in the update to rerender paths
     this.path = d3.geoPath().projection(transform);
 
-    this.map.on('viewreset', this.updatePoints);
+    // happens when zooming
+    this.map.on('viewreset', this.resetView);
 
     // update visual
     this.timer = d3.interval(this.updateViewable, updateFrequency);
   }
 
+  /**
+   * Callback for when the map is zoomed
+   */
+  resetView() {
+    // remove blasts when resetting view since they do not exist outside of their
+    // enter animation
+    this.g.selectAll('.blast').remove();
+    this.update();
+  }
+
+  update() {
+    const { geoData } = this.props;
+
+    if (!geoData || geoData.features.length === 0) {
+      return;
+    }
+
+    this.updateBase();
+    this.updateClients();
+    this.updateBlasts();
+    this.updateServers();
+    this.updateLines();
+  }
 
   /**
    * Update number of tests being viewed.
@@ -244,24 +294,20 @@ class WorldMap extends PureComponent {
       return;
     }
 
-    this.numVisibleFeatures += 1;
-
-    this.updatePoints();
-
-    if (this.numVisibleFeatures >= geoData.features.length) {
-      this.numVisibleFeatures = 1;
+    // reset if we reached the limit
+    if (this.visibleFeatures.length === geoData.features.length) {
+      this.visibleFeatures = [];
     }
+
+    // add in the next feature
+    this.visibleFeatures.push(geoData.features[this.visibleFeatures.length]);
+
+    this.update();
   }
 
-  /**
-   * Redraw points on update or zoom
-   */
-  updatePoints() {
-    const { geoData, servers, colorScale } = this.props;
 
-    if (!geoData || geoData.features.length === 0) {
-      return;
-    }
+  updateBase() {
+    const { geoData } = this.props;
 
     const bounds = this.path.bounds(geoData);
     const topLeft = bounds[0];
@@ -273,54 +319,69 @@ class WorldMap extends PureComponent {
       .style('top', `${topLeft[1]}px`);
 
     this.g.attr('transform', `translate(${-topLeft[0]},${-topLeft[1]})`);
+  }
 
+  /**
+   * Redraw points on update or zoom
+   */
+  updateClients() {
+    const { colorScale } = this.props;
 
     // grab those points that are to be 'viewable'
-    const viewable = geoData.features.slice(0, this.numVisibleFeatures);
+    const viewable = this.visibleFeatures;
 
     // pointRadius determines radius size of points.
     // set to 0 first.
     this.path.pointRadius(0);
 
-
     // CLIENTS
-    const pointTransitionSpeed = 1000;
+    const clientTransitionSpeed = 1000;
+    const clientRadius = 3;
 
     // bind to viewable points
-    const points = this.g.selectAll('.client')
+    const points = this.g.select('.clients').selectAll('.client')
       .data(viewable, (d) => d.id);
 
-    // points enter
+    // // points enter
     const pointsE = points.enter()
       .append('path')
       .classed('client', true)
-      .style('fill-opacity', 0.0)
+      .style('opacity', 0.0)
       .attr('d', this.path);
 
     // base point radius on download speed.
-    this.path.pointRadius(3); // TODO: try radius 3 for now. (d) => rScale(d.properties.data.download_speed_mbps));
+    this.path.pointRadius(clientRadius);
 
     // transition entered points
     pointsE.transition()
-      .duration(pointTransitionSpeed)
-      .style('fill-opacity', 0.5)
+      .duration(clientTransitionSpeed)
+      .style('opacity', 0.5)
       .attr('d', this.path)
-      .style('fill', (d) => colorScale(d.properties.data.download_speed_mbps));
+      .style('fill', (d) => colorScale(d.properties.data.download_speed_mbps))
+      .style('stroke', (d) => d3.color(colorScale(d.properties.data.download_speed_mbps)).darker(0.2));
 
     // existing points need to be reprojected in case of zoom
     points
-      .style('fill-opacity', 0.5)
       .attr('d', this.path);
 
     points
       .exit()
       .remove();
+  }
 
+  /**
+   * Render the blasts at each client
+   */
+  updateBlasts() {
+    const { colorScale } = this.props;
+
+    const viewable = this.visibleFeatures;
     const blastRadius = 15;
     const blastTransitionSpeed = 2000;
-    const blastData = [geoData.features[this.numVisibleFeatures]].filter(d => d != null);
-    const blast = this.g.selectAll('.client')
-      .data(blastData, (d) => d.id);
+    const blastData = viewable[viewable.length - 1];
+
+    const blast = this.g.select('.blasts').selectAll('.blast')
+      .data([blastData], (d) => d.id);
 
     this.path.pointRadius(0);
     const blastE = blast.enter()
@@ -339,11 +400,32 @@ class WorldMap extends PureComponent {
       .style('stroke-opacity', 0.0)
       .attr('d', this.path)
       .remove();
+  }
+
+  updateServers() {
+    const { servers } = this.props;
+    // SERVERS
+    this.path.pointRadius(3);
+    const server = this.g.select('.servers').selectAll('.server')
+      .data(servers, (d) => d.id);
+
+    const serverE = server.enter()
+      .append('path')
+      .classed('server', true)
+      .style('fill-opacity', 1.0);
+
+    server.merge(serverE)
+      .attr('d', this.path);
+  }
+
+  /**
+   * Helper to draw lines for each test
+   */
+  updateLines() {
+    const { colorScale } = this.props;
 
     // LINES
-
-    // reset the point radius to something static
-    this.path.pointRadius(3);
+    const viewable = this.visibleFeatures;
 
     // right now we take the last 50 points to
     // make lines for.
@@ -351,7 +433,7 @@ class WorldMap extends PureComponent {
     const lineData = viewable.slice(minLineIndex, viewable.length);
 
     // bind to the line data
-    const lines = this.g.selectAll('.line')
+    const lines = this.g.select('.client-server-lines').selectAll('.line')
       .data(lineData, (d) => d.id);
 
     const linesE = lines.enter()
@@ -368,26 +450,13 @@ class WorldMap extends PureComponent {
       .call(transitionLine)
       .attr('d', (d) => this.path(pointsToLine(d.points)));
 
+    // reproject lines on zoom change otherwise they lose their location
     lines
-      .attr('stroke-dasharray', 'none')
       .attr('d', (d) => this.path(pointsToLine(d.points)));
 
     // lines exit and remove themselves at the end of transitionLine.
     // it's important to let them reach the end of that transition first
     // since otherwise they'd start exiting before reaching their destination.
-
-    // SERVERS
-    this.path.pointRadius(3);
-    const server = this.g.selectAll('.server')
-      .data(servers, (d) => d.id);
-
-    const serverE = server.enter()
-      .append('path')
-      .classed('server', true)
-      .style('fill-opacity', 1.0);
-
-    server.merge(serverE)
-      .attr('d', this.path);
   }
 
   /**
@@ -396,6 +465,7 @@ class WorldMap extends PureComponent {
   render() {
     const styles = { height: '600px' };
 
+    /* eslint-disable max-len */
     return (
       <div className="WorldMapContainer">
         <div
@@ -408,7 +478,7 @@ class WorldMap extends PureComponent {
           <br />
           Lines go from a speed test client's location to a MLab's server location. MLab servers are in <span className="server">black</span>.
           <br />
-          Data displayed is only a small sample of speed test data from the last three months, with tests extracted from countries worldwide. 
+          Data displayed is only a small sample of speed test data from the last three months, with tests extracted from countries worldwide.
         </p>
       </div>
     );
