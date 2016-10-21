@@ -142,7 +142,7 @@ export default class ScatterGroup extends PureComponent {
           </Col>
         </Row>
         <Row>
-          {fields.filter(f => f.id === 'lastSixMonths').map((f) => this.renderPlot(f, summary[f.id]))}
+          {fields.map((f) => this.renderPlot(f, summary[f.id]))}
         </Row>
       </div>
     );
