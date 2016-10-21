@@ -36,19 +36,20 @@ function visProps(props) {
   };
 
   // spacing around each small multiple
-  const smallMultMargin = 45;
+  const smallMultMarginBottom = 65;
+  const smallMultMarginRight = 45;
 
   // width for the whole drawing area
   const plotAreaWidth = width - padding.left - padding.right;
 
   // width for an individual small multiple
   const smallMultWidth = Math.floor(plotAreaWidth / metrics.length) -
-    (smallMultMargin * ((metrics.length - 1) / metrics.length)); // we dont count the margin at the far right
+    (smallMultMarginRight * ((metrics.length - 1) / metrics.length)); // we dont count the margin at the far right
 
   // height for the whole component (add enough height for each row)
   let height = padding.top + padding.bottom;
   if (series && series.length > 0) {
-    height += (series.length * (smallMultHeight + smallMultMargin));
+    height += (series.length * (smallMultHeight + smallMultMarginBottom));
   }
 
   // height for the whole drawing area
@@ -124,7 +125,8 @@ function visProps(props) {
     plotAreaHeight,
     plotAreaWidth,
     smallMultWidth,
-    smallMultMargin,
+    smallMultMarginBottom,
+    smallMultMarginRight,
     lineGens,
     xScale,
     yScales,
@@ -159,7 +161,8 @@ class LineChartSmallMult extends PureComponent {
     series: PropTypes.array,
     showBaseline: PropTypes.bool,
     smallMultHeight: PropTypes.number,
-    smallMultMargin: PropTypes.number,
+    smallMultMarginBottom: PropTypes.number,
+    smallMultMarginRight: PropTypes.number,
     smallMultWidth: PropTypes.number,
     threshold: PropTypes.number,
     width: React.PropTypes.number,
@@ -311,14 +314,14 @@ class LineChartSmallMult extends PureComponent {
    * React style building of chart
    */
   renderChart(series, seriesIndex, yKey, metricIndex) {
-    const { smallMultWidth, smallMultMargin } = this.props;
+    const { smallMultWidth, smallMultMarginRight } = this.props;
 
     const seriesId = series.meta.id;
     const chartId = `${seriesId}-${yKey}`;
 
     // offset by circle radius so it doesn't get clipped
     const circleRadius = 3;
-    const xPos = ((smallMultWidth + smallMultMargin) * metricIndex) + circleRadius;
+    const xPos = ((smallMultWidth + smallMultMarginRight) * metricIndex) + circleRadius;
     const chartHeaderHeight = 27;
 
     return (
@@ -388,7 +391,7 @@ class LineChartSmallMult extends PureComponent {
    * React style addition of mouseover box
    */
   renderChartBackground(chartId) {
-    const { smallMultWidth, smallMultHeight, smallMultMargin } = this.props;
+    const { smallMultWidth, smallMultHeight, smallMultMarginRight } = this.props;
     return (
       <rect
         className="small-mult-chart-background"
@@ -396,7 +399,7 @@ class LineChartSmallMult extends PureComponent {
         ref={node => { this.backgroundNodes[chartId] = node; }}
         x={0}
         y={0}
-        width={smallMultWidth + smallMultMargin}
+        width={smallMultWidth + smallMultMarginRight}
         height={smallMultHeight}
         fill="none"
         pointerEvents="all"
@@ -408,13 +411,16 @@ class LineChartSmallMult extends PureComponent {
    * React style building of row of data
    */
   renderSeries(series, seriesIndex) {
-    const { metrics, smallMultHeight, smallMultMargin, showBaseline } = this.props;
+    const { metrics, smallMultHeight, smallMultMarginBottom, showBaseline, colors } = this.props;
 
-    const yPos = (smallMultHeight + smallMultMargin) * seriesIndex;
+    const yPos = (smallMultHeight + smallMultMarginBottom) * seriesIndex;
     // position text below charts for now
     const yPosText = 0;
     const seriesKey = series.meta.id;
     const seriesName = (showBaseline && seriesIndex === 0) ? series.meta.label : series.meta.client_asn_name;
+
+    const color = ((showBaseline && seriesIndex === 0) ? '#bbb' : colors[series.meta.client_asn_number]);
+    const lightColor = d3.color(color).brighter(0.3);
 
     return (
       <g
@@ -422,10 +428,12 @@ class LineChartSmallMult extends PureComponent {
         className="small-mult-row"
         transform={`translate(${0},${yPos})`}
       >
+        <rect y={6} width={10} height={10} fill={lightColor} stroke={color} />
         <text
           className="small-mult-label small-mult-name"
           y={yPosText}
           dy={16}
+          dx={14}
         >
           {seriesName}
         </text>
@@ -438,9 +446,9 @@ class LineChartSmallMult extends PureComponent {
    * React style label creation
    */
   renderLabels() {
-    const { smallMultWidth, smallMultMargin, metrics } = this.props;
+    const { smallMultWidth, smallMultMarginRight, metrics } = this.props;
     const labels = metrics.map((metric, index) => {
-      const xPos = ((smallMultWidth + smallMultMargin) * index);
+      const xPos = ((smallMultWidth + smallMultMarginRight) * index);
       return (
         <text
           key={metric.dataKey}
