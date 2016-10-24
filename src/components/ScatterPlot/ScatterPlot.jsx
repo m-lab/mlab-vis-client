@@ -363,12 +363,22 @@ class ScatterPlot extends PureComponent {
    * Render the x and y axis components
    */
   updateAxes() {
-    const { xScale, yScale, plotAreaHeight, plotAreaWidth, padding } = this.props;
+    const { xScale, yScale, plotAreaHeight, plotAreaWidth, padding, yKey, xKey,
+      yFormatter, xFormatter } = this.props;
 
     const xTicks = Math.round(plotAreaWidth / 50);
     const yTicks = Math.round(plotAreaHeight / 50);
     const xAxis = d3.axisBottom(xScale).ticks(xTicks).tickSizeOuter(0);
     const yAxis = d3.axisLeft(yScale).ticks(yTicks).tickSizeOuter(0);
+
+    // be sure to use the formatter when showing % metrics like retransmit rate
+    if (yKey === 'retransmit_avg') {
+      yAxis.tickFormat(yFormatter);
+    }
+    if (xKey === 'retransmit_avg') {
+      xAxis.tickFormat(xFormatter);
+    }
+
 
     this.yAxis.call(yAxis);
     this.yAxisLabel
