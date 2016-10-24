@@ -48,7 +48,7 @@ export const metrics = [
     label: 'Retransmission Rate',
     unit: '%',
     dataKey: 'retransmit_avg',
-    formatter: d3.format('.1p'),
+    formatter: d3.format('.1%'),
     description: 'Average Retransmission rate during the speed tests.',
   },
 ];
