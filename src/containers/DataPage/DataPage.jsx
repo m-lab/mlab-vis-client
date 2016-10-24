@@ -533,6 +533,9 @@ class DataPage extends PureComponent {
               beneath them, you can use the <a href={apiRoot}>REST API</a> that powers these
               visualizations directly, or you can use the interface below.
             </p>
+            <p>
+              For more advanced users, you also can access the data directly through <a href="http://www.measurementlab.net/data/bq/quickstart/">BigQuery</a>.
+            </p>
           </Col>
           <Col md={1}>
             <button className="btn btn-default" onClick={this.onReset}>Reset</button>
