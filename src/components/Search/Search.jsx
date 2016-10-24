@@ -66,9 +66,20 @@ class Search extends PureComponent {
   * @param {String} newValue
   */
   onChange(event, { newValue }) {
-    this.setState({
-      value: newValue,
-    });
+    /* React-autosuggest automatically calls onChange with the first suggestion after
+     * clearing when focusFirstSuggestion is true. The problem is, this first suggestion
+     * is still the one that was just selected. This sets the text of the field to
+     * match the value of the just selected one while leaving the dropdown open. Ideal
+     * behavior for us is that pressing enter (and thus selecting the first item due to
+     * focusFirstSuggestion being true) operates the same as if we pressed down then enter,
+     * which clears the text field and hides the suggestions. So if we just cleared, ignore
+     * setting the value here. (Issue #201 in mlab-vis-client)
+     */
+    if (!this.justCleared) {
+      this.setState({
+        value: newValue,
+      });
+    }
   }
 
   /**
@@ -103,8 +114,13 @@ class Search extends PureComponent {
    * Callback when suggestions are to be cleared
    */
   onSuggestionsClearRequested() {
+    // flag that we just cleared so we can ignore setting the value (Issue #201)
+    this.justCleared = true;
     this.setState({
       suggestions: [],
+    }, () => {
+      // remove the just cleared flag after the next render
+      this.justCleared = false;
     });
   }
 
@@ -180,6 +196,7 @@ class Search extends PureComponent {
     return (
       <div className={classNames('Search', className, { disabled })}>
         <Autosuggest
+          focusFirstSuggestion
           suggestions={suggestions}
           onSuggestionsFetchRequested={this.onSuggestionsFetchRequested}
           onSuggestionsClearRequested={this.onSuggestionsClearRequested}
