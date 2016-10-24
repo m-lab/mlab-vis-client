@@ -28,7 +28,7 @@ export default class HistoGroup extends PureComponent {
   }
 
   static defaultProps = {
-    width: 250,
+    width: 300,
     height: 250,
     yExtent: [0, 100],
   }
@@ -72,6 +72,8 @@ export default class HistoGroup extends PureComponent {
           onHighlightBin={this.onHighlightBin}
           id={info.id}
           color={color}
+          binStart={viewMetric.binStart}
+          binWidth={viewMetric.binWidth}
           xFormatter={viewMetric.formatter}
           xAxisLabel={viewMetric.label}
           xAxisUnit={viewMetric.unit}
@@ -90,10 +92,9 @@ export default class HistoGroup extends PureComponent {
   renderPlots(field, allData) {
     const { viewMetric } = this.props;
     const data = allData ? allData.clientIspsData : [];
-    // console.log(data);
     const binSets = data.map((d) => d[viewMetric.percentBinKey]);
     const colors = colorsFor(data, (d) => d.id);
-    // console.log(binSets);
+
     return (
       <Row key={field.id} className="histogram-row">
         <Col md={12}>

@@ -316,7 +316,7 @@ class Histogram extends PureComponent {
    * Render the x and y axis components
    */
   updateAxes() {
-    const { xScale, xValues, yScale, plotAreaHeight, plotAreaWidth, padding } = this.props;
+    const { xScale, xValues, yScale, xFormatter, plotAreaHeight, plotAreaWidth, padding } = this.props;
     const yTicks = Math.round(plotAreaHeight / 50);
     // show the first tick, then some afterwards.
     // TODO: should be moved out of histogram?
@@ -326,6 +326,7 @@ class Histogram extends PureComponent {
     const yAxis = d3.axisLeft(yScale).ticks(yTicks).tickSizeOuter(0);
 
     yAxis.tickFormat(percentNoDecFormat);
+    xAxis.tickFormat(xFormatter);
 
     this.yAxis.call(yAxis);
     this.yAxisLabel
