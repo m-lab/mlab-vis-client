@@ -19,4 +19,38 @@
     stroke-opacity: 0.4;
     stroke-width: 1.5px;
   }
+
+  .WorldMap-legend {
+    position: absolute;
+    z-index: 1000;
+    top: 0;
+    right: 0;
+
+    svg {
+      display: inline-block;
+      margin: 0 3px;
+    }
+
+    ul {
+      margin: 0;
+    }
+
+    li {
+      display: inline-block;
+      background: #fff;
+      margin: 4px;
+      padding: 4px;
+    }
+
+    .server-indicator, .client-indicator {
+      vertical-align: baseline;
+      width: 6px;
+      height: 6px;
+      border-radius: 100%;
+      background: #333;
+      display: inline-block;
+      margin-right: 4px;
+      margin-bottom: 1px;
+    }
+  }
 }

@@ -459,10 +459,50 @@ class WorldMap extends PureComponent {
     // since otherwise they'd start exiting before reaching their destination.
   }
 
+  renderLegend() {
+    const { colorScale } = this.props;
+
+    const colorDomain = colorScale.domain();
+    const legendInterpolator = d3.scaleLinear().domain([0, 99])
+      .range([colorDomain[0], colorDomain[colorDomain.length - 1]]);
+
+    return (
+      <div className="WorldMap-legend">
+        <ul className="list-unstyled">
+          <li>
+            <div className="server-indicator" />
+            <span>Servers</span>
+          </li>
+          <li>
+            <div className="client-indicator" style={{ backgroundColor: colorScale(1) }} />
+            <div className="client-indicator" style={{ backgroundColor: colorScale(12) }} />
+            <div className="client-indicator" style={{ backgroundColor: colorScale(20) }} />
+            <span>Clients</span>
+          </li>
+          <li>
+            <span>{`${colorDomain[0]} Mbps`}</span>
+            <svg width="100" height="8">
+              <defs>
+                <linearGradient id="WorldMap-legend-gradient">
+                  {d3.range(100).map(d =>
+                    <stop key={d} offset={`${d}%`} stopColor={colorScale(legendInterpolator(d))} />
+                  )}
+                </linearGradient>
+              </defs>
+              <rect fill="url(#WorldMap-legend-gradient)" width="100" height="14" />
+            </svg>
+            <span>{`${colorDomain[colorDomain.length - 1]} Mbps`}</span>
+          </li>
+        </ul>
+      </div>
+    );
+  }
+
   /**
    * Render
    */
   render() {
+    const { colorScale } = this.props;
     const styles = { height: '600px' };
 
     /* eslint-disable max-len */
@@ -472,13 +512,20 @@ class WorldMap extends PureComponent {
           className="WorldMap"
           style={styles}
           ref={node => { this.root = node; }}
-        />
+        >
+          <div>{this.renderLegend()}</div>
+        </div>
         <p>
-          Color and line speed represents download speed, with blue being slow and red being fast.
-          <br />
-          Lines go from a speed test client's location to a MLab's server location. MLab servers are in <span className="server">black</span>.
-          <br />
           Data displayed is only a small sample of speed test data from the last three months, with tests extracted from countries worldwide.
+        </p>
+        <p>
+          Color and line speed represents download speed,
+          with <span style={{ color: colorScale(1) }}>blue</span> being slow
+          and <span style={{ color: colorScale(30) }}>red</span> being fast.
+        </p>
+        <p>
+          Lines go from a speed test client's location to a MLab's server location.
+          MLab servers are in <span className="server">black</span>.
         </p>
       </div>
     );
