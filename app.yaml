@@ -1,7 +1,8 @@
 
 service: client
-vm: true
+
 runtime: nodejs
+vm: true
 
 automatic_scaling:
   min_num_instances: 3
@@ -9,9 +10,3 @@ automatic_scaling:
   cool_down_period_sec: 120 # default value
   cpu_utilization:
     target_utilization: 0.5
-
-
-# [START app_yaml]
-runtime: nodejs
-vm: true
-# [END app_yaml]
