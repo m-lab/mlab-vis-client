@@ -202,7 +202,7 @@ class CountChart extends PureComponent {
   updateAxes() {
     const { yScale, plotAreaHeight, padding } = this.props;
     const yAxis = d3.axisLeft(yScale)
-      .ticks(4)
+      .ticks(Math.max(3, plotAreaHeight / 30))
       .tickSizeOuter(0)
       .tickFormat((d) => formatNumber(d, true));
 

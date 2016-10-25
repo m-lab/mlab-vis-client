@@ -481,7 +481,7 @@ class LineChart extends PureComponent {
   updateAxes() {
     const { xScale, yScale, plotAreaHeight, padding, plotAreaWidth, yKey, yFormatter } = this.props;
     const xAxis = d3.axisBottom(xScale).tickSizeOuter(0);
-    const yAxis = d3.axisLeft(yScale).tickSizeOuter(0);
+    const yAxis = d3.axisLeft(yScale).ticks(Math.max(4, plotAreaHeight / 30)).tickSizeOuter(0);
 
     // use default formatter unless retransmit_avg since we want percentages rendered
     if (yKey === 'retransmit_avg') {

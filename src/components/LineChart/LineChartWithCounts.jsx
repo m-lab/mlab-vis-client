@@ -92,34 +92,38 @@ class LineChartWithCounts extends PureComponent {
   static propTypes = {
     annotationSeries: PropTypes.oneOfType([PropTypes.array, PropTypes.object]),
     colors: PropTypes.object,
+    countChartHeight: PropTypes.number,
     countExtent: PropTypes.array,
     counts: PropTypes.array,
     forceZeroMin: PropTypes.bool,
-    height: React.PropTypes.number,
-    highlightDate: React.PropTypes.object,
-    highlightLine: React.PropTypes.object,
-    id: React.PropTypes.string,
-    idKey: React.PropTypes.string,
-    numBins: React.PropTypes.number,
-    onHighlightDate: React.PropTypes.func,
-    onHighlightLine: React.PropTypes.func,
+    height: PropTypes.number,
+    highlightDate: PropTypes.object,
+    highlightLine: PropTypes.object,
+    id: PropTypes.string,
+    idKey: PropTypes.string,
+    lineChartHeight: PropTypes.number,
+    numBins: PropTypes.number,
+    onHighlightDate: PropTypes.func,
+    onHighlightLine: PropTypes.func,
     padding: PropTypes.object,
     series: PropTypes.oneOfType([PropTypes.array, PropTypes.object]),
-    width: React.PropTypes.number,
+    width: PropTypes.number,
     xExtent: PropTypes.array,
-    xKey: React.PropTypes.string,
-    xScale: React.PropTypes.func,
-    yAxisLabel: React.PropTypes.string,
-    yAxisUnit: React.PropTypes.string,
+    xKey: PropTypes.string,
+    xScale: PropTypes.func,
+    yAxisLabel: PropTypes.string,
+    yAxisUnit: PropTypes.string,
     yExtent: PropTypes.array,
     yFormatter: PropTypes.func,
-    yKey: React.PropTypes.string,
+    yKey: PropTypes.string,
   }
 
   static defaultProps = {
     threshold: testThreshold,
     idKey: 'id',
     labelKey: 'label',
+    lineChartHeight: 350,
+    countChartHeight: 80,
   }
 
   /**
@@ -128,11 +132,10 @@ class LineChartWithCounts extends PureComponent {
    */
   render() {
     const { id, width, xKey, annotationSeries, series, highlightLine, highlightDate,
-      onHighlightDate, counts, padding, xScale, numBins, colors, idKey, countExtent } = this.props;
+      onHighlightDate, counts, padding, xScale, numBins, colors, idKey, countExtent,
+      lineChartHeight, countChartHeight } = this.props;
 
-    const lineChartHeight = 350;
-    const countHeight = 80;
-    const height = lineChartHeight + countHeight;
+    const height = lineChartHeight + countChartHeight;
     const highlightColor = highlightLine ? colors[highlightLine.meta[idKey]] : undefined;
     const highlightCountData = highlightLine ? highlightLine.results : undefined;
 
@@ -165,7 +168,7 @@ class LineChartWithCounts extends PureComponent {
               highlightData={highlightCountData}
               highlightCount={highlightDate}
               highlightColor={highlightColor}
-              height={countHeight}
+              height={countChartHeight}
               paddingLeft={padding.left}
               paddingRight={padding.right}
               onHighlightCount={onHighlightDate}

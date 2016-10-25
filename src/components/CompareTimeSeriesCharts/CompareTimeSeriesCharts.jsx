@@ -58,6 +58,8 @@ export default class CompareTimeSeriesCharts extends PureComponent {
         <AutoWidth>
           <LineChartWithCounts
             id={chartId}
+            lineChartHeight={200}
+            countChartHeight={60}
             idKey={lineDataType.idKey}
             labelKey={lineDataType.labelKey}
             colors={colors}
