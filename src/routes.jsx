@@ -19,8 +19,7 @@ export default () => (
     <IndexRoute component={HomePage} />
 
     { /* Routes */ }
-    {/* Temporarily default to seattle */}
-    <Redirect from="location" to="location/nauswaseattle" />
+    <Redirect from="location" to="/" />
     <Route path="location" component={LocationPage}>
       <Route path=":locationId" />
     </Route>
