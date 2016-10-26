@@ -61,7 +61,7 @@ const urlQueryConfig = {
 const urlHandler = new UrlHandler(urlQueryConfig, browserHistory);
 
 const fixedFields = [
-  { id: 'lastMonth', label: 'Last Month' },
+  { id: 'lastThreeMonths', label: 'Last Three Months' },
   { id: 'lastSixMonths', label: 'Last Six Months' },
   { id: 'lastYear', label: 'Last Year' },
 ];
@@ -659,15 +659,15 @@ class LocationPage extends PureComponent {
 
   renderFixedSummaryData() {
     const { summary = {} } = this.props;
-    const { lastMonth = {}, lastSixMonths = {}, lastYear = {} } = summary;
+    const { lastThreeMonths = {}, lastSixMonths = {}, lastYear = {} } = summary;
 
     return (
       <div className="subsection">
         <header>
           <h3>Summary Data</h3>
         </header>
-        <h4>Last Month</h4>
-        <SummaryTable data={lastMonth.clientIspsData} bottomData={lastMonth.locationData} />
+        <h4>Last Three Months</h4>
+        <SummaryTable data={lastThreeMonths.clientIspsData} bottomData={lastThreeMonths.locationData} />
         <h4>Last Six Months</h4>
         <SummaryTable data={lastSixMonths.clientIspsData} bottomData={lastSixMonths.locationData} />
         <h4>Last Year</h4>

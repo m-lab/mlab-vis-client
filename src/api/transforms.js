@@ -366,7 +366,13 @@ export function transformFixedData(body) {
   if (body.data) {
     // read in test_counts from meta if available
     if (body.meta) {
-      const testCountFields = ['last_year_test_count', 'last_week_test_count', 'last_month_test_count', 'last_six_month_test_count'];
+      const testCountFields = [
+        'last_year_test_count',
+        'last_week_test_count',
+        'last_month_test_count',
+        'last_three_month_test_count',
+        'last_six_month_test_count',
+      ];
       testCountFields.forEach(field => {
         if (body.meta[field] != null && body.data[field] == null) {
           body.data[field] = body.meta[field];
@@ -376,8 +382,9 @@ export function transformFixedData(body) {
 
     const keyMapping = {
       last_year_: 'lastYear',
-      last_month_: 'lastMonth',
       last_week_: 'lastWeek',
+      last_month_: 'lastMonth',
+      last_three_months_: 'lastThreeMonths',
       last_six_months_: 'lastSixMonths',
       other: 'other',
     };
