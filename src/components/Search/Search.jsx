@@ -172,7 +172,7 @@ class Search extends PureComponent {
   renderSuggestion(suggestion) {
     return (
       <div>
-        <span className="suggestion-count">{formatNumber(suggestion.data.test_count)}</span>
+        <span className="suggestion-count">{formatNumber(suggestion.meta.test_count)}</span>
         <span className="suggestion-name">{suggestion.meta.label}</span>
       </div>
     );
