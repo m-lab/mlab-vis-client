@@ -26,10 +26,6 @@ class HomePage extends PureComponent {
     this.fetchData(this.props);
   }
 
-  // componentWillReceiveProps(nextProps) {
-  //   this.fetchData(nextProps);
-  // }
-
   fetchData(props) {
     const { dispatch } = props;
 
@@ -48,7 +44,10 @@ class HomePage extends PureComponent {
           </p>
         </div>
         <div className="section no-border">
-          <h3>Find Your City</h3>
+          <h3>Find Your City, Region, or Country</h3>
+          <p>
+            Explore a detailed report of a location you're interested in by searching below:
+          </p>
           <LocationSearch />
         </div>
 
