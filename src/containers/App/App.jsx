@@ -42,7 +42,7 @@ class App extends PureComponent {
           </Navbar.Brand>
         </Navbar.Header>
         <Nav>
-          <IndexLinkContainer to="/"><NavItem eventKey={1}>Location</NavItem></IndexLinkContainer>
+          <IndexLinkContainer to="/"><NavItem eventKey={1}>Locations</NavItem></IndexLinkContainer>
           <LinkContainer to="/compare"><NavItem eventKey={4}>Compare</NavItem></LinkContainer>
           <LinkContainer to="/data"><NavItem eventKey={4}>Data</NavItem></LinkContainer>
           <LinkContainer to="/about"><NavItem eventKey={5}>About</NavItem></LinkContainer>
