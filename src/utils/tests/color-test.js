@@ -24,7 +24,7 @@ describe('utils', () => {
       it('provides colors to asns', () => {
         const asns = ['AS100', 'AS101', 'AS103'];
         const colors = extractColors(asns);
-        expect(colors).to.deep.equal(['rgb(225, 69, 51)', 'rgb(141, 114, 227)', 'rgb(223, 70, 178)']);
+        expect(colors).to.deep.equal(['rgb(206, 63, 205)', 'rgb(225, 69, 51)', 'rgb(125, 66, 25)']);
       });
       it('does not duplicate colors', () => {
         const asns = ['AS100', 'AS100', 'AS100', 'AS100'];
@@ -39,13 +39,13 @@ describe('utils', () => {
       it('provides colors to asns', () => {
         const asns = ['AS100', 'AS101', 'AS103'];
         const colorMap = colorsFor(asns);
-        expect(colorMap['AS100']).to.equal('rgb(225, 69, 51)');
+        expect(colorMap.AS100).to.equal('rgb(206, 63, 205)');
       });
 
       it('provides colors for asns with accessor function', () => {
-        const asns = [{ 'asn':'AS100' }, { 'asn':'AS101' }];
-        const colorMap = colorsFor(asns, (d) => d.asn);
-        expect(colorMap['AS100']).to.equal('rgb(225, 69, 51)');
+        const asns = [{ asn: 'AS100' }, { asn: 'AS101' }];
+        const colorMap = colorsFor(asns, d => d.asn);
+        expect(colorMap.AS100).to.equal('rgb(206, 63, 205)');
       });
     });
   });
