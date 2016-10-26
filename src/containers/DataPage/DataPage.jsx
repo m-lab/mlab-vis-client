@@ -524,35 +524,39 @@ class DataPage extends PureComponent {
     return (
       <div className="DataPage">
         <Helmet title="Data" />
-        <h1>Data</h1>
-        <Row>
-          <Col md={8}>
-            <p>
-              There are several different ways to access the data used for these visualizations.
-              You can download the data for the individual charts by clicking the CSV or JSON buttons
-              beneath them, you can use the <a href={apiRoot}>REST API</a> that powers these
-              visualizations directly, or you can use the interface below.
-            </p>
-            <p>
-              For more advanced users, you also can access the data directly through <a href="http://www.measurementlab.net/data/bq/quickstart/">BigQuery</a>.
-            </p>
-          </Col>
-          <Col md={1}>
-            <button className="btn btn-default" onClick={this.onReset}>Reset</button>
-          </Col>
-        </Row>
-        <Row>
-          <Col md={4}>
-            {this.renderTimeRangeSelector()}
-          </Col>
-          <Col md={4}>
-            {this.renderTimeAggregationSelector()}
-          </Col>
-          <Col md={4}>
-            {this.renderDataFormatSelector()}
-          </Col>
-        </Row>
-        {this.renderFilters()}
+        <div className="section top-section">
+          <header>
+            <h2>Data</h2>
+          </header>
+          <Row>
+            <Col md={8}>
+              <p>
+                There are several different ways to access the data used for these visualizations.
+                You can download the data for the individual charts by clicking the CSV or JSON buttons
+                beneath them, you can use the <a href={apiRoot}>REST API</a> that powers these
+                visualizations directly, or you can use the interface below.
+              </p>
+              <p>
+                For more advanced users, you also can access the data directly through <a href="http://www.measurementlab.net/data/bq/quickstart/">BigQuery</a>.
+              </p>
+            </Col>
+            <Col md={1}>
+              <button className="btn btn-default" onClick={this.onReset}>Reset</button>
+            </Col>
+          </Row>
+          <Row>
+            <Col md={4}>
+              {this.renderTimeRangeSelector()}
+            </Col>
+            <Col md={4}>
+              {this.renderTimeAggregationSelector()}
+            </Col>
+            <Col md={4}>
+              {this.renderDataFormatSelector()}
+            </Col>
+          </Row>
+          {this.renderFilters()}
+        </div>
         {this.renderDownloadLinks()}
       </div>
     );
