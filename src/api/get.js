@@ -3,10 +3,7 @@ import config from '../config';
 import LRUCache from './LRUCache';
 
 const apiCache = new LRUCache(config.apiCacheLimit);
-if (__DEVELOPMENT__ && __CLIENT__) {
-  console.log('[dev] apiCache = ', apiCache);
-  window.apiCache = apiCache;
-}
+const searchCache = new LRUCache(config.searchCacheLimit);
 
 /**
  * Formats a URL to go via the API server
@@ -44,11 +41,18 @@ export default function get(path, query) {
     return Promise.reject(`Missing URL parameters: ${path}`);
   }
 
+  // choose the cache based on the type
+  let cache;
+  if (/search$/.test(path)) {
+    cache = searchCache;
+  } else {
+    cache = apiCache;
+  }
 
   return new Promise((resolve, reject) => {
     // check for a cached response
     const cacheKey = urlCacheKey(path, query);
-    const cached = apiCache.get(cacheKey);
+    const cached = cache.get(cacheKey);
 
     // found in cache
     if (cached) {
@@ -75,7 +79,7 @@ export default function get(path, query) {
       // if you want to cache transformed data, modify the body object directly
       // and make sure your transform checks to see if the data is already
       // transformed.
-      apiCache.put(cacheKey, body);
+      cache.put(cacheKey, body);
       resolve(body);
     });
   });
