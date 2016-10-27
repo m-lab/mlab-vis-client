@@ -31,12 +31,12 @@ function visProps(props) {
   const padding = {
     top: 25,
     right: 5,
-    bottom: 35,
+    bottom: 25,
     left: 0,
   };
 
   // spacing around each small multiple
-  const smallMultMarginBottom = 65;
+  const smallMultMarginBottom = 25;
   const smallMultMarginRight = 45;
 
   // width for the whole drawing area
@@ -46,10 +46,13 @@ function visProps(props) {
   const smallMultWidth = Math.floor(plotAreaWidth / metrics.length) -
     (smallMultMarginRight * ((metrics.length - 1) / metrics.length)); // we dont count the margin at the far right
 
+  const smallMultHeaderHeight = 27;
+
   // height for the whole component (add enough height for each row)
   let height = padding.top + padding.bottom;
   if (series && series.length > 0) {
-    height += (series.length * (smallMultHeight + smallMultMarginBottom)) - smallMultMarginBottom;
+    height += (series.length * (smallMultHeight + smallMultMarginBottom + smallMultHeaderHeight)) -
+      smallMultMarginBottom;
   }
 
   // height for the whole drawing area
@@ -124,6 +127,7 @@ function visProps(props) {
     padding,
     plotAreaHeight,
     plotAreaWidth,
+    smallMultHeaderHeight,
     smallMultWidth,
     smallMultMarginBottom,
     smallMultMarginRight,
@@ -157,9 +161,11 @@ class LineChartSmallMult extends PureComponent {
     lineGens: PropTypes.array,
     metrics: PropTypes.array,
     padding: PropTypes.object,
+    plotAreaHeight: PropTypes.number,
     plotAreaWidth: PropTypes.number,
     series: PropTypes.array,
     showBaseline: PropTypes.bool,
+    smallMultHeaderHeight: PropTypes.number,
     smallMultHeight: PropTypes.number,
     smallMultMarginBottom: PropTypes.number,
     smallMultMarginRight: PropTypes.number,
@@ -314,7 +320,7 @@ class LineChartSmallMult extends PureComponent {
    * React style building of chart
    */
   renderChart(series, seriesIndex, yKey, metricIndex) {
-    const { smallMultWidth, smallMultMarginRight } = this.props;
+    const { smallMultWidth, smallMultMarginRight, smallMultHeaderHeight } = this.props;
 
     const seriesId = series.meta.id;
     const chartId = `${seriesId}-${yKey}`;
@@ -322,10 +328,9 @@ class LineChartSmallMult extends PureComponent {
     // offset by circle radius so it doesn't get clipped
     const circleRadius = 3;
     const xPos = ((smallMultWidth + smallMultMarginRight) * metricIndex) + circleRadius;
-    const chartHeaderHeight = 27;
 
     return (
-      <g key={chartId} transform={`translate(${xPos},${chartHeaderHeight})`} >
+      <g key={chartId} transform={`translate(${xPos},${smallMultHeaderHeight})`} >
         <g
           id={chartId}
           ref={node => { this.chartNodes[chartId] = node; }}
@@ -411,9 +416,9 @@ class LineChartSmallMult extends PureComponent {
    * React style building of row of data
    */
   renderSeries(series, seriesIndex) {
-    const { metrics, smallMultHeight, smallMultMarginBottom, showBaseline, colors } = this.props;
+    const { metrics, smallMultHeight, smallMultHeaderHeight, smallMultMarginBottom, showBaseline, colors } = this.props;
 
-    const yPos = (smallMultHeight + smallMultMarginBottom) * seriesIndex;
+    const yPos = (smallMultHeight + smallMultHeaderHeight + smallMultMarginBottom) * seriesIndex;
     // position text below charts for now
     const yPosText = 0;
     const seriesKey = series.meta.id;
@@ -484,6 +489,24 @@ class LineChartSmallMult extends PureComponent {
     );
   }
 
+  renderHighlightDate() {
+    const { hover, mouse } = this.state;
+    const { series, xScale, xKey, plotAreaHeight } = this.props;
+
+    let dateString;
+    if (series && series.length && hover) {
+      // find the value closest to the mouse's x coordinate
+      const closest = findClosestSorted(series[0].results, mouse[0], d => xScale(d[xKey]));
+      const xValue = closest[xKey];
+
+      if (xValue) {
+        dateString = xValue.format('MMM D YYYY');
+      }
+    }
+
+    return <text dy={20} className="highlight-date" y={plotAreaHeight}>{dateString}</text>;
+  }
+
   /**
    * The main render method. Defers chart rendering to d3 in `update` and `setup`
    * @return {React.Component} The rendered container
@@ -508,6 +531,7 @@ class LineChartSmallMult extends PureComponent {
             transform={`translate(0,${padding.top})`}
           >
             {series.map((s, i) => this.renderSeries(s, i))}
+            {this.renderHighlightDate()}
           </g>
         </svg>
       </div>
