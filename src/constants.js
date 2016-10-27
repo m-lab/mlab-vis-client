@@ -4,7 +4,6 @@
 import d3 from 'd3';
 import moment from 'moment';
 
-// TODO: change defaults to more recent time period when data is up-to-date
 export const defaultStartDate = moment().subtract(1, 'year');
 export const defaultEndDate = moment();
 
