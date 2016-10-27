@@ -74,19 +74,14 @@ export function getViewMetric(state, props) {
   return extractMetric(value);
 }
 
-/**
- * Input selector to get the currently viewed metric
- * @param {Object} state the redux state
- * @param {Object} props the react props with URL query params included
- */
-export function getCompareMetrics(state, props) {
+export function getCompareMetricX(state, props) {
   const xValue = props.compareMetricX || 'download';
-  const yValue = props.compareMetricY || 'upload';
+  return xValue;
+}
 
-  return {
-    x: extractMetric(xValue),
-    y: extractMetric(yValue),
-  };
+export function getCompareMetricY(state, props) {
+  const yValue = props.compareMetricY || 'upload';
+  return yValue;
 }
 
 /**
@@ -108,6 +103,18 @@ function getShowBaselines(state, props) {
 // ----------------------
 // Selectors
 // ----------------------
+
+/**
+ * Selector to get the currently viewed metric
+ */
+export const getCompareMetrics = createSelector(
+  getCompareMetricX, getCompareMetricY,
+  (compareMetricX, compareMetricY) => ({
+    x: extractMetric(compareMetricX),
+    y: extractMetric(compareMetricY),
+  })
+);
+
 
 /**
  * Inflates clientIspIds into clientIsp values and returns
