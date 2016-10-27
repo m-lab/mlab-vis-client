@@ -370,8 +370,8 @@ export function transformFixedData(body) {
         'last_year_test_count',
         'last_week_test_count',
         'last_month_test_count',
-        'last_three_month_test_count',
-        'last_six_month_test_count',
+        'last_three_months_test_count',
+        'last_six_months_test_count',
       ];
       testCountFields.forEach(field => {
         if (body.meta[field] != null && body.data[field] == null) {
