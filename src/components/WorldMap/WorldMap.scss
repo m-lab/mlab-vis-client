@@ -9,6 +9,8 @@
 .WorldMap {
   background: rgba(0, 0, 0, 0);
   margin-bottom: 6px;
+  position: relative;
+
   .server {
     fill-opacity: 0.5;
     fill: #444;

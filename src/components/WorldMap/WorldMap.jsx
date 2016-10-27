@@ -509,7 +509,7 @@ class WorldMap extends PureComponent {
     return (
       <div className="WorldMapContainer">
         <div
-          className="WorldMap"
+          className="WorldMap leaflet-container"
           style={styles}
           ref={node => { this.root = node; }}
         >
