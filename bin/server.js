@@ -7,13 +7,14 @@ var rootDir = path.resolve(__dirname, '..');
  */
 global.__CLIENT__ = false;
 global.__SERVER__ = true;
-// If you change this value, also change the value in wepback dev config (dev.config.js)
-global.__DISABLE_SSR__ = true;  // <----- DISABLES SERVER SIDE RENDERING FOR ERROR DEBUGGING
 global.__DEVELOPMENT__ = process.env.NODE_ENV !== 'production';
-
+global.__DISABLE_SSR__ = false;
 
 
 if (__DEVELOPMENT__) {
+  // If you change this value, also change the value in wepback dev config (dev.config.js)
+  global.__DISABLE_SSR__ = true;  // <----- DISABLES SERVER SIDE RENDERING FOR ERROR DEBUGGING
+
   var pipingIgnoreTest;
 
   // if not server-side rendering, do not restart when we edit JS unless it is the server
