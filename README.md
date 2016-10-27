@@ -1,5 +1,7 @@
 # MLab Visualizations
 
+[![Build Status](https://travis-ci.org/bocoup/mlab-vis-client.svg?branch=master)](https://travis-ci.org/bocoup/mlab-vis-client)
+
 This project contains the web client for Measurement Lab visualizations.
 
 
