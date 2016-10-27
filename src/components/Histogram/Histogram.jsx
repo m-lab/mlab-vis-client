@@ -261,7 +261,7 @@ class Histogram extends PureComponent {
         .attr('transform', `translate(${xScale(xValue)} ${yScale(yValue || 0)})`);
 
       const barHeight = plotAreaHeight - yScale(yValue || 0);
-      const highlightColor = d3.color(color).brighter(0.7);
+      const highlightColor = d3.color(color).brighter(1.0);
 
       this.highlightBar.select('.highlight-bar-rect')
         .attr('width', barWidth)
