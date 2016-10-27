@@ -20,7 +20,8 @@ module.exports = Object.assign({
   apiRoot: process.env.APIROOT || '//mlab-api-dot-mlab-oti.appspot.com',
 
   // How many API calls the client caches in the LRU cache
-  apiCacheLimit: 25,
+  apiCacheLimit: 100,
+  searchCacheLimit: 50, // just those used for search
 
   app: {
     title: 'MLab Vis',
