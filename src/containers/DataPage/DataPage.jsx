@@ -287,6 +287,7 @@ class DataPage extends PureComponent {
               orientation="vertical"
               onChange={this.onLocationsChange}
               selected={locationInfos}
+              selectedIds={locationIds}
               colors={colors}
             />
             {this.renderSuggestions(
@@ -311,6 +312,7 @@ class DataPage extends PureComponent {
               orientation="vertical"
               onChange={this.onClientIspsChange}
               selected={clientIspInfos}
+              selectedIds={clientIspIds}
               colors={colors}
             />
             {this.renderSuggestions(
@@ -335,6 +337,7 @@ class DataPage extends PureComponent {
               orientation="vertical"
               onChange={this.onTransitIspsChange}
               selected={transitIspInfos}
+              selectedIds={transitIspIds}
               colors={colors}
             />
             {this.renderSuggestions(

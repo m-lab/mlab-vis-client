@@ -55,8 +55,10 @@ export default class CompareLocationsInput extends PureComponent {
   }
 
   renderFilterClientIspsInput(changeCallback) {
-    const { colors, facetItemIds, filter1Infos, filter2Infos, filterTypes, facetType } = this.props;
+    const { colors, facetItemIds, filter1Infos, filter2Infos,
+      filterTypes, facetType, filter1Ids, filter2Ids } = this.props;
     const infos = filterTypes[0].value === 'clientIsp' ? filter1Infos : filter2Infos;
+    const ids = filterTypes[0].value === 'clientIsp' ? filter1Ids : filter2Ids;
     const hasFacetItems = facetItemIds.length;
 
     return (
@@ -71,6 +73,7 @@ export default class CompareLocationsInput extends PureComponent {
           searchFilterItemIds={facetItemIds}
           searchFilterType={facetType.value}
           selected={infos}
+          selectedIds={ids}
           colors={colors}
         />
       </div>
@@ -78,8 +81,10 @@ export default class CompareLocationsInput extends PureComponent {
   }
 
   renderFilterTransitIspsInput(changeCallback) {
-    const { colors, facetItemIds, filter1Infos, filter2Infos, filterTypes, facetType } = this.props;
+    const { colors, facetItemIds, filter1Infos, filter2Infos,
+      filterTypes, facetType, filter1Ids, filter2Ids } = this.props;
     const infos = filterTypes[0].value === 'transitIsp' ? filter1Infos : filter2Infos;
+    const ids = filterTypes[0].value === 'transitIsp' ? filter1Ids : filter2Ids;
     const hasFacetItems = facetItemIds.length;
 
     return (
@@ -96,6 +101,7 @@ export default class CompareLocationsInput extends PureComponent {
           searchFilterItemIds={facetItemIds}
           searchFilterType={facetType.value}
           selected={infos}
+          selectedIds={ids}
           colors={colors}
         />
       </div>
@@ -103,8 +109,10 @@ export default class CompareLocationsInput extends PureComponent {
   }
 
   renderFilterLocationsInput(changeCallback) {
-    const { colors, facetItemIds, filter1Infos, filter2Infos, filterTypes, facetType } = this.props;
+    const { colors, facetItemIds, filter1Infos, filter2Infos,
+      filterTypes, facetType, filter1Ids, filter2Ids } = this.props;
     const infos = filterTypes[0].value === 'location' ? filter1Infos : filter2Infos;
+    const ids = filterTypes[0].value === 'location' ? filter1Ids : filter2Ids;
 
     const hasFacetItems = facetItemIds.length;
     return (
@@ -119,6 +127,7 @@ export default class CompareLocationsInput extends PureComponent {
           searchFilterItemIds={facetItemIds}
           searchFilterType={facetType.value}
           selected={infos}
+          selectedIds={ids}
           colors={colors}
         />
       </div>
@@ -138,7 +147,7 @@ export default class CompareLocationsInput extends PureComponent {
   }
 
   renderFacetLocationsInput() {
-    const { colors, facetItemInfos, onFacetItemsChange } = this.props;
+    const { colors, facetItemInfos, facetItemIds, onFacetItemsChange } = this.props;
     return (
       <div>
         <header>
@@ -149,6 +158,7 @@ export default class CompareLocationsInput extends PureComponent {
           type="location"
           onChange={onFacetItemsChange}
           selected={facetItemInfos}
+          selectedIds={facetItemIds}
           colors={colors}
         />
       </div>
@@ -156,7 +166,7 @@ export default class CompareLocationsInput extends PureComponent {
   }
 
   renderFacetClientIspsInput() {
-    const { colors, facetItemInfos, onFacetItemsChange } = this.props;
+    const { colors, facetItemInfos, facetItemIds, onFacetItemsChange } = this.props;
     return (
       <div>
         <header>
@@ -167,6 +177,7 @@ export default class CompareLocationsInput extends PureComponent {
           type="clientIsp"
           onChange={onFacetItemsChange}
           selected={facetItemInfos}
+          selectedIds={facetItemIds}
           colors={colors}
         />
       </div>
@@ -174,7 +185,7 @@ export default class CompareLocationsInput extends PureComponent {
   }
 
   renderFacetTransitIspsInput() {
-    const { colors, facetItemInfos, onFacetItemsChange } = this.props;
+    const { colors, facetItemInfos, facetItemIds, onFacetItemsChange } = this.props;
     return (
       <div>
         <header>
@@ -185,6 +196,7 @@ export default class CompareLocationsInput extends PureComponent {
           type="transitIsp"
           onChange={onFacetItemsChange}
           selected={facetItemInfos}
+          selectedIds={facetItemIds}
           colors={colors}
         />
       </div>

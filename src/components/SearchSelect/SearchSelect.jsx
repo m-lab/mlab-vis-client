@@ -24,6 +24,9 @@ export default class SearchSelect extends PureComponent {
     searchFilterItemIds: PropTypes.array,
     searchFilterType: PropTypes.string,
     selected: PropTypes.array,
+    selectedIds: PropTypes.array, // NOTE: we pass in the IDs separately since they are typically
+    // available before the infos used in selected are. This way we can render a Loading... pill
+    // while the info is loaded.
     type: PropTypes.oneOf(['location', 'clientIsp', 'transitIsp']),
   }
 
@@ -32,6 +35,7 @@ export default class SearchSelect extends PureComponent {
     orientation: 'horizontal',
     searchFilterItemIds: [],
     selected: [],
+    selectedIds: [],
   }
 
   constructor(props) {
@@ -102,14 +106,14 @@ export default class SearchSelect extends PureComponent {
    * Render all selected items as pills
    * @return {React.Component}
    */
-  renderSelectedItems(selected) {
-    const { colors } = this.props;
-
+  renderSelectedItems() {
+    const { colors, selected, selectedIds } = this.props;
     return (
       <div className="active-items">
-        {selected.map((item) =>
-          this.renderSelectedItem(item, colors[item.id])
-        )}
+        {selectedIds.map((id) => {
+          const item = selected.find(d => d.id === id) || { id, label: 'Loading...' };
+          return this.renderSelectedItem(item, colors[id]);
+        })}
       </div>
     );
   }
@@ -117,7 +121,8 @@ export default class SearchSelect extends PureComponent {
   /**
    * Renders the clear selection control if there are items selected.
    */
-  renderClearSelection(selected) {
+  renderClearSelection() {
+    const { selected } = this.props;
     if (!selected || !selected.length) {
       return null;
     }
@@ -157,11 +162,11 @@ export default class SearchSelect extends PureComponent {
                 searchFilterItemIds={searchFilterItemIds}
                 searchFilterType={searchFilterType}
               />
-              {this.renderClearSelection(selected)}
+              {this.renderClearSelection()}
             </div>
           </Col>
           <Col md={colSize}>
-            {this.renderSelectedItems(selected)}
+            {this.renderSelectedItems()}
           </Col>
         </Row>
       </div>
