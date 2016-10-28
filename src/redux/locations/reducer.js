@@ -11,15 +11,11 @@ import typePrefix from './typePrefix';
 
 export const initialState = {
   id: null,
-
   info: initialInfoState,
   time: initialTimeState,
   fixed: initialFixedState,
   topClientIsps: initialTopState,
   topTransitIsps: initialTopState,
-
-  clientIsps: {},
-  transitIsps: {},
 };
 
 const time = timeWithTypePrefix(typePrefix);
