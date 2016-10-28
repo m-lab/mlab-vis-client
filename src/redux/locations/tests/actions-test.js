@@ -3,312 +3,268 @@
 import { expect } from 'chai';
 import moment from 'moment';
 import {
+  shouldSaveLocationInfo,
   shouldFetchTimeSeries,
   shouldFetchHourly,
+  shouldFetchInfo,
   shouldFetchTopClientIsps,
-  shouldFetchClientIspLocationTimeSeries,
+  shouldFetchTopTransitIsps,
 } from '../actions';
-/*
-
-Disable this test suite until it is updated.
-
-import {
-  initialLocationState,
-  initialClientIspState,
-} from '../initialState';
-
-
 
 describe('redux', () => {
   describe('locations', () => {
     describe('actions', () => {
-      // -------------------------------------------------------------------------------------
-      describe('shouldFetchTimeSeries', () => {
-        it('no location state', () => {
-          const result = shouldFetchTimeSeries({ locations: {} }, 'day', 'myLocation');
-          expect(result).to.be.true;
-        });
-
-        it('different time aggregation', () => {
-          const locationState = {
-            ...initialLocationState,
-            time: {
-              ...initialLocationState.time,
-              timeSeries: {
-                ...initialLocationState.time.timeSeries,
-                timeAggregation: 'month',
-              },
-            },
-          };
-
-          const result = shouldFetchTimeSeries({ locations: { myLocation: locationState } }, 'day', 'myLocation');
-          expect(result).to.be.true;
-        });
-
-        it('already fetching', () => {
-          const locationState = {
-            ...initialLocationState,
-            time: {
-              ...initialLocationState.time,
-              timeSeries: {
-                ...initialLocationState.time.timeSeries,
-                timeAggregation: 'day',
-                isFetching: true,
-              },
-            },
-          };
-
-          const result = shouldFetchTimeSeries({ locations: { myLocation: locationState } }, 'day', 'myLocation');
-          expect(result).to.be.false;
-        });
-
-        it('already fetched', () => {
-          const locationState = {
-            ...initialLocationState,
-            time: {
-              ...initialLocationState.time,
-              timeSeries: {
-                ...initialLocationState.time.timeSeries,
-                timeAggregation: 'day',
-                isFetching: false,
+      it('shouldSaveLocationInfo works properly', () => {
+        // already has data
+        expect(shouldSaveLocationInfo({
+          locations: {
+            location1: {
+              info: {
                 isFetched: true,
-              },
-            },
-          };
-
-          const result = shouldFetchTimeSeries({ locations: { myLocation: locationState } }, 'day', 'myLocation');
-          expect(result).to.be.false;
-        });
-      });
-
-      // -------------------------------------------------------------------------------------
-      describe('shouldFetchHourly', () => {
-        it('no location state', () => {
-          const result = shouldFetchHourly({ locations: {} }, 'day', 'myLocation');
-          expect(result).to.be.true;
-        });
-
-        it('different time aggregation', () => {
-          const locationState = {
-            ...initialLocationState,
-            time: {
-              ...initialLocationState.time,
-              hourly: {
-                ...initialLocationState.time.hourly,
-                timeAggregation: 'month',
-              },
-            },
-          };
-
-          const result = shouldFetchHourly({ locations: { myLocation: locationState } }, 'day', 'myLocation');
-          expect(result).to.be.true;
-        });
-
-        it('already fetching', () => {
-          const locationState = {
-            ...initialLocationState,
-            time: {
-              ...initialLocationState.time,
-              hourly: {
-                ...initialLocationState.time.hourly,
-                timeAggregation: 'day',
-                isFetching: true,
-              },
-            },
-          };
-
-          const result = shouldFetchHourly({ locations: { myLocation: locationState } }, 'day', 'myLocation');
-          expect(result).to.be.false;
-        });
-
-        it('already fetched', () => {
-          const locationState = {
-            ...initialLocationState,
-            time: {
-              ...initialLocationState.time,
-              hourly: {
-                ...initialLocationState.time.hourly,
-                timeAggregation: 'day',
                 isFetching: false,
+              },
+            },
+          },
+        }, { id: 'location1' })).to.be.false;
+
+        // does not have data
+        expect(shouldSaveLocationInfo({
+          locations: {
+            location1: {
+              info: {
+                isFetched: false,
+                isFetching: false,
+              },
+            },
+          },
+        }, { id: 'location1' })).to.be.true;
+
+        // no location state
+        expect(shouldSaveLocationInfo({
+          locations: {
+          },
+        }, { id: 'location1' })).to.be.true;
+      });
+
+      it('shouldFetchTimeSeries works properly', () => {
+        // already has data
+        expect(shouldFetchTimeSeries({
+          locations: {
+            location1: {
+              time: { timeSeries: {
+                timeAggregation: 'day',
+                startDate: moment('2015-01-01'),
+                endDate: moment('2016-01-01'),
                 isFetched: true,
-              },
+                isFetching: false,
+              } },
             },
-          };
+          },
+        }, 'day', 'location1', {
+          startDate: moment('2015-01-01'),
+          endDate: moment('2016-01-01'),
+        }))
+        .to.be.false;
 
-          const result = shouldFetchHourly({ locations: { myLocation: locationState } }, 'day', 'myLocation');
-          expect(result).to.be.false;
-        });
+        // does not have data
+        expect(shouldFetchTimeSeries({
+          locations: {
+            location1: {
+              time: { timeSeries: {
+                timeAggregation: 'day',
+                startDate: moment('2015-01-01'),
+                endDate: moment('2016-01-01'),
+                isFetched: false,
+                isFetching: false,
+              } },
+            },
+          },
+        }, 'day', 'location1', {
+          startDate: moment('2015-01-01'),
+          endDate: moment('2016-01-01'),
+        }))
+        .to.be.true;
+
+        // no location state
+        expect(shouldFetchTimeSeries({
+          locations: {
+          },
+        }, 'day', 'location1', {
+          startDate: moment('2015-01-01'),
+          endDate: moment('2016-01-01'),
+        }))
+        .to.be.true;
       });
 
-      // -------------------------------------------------------------------------------------
-      describe('shouldFetchTopClientIsps', () => {
-        it('no location state', () => {
-          const result = shouldFetchTopClientIsps({ locations: {} }, 'myLocation');
-          expect(result).to.be.true;
-        });
-
-        it('already fetching', () => {
-          const locationState = {
-            ...initialLocationState,
-            topClientIsps: {
-              ...initialLocationState.clientIsps,
-              isFetching: true,
+      it('shouldFetchHourly works properly', () => {
+        // already has data
+        expect(shouldFetchHourly({
+          locations: {
+            location1: {
+              time: { hourly: {
+                timeAggregation: 'day',
+                startDate: moment('2015-01-01'),
+                endDate: moment('2016-01-01'),
+                isFetched: true,
+                isFetching: false,
+              } },
             },
-          };
+          },
+        }, 'day', 'location1', {
+          startDate: moment('2015-01-01'),
+          endDate: moment('2016-01-01'),
+        }))
+        .to.be.false;
 
-          const result = shouldFetchTopClientIsps({ locations: { myLocation: locationState } }, 'myLocation');
-          expect(result).to.be.false;
-        });
-
-        it('already fetched', () => {
-          const locationState = {
-            ...initialLocationState,
-            topClientIsps: {
-              ...initialLocationState.clientIsps,
-              isFetching: false,
-              isFetched: true,
+        // does not have data
+        expect(shouldFetchHourly({
+          locations: {
+            location1: {
+              time: { hourly: {
+                timeAggregation: 'day',
+                startDate: moment('2015-01-01'),
+                endDate: moment('2016-01-01'),
+                isFetched: false,
+                isFetching: false,
+              } },
             },
-          };
+          },
+        }, 'day', 'location1', {
+          startDate: moment('2015-01-01'),
+          endDate: moment('2016-01-01'),
+        }))
+        .to.be.true;
 
-          const result = shouldFetchTopClientIsps({ locations: { myLocation: locationState } }, 'myLocation');
-          expect(result).to.be.false;
-        });
+        // no location state
+        expect(shouldFetchHourly({
+          locations: {
+          },
+        }, 'day', 'location1', {
+          startDate: moment('2015-01-01'),
+          endDate: moment('2016-01-01'),
+        }))
+        .to.be.true;
       });
 
-
-      // -------------------------------------------------------------------------------------
-      describe('shouldFetchClientIspLocationTimeSeries', () => {
-        it('no location state', () => {
-          const result = shouldFetchClientIspLocationTimeSeries({ locations: {} }, 'day', 'myLocation', 'myClientIsp');
-          expect(result).to.be.true;
-        });
-
-        it('no location->clientIsp state', () => {
-          const locationState = initialLocationState;
-          const result = shouldFetchClientIspLocationTimeSeries({ locations: { myLocation: locationState } }, 'day',
-            'myLocation', 'myClientIsp');
-          expect(result).to.be.true;
-        });
-
-        it('different time aggregation', () => {
-          const locationState = {
-            ...initialLocationState,
-            clientIsps: {
-              myClientIsp: {
-                ...initialClientIspState,
-                time: {
-                  ...initialClientIspState.time,
-                  timeSeries: {
-                    ...initialClientIspState.time.timeSeries,
-                    timeAggregation: 'month',
-                    isFetching: false,
-                    isFetched: true,
-                  },
-                },
+      it('shouldFetchInfo works properly', () => {
+        // already has data
+        expect(shouldFetchInfo({
+          locations: {
+            location1: {
+              info: {
+                isFetched: true,
+                isFetching: false,
+              },
+              fixed: {
+                isFetched: true,
+                isFetching: false,
               },
             },
-          };
+          },
+        }, 'location1')).to.be.false;
 
-          const result = shouldFetchClientIspLocationTimeSeries({ locations: { myLocation: locationState } }, 'day',
-            'myLocation', 'myClientIsp');
-          expect(result).to.be.true;
-        });
-
-        it('different start time', () => {
-          const locationState = {
-            ...initialLocationState,
-            clientIsps: {
-              myClientIsp: {
-                ...initialClientIspState,
-                time: {
-                  ...initialClientIspState.time,
-                  timeSeries: {
-                    ...initialClientIspState.time.timeSeries,
-                    startDate: moment('2015-01-01'),
-                    isFetching: false,
-                    isFetched: true,
-                  },
-                },
+        // does not have data
+        expect(shouldFetchInfo({
+          locations: {
+            location1: {
+              info: {
+                isFetched: false,
+                isFetching: false,
+              },
+              fixed: {
+                isFetched: true,
+                isFetching: false,
               },
             },
-          };
+          },
+        }, 'location1')).to.be.true;
 
-          const result = shouldFetchClientIspLocationTimeSeries({ locations: { myLocation: locationState } }, 'day',
-            'myLocation', 'myClientIsp', { startDate: moment('2015-01-02') });
-          expect(result).to.be.true;
-        });
-
-        it('different end time', () => {
-          const locationState = {
-            ...initialLocationState,
-            clientIsps: {
-              myClientIsp: {
-                ...initialClientIspState,
-                time: {
-                  ...initialClientIspState.time,
-                  timeSeries: {
-                    ...initialClientIspState.time.timeSeries,
-                    endDate: moment('2015-01-01'),
-                    isFetching: false,
-                    isFetched: true,
-                  },
-                },
+        // does not have data
+        expect(shouldFetchInfo({
+          locations: {
+            location1: {
+              info: {
+                isFetched: true,
+                isFetching: false,
+              },
+              fixed: {
+                isFetched: false,
+                isFetching: false,
               },
             },
-          };
+          },
+        }, 'location1')).to.be.true;
 
-          const result = shouldFetchClientIspLocationTimeSeries({ locations: { myLocation: locationState } }, 'day',
-            'myLocation', 'myClientIsp', { endDate: moment('2015-01-02') });
-          expect(result).to.be.true;
-        });
-
-        it('already fetching', () => {
-          const locationState = {
-            ...initialLocationState,
-            clientIsps: {
-              myClientIsp: {
-                ...initialClientIspState,
-                time: {
-                  ...initialClientIspState.time,
-                  timeSeries: {
-                    ...initialClientIspState.time.timeSeries,
-                    timeAggregation: 'day',
-                    isFetching: true,
-                  },
-                },
-              },
-            },
-          };
-
-          const result = shouldFetchClientIspLocationTimeSeries({ locations: { myLocation: locationState } }, 'day',
-            'myLocation', 'myClientIsp', {});
-          expect(result).to.be.false;
-        });
-
-        it('already fetched', () => {
-          const locationState = {
-            ...initialLocationState,
-            clientIsps: {
-              myClientIsp: {
-                ...initialClientIspState,
-                time: {
-                  ...initialClientIspState.time,
-                  timeSeries: {
-                    ...initialClientIspState.time.timeSeries,
-                    timeAggregation: 'day',
-                    isFetched: true,
-                  },
-                },
-              },
-            },
-          };
-
-          const result = shouldFetchClientIspLocationTimeSeries({ locations: { myLocation: locationState } }, 'day',
-            'myLocation', 'myClientIsp', {});
-          expect(result).to.be.false;
-        });
+        // no location state
+        expect(shouldFetchInfo({
+          locations: {
+          },
+        }, 'location1')).to.be.true;
       });
-    }); // actions
+
+      it('shouldFetchTopClientIsps works properly', () => {
+        // already has data
+        expect(shouldFetchTopClientIsps({
+          locations: {
+            location1: {
+              topClientIsps: {
+                isFetched: true,
+                isFetching: false,
+              },
+            },
+          },
+        }, 'location1')).to.be.false;
+
+        // does not have data
+        expect(shouldFetchTopClientIsps({
+          locations: {
+            location1: {
+              topClientIsps: {
+                isFetched: false,
+                isFetching: false,
+              },
+            },
+          },
+        }, 'location1')).to.be.true;
+
+        // no location state
+        expect(shouldFetchTopClientIsps({
+          locations: {
+          },
+        }, 'location1')).to.be.true;
+      });
+
+      it('shouldFetchTopTransitIsps works properly', () => {
+        // already has data
+        expect(shouldFetchTopTransitIsps({
+          locations: {
+            location1: {
+              topTransitIsps: {
+                isFetched: true,
+                isFetching: false,
+              },
+            },
+          },
+        }, 'location1')).to.be.false;
+
+        // does not have data
+        expect(shouldFetchTopTransitIsps({
+          locations: {
+            location1: {
+              topTransitIsps: {
+                isFetched: false,
+                isFetching: false,
+              },
+            },
+          },
+        }, 'location1')).to.be.true;
+
+        // no location state
+        expect(shouldFetchTopTransitIsps({
+          locations: {
+          },
+        }, 'location1')).to.be.true;
+      });
+    });
   });
 });
-*/
