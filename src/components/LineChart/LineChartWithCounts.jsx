@@ -97,6 +97,7 @@ class LineChartWithCounts extends PureComponent {
     counts: PropTypes.array,
     forceZeroMin: PropTypes.bool,
     height: PropTypes.number,
+    highlightCounts: PropTypes.array,
     highlightDate: PropTypes.object,
     highlightLine: PropTypes.object,
     id: PropTypes.string,
@@ -133,11 +134,19 @@ class LineChartWithCounts extends PureComponent {
   render() {
     const { id, width, xKey, annotationSeries, series, highlightLine, highlightDate,
       onHighlightDate, counts, padding, xScale, numBins, colors, idKey, countExtent,
-      lineChartHeight, countChartHeight } = this.props;
+      lineChartHeight, countChartHeight, highlightCounts } = this.props;
 
     const height = lineChartHeight + countChartHeight;
-    const highlightColor = highlightLine ? colors[highlightLine.meta[idKey]] : undefined;
-    const highlightCountData = highlightLine ? highlightLine.results : undefined;
+    const highlightColor = highlightLine ? colors[highlightLine.meta[idKey]] : 'rgba(0, 0, 0, 0.08)';
+
+    // if a line is highlighted, use that, otherwise use the prop highlightCounts if provided
+    // to render the highlighted count bars
+    let highlightCountData;
+    if (highlightLine) {
+      highlightCountData = highlightLine.results;
+    } else {
+      highlightCountData = highlightCounts;
+    }
 
     return (
       <div className="line-chart-with-counts-container">

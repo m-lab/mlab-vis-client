@@ -54,12 +54,17 @@ function visProps(props) {
   // force a zero minimum
   yDomain = [0, yDomain[1]];
 
+  // provide a default in the event that there is no yExtent and data.length = 0
+  if (yDomain[1] == null) {
+    yDomain[1] = 100;
+  }
+
   // ensure a minimum y-domain size to prevent full sized rects at 0 value
   if (yDomain[0] === yDomain[1]) {
     yDomain = [yDomain[0], yDomain[0] + 1];
   }
 
-  const yScale = d3.scaleLinear().domain(yDomain).range([yMin, yMax]);
+  const yScale = d3.scaleLinear().domain(yDomain).range([yMin, yMax]).clamp(true);
   const binWidth = Math.min(maxBinWidth,
       (xMax - xMin) / (numBins || data.length));
 
@@ -311,6 +316,7 @@ class CountChart extends PureComponent {
     const { highlightCount } = this.props;
     const {
       data,
+      highlightData,
       xKey,
       xScale,
       yKey,
@@ -323,10 +329,12 @@ class CountChart extends PureComponent {
       this.highlightCountBar.style('display', 'none');
     } else {
       let d;
+      // if we have highlight data, look for the value in there. otherwise look in data
+      const searchData = highlightData || data;
       if (highlightCount.isSame) {
-        d = data.find(datum => highlightCount.isSame(datum[xKey]));
+        d = searchData.find(datum => highlightCount.isSame(datum[xKey]));
       } else {
-        d = data.find(datum => datum[xKey] === highlightCount);
+        d = searchData.find(datum => datum[xKey] === highlightCount);
       }
 
       // skip if we have no matching point to highlight
@@ -342,7 +350,7 @@ class CountChart extends PureComponent {
       this.highlightCountBar.select('rect')
         .attr('width', binWidth)
         .attr('height', barHeight)
-        .style('fill', '#ccc')
+        .style('fill', '#bbb')
         .style('stroke', '#aaa');
 
       this.highlightCountBar.select('text')
