@@ -4,4 +4,8 @@
   .main-date-input {
     width: 200px;
   }
+
+}
+.daterangepicker .ranges li[data-range-key="Custom Range"] {
+  display: none;
 }

@@ -30,9 +30,11 @@ export default class DateRangeSelector extends PureComponent {
     maxDate: moment(),
     minDate: moment('2009-01-01'), // actual min date seems to be: 2009-02-18 00:00:00 UTC
     ranges: {
-      'Last 30 Days': [moment().subtract(29, 'days'), moment()],
-      'Last 365 Days': [moment().subtract(364, 'days'), moment()],
-      'This Month': [moment().startOf('month'), moment().endOf('month')],
+      'Last 3 Months': [moment().subtract(3, 'months'), moment()],
+      'Last 6 Months': [moment().subtract(6, 'months'), moment()],
+      'Last 1 Year': [moment().subtract(1, 'year'), moment()],
+      'Last 3 Years': [moment().subtract(3, 'years'), moment()],
+      'Last 5 Years': [moment().subtract(5, 'years'), moment()],
       'This Year': [moment().startOf('year'), moment().endOf('year')],
     },
     showDropdowns: true,
