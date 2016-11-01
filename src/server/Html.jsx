@@ -23,6 +23,8 @@ export default class Html extends Component {
     const { assets } = this.props;
     if (__DEVELOPMENT__) {
       // in dev we separate vendor out for faster webpack rebuild times.
+      // We do not have the ability to check for WebGL capabilities on server side,
+      // so need both stamen and tangram included.
       return [
         <script key="vendor" src={assets.javascript.vendor} charSet="UTF-8" />,
         <script key="leaflet" src="//cdnjs.cloudflare.com/ajax/libs/leaflet/1.0.0-beta.2/leaflet.js" charSet="UTF-8" />,
