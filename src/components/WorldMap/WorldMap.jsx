@@ -6,6 +6,8 @@ import { pointToFeature, pointsToLine } from '../../utils/geo';
 
 import { createJaggedPoints } from '../../utils/path';
 
+import { hasWebgl } from '../../utils/webgl';
+
 import './leaflet.css';
 import './WorldMap.scss';
 
@@ -227,10 +229,19 @@ class WorldMap extends PureComponent {
       this.map = L.map(this.root,
         { maxZoom: 4, minZoom: 2, scrollWheelZoom: false }
       );
-      const layer = Tangram.leafletLayer({
-        scene: 'refill-style.yaml',
-        attribution: '<a href="https://mapzen.com/tangram" target="_blank">Tangram</a> | &copy; OSM contributors | <a href="https://mapzen.com/" target="_blank">Mapzen</a>',
-      });
+
+      let layer = null;
+
+      if (hasWebgl()) {
+        // use our sweet sweet tangram map
+        layer = Tangram.leafletLayer({
+          scene: 'refill-style.yaml',
+          attribution: '<a href="https://mapzen.com/tangram" target="_blank">Tangram</a> | &copy; OSM contributors | <a href="https://mapzen.com/" target="_blank">Mapzen</a>',
+        });
+      } else {
+        // use boring old terrain
+        layer = new L.StamenTileLayer('terrain');
+      }
 
       this.map.setView(location, zoom);
       layer.addTo(this.map);
