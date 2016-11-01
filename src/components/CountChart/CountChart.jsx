@@ -181,6 +181,8 @@ class CountChart extends PureComponent {
     // add in groups for data
     this.bars = this.g.append('g').classed('bars-group', true);
     this.highlightBars = this.g.append('g').classed('highlight-bars-group', true);
+    this.mouseHandlers = this.g.append('g').classed('mouse-handlers-group', true)
+      .on('mouseleave', () => this.onHoverCountBar(null));
 
     this.highlightCountBar = this.g.append('g').attr('class', 'highlight-count-bar');
     this.highlightCountBar.append('rect');
@@ -199,6 +201,7 @@ class CountChart extends PureComponent {
     this.updateMainBars();
     this.updateHighlightBars();
     this.updateHighlightCountBar();
+    this.updateMouseHandlers();
   }
 
   /**
@@ -223,7 +226,7 @@ class CountChart extends PureComponent {
   updateMainBars() {
     const { data } = this.props;
 
-    this.updateBars(this.bars, data, '#ccc', true);
+    this.updateBars(this.bars, data, '#ccc');
   }
 
   /**
@@ -236,9 +239,43 @@ class CountChart extends PureComponent {
   }
 
   /**
+   * Render rects as mouse handlers
+   */
+  updateMouseHandlers() {
+    const {
+      data,
+      xKey,
+      xScale,
+      yScale,
+      binWidth,
+    } = this.props;
+
+    const binding = this.mouseHandlers.selectAll('.mouse-handler').data(data);
+    const entering = binding.enter()
+      .append('rect')
+        .attr('class', 'mouse-handler')
+        .style('pointer-events', 'all')
+        .style('fill', '#f00')
+        .style('fill-opacity', 0.0)
+        .style('stroke', 'none')
+        .on('mouseenter', d => this.onHoverCountBar(d[xKey]));
+
+    binding.merge(entering)
+      .attr('y', 0)
+      // set the width to fill the space until the next bin
+      .attr('width', (d, i) => (i === data.length - 1 ?
+        binWidth :
+        xScale(data[i + 1][xKey]) - xScale(d[xKey])))
+      .attr('height', yScale.range()[0])
+      .attr('x', d => xScale(d[xKey]));
+
+    binding.exit().remove();
+  }
+
+  /**
    * Helper function to render the rects
    */
-  updateBars(root, data = [], color = '#ccc', addHandlers) {
+  updateBars(root, data = [], color = '#ccc') {
     const {
       xKey,
       xScale,
@@ -255,25 +292,6 @@ class CountChart extends PureComponent {
     belowThresholdFill.opacity = 0.2;
     const belowThresholdStroke = belowThresholdFill.darker(0.3);
 
-    if (addHandlers) {
-      const backBinding = root.selectAll('.background').data(data);
-      const backEnter = backBinding.enter()
-        .append('rect')
-          .attr('x', d => xScale(d[xKey]))
-          .attr('y', 0)
-          .attr('width', binWidth)
-          .attr('height', yScale.range()[0])
-          .attr('class', 'background')
-          .style('pointer-events', 'all')
-          .style('fill', 'none')
-          .style('fill-opacity', 0.0)
-          .style('stroke', 'none');
-
-      backEnter
-        .on('mouseenter', d => this.onHoverCountBar(d[xKey]))
-        .on('mouseleave', () => this.onHoverCountBar(null));
-    }
-
     const binding = root.selectAll('.data-bar').data(data);
 
     // ENTER
@@ -287,12 +305,6 @@ class CountChart extends PureComponent {
         .style('shape-rendering', 'crispEdges')
         .style('fill', d => (d.count < threshold ? belowThresholdFill : lighterColor))
         .style('stroke', d => (d.count < threshold ? belowThresholdStroke : color));
-
-    if (addHandlers) {
-      entering
-        .on('mouseenter', d => this.onHoverCountBar(d[xKey]))
-        .on('mouseleave', () => this.onHoverCountBar(null));
-    }
 
     // ENTER + UPDATE
     binding.merge(entering)
