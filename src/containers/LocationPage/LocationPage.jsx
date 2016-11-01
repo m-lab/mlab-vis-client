@@ -458,7 +458,11 @@ class LocationPage extends PureComponent {
       annotationTimeSeries } = this.props;
     const chartId = 'providers-time-series';
 
-    const { data: clientIspTimeSeriesData, counts } = clientIspTimeSeries;
+    // use location totals as the counts
+    const counts = locationTimeSeries && locationTimeSeries.results;
+
+    // show the sum of the selected ISP counts if no highlighted ISP
+    const { data: clientIspTimeSeriesData, counts: clientIspCounts } = clientIspTimeSeries;
 
     return (
       <div className="subsection">
@@ -471,6 +475,7 @@ class LocationPage extends PureComponent {
               id={chartId}
               colors={colors}
               counts={counts}
+              highlightCounts={clientIspCounts}
               series={clientIspTimeSeriesData}
               annotationSeries={annotationTimeSeries}
               onHighlightDate={this.onHighlightTimeSeriesDate}
