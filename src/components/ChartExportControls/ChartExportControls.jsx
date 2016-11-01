@@ -62,7 +62,7 @@ export default class ChartExportControls extends PureComponent {
   onSaveCsv() {
     const { data, filename, prepareForCsv } = this.props;
     const csvDataString = createCsv(prepareForCsv(data));
-    download(csvDataString, 'application/csv', `${filename}.csv`);
+    download(csvDataString, 'text/csv', `${filename}.csv`);
   }
 
   render() {
