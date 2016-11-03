@@ -11,7 +11,7 @@ import {
 } from '../../components';
 
 /**
- * Component for rendering the time series charts on the compare page
+ * Component for rendering the hour charts on the compare page
  */
 export default class CompareHourCharts extends PureComponent {
   static propTypes = {

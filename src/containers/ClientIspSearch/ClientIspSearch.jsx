@@ -12,6 +12,9 @@ function mapStateToProps(state, props) {
   };
 }
 
+/**
+ * Component for rendering a Client ISP search field
+ */
 class ClientIspSearch extends PureComponent {
   static propTypes = {
     disabled: PropTypes.bool,

@@ -33,39 +33,37 @@ function visProps(props) {
 
 /**
  * Chart for showing data by hour and with test counts
- *
- * @prop {String} color The color to render the chart in
- * @prop {Array} data The array of data points indexed by hour. Should be
- *   an array of length 24 of form [{ hour:Number(0..23), points: [{ yKey:Number }, ...]}, ...]
- * @prop {Boolean} forceZeroMin=true Whether the min y value should always be 0.
- * @prop {Number} highlightHour The hour being highlighted in the chart
- * @prop {Function} onHighlightHour Callback for when a point is hovered on
- * @prop {Number} width The width of the chart
- * @prop {String} yAxisLabel The label to show on the Y axis
- * @prop {String} yAxisUnit The unit to show on the Y axis label
- * @prop {Array} yExtent The min and max value of the yKey in the chart
- * @prop {Function} yFormatter Format function that takes a y value and outputs a string
- * @prop {String} yKey="y" The key in the data points to read the y value from
  */
 class HourChartWithCounts extends PureComponent {
   static propTypes = {
+    // The color to render the chart in
     color: PropTypes.string,
     countExtent: PropTypes.array,
+    // The array of data points indexed by hour. Should be an array of length 24 of form [{ hour:Number(0..23), points: [{ yKey:Number }, ...]}, ...]
     dataByHour: PropTypes.array,
+    // Whether the min y value should always be 0.
     forceZeroMin: PropTypes.bool,
+    // The hour being highlighted in the chart
     highlightHour: PropTypes.number,
     id: React.PropTypes.string,
     numBins: PropTypes.number,
+    // Callback for when a point is hovered on
     onHighlightHour: PropTypes.func,
     overallData: PropTypes.array,
     padding: PropTypes.object,
     threshold: PropTypes.number,
+    // The width of the chart
     width: PropTypes.number,
     xScale: React.PropTypes.func,
+    // The label to show on the Y axis
     yAxisLabel: React.PropTypes.string,
+    // The unit to show on the Y axis label
     yAxisUnit: React.PropTypes.string,
+    // The min and max value of the yKey in the chart
     yExtent: PropTypes.array,
+    // Format function that takes a y value and outputs a string
     yFormatter: PropTypes.func,
+    // The key in the data points to read the y value from
     yKey: PropTypes.string,
   }
 

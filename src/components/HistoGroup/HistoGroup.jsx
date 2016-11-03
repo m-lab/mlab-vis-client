@@ -7,21 +7,20 @@ import './HistoGroup.scss';
 
 /**
  * A group of histograms
- *
- * @prop {Array} fields The ids / labels of the different fields to show plots for
- * @prop {Object} summary Summary data for ISPs
- * @prop {Number} height The height of the charts
- * @prop {Number} width The width of the charts
- * @prop {Func} onChange Metric change callback
  */
 export default class HistoGroup extends PureComponent {
   static propTypes = {
+    // The ids / labels of the different fields to show plots for
     fields: PropTypes.array,
+
+    // The height of an individual chart
     height: PropTypes.number,
-    id: React.PropTypes.string,
-    onChange: PropTypes.func,
+
+    // Summary data for ISPs
     summary: PropTypes.object,
     viewMetric: PropTypes.object,
+
+    // The width of an individual chart
     width: PropTypes.number,
     yExtent: PropTypes.array,
     yFormatter: PropTypes.func,

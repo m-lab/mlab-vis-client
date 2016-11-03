@@ -12,6 +12,9 @@ function mapStateToProps(state, props) {
   };
 }
 
+/**
+ * Component for rendering a Transit ISP search field
+ */
 class TransitIspSearch extends PureComponent {
   static propTypes = {
     disabled: PropTypes.bool,

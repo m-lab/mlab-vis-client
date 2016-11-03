@@ -5,12 +5,13 @@ import './Breadcrumbs.scss';
 
 /**
  * Component for rendering navigation breadcrumbs for a location
- *
- * @prop {Object} info the location info object. contains label, parents ([{label, id}, ...])
  */
 export default class Breadcrumbs extends PureComponent {
   static propTypes = {
+    // the location info object. contains label, parents ([{label, id}, ...])
     info: PropTypes.object,
+
+    // the query parameters for the URL to use in the links
     query: PropTypes.object,
   }
 

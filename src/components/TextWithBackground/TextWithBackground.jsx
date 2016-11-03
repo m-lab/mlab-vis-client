@@ -8,22 +8,22 @@ import React, { PureComponent, PropTypes } from 'react';
  *  <text>foo</text>
  *</g>
  *
- * @prop {String} background The background color
- * @prop {Any} children What goes inside the <text>
- * @prop {String} className the <g> class name
- * @prop {Object} padding padding to add to the rect { top, bottom, left, right }
- * @prop {String} textClassName the <text> class name
- * @prop {Number} x the x coordinate
- * @prop {Number} y the y coordinate
  */
 export default class TextWithBackground extends PureComponent {
   static propTypes = {
+    // The background color
     background: PropTypes.string,
+    // What goes inside the <text>
     children: PropTypes.any,
+    // the <g> class name
     className: PropTypes.string,
+    // padding to add to the rect { top, bottom, left, right }
     padding: PropTypes.object,
+    // the <text> class name
     textClassName: PropTypes.string,
+    // the x coordinate
     x: PropTypes.number,
+    // the y coordinate
     y: PropTypes.number,
   }
 

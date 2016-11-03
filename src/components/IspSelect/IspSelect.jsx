@@ -126,7 +126,7 @@ export default class IspSelect extends PureComponent {
           onChange={this.onAdd}
           placeholder="Select Client ISP to view"
         />
-      {this.renderSelectedIsps(selected)}
+        {this.renderSelectedIsps(selected)}
       </div>
     );
   }

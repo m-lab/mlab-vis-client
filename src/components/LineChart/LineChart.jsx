@@ -158,57 +158,55 @@ function visProps(props) {
 
 /**
  * A line chart that uses d3 to draw. Assumes X is a time scale.
- *
- * @prop {Object} colors Obect mapping series IDs to colors
- * @prop {Boolean} forceZeroMin=true Whether the min y value should always be 0.
- * @prop {Number} height The height in pixels of the SVG chart
- * @prop {String} id The ID of the SVG chart (needed for PNG export)
- * @prop {Boolean} inSvg Whether this is being nested inside an SVG, if true renders a <g>
- * @prop {Object} highlightDate The date being highlighted in the chart
- * @prop {Object} highlightLine The line being highlighted in the chart
- * @prop {Function} onHighlightDate Callback when the mouse moves across the main area of the chart
- *   passes in the hovered upon date
- * @prop {Function} onHighlightLine Callback when a series is highlighted
- * @prop {Array} series The array of series data (e.g., [{ meta, results }, ...])
- * @prop {Number} width The width in pixels of the SVG chart
- * @prop {Array} xExtent The min and max value of the xKey in the chart
- * @prop {String} xKey="x" The key to read the x value from in the data
- * @prop {Array} yExtent The min and max value of the yKey in the chart
- * @prop {Function} yFormatter Format function that takes a y value and outputs a string
- * @prop {String} yAxisLabel The label to show on the Y axis
- * @prop {String} yAxisUnit The unit to show on the Y axis label
- * @prop {String} yKey="y" The key to read the y value from in the data
  */
 class LineChart extends PureComponent {
   static propTypes = {
     annotationLineChunked: React.PropTypes.func,
     annotationSeries: PropTypes.array,
+    // Obect mapping series IDs to colors
     colors: PropTypes.object,
+    // true Whether the min y value should always be 0.
     forceZeroMin: PropTypes.bool,
+    // The height in pixels of the SVG chart
     height: React.PropTypes.number,
+    // The date being highlighted in the chart
     highlightDate: React.PropTypes.object,
+    // The line being highlighted in the chart
     highlightLine: React.PropTypes.object,
+    // The ID of the SVG chart (needed for PNG export)
     id: React.PropTypes.string,
     idKey: React.PropTypes.string,
+    // Whether this is being nested inside an SVG, if true renders a <g>
     inSvg: React.PropTypes.bool,
     labelKey: React.PropTypes.string,
     legend: React.PropTypes.object,
     lineChunked: React.PropTypes.func,
+    // Callback when the mouse moves across the main area of the chart *   passes in the hovered upon date
     onHighlightDate: React.PropTypes.func,
+    // Callback when a series is highlighted
     onHighlightLine: React.PropTypes.func,
     padding: PropTypes.object,
     plotAreaHeight: PropTypes.number,
     plotAreaWidth: PropTypes.number,
+    // The array of series data (e.g., [{ meta, results }, ...])
     series: PropTypes.array,
     threshold: PropTypes.number,
+    // The width in pixels of the SVG chart
     width: React.PropTypes.number,
+    // The min and max value of the xKey in the chart
     xExtent: PropTypes.array,
+    // The key to read the x value from in the data
     xKey: React.PropTypes.string,
     xScale: PropTypes.func,
+    // The label to show on the Y axis
     yAxisLabel: React.PropTypes.string,
+    // The unit to show on the Y axis label
     yAxisUnit: React.PropTypes.string,
+    // The min and max value of the yKey in the chart
     yExtent: PropTypes.array,
+    // Format function that takes a y value and outputs a string
     yFormatter: PropTypes.func,
+    // The key to read the y value from in the data
     yKey: React.PropTypes.string,
     yScale: PropTypes.func,
   }

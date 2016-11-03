@@ -6,12 +6,11 @@ import daterangepicker from 'bootstrap-daterangepicker'; // eslint-disable-line
 
 import momentPropTypes from 'react-moment-proptypes';
 
-import { HelpTip } from '../../components';
 import '../../assets/daterangepicker.scss';
 import './DateRangeSelector.scss';
 
 /**
- * Date Range Selector Component
+ * Date Range Selector Component. Wraps http://www.daterangepicker.com/
  */
 export default class DateRangeSelector extends PureComponent {
   static propTypes = {

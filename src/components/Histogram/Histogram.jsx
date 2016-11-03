@@ -68,21 +68,21 @@ function visProps(props) {
 /**
  * Histogram chart. Basic. Expects array of bins
  * bin values come from binStart and binWidth inputs
- * @prop {Array} bins Array of precomputed bin values
- * @prop {Number} binStart X value of first bin .
- * @prop {Number} binWidth how large each bin is, in terms of bucket size.
- * @prop {String} color Color to color chart
- * @prop {Number} height The height of the charts
- * @prop {Number} width The width of the charts
- * @prop {Array} yExtent Optional. [min, max] of yScale
- * @prop {Function} yFormater formatter for y axis
  */
 class Histogram extends PureComponent {
   static propTypes = {
+    // Array of precomputed bin values
     bins: PropTypes.array,
-    binStart: PropTypes.number,
-    binWidth: PropTypes.number,
+
+    // X value of first bin (used in the visProps function above)
+    // binStart: PropTypes.number,
+    // how large each bin is, in terms of bucket size. (used in visProps)
+    // binWidth: PropTypes.number,
+
+    // Color to color chart
     color: PropTypes.string,
+
+    // The height of the chart
     height: PropTypes.number,
     highlightBin: PropTypes.number,
     id: PropTypes.string,
@@ -90,12 +90,18 @@ class Histogram extends PureComponent {
     padding: PropTypes.object,
     plotAreaHeight: PropTypes.number,
     plotAreaWidth: PropTypes.number,
+
+    // The width of the chart
     width: PropTypes.number,
     xAxisLabel: PropTypes.string,
     xAxisUnit: PropTypes.string,
+
+    // formatter for x axis
     xFormatter: PropTypes.func,
     xScale: PropTypes.func,
     xValues: PropTypes.array,
+
+    // Optional. [min, max] of yScale
     yExtent: PropTypes.array,
     yScale: PropTypes.func,
   };

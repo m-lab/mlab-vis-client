@@ -3,14 +3,13 @@ import { timeAggregations } from '../../constants';
 import { SelectableList, HelpTip } from '../../components';
 
 /**
- * A component that lets the user choose a metric to view
- *
- * @prop {String} active The active metric value
- * @prop {Function} onChange change callback
+ * A component that lets the user choose which time aggregate to use
  */
 export default class TimeAggregationSelector extends PureComponent {
   static propTypes = {
+    // The active metric value
     active: PropTypes.string,
+    // change callback
     onChange: PropTypes.func,
   }
 

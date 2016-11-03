@@ -12,6 +12,9 @@ function mapStateToProps(state, props) {
   };
 }
 
+/**
+ * Component for rendering a Location search field
+ */
 class LocationSearch extends PureComponent {
   static propTypes = {
     disabled: PropTypes.bool,

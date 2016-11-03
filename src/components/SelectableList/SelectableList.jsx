@@ -6,15 +6,14 @@ import './SelectableList.scss';
 
 /**
  * A component that lets the user choose from a list of values
- *
- * @prop {Any} active The value of the active item
- * @prop {Object[]} items The items { label, value } to select from
- * @prop {Function} onChange change callback
  */
 export default class SelectableList extends PureComponent {
   static propTypes = {
+    // The value of the active item
     active: PropTypes.any,
+    // The items { label, value } to select from
     items: PropTypes.array,
+    // change callback
     onChange: PropTypes.func,
   }
 

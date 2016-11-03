@@ -13,7 +13,6 @@ import './SearchSelect.scss';
 /**
  * Select search results into a pilled list
  *
- * @prop {String} type The type of the search to use ('location', 'clientIsp', 'transitIsp')
  */
 export default class SearchSelect extends PureComponent {
   static propTypes = {
@@ -24,9 +23,12 @@ export default class SearchSelect extends PureComponent {
     searchFilterItemIds: PropTypes.array,
     searchFilterType: PropTypes.string,
     selected: PropTypes.array,
-    selectedIds: PropTypes.array, // NOTE: we pass in the IDs separately since they are typically
-    // available before the infos used in selected are. This way we can render a Loading... pill
-    // while the info is loaded.
+    // NOTE: we pass in the IDs separately since they are typically
+    // available before the infos used in selected are. This way we
+    // can render a Loading... pill while the info is loaded.
+    selectedIds: PropTypes.array,
+
+    // The type of the search to use ('location', 'clientIsp', 'transitIsp')
     type: PropTypes.oneOf(['location', 'clientIsp', 'transitIsp']),
   }
 

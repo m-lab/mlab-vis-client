@@ -4,14 +4,14 @@ import './StatusWrapper.scss';
 import loadingImage from '../../assets/loading.gif';
 
 /**
- * A component that lets the user choose a metric to view
- *
- * @prop {String} status The active metric value
- * @prop {Any} children The children to wrap
+ * A component that indicates loading or error status of its children.
+ * Renders a spinner for loading/partially loading.
  */
 export default class StatusWrapper extends PureComponent {
   static propTypes = {
+    // The children to wrap
     children: PropTypes.any,
+    // The active metric value
     status: PropTypes.string,
   }
 

@@ -81,23 +81,22 @@ function visProps(props) {
 /**
  * This chart is intended to be used paired with another chart. It
  * shares the same x-axis, width, margin left and margin right as the
- * other chart.
- *
- * @prop {String} highlightColor Color used to render the highlighted bars if provided
- * @prop {Any} highlightCount The x value being highlighted in the chart
- * @prop {Array} highlightData Used to highlight a subset of the count data (typically a series object with { meta, results })
- * @prop {Function} onHighlightCount Callback when the mouse hovers over a bar. Passes in the x value.
+ * other chart. See LineChartWithCounts and HourChartWithCounts.
  */
 class CountChart extends PureComponent {
   static propTypes = {
     binWidth: PropTypes.number,
     data: PropTypes.array,
     height: PropTypes.number,
+    // Color used to render the highlighted bars if provided
     highlightColor: PropTypes.string,
+    // The x value being highlighted in the chart
     highlightCount: PropTypes.any,
+    // Used to highlight a subset of the count data (typically a series object with { meta, results })
     highlightData: PropTypes.array,
     maxBinWidth: React.PropTypes.number,
     numBins: PropTypes.number,
+    // Callback when the mouse hovers over a bar. Passes in the x value.
     onHighlightCount: PropTypes.func,
     padding: PropTypes.object,
     plotAreaHeight: PropTypes.number,

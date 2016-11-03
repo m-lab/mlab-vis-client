@@ -7,16 +7,21 @@ import './ChartExportControls.scss';
 
 /**
  * A component that exports charts in a variety of ways
- *
- * @prop {Function} prepareForCsv if provided, data is transformed by this into a flat array of
- *   objects before being used to create a CSV file
  */
 export default class ChartExportControls extends PureComponent {
   static propTypes = {
+    // the ID of the DOM node containing the chart to export
     chartId: PropTypes.string.isRequired,
     className: PropTypes.string,
+
+    // data used to export to JSON or CSV
     data: PropTypes.any,
+
+    // how to name the exported files, extension is appended based on export type
     filename: PropTypes.string,
+
+    // if provided, data is transformed by this into a flat array of
+    // objects before being used to create a CSV file
     prepareForCsv: PropTypes.func,
   }
 

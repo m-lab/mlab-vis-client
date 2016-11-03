@@ -2,6 +2,9 @@ import React, { PureComponent, PropTypes } from 'react';
 
 import './JsonDump.scss';
 
+/**
+ * Simple component that dumps JSON data for debugging
+ */
 export default class JsonDump extends PureComponent {
   static propTypes = {
     fetchJson: PropTypes.func,
@@ -24,8 +27,7 @@ export default class JsonDump extends PureComponent {
   }
 
   render() {
-    const { json, fetchJson } = this.props;
-    console.log('json =', json);
+    const { fetchJson } = this.props;
 
     return (
       <div className="json-dump">
@@ -36,4 +38,4 @@ export default class JsonDump extends PureComponent {
       </div>
     );
   }
- }
+}

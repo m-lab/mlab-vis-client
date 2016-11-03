@@ -3,6 +3,10 @@ import classNames from 'classnames';
 
 import './FilterSuggestions.scss';
 
+/**
+ * Render the suggestions shown beneath filters like location search,
+ * transit isp search, or client isp search.
+ */
 export default class FilterSuggestions extends PureComponent {
   static propTypes = {
     header: PropTypes.string,

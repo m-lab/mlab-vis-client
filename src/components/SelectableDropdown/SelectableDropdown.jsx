@@ -5,18 +5,16 @@ import MenuItem from 'react-bootstrap/lib/MenuItem';
 
 /**
  * A component that lets the user choose from a dropdown list of values
- *
- * @prop {Any} active The value of the active item
- * @prop {Object[]} items The items { label, value } to select from
- * @prop {Function} onChange change callback
- * @prop {String} name unique name for dropdown to use.
- * @prop {Function} onChange on change callback
  */
 export default class SelectableDropdown extends PureComponent {
   static propTypes = {
+    // The value of the active item
     active: PropTypes.any,
+    // The items { label, value } to select from
     items: PropTypes.array,
+    // unique name for dropdown to use.
     name: PropTypes.string,
+    // change callback
     onChange: PropTypes.func,
   }
 

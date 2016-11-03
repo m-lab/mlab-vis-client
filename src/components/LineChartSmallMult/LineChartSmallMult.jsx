@@ -140,39 +140,38 @@ function visProps(props) {
 /**
  * A small multiple chart that uses d3 to draw. Assumes X is a time scale.
  *
- * @prop {Boolean} forceZeroMin=true Whether the min y value should always be 0.
- * @prop {Number} smallMultHeight The height in pixels an individual chart
- * @prop {String} id The ID of the SVG chart (needed for PNG export)
- * @prop {Boolean} inSvg Whether this is being nested inside an SVG, if true renders a <g>
- * @prop {Array} series The array of series data (e.g., [{ meta, results }, ...])
- * @prop {Boolean} showBaseline=true Whether the first element in series is a baseline value
- * @prop {Number} width The width in pixels of the entire small multiple
- * @prop {Array} xExtent The min and max value of the xKey in the chart
- * @prop {String} xKey="x" The key to read the x value from in the data
- * @prop {Array} metrics="y" The keys and names to read the y value from in the data
  */
 class LineChartSmallMult extends PureComponent {
   static propTypes = {
     colors: PropTypes.object,
+    // Whether the min y value should always be 0.
     forceZeroMin: PropTypes.bool,
     height: PropTypes.number,
+    // The ID of the SVG chart (needed for PNG export)
     id: PropTypes.string,
     innerHeight: PropTypes.number,
     lineGens: PropTypes.array,
+    // The keys and names to read the y value from in the data
     metrics: PropTypes.array,
     padding: PropTypes.object,
     plotAreaHeight: PropTypes.number,
     plotAreaWidth: PropTypes.number,
+    // The array of series data (e.g., [{ meta, results }, ...])
     series: PropTypes.array,
+    // Whether the first element in series is a baseline value
     showBaseline: PropTypes.bool,
     smallMultHeaderHeight: PropTypes.number,
+    // The height in pixels an individual chart
     smallMultHeight: PropTypes.number,
     smallMultMarginBottom: PropTypes.number,
     smallMultMarginRight: PropTypes.number,
     smallMultWidth: PropTypes.number,
     threshold: PropTypes.number,
+    // The width in pixels of the entire small multiple
     width: React.PropTypes.number,
+    // The min and max value of the xKey in the chart
     xExtent: PropTypes.array,
+    // The key to read the x value from in the data
     xKey: PropTypes.string,
     xScale: PropTypes.func,
     yScales: PropTypes.array,

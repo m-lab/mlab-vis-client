@@ -67,55 +67,52 @@ function visProps(props) {
 
 /**
  * Chart for showing line and count together.
- *
- * @prop {Array|Object} annotationSeries The array of series data not included in count (e.g., [{ meta, results }, ...])
- *   or just a single object of series data.
- * @prop {Boolean} forceZeroMin=true Whether the min y value should always be 0.
- * @prop {Number} height The height in pixels of the SVG chart
- * @prop {Object} highlightDate The date being highlighted in the chart
- * @prop {Object} highlightLine The line being highlighted in the chart
- * @prop {String} id The ID of the SVG chart (needed for PNG export)
- * @prop {Function} onHighlightDate Callback when the mouse moves across the main area of the chart
- *   passes in the hovered upon date
- * @prop {Function} onHighlightLine Callback when a series is highlighted
- * @prop {Array} series The array of series data (e.g., [{ meta, results }, ...])
- * @prop {Number} width The width in pixels of the SVG chart
- * @prop {Array} xExtent The min and max value of the xKey in the chart
- * @prop {String} xKey="x" The key to read the x value from in the data
- * @prop {Array} yExtent The min and max value of the yKey in the chart
- * @prop {Function} yFormatter Format function that takes a y value and outputs a string
- * @prop {String} yKey="y" The key to read the y value from in the data
- * @prop {String} yAxisLabel The label to show on the Y axis
- * @prop {String} yAxisUnit The unit to show on the Y axis label
  */
 class LineChartWithCounts extends PureComponent {
   static propTypes = {
+    // annotationSeries The array of series data not included in count (e.g., [{ meta, results }, ...]) *   or just a single object of series data.
     annotationSeries: PropTypes.oneOfType([PropTypes.array, PropTypes.object]),
     colors: PropTypes.object,
     countChartHeight: PropTypes.number,
     countExtent: PropTypes.array,
     counts: PropTypes.array,
+    // forceZeroMin=true Whether the min y value should always be 0.
     forceZeroMin: PropTypes.bool,
+    // height The height in pixels of the SVG chart
     height: PropTypes.number,
     highlightCounts: PropTypes.array,
+    // highlightDate The date being highlighted in the chart
     highlightDate: PropTypes.object,
+    // highlightLine The line being highlighted in the chart
     highlightLine: PropTypes.object,
+    // id The ID of the SVG chart (needed for PNG export)
     id: PropTypes.string,
     idKey: PropTypes.string,
     lineChartHeight: PropTypes.number,
     numBins: PropTypes.number,
+    // onHighlightDate Callback when the mouse moves across the main area of the chart *   passes in the hovered upon date
     onHighlightDate: PropTypes.func,
+    // onHighlightLine Callback when a series is highlighted
     onHighlightLine: PropTypes.func,
     padding: PropTypes.object,
+    // series The array of series data (e.g., [{ meta, results }, ...])
     series: PropTypes.oneOfType([PropTypes.array, PropTypes.object]),
+    // width The width in pixels of the SVG chart
     width: PropTypes.number,
+    // xExtent The min and max value of the xKey in the chart
     xExtent: PropTypes.array,
+    // xKey The key to read the x value from in the data
     xKey: PropTypes.string,
     xScale: PropTypes.func,
+    // yAxisLabel The label to show on the Y axis
     yAxisLabel: PropTypes.string,
+    // yAxisUnit The unit to show on the Y axis label
     yAxisUnit: PropTypes.string,
+    // yExtent The min and max value of the yKey in the chart
     yExtent: PropTypes.array,
+    // yFormatter Format function that takes a y value and outputs a string
     yFormatter: PropTypes.func,
+    // yKey The key to read the y value from in the data
     yKey: PropTypes.string,
   }
 

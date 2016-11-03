@@ -11,21 +11,20 @@ import './ScatterGroup.scss';
 
 /**
  * A group of scatterplots
- *
- * @prop {Array} fields The ids / labels of the different fields to show plots for
- * @prop {Object} summary Summary data for ISPs
- * @prop {Number} height The height of the charts
- * @prop {Number} width The width of the charts
- * @prop {Func} onChange Metric change callback
  */
 export default class ScatterGroup extends PureComponent {
   static propTypes = {
     compareMetrics: PropTypes.object,
+    // The ids / labels of the different fields to show plots for
     fields: PropTypes.array,
+    // The height of the charts
     height: PropTypes.number,
     id: React.PropTypes.string,
+    // Metric change callback
     onChange: PropTypes.func,
+    // Summary data for ISPs
     summary: PropTypes.object,
+    // The width of the charts
     width: PropTypes.number,
   }
 

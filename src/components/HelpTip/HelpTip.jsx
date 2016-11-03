@@ -8,6 +8,8 @@ import { helpTipContent } from '../../constants';
 import './HelpTip.scss';
 
 /**
+ * Component for (?) tooltips seen around the site.
+ * Uses font awesome's question-circle to render the (?)
  */
 export default class HelpTip extends PureComponent {
   static propTypes = {

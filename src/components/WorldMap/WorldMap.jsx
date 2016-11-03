@@ -130,11 +130,7 @@ function visProps(props) {
 }
 
 /**
- * A component that lets the user choose from a list of values
- *
- * @prop {Any} active The value of the active item
- * @prop {Object[]} items The items { label, value } to select from
- * @prop {Function} onChange change callback
+ * The WorldMap that shows a sample of speed tests
  */
 class WorldMap extends PureComponent {
   static propTypes = {

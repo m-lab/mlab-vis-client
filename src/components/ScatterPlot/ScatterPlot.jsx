@@ -82,42 +82,41 @@ function visProps(props) {
 }
 
 /**
- * Chart for showing dots
- *
- * @prop {Array} data array of objects with various metrics inside
- * @prop {Number} height The height of the chart
- * @prop {String} highlightPointId The ID of the point to highlight
- * @prop {Function} onHighlightPoint Callback for when a point is hovered on
- * @prop {Number} width The width of the chart
- * @prop {Array} yExtent Optional. The min and max value of the yKey in the chart
- * @prop {String} yKey="y" The key in the data points to read the y value from
- * @prop {Array} xExtent Optional. The min and max value of the xKey in the chart
- * @prop {String} xKey="x" The key in the data points to read the x value from
+ * Scatterplot for showing two metrics against each other
  */
 class ScatterPlot extends PureComponent {
   static propTypes = {
     colors: PropTypes.object,
+    // array of objects with various metrics inside
     data: PropTypes.array,
+    // The height of the chart
     height: PropTypes.number,
+    // The ID of the point to highlight
     highlightPointId: PropTypes.string,
     id: React.PropTypes.string,
+    // Callback for when a point is hovered on
     onHighlightPoint: PropTypes.func,
     padding: PropTypes.object,
     plotAreaHeight: PropTypes.number,
     plotAreaWidth: PropTypes.number,
     pointRadius: PropTypes.number,
     voronoiDiagram: PropTypes.object,
+    // The width of the chart
     width: PropTypes.number,
     xAxisLabel: React.PropTypes.string,
     xAxisUnit: React.PropTypes.string,
+    // Optional. The min and max value of the xKey in the chart
     xExtent: PropTypes.array,
     xFormatter: PropTypes.func,
+    // The key in the data points to read the x value from
     xKey: PropTypes.string,
     xScale: PropTypes.func,
     yAxisLabel: React.PropTypes.string,
     yAxisUnit: React.PropTypes.string,
+    // Optional. The min and max value of the yKey in the chart
     yExtent: PropTypes.array,
     yFormatter: PropTypes.func,
+    // The key in the data points to read the y value from
     yKey: PropTypes.string,
     yScale: PropTypes.func,
   }

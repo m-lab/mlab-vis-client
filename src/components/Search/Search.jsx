@@ -9,7 +9,7 @@ import './Search.scss';
 
 /**
  * Search component.
- * Allows for auto completing Location Searches
+ * Allows for auto completing Location and ISP Searches
  */
 class Search extends PureComponent {
   static propTypes = {
