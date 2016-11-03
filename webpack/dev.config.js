@@ -42,10 +42,12 @@ module.exports = {
         include: path.resolve(__dirname, '../src'),
         loader: 'babel',
         query: {
-          presets: ['react', 'es2015', 'stage-0'],
+          presets: ['react', 'es2015', 'stage-3'],
           plugins: [
             'transform-runtime',
             'transform-react-display-name',
+            'transform-export-extensions',
+            'transform-class-properties',
             ['react-transform',
               {
                 transforms: [{
