@@ -26,7 +26,7 @@
     "start-dev": "better-npm-run start-dev",
     "start-prod": "better-npm-run start-prod",
     "test": "karma start",
-    "webpack-dll": "webpack --colors --progress --config webpack/dll.config.js",
+    "webpack-dll": "webpack --colors --progress --config webpack/dll.config.js && npm run webpack-clean-cache",
     "webpack-dashboard": "WEBPACK_DASHBOARD=true node webpack/webpack-dev-server.js",
     "webpack-watch": "better-npm-run webpack-watch",
     "webpack-clean-cache": "rm -rf webpack/webpack-records.json webpack/cache"
