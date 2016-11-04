@@ -108,7 +108,7 @@ npm run start
 
 ## Deploying
 
-The site is currently configured to deploy to http://client-dot-mlab-oti.appspot.com/. To do so, run:
+The site is currently configured to deploy to http://viz.measurementlab.net. To do so, run:
 
 ```bash
 npm run deploy

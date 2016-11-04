@@ -17,7 +17,7 @@ const environment = {
 module.exports = Object.assign({
   host: process.env.HOST || 'localhost',
   port: process.env.PORT,
-  apiRoot: process.env.APIROOT || '//mlab-api-dot-mlab-oti.appspot.com',
+  apiRoot: process.env.APIROOT || '//data-api.measurementlab.net/',
 
   // How many API calls the client caches in the LRU cache
   apiCacheLimit: 100,
