@@ -1,5 +1,6 @@
 # MLab Visualizations
 
+[![Build Status](https://travis-ci.org/opentechinstitute/mlab-vis-client.svg?branch=mlab-staging)](https://travis-ci.org/opentechinstitute/mlab-vis-client)
 
 This project contains the staging repository for the Measurement Lab visualizations web client.
 
