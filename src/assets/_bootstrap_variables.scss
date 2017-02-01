@@ -370,7 +370,7 @@ $navbar-padding-vertical:          (($navbar-height - $line-height-computed) / 2
 $navbar-collapse-max-height:       340px !default;
 
 $navbar-default-color:             rgba(255,255,255,0.9) !default;
-$navbar-default-bg:                #2e9da9 !default;
+$navbar-default-bg:                #454545 !default;
 $navbar-default-border:            darken($navbar-default-bg, 6.5%) !default;
 
 // Navbar links
@@ -378,7 +378,7 @@ $navbar-default-link-color:                rgba(255,255,255,0.9) !default;
 $navbar-default-link-hover-color:          #fff !default;
 $navbar-default-link-hover-bg:             transparent !default;
 $navbar-default-link-active-color:         #fff !default;
-$navbar-default-link-active-bg:            darken($navbar-default-bg, 6.5%) !default;
+$navbar-default-link-active-bg:            #585858 !default;
 $navbar-default-link-disabled-color:       #ccc !default;
 $navbar-default-link-disabled-bg:          transparent !default;
 

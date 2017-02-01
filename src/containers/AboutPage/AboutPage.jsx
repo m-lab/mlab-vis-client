@@ -22,7 +22,7 @@ class AboutPage extends PureComponent {
 
           The <Link to={'/compare'}>Compare</Link> section allows for comparsisions to be made between different locations and ISPs.
 
-          The <Link to={'/data'}>Data</Link> section provides direct access to the data in JSON and CSV formats for offline exploration.
+          The <Link to={'/data'}>Data</Link> section provides direct access to JSON and CSV dumps of the data for offline exploration.
         </p>,
       ],
     },
