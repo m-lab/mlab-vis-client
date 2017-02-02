@@ -43,8 +43,8 @@ class App extends PureComponent {
               <span class="pull-right"><h2>Measurement Lab is a partnership between New America's Open Technology Institute, Google Open Source Research, Princeton University's PlanetLab, and other supporting partners.</h2> <h3>Learn more about M-Lab</h3> </span> 
               <div class="assist-cta"></div> </a> 
             </div> 
-          </div><!-- row -->
-        </div><!-- container --> 
+          </div>
+        </div>
       </header>
       <!-- Main Navigation -->
       <nav class="main-nav-section">
