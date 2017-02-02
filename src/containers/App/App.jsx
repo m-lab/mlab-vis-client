@@ -88,6 +88,7 @@ class App extends PureComponent {
 
   render() {
     return (
+      {this.renderMlabSiteHeader()}
       <div>
         <Helmet {...config.app.head} />
         {this.renderNav()}
