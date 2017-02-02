@@ -46,7 +46,6 @@ class App extends PureComponent {
           </div>
         </div>
       </header>
-      <!-- Main Navigation -->
       <nav class="main-nav-section">
         <div class="container">
           <div class="nav-ctn collapse navbar-collapse" id="bs-example-navbar-collapse-1">
