@@ -31,7 +31,8 @@ class App extends PureComponent {
     store: PropTypes.object.isRequired,
   };
 
-  renderMlabSiteHeader() {
+
+  renderNav() {
     return (
       <header class="header-section">
         <div class="container">
@@ -61,11 +62,6 @@ class App extends PureComponent {
           </div>
         </div>
       </nav>
-    );
-  }
-
-  renderNav() {
-    return (
       <Navbar>
         <Navbar.Header>
           <Navbar.Brand>
@@ -87,7 +83,6 @@ class App extends PureComponent {
 
   render() {
     return (
-      {this.renderMlabSiteHeader()}
       <div>
         <Helmet {...config.app.head} />
         {this.renderNav()}
