@@ -1,4 +1,5 @@
 dispatch:
-  # Default module serves simple hostname request.
   - url: "viz.measurementlab.net/*"
     module: viz
+  - url: "data-api.measurementlab.net/*"
+    module: data-api
