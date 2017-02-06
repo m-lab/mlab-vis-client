@@ -1,0 +1,5 @@
+dispatch:
+  - url: "viz.measurementlab.net/*"
+    module: viz
+  - url: "data-api.measurementlab.net/*"
+    module: data-api
