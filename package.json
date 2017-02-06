@@ -20,8 +20,7 @@
     "deploy": "gcloud app deploy",
     "dev": "concurrently --kill-others \"npm run start-dev\" \"npm run webpack-watch\"",
     "lint": "eslint -c .eslintrc src",
-    "postinstall": "npm run webpack-clean-cache",
-    "prestart": "npm run build",
+    "postinstall": "npm run webpack-clean-cache && npm run build",
     "start": "better-npm-run start-prod",
     "start-dev": "better-npm-run start-dev",
     "start-prod": "better-npm-run start-prod",
@@ -206,6 +205,6 @@
     "webpack-dashboard": "^0.1.5"
   },
   "engines": {
-    "node": "6.2.1"
+    "node": "7.4.0"
   }
 }
