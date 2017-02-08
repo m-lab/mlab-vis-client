@@ -3,6 +3,7 @@ import { IndexLinkContainer, LinkContainer } from 'react-router-bootstrap';
 import Nav from 'react-bootstrap/lib/Nav';
 import Navbar from 'react-bootstrap/lib/Navbar';
 import NavItem from 'react-bootstrap/lib/NavItem';
+import PageHeader from 'react-bootstrap/lib/PageHeader';
 
 
 import { connect } from 'react-redux';
