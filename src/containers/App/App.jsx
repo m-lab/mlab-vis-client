@@ -34,36 +34,38 @@ class App extends PureComponent {
 
   renderNav() {
     return (
-      <PageHeader bsClass="mlab-site-header">
-        <a href="https://measurementlab.net"><img alt="MLab" src="/img/mlab_site_logo.png" /></a>
-        Measurement Lab is a partnership between New America's Open Technology Institute, Google Open Source Research, Princeton University's PlanetLab, and other supporting partners.
-        <small><PageHeader.Link href="https://measurementlab.net/about">Learn more about M-Lab</PageHeader.Link></small>
-      </PageHeader>
-      <Navbar>
-        <Nav bsClass="mlab-site-nav">
-          <NavItem eventKey={1} href="https://measurementlab.net/visualizations/">Visualizations</NavItem>
-          <NavItem eventKey={2} href="https://measurementlab.net/tests/">Tests</NavItem>
-          <NavItem eventKey={3} href="https://measurementlab.net/data/">Data</NavItem>
-          <NavItem eventKey={4} href="https://measurementlab.net/contribute/">Contribute</NavItem>
-          <NavItem eventKey={5} href="https://measurementlab.net/blog/">Blog</NavItem>
-          <NavItem eventKey={6} href="https://measurementlab.net/publications/">Publications</NavItem>
-          <NavItem eventKey={6} href="https://measurementlab.net/about/">About</NavItem>
-        </nav>
-        <Navbar.Header>
-          <Navbar.Brand>
-            <IndexLink to="/">
-              <img alt="MLab" src="/img/mlab_logo_white.png" />
-              <span>vis</span>
-            </IndexLink>
-          </Navbar.Brand>
-        </Navbar.Header>
-        <Nav>
-          <IndexLinkContainer to="/"><NavItem eventKey={1}>Locations</NavItem></IndexLinkContainer>
-          <LinkContainer to="/compare"><NavItem eventKey={4}>Compare</NavItem></LinkContainer>
-          <LinkContainer to="/data"><NavItem eventKey={4}>Data</NavItem></LinkContainer>
-          <LinkContainer to="/about"><NavItem eventKey={5}>About</NavItem></LinkContainer>
-        </Nav>
-      </Navbar>
+      <div>    
+        <PageHeader bsClass="mlab-site-header">
+          <a href="https://measurementlab.net"><img alt="MLab" src="/img/mlab_site_logo.png" /></a>
+          Measurement Lab is a partnership between New America's Open Technology Institute, Google Open Source Research, Princeton University's PlanetLab, and other supporting partners.
+          <small><PageHeader.Link href="https://measurementlab.net/about">Learn more about M-Lab</PageHeader.Link></small>
+        </PageHeader>
+        <Navbar>
+          <Nav bsClass="mlab-site-nav">
+            <NavItem eventKey={1} href="https://measurementlab.net/visualizations/">Visualizations</NavItem>
+            <NavItem eventKey={2} href="https://measurementlab.net/tests/">Tests</NavItem>
+            <NavItem eventKey={3} href="https://measurementlab.net/data/">Data</NavItem>
+            <NavItem eventKey={4} href="https://measurementlab.net/contribute/">Contribute</NavItem>
+            <NavItem eventKey={5} href="https://measurementlab.net/blog/">Blog</NavItem>
+            <NavItem eventKey={6} href="https://measurementlab.net/publications/">Publications</NavItem>
+            <NavItem eventKey={6} href="https://measurementlab.net/about/">About</NavItem>
+          </nav>
+          <Navbar.Header>
+            <Navbar.Brand>
+              <IndexLink to="/">
+                <img alt="MLab" src="/img/mlab_logo_white.png" />
+                <span>vis</span>
+              </IndexLink>
+            </Navbar.Brand>
+          </Navbar.Header>
+          <Nav>
+            <IndexLinkContainer to="/"><NavItem eventKey={1}>Locations</NavItem></IndexLinkContainer>
+            <LinkContainer to="/compare"><NavItem eventKey={4}>Compare</NavItem></LinkContainer>
+            <LinkContainer to="/data"><NavItem eventKey={4}>Data</NavItem></LinkContainer>
+            <LinkContainer to="/about"><NavItem eventKey={5}>About</NavItem></LinkContainer>
+          </Nav>
+        </Navbar>
+    </div>
     );
   }
 
