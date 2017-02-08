@@ -34,6 +34,7 @@ class App extends PureComponent {
 
   renderNav() {
     return (
+        <Navbar>
         <div class="header-section">
           <div class="container">
             <div class="row">
@@ -51,7 +52,6 @@ class App extends PureComponent {
             </div>
           </div>
         </div>
-        <Navbar>
         <Navbar.Header>
           <Navbar.Brand>
             <IndexLink to="/">
