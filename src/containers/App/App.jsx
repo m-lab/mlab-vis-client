@@ -3,8 +3,6 @@ import { IndexLinkContainer, LinkContainer } from 'react-router-bootstrap';
 import Nav from 'react-bootstrap/lib/Nav';
 import Navbar from 'react-bootstrap/lib/Navbar';
 import NavItem from 'react-bootstrap/lib/NavItem';
-import PageHeader from 'react-bootstrap/lib/PageHeader';
-
 
 import { connect } from 'react-redux';
 import Helmet from 'react-helmet';
@@ -32,15 +30,14 @@ class App extends PureComponent {
     store: PropTypes.object.isRequired,
   };
 
-
   renderNav() {
     return (
       <div>    
-        <PageHeader bsClass="mlab-site-header">
-          <a href="https://measurementlab.net"><img alt="MLab" src="/img/mlab_site_logo.png" /></a>
-          Measurement Lab is a partnership between New America's Open Technology Institute, Google Open Source Research, Princeton University's PlanetLab, and other supporting partners.
-          <small><PageHeader.Link href="https://measurementlab.net/about">Learn more about M-Lab</PageHeader.Link></small>
-        </PageHeader>
+        <div bsClass="mlab-site-header">
+          <span><a href="https://measurementlab.net"><img alt="M-Lab" src="/img/mlab_site_logo.png" /></a></span>
+          <h1>Measurement Lab is a partnership between New America's Open Technology Institute, Google Open Source Research, Princeton University's PlanetLab, and other supporting partners.</h1>
+          <h2><a href="https://measurementlab.net/about">Learn more about M-Lab</a></h2>
+        </div>
         <Navbar>
           <Nav bsClass="mlab-site-nav">
             <NavItem eventKey={1} href="https://measurementlab.net/visualizations/">Visualizations</NavItem>
