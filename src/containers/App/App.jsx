@@ -34,28 +34,20 @@ class App extends PureComponent {
 
   renderNav() {
     return (
-        <Navbar>
-        <PageHeader>
-          <PageHeader.Brand>
-              <a href="https://measurementlab.net"><img alt="MLab" src="/img/mlab_site_logo.png" /></a>
-          </PageHeader.Brand>
-          Measurement Lab is a partnership between New America's Open Technology Institute, Google Open Source Research, Princeton University's PlanetLab, and other supporting partners.
-          <small><PageHeader.Link href="https://measurementlab.net/about">Learn more about M-Lab</PageHeader.Link></small>
-        </PageHeader>
-        <nav class="main-nav-section">
-          <div class="container">
-            <div class="nav-ctn collapse navbar-collapse" id="bs-example-navbar-collapse-1">
-              <ul class="main-nav" id="menu-acc">
-                <li class=""><a href="/m-lab.github.io/visualizations/"> Visualizations </a></li>
-                <li class=""><a href="/m-lab.github.io/tests/"> Tests </a></li>
-                <li class=""><a href="/m-lab.github.io/data/"> Data </a></li>
-                <li class=""><a href="/m-lab.github.io/contribute/"> Contribute </a></li>
-                <li class=""><a href="/m-lab.github.io/blog/"> Blog </a></li>
-                <li class=""><a href="/m-lab.github.io/publications/"> Publications </a></li>
-                <li class=""><a href="/m-lab.github.io/about/"> About </a></li>
-              </ul>
-            </div>
-          </div>
+      <PageHeader bsClass="mlab-site-header">
+        <a href="https://measurementlab.net"><img alt="MLab" src="/img/mlab_site_logo.png" /></a>
+        Measurement Lab is a partnership between New America's Open Technology Institute, Google Open Source Research, Princeton University's PlanetLab, and other supporting partners.
+        <small><PageHeader.Link href="https://measurementlab.net/about">Learn more about M-Lab</PageHeader.Link></small>
+      </PageHeader>
+      <Navbar>
+        <Nav bsClass="mlab-site-nav">
+          <NavItem eventKey={1} href="https://measurementlab.net/visualizations/">Visualizations</NavItem>
+          <NavItem eventKey={2} href="https://measurementlab.net/tests/">Tests</NavItem>
+          <NavItem eventKey={3} href="https://measurementlab.net/data/">Data</NavItem>
+          <NavItem eventKey={4} href="https://measurementlab.net/contribute/">Contribute</NavItem>
+          <NavItem eventKey={5} href="https://measurementlab.net/blog/">Blog</NavItem>
+          <NavItem eventKey={6} href="https://measurementlab.net/publications/">Publications</NavItem>
+          <NavItem eventKey={6} href="https://measurementlab.net/about/">About</NavItem>
         </nav>
         <Navbar.Header>
           <Navbar.Brand>
