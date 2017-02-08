@@ -35,23 +35,13 @@ class App extends PureComponent {
   renderNav() {
     return (
         <Navbar>
-        <div class="header-section">
-          <div class="container">
-            <div class="row">
-              <div class="col-xs-2 col-sm-2 col-md-4">
-                <h1 class="main-logo"><a href="/m-lab.github.io/">M-Lab</a></h1>
-              </div>
-              <div class="col-xs-8 col-sm-8" id="assist-cta">
-                <a href="/m-lab.github.io/about/" class="header-cta assist-cta">
-                <span class="pull-right">
-                  <h2>Measurement Lab is a partnership between New America's Open Technology Institute, Google Open Source Research, Princeton University's PlanetLab, and other supporting partners.</h2>
-                  <h3>Learn more about M-Lab</h3>
-                </span>
-                <div class="assist-cta"></div></a> 
-              </div>
-            </div>
-          </div>
-        </div>
+        <PageHeader>
+          <PageHeader.Brand>
+              <a href="https://measurementlab.net"><img alt="MLab" src="/img/mlab_site_logo.png" /></a>
+          </PageHeader.Brand>
+          Measurement Lab is a partnership between New America's Open Technology Institute, Google Open Source Research, Princeton University's PlanetLab, and other supporting partners.
+          <small><PageHeader.Link href="https://measurementlab.net/about">Learn more about M-Lab</PageHeader.Link></small>
+        </PageHeader>
         <nav class="main-nav-section">
           <div class="container">
             <div class="nav-ctn collapse navbar-collapse" id="bs-example-navbar-collapse-1">
