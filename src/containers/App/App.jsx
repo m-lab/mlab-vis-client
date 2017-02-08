@@ -52,6 +52,21 @@ class App extends PureComponent {
             </div>
           </div>
         </div>
+        <nav class="main-nav-section">
+          <div class="container">
+            <div class="nav-ctn collapse navbar-collapse" id="bs-example-navbar-collapse-1">
+              <ul class="main-nav" id="menu-acc">
+                <li class=""><a href="/m-lab.github.io/visualizations/"> Visualizations </a></li>
+                <li class=""><a href="/m-lab.github.io/tests/"> Tests </a></li>
+                <li class=""><a href="/m-lab.github.io/data/"> Data </a></li>
+                <li class=""><a href="/m-lab.github.io/contribute/"> Contribute </a></li>
+                <li class=""><a href="/m-lab.github.io/blog/"> Blog </a></li>
+                <li class=""><a href="/m-lab.github.io/publications/"> Publications </a></li>
+                <li class=""><a href="/m-lab.github.io/about/"> About </a></li>
+              </ul>
+            </div>
+          </div>
+        </nav>
         <Navbar.Header>
           <Navbar.Brand>
             <IndexLink to="/">
