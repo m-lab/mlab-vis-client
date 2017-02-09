@@ -548,6 +548,15 @@
     }
   }
 
+  .submenu-nav a {
+    &:hover,
+    &:focus {
+      color: $navbar-default-link-active-color;
+      background-color: $navbar-default-link-active-bg;
+    }
+  }
+
+
   .navbar-brand {
     color: $navbar-default-brand-color;
     &:hover,
