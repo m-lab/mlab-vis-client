@@ -36,7 +36,7 @@ class App extends PureComponent {
           <Navbar.Header>
             <Navbar.Brand>
               <IndexLink to="https://measurementlab.net/">
-                <img alt="M-Lab" src="/img/mlab_site_logo.png" style="width:5em; height: 2em;" />
+                <img alt="M-Lab" src="/img/mlab_site_logo.png" />
               </IndexLink>
             </Navbar.Brand>
           </Navbar.Header>        
