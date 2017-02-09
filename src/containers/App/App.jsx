@@ -41,7 +41,7 @@ class App extends PureComponent {
               </IndexLink>
             </Navbar.Brand>
           </Navbar.Header>        
-          <Nav>
+          <Nav activeKey={1}>
             <NavItem eventKey={1} href="https://www.measurementlab.net/visualizations/">Visualizations</NavItem>
             <NavItem eventKey={2} href="https://www.measurementlab.net/tests/">Tests</NavItem>
             <NavItem eventKey={3} href="https://www.measurementlab.net/data/">Data</NavItem>
@@ -51,7 +51,7 @@ class App extends PureComponent {
             <NavItem eventKey={6} href="https://www.measurementlab.net/about/">About M-Lab</NavItem>
           </Nav>
         </Navbar>
-        <Navbar bsClass="nav submenu">      
+        <Navbar bsClass="submenu">      
           <Nav>
             <IndexLinkContainer to="/"><NavItem eventKey={1}>Locations</NavItem></IndexLinkContainer>
             <LinkContainer to="/compare"><NavItem eventKey={4}>Compare</NavItem></LinkContainer>

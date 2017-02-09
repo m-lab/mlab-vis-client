@@ -393,7 +393,7 @@
 // --------------------------------------------------
 
 // Default navbar
-.navbar-default {
+.navbar-default .submenu-default {
   background-color: $navbar-default-bg;
   border-color: $navbar-default-border;
 
@@ -497,6 +497,9 @@
     }
   }
 
+.submenu-default {
+  background-color: #454545;
+}
 
   // Links in navbars
   //
