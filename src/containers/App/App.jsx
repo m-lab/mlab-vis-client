@@ -54,7 +54,7 @@ class App extends PureComponent {
         <Navbar bsClass="submenu">      
           <Nav>
             <NavItem eventKey={1} href="/">Locations</NavItem>
-            <NavItem eventKey={4} href"/compare">Compare</NavItem>
+            <NavItem eventKey={4} href="/compare">Compare</NavItem>
             <NavItem eventKey={4} href="/data">Data</NavItem>
             <NavItem eventKey={5} href="/about">About M-Lab Viz</NavItem>
           </Nav>
