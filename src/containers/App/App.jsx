@@ -12,7 +12,6 @@ import config from '../../config';
 
 import '../../assets/base.scss';
 import './App.scss';
-import '../../assets/_mlab_site_header.scss'
 
 function mapStateToProps() {
   return {
@@ -33,13 +32,15 @@ class App extends PureComponent {
   renderNav() {
     return (
       <div>    
-        <div bsClass="mlab-site-header">
-          <span><a href="https://measurementlab.net"><img alt="M-Lab" src="/img/mlab_site_logo.png" /></a></span>
-          <h1>Measurement Lab is a partnership between New America's Open Technology Institute, Google Open Source Research, Princeton University's PlanetLab, and other supporting partners.</h1>
-          <h2><a href="https://measurementlab.net/about">Learn more about M-Lab</a></h2>
-        </div>
         <Navbar>
-          <Nav bsClass="mlab-site-nav">
+          <Navbar.Header>
+            <Navbar.Brand>
+              <IndexLink to="https://measurementlab.net/">
+                <img alt="M-Lab" src="/img/mlab_site_logo.png" />
+              </IndexLink>
+            </Navbar.Brand>
+          </Navbar.Header>        
+          <Nav>
             <NavItem eventKey={1} href="https://measurementlab.net/visualizations/">Visualizations</NavItem>
             <NavItem eventKey={2} href="https://measurementlab.net/tests/">Tests</NavItem>
             <NavItem eventKey={3} href="https://measurementlab.net/data/">Data</NavItem>
@@ -51,8 +52,8 @@ class App extends PureComponent {
           <Navbar.Header>
             <Navbar.Brand>
               <IndexLink to="/">
-                <img alt="MLab" src="/img/mlab_logo_white.png" />
-                <span>vis</span>
+                <img alt="M-Lab" src="/img/mlab_logo_white.png" />
+                <span>viz</span>
               </IndexLink>
             </Navbar.Brand>
           </Navbar.Header>
