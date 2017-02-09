@@ -35,30 +35,23 @@ class App extends PureComponent {
         <Navbar>
           <Navbar.Header>
             <Navbar.Brand>
-              <IndexLink to="https://measurementlab.net/">
+              <IndexLink to="https://www.measurementlab.net/">
                 <img alt="M-Lab" src="/img/mlab_site_logo.png" />
+                <span>viz</span>
               </IndexLink>
             </Navbar.Brand>
           </Navbar.Header>        
           <Nav>
-            <NavItem eventKey={1} href="https://measurementlab.net/visualizations/">Visualizations</NavItem>
-            <NavItem eventKey={2} href="https://measurementlab.net/tests/">Tests</NavItem>
-            <NavItem eventKey={3} href="https://measurementlab.net/data/">Data</NavItem>
-            <NavItem eventKey={4} href="https://measurementlab.net/contribute/">Contribute</NavItem>
-            <NavItem eventKey={5} href="https://measurementlab.net/blog/">Blog</NavItem>
-            <NavItem eventKey={6} href="https://measurementlab.net/publications/">Publications</NavItem>
-            <NavItem eventKey={6} href="https://measurementlab.net/about/">About M-Lab</NavItem>
+            <NavItem eventKey={1} href="https://www.measurementlab.net/visualizations/">Visualizations</NavItem>
+            <NavItem eventKey={2} href="https://www.measurementlab.net/tests/">Tests</NavItem>
+            <NavItem eventKey={3} href="https://www.measurementlab.net/data/">Data</NavItem>
+            <NavItem eventKey={4} href="https://www.measurementlab.net/contribute/">Contribute</NavItem>
+            <NavItem eventKey={5} href="https://www.measurementlab.net/blog/">Blog</NavItem>
+            <NavItem eventKey={6} href="https://www.measurementlab.net/publications/">Publications</NavItem>
+            <NavItem eventKey={6} href="https://www.measurementlab.net/about/">About M-Lab</NavItem>
           </Nav>
         </Navbar>
-        <Navbar>      
-          <Navbar.Header>
-            <Navbar.Brand>
-              <IndexLink to="/">
-                <img alt="M-Lab" src="/img/mlab_logo_white.png" />
-                <span>viz</span>
-              </IndexLink>
-            </Navbar.Brand>
-          </Navbar.Header>
+        <Navbar bsClass="nav submenu">      
           <Nav>
             <IndexLinkContainer to="/"><NavItem eventKey={1}>Locations</NavItem></IndexLinkContainer>
             <LinkContainer to="/compare"><NavItem eventKey={4}>Compare</NavItem></LinkContainer>
