@@ -529,6 +529,25 @@
   background-color: #454545;
   border-color: $navbar-default-border;
 
+  .submenu-nav {
+    float: left;
+    margin: 0;
+  }
+
+  .submenu-nav>li {
+    float: left;
+  }
+
+  .submenu-nav>li>a {
+    color: #ffffff;
+
+    &:hover,
+    &:focus {
+      color: $navbar-default-link-hover-color;
+      background-color: $navbar-default-link-hover-bg;
+    }
+  }
+
   .navbar-brand {
     color: $navbar-default-brand-color;
     &:hover,
