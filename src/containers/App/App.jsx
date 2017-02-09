@@ -36,7 +36,7 @@ class App extends PureComponent {
           <Navbar.Header>
             <Navbar.Brand>
               <IndexLink to="https://measurementlab.net/">
-                <img alt="M-Lab" src="/img/mlab_site_logo.png" />
+                <img alt="M-Lab" src="/img/mlab_site_logo.png" style="width:5em; height: 2em;" />
               </IndexLink>
             </Navbar.Brand>
           </Navbar.Header>        
@@ -47,8 +47,10 @@ class App extends PureComponent {
             <NavItem eventKey={4} href="https://measurementlab.net/contribute/">Contribute</NavItem>
             <NavItem eventKey={5} href="https://measurementlab.net/blog/">Blog</NavItem>
             <NavItem eventKey={6} href="https://measurementlab.net/publications/">Publications</NavItem>
-            <NavItem eventKey={6} href="https://measurementlab.net/about/">About</NavItem>
+            <NavItem eventKey={6} href="https://measurementlab.net/about/">About M-Lab</NavItem>
           </Nav>
+        </Navbar>
+        <Navbar>      
           <Navbar.Header>
             <Navbar.Brand>
               <IndexLink to="/">
@@ -61,10 +63,10 @@ class App extends PureComponent {
             <IndexLinkContainer to="/"><NavItem eventKey={1}>Locations</NavItem></IndexLinkContainer>
             <LinkContainer to="/compare"><NavItem eventKey={4}>Compare</NavItem></LinkContainer>
             <LinkContainer to="/data"><NavItem eventKey={4}>Data</NavItem></LinkContainer>
-            <LinkContainer to="/about"><NavItem eventKey={5}>About</NavItem></LinkContainer>
+            <LinkContainer to="/about"><NavItem eventKey={5}>About M-Lab Viz</NavItem></LinkContainer>
           </Nav>
         </Navbar>
-    </div>
+      </div>
     );
   }
 
