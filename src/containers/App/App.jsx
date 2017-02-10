@@ -41,7 +41,7 @@ class App extends PureComponent {
               </a>
             </Navbar.Brand>
           </Navbar.Header>        
-          <Nav activeKey={1}>
+          <Nav>
             <NavItem eventKey={1} href="https://www.measurementlab.net/visualizations/">Visualizations</NavItem>
             <NavItem eventKey={2} href="https://www.measurementlab.net/tests/">Tests</NavItem>
             <NavItem eventKey={3} href="https://www.measurementlab.net/data/">Data</NavItem>
@@ -52,11 +52,11 @@ class App extends PureComponent {
           </Nav>
         </Navbar>
         <Navbar bsClass="submenu">      
-          <Nav activeKey={1}>
-            <NavItem eventKey={1} href="/">Locations</NavItem>
-            <NavItem eventKey={4} href="/compare">Compare</NavItem>
-            <NavItem eventKey={4} href="/data">Data</NavItem>
-            <NavItem eventKey={5} href="/about">About M-Lab Viz</NavItem>
+          <Nav>
+            <IndexLinkContainer to="/"><NavItem eventKey={1}>Locations</NavItem></IndexLinkContainer>
+            <LinkContainer to="/compare"><NavItem eventKey={4}>Compare</NavItem></LinkContainer>
+            <LinkContainer to="/data"><NavItem eventKey={4}>Data</NavItem></LinkContainer>
+            <LinkContainer to="/about"><NavItem eventKey={5}>About M-Lab Viz</NavItem></LinkContainer>
           </Nav>
         </Navbar>
       </div>
