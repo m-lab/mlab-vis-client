@@ -52,7 +52,7 @@ class App extends PureComponent {
           </Nav>
         </Navbar>
         <Navbar bsClass="submenu">      
-          <Nav>
+          <Nav activeKey={1}>
             <NavItem eventKey={1} href="/">Locations</NavItem>
             <NavItem eventKey={4} href="/compare">Compare</NavItem>
             <NavItem eventKey={4} href="/data">Data</NavItem>

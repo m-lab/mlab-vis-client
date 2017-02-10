@@ -541,8 +541,7 @@
   .submenu-nav>li>a {
     color: #ffffff;
 
-    &:hover,
-    &:focus {
+    &:hover {
       color: $submenu-navbar-default-link-hover-color;
       background-color: $submenu-navbar-default-link-hover-bg;
     }
@@ -552,7 +551,7 @@
     &:hover,
     &:focus {
       color: $submenu-navbar-default-link-active-color;
-      background-color: $submenu-navbar-default-link-active-bg;
+      background-color: $submenu-navbar-default-link-hover-bg;
     }
   }
 }
