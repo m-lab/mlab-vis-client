@@ -361,7 +361,7 @@ $container-lg:                 $container-large-desktop !default;
 //
 //##
 
-// Basics of a navbar
+// Main navbar (M-Lab site menu)
 $navbar-height:                    45px !default;
 $navbar-margin-bottom:             0 !default;
 $navbar-border-radius:             0 !default;
@@ -373,7 +373,7 @@ $navbar-default-color:             #9bd2c7 !default;
 $navbar-default-bg:                #9bd2c7 !default;
 $navbar-default-border:            #9bd2c7 !default;
 
-// Navbar links
+// Main Navbar links
 $navbar-default-link-color:                rgba(255,255,255,0.9) !default;
 $navbar-default-link-hover-color:          #fff !default;
 $navbar-default-link-hover-bg:             #afdbd2 !default;
@@ -382,15 +382,47 @@ $navbar-default-link-active-bg:            #afdbd2 !default;
 $navbar-default-link-disabled-color:       #ccc !default;
 $navbar-default-link-disabled-bg:          transparent !default;
 
-// Navbar brand label
+// Main Navbar brand label
 $navbar-default-brand-color:               $navbar-default-link-active-color !default;
 $navbar-default-brand-hover-color:         darken($navbar-default-brand-color, 10%) !default;
 $navbar-default-brand-hover-bg:            transparent !default;
 
-// Navbar toggle
+// Main Navbar toggle
 $navbar-default-toggle-hover-bg:           #ddd !default;
 $navbar-default-toggle-icon-bar-bg:        #888 !default;
 $navbar-default-toggle-border-color:       #ddd !default;
+
+
+// Submenu navbar (Viz menu)
+$submenu-navbar-height:                    45px !default;
+$submenu-navbar-margin-bottom:             45px !default;
+$submenu-navbar-border-radius:             0 !default;
+$submenu-navbar-padding-horizontal:        floor(($grid-gutter-width / 2)) !default;
+$submenu-navbar-padding-vertical:          (($navbar-height - $line-height-computed) / 2) !default;
+$submenu-navbar-collapse-max-height:       340px !default;
+
+$submenu-navbar-default-color:             #ffffff !default;
+$submenu-navbar-default-bg:                #454545 !default;
+$submenu-navbar-default-border:            #454545 !default;
+
+// Submenu Navbar links
+$submenu-navbar-default-link-color:                rgba(255,255,255,0.9) !default;
+$submenu-navbar-default-link-hover-color:          #fff !default;
+$submenu-navbar-default-link-hover-bg:             darken($submenu-navbar-default-default-color, 10%) !default;
+$submenu-navbar-default-link-active-color:         #fff !default;
+$submenu-navbar-default-link-active-bg:            darken($submenu-navbar-default-default-color, 10%) !default;
+$submenu-navbar-default-link-disabled-color:       #ccc !default;
+$submenu-navbar-default-link-disabled-bg:          transparent !default;
+
+// Submenu Navbar brand label
+$submenu-navbar-default-brand-color:               $submenu-navbar-default-link-active-color !default;
+$submenu-navbar-default-brand-hover-color:         darken($submenu-navbar-default-brand-color, 10%) !default;
+$submenu-navbar-default-brand-hover-bg:            transparent !default;
+
+// Submenu Navbar toggle
+$submenu-navbar-default-toggle-hover-bg:           #ddd !default;
+$submenu-navbar-default-toggle-icon-bar-bg:        #888 !default;
+$submenu-navbar-default-toggle-border-color:       #ddd !default;
 
 
 //=== Inverted navbar
