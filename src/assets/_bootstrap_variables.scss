@@ -408,15 +408,15 @@ $submenu-navbar-default-border:            darken($submenu-navbar-default-bg, 10
 // Submenu Navbar links
 $submenu-navbar-default-link-color:                rgba(255,255,255,0.9) !default;
 $submenu-navbar-default-link-hover-color:          #fff !default;
-$submenu-navbar-default-link-hover-bg:             darken($submenu-navbar-default-link-hover-color, 10%) !default;
+$submenu-navbar-default-link-hover-bg:             #a6a6a6 !default;
 $submenu-navbar-default-link-active-color:         #fff !default;
-$submenu-navbar-default-link-active-bg:            darken($submenu-navbar-default-link-hover-color, 10%) !default;
+$submenu-navbar-default-link-active-bg:            #a6a6a6 !default;
 $submenu-navbar-default-link-disabled-color:       #ccc !default;
 $submenu-navbar-default-link-disabled-bg:          transparent !default;
 
 // Submenu Navbar brand label
 $submenu-navbar-default-brand-color:               $submenu-navbar-default-link-active-color !default;
-$submenu-navbar-default-brand-hover-color:         darken($submenu-navbar-default-brand-color, 10%) !default;
+$submenu-navbar-default-brand-hover-color:         #a6a6a6 !default;
 $submenu-navbar-default-brand-hover-bg:            transparent !default;
 
 // Submenu Navbar toggle
