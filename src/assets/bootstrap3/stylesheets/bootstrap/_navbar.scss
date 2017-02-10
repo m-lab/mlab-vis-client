@@ -528,6 +528,7 @@
 .submenu-default {
   background-color: $submenu-navbar-default-bg;
   border-color: $submenu-navbar-default-border;
+  margin-bottom: $submenu-navbar-margin-bottom;
 
   .submenu-nav {
     float: left;
@@ -536,6 +537,10 @@
 
   .submenu-nav>li { 
     float: left;
+  }
+
+  .submenu-nav>li.active { 
+    background-color: $submenu-navbar-default-link-hover-bg;
   }
 
   .submenu-nav>li>a {
