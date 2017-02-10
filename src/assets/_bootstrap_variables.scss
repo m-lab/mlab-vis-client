@@ -401,16 +401,16 @@ $submenu-navbar-padding-horizontal:        floor(($grid-gutter-width / 2)) !defa
 $submenu-navbar-padding-vertical:          (($navbar-height - $line-height-computed) / 2) !default;
 $submenu-navbar-collapse-max-height:       340px !default;
 
-$submenu-navbar-default-color:             #ffffff !default;
+$submenu-navbar-default-color:             rgba(255,255,255,0.9) !default;
 $submenu-navbar-default-bg:                #454545 !default;
-$submenu-navbar-default-border:            #454545 !default;
+$submenu-navbar-default-border:            darken($submenu-navbar-default-bg, 10%) !default;
 
 // Submenu Navbar links
 $submenu-navbar-default-link-color:                rgba(255,255,255,0.9) !default;
 $submenu-navbar-default-link-hover-color:          #fff !default;
-$submenu-navbar-default-link-hover-bg:             darken($submenu-navbar-default-color, 10%) !default;
+$submenu-navbar-default-link-hover-bg:             transparent !default;
 $submenu-navbar-default-link-active-color:         #fff !default;
-$submenu-navbar-default-link-active-bg:            darken($submenu-navbar-default-color, 10%) !default;
+$submenu-navbar-default-link-active-bg:            darken($submenu-navbar-default-bg, 10%) !default;
 $submenu-navbar-default-link-disabled-color:       #ccc !default;
 $submenu-navbar-default-link-disabled-bg:          transparent !default;
 
