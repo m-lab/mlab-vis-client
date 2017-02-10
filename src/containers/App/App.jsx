@@ -35,10 +35,10 @@ class App extends PureComponent {
         <Navbar>
           <Navbar.Header>
             <Navbar.Brand>
-              <IndexLink to="https://www.measurementlab.net/">
+              <a href="https://www.measurementlab.net/">
                 <img alt="M-Lab" src="/img/mlab_site_logo.png" />
                 <span>viz</span>
-              </IndexLink>
+              </a>
             </Navbar.Brand>
           </Navbar.Header>        
           <Nav activeKey={1}>
