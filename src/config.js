@@ -27,16 +27,16 @@ module.exports = Object.assign({
     title: 'MLab Vis',
     description: 'Measurement Lab Visualizations - Analyzing internet speeds worldwide.',
     head: {
-      titleTemplate: '%s - MLab Vis',
+      titleTemplate: '%s - M-Lab Viz',
       meta: [
         {
           name: 'description',
           content: 'Measurement Lab Visualizations - Analyzing internet speeds worldwide.',
         },
         { charset: 'utf-8' },
-        { property: 'og:site_name', content: 'MLab Vis' },
+        { property: 'og:site_name', content: 'M-Lab Viz' },
         { property: 'og:locale', content: 'en_US' },
-        { property: 'og:title', content: 'MLab Vis' },
+        { property: 'og:title', content: 'M-Lab Viz' },
         {
           property: 'og:description',
           content: 'Measurement Lab Visualizations - Analyzing internet speeds worldwide.',

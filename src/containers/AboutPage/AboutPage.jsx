@@ -15,14 +15,14 @@ class AboutPage extends PureComponent {
       content:
       [
         <p>
-          MLab Vis is a collaboration between <a href="https://bocoup.com/datavis" target="_blank" rel="noopener noreferrer">Bocoup Data Vis</a> and <a href="https://www.measurementlab.net/" target="_blank" rel="noopener noreferrer">Measurement Lab</a> to visualize aggregations of over 200 million Internet speed tests from around the world.
+          M-Lab Viz is a collaboration between <a href="https://bocoup.com/datavis" target="_blank" rel="noopener noreferrer">Bocoup Data Vis</a> and <a href="https://www.measurementlab.net/">Measurement Lab</a> to visualize aggregations of over 200 million Internet speed tests from around the world.
         </p>,
         <p>
           The <Link to={'/location/'}>Location</Link> section focuses on breaking these speed tests down by city, region, country and continent.
 
           The <Link to={'/compare'}>Compare</Link> section allows for comparsisions to be made between different locations and ISPs.
 
-          The <Link to={'/data'}>Data</Link> section provides direct access to JSON and CSV dumps of the data for offline exploration.
+          The <Link to={'/data'}>Data</Link> section provides direct access to the data in JSON and CSV formats for offline exploration.
         </p>,
       ],
     },
@@ -66,9 +66,9 @@ class AboutPage extends PureComponent {
         <p>Here we describe a number of details related to how the data for this visualization tool is processed.</p>,
         <h4>Local Time</h4>,
         <p>
-          Measurement Lab speed test data is recorded in UTC time. For this visualization tool, we wanted to provide a more immediately useful temporal view of the data and so convert to local time before displaying the data.
+          Measurement Lab speed test data is recorded in UTC time. For this visualization tool, we wanted to provide a more immediately useful view of the data, so we convert tests to local time before displaying the data.
 
-          This is done via mapping the estimated position of the download test client to a time zone and using this time zone to convert the UTC time.
+          This is done by mapping the estimated position of the download test to a time zone and then converting the UTC time to this time zone.
         </p>,
         <h4>ISP Names</h4>,
         <p>

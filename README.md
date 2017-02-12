@@ -1,8 +1,10 @@
 # MLab Visualizations
 
-[![Build Status](https://travis-ci.org/bocoup/mlab-vis-client.svg?branch=master)](https://travis-ci.org/bocoup/mlab-vis-client)
+[![Build Status](https://travis-ci.org/m-lab/mlab-vis-client.svg?branch=master)](https://travis-ci.org/m-lab/mlab-vis-client)
 
-This project contains the web client for Measurement Lab visualizations.
+This project contains the repository for the Measurement Lab visualizations web client.
+
+To test changes, first deploy to the [mlab-staging project](https://console.cloud.google.com/appengine/services?project=mlab-staging) and then submit a PR to merge them into the production repo.
 
 
 ## Installation

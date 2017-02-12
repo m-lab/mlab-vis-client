@@ -12,7 +12,6 @@
   position: relative;
   min-height: $navbar-height; // Ensure a navbar always shows (e.g., without a .navbar-brand in collapsed mode)
   margin-bottom: $navbar-margin-bottom;
-  border: 1px solid transparent;
 
   // Prevent floats from breaking the navbar
   @include clearfix;
@@ -498,7 +497,6 @@
     }
   }
 
-
   // Links in navbars
   //
   // Add a class to ensure links outside the navbar nav are colored correctly.
@@ -522,6 +520,43 @@
       &:focus {
         color: $navbar-default-link-disabled-color;
       }
+    }
+  }
+}
+
+// M-Lab styled submenu navbar
+.submenu-default {
+  background-color: $submenu-navbar-default-bg;
+  border-color: $submenu-navbar-default-border;
+  margin-bottom: $submenu-navbar-margin-bottom;
+
+  .submenu-nav {
+    float: left;
+    margin: 0;
+  }
+
+  .submenu-nav>li { 
+    float: left;
+  }
+
+  .submenu-nav>li.active { 
+    background-color: $submenu-navbar-default-link-hover-bg;
+  }
+
+  .submenu-nav>li>a {
+    color: #ffffff;
+
+    &:hover {
+      color: $submenu-navbar-default-link-hover-color;
+      background-color: $submenu-navbar-default-link-hover-bg;
+    }
+  }
+
+  .submenu-nav a {
+    &:hover,
+    &:focus {
+      color: $submenu-navbar-default-link-active-color;
+      background-color: $submenu-navbar-default-link-hover-bg;
     }
   }
 }

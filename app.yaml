@@ -2,7 +2,7 @@
 service: viz
 
 runtime: nodejs
-vm: true
+env: flex
 
 automatic_scaling:
   min_num_instances: 3
