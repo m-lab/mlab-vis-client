@@ -109,6 +109,7 @@ npm run build
 
 ```bash
 npm run start
+gcloud app deploy dispatch.yaml
 ```
 
 ## Deploying
