@@ -110,6 +110,10 @@ module.exports = {
     new webpack.HotModuleReplacementPlugin(),
     new webpack.IgnorePlugin(/webpack-stats\.json$/),
     new webpack.DefinePlugin({
+      'process.env': {
+        NODE_ENV: '"development"',
+        APIROOT: JSON.stringify(process.env.APIROOT),
+      },
       __CLIENT__: true,
       __SERVER__: false,
       __DEVELOPMENT__: true,

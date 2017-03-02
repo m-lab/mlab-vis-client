@@ -63,6 +63,7 @@ module.exports = {
     new webpack.DefinePlugin({
       'process.env': {
         NODE_ENV: '"production"',
+        APIROOT: JSON.stringify(process.env.APIROOT),
       },
 
       __CLIENT__: true,
