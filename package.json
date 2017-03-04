@@ -37,7 +37,7 @@
         "NODE_PATH": "./src",
         "NODE_ENV": "production",
         "PORT": 8080,
-        "APIROOT": "//data-api-dot-mlab-sandbox.appspot.com"
+        "APIROOT": "//data-api-dot-mlab-oti.appspot.com"
       }
     },
     "start-dev": {
@@ -69,7 +69,7 @@
       "command": "webpack --verbose --colors --display-error-details --config webpack/prod.config.js",
       "env": {
         "NODE_ENV": "production",
-        "APIROOT": "//data-api-dot-mlab-sandbox.appspot.com"
+        "APIROOT": "//data-api-dot-mlab-oti.appspot.com"
       }
     }
   },
