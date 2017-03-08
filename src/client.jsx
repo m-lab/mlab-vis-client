@@ -11,6 +11,7 @@ import { useScroll } from 'react-router-scroll';
 import createStore from './redux/createStore';
 import api from './api/api';
 import getRoutes from './routes';
+import { logPageView } from './analytics.js';
 
 const dest = document.getElementById('content');
 let store;
@@ -34,10 +35,11 @@ const scrollMiddleware = useScroll((prevRouterProps, { location }) => (
 ));
 
 const component = (
-  <Router history={history} render={applyRouterMiddleware(scrollMiddleware)} >
+  <Router history={history} render={applyRouterMiddleware(scrollMiddleware)} onUpdate={logPageView}>
     {getRoutes(store)}
   </Router>
 );
+
 
 ReactDOM.render(
   <Provider store={store} key="provider">
