@@ -35,14 +35,14 @@ class App extends PureComponent {
         <Navbar>
           <Navbar.Header>
             <Navbar.Brand>
-              <a href="https://www.measurementlab.net/">
+              <a href="/">
                 <img alt="M-Lab" src="/img/mlab_site_logo.png" />
                 <span>viz</span>
               </a>
             </Navbar.Brand>
           </Navbar.Header>        
           <Nav activeKey={1}>
-            <NavItem eventKey={1} href="https://www.measurementlab.net/visualizations/">Visualizations</NavItem>
+            <NavItem eventKey={1} href="/">Visualizations</NavItem>
             <NavItem eventKey={2} href="https://www.measurementlab.net/tests/">Tests</NavItem>
             <NavItem eventKey={3} href="https://www.measurementlab.net/data/">Data</NavItem>
             <NavItem eventKey={4} href="https://www.measurementlab.net/contribute/">Contribute</NavItem>
