@@ -39,8 +39,8 @@ class HomePage extends PureComponent {
         <Helmet title="Home" />
         <div className="feature">
           <h1>Measurement Lab Visualizations</h1>
-          <p>Measurement Lab records and analyzes over <strong>200 million</strong> user generated
-             internet speed tests from over <strong>4,000 cities</strong>.
+          <p>Measurement Lab records and analyzes over <strong>242 million</strong> user generated
+             internet speed tests from over <strong>87,000 cities</strong>.
           </p>
         </div>
         <div className="section no-border">
