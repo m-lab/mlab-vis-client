@@ -41,7 +41,7 @@ module.exports = Object.assign({
           property: 'og:description',
           content: 'Measurement Lab Visualizations - Analyzing internet speeds worldwide.',
         },
-        { property: 'og:image', content: 'static/img/og-image-mlab-viz.png' },
+        { property: 'og:image', content: '/img/og-image-mlab-viz.png' },
         { property: 'og:image:type', content: 'image/png' },
         { property: 'og:image:width', content: '650' },
         { property: 'og:image:height', content: '200' },
