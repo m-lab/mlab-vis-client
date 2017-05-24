@@ -369,7 +369,9 @@ textures:
 sources:
     osm:
         type: TopoJSON #GeoJSON, MVT, TopoJSON
-        url:  https://vector.mapzen.com/osm/all/{z}/{x}/{y}.topojson?api_key=mapzen-25CV9jq
+        url:  https://tile.mapzen.com/mapzen/vector/v1/all/{z}/{x}/{y}.topojson?api_key=mapzen-25CV9jq
+        # url:  http://tile.mapzen.com/mapzen/vector/v1/all/{z}/{x}/{y}.mvt?api_key=mapzen-25CV9jq
+        # url:  https://vector.mapzen.com/osm/all/{z}/{x}/{y}.topojson?api_key=mapzen-25CV9jq
         # url:  //vector.mapzen.com/osm/all/{z}/{x}/{y}.topojson?api_key=vector-tiles-W2tPU-Y
         # url:  http://vector.dev.mapzen.com/osm/all/{z}/{x}/{y}.topojson
         # url:  //localhost:8080//osm/all/{z}/{x}/{y}.topojson
