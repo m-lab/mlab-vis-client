@@ -114,6 +114,7 @@ settings:
 
     boundaries:
         - &country_boundary           '#ccc'
+        - &locality_boundary          '#ccc'
         - &region_boundary            '#ccc'
         - &subregion_boundary         '#ccc'
         - &city_wall                  [0.682,0.682,0.682]
@@ -369,7 +370,9 @@ textures:
 sources:
     osm:
         type: TopoJSON #GeoJSON, MVT, TopoJSON
-        url:  https://vector.mapzen.com/osm/all/{z}/{x}/{y}.topojson?api_key=mapzen-25CV9jq
+        url:  http://tile.mapzen.com/mapzen/vector/v1/all/{z}/{x}/{y}.topojson?api_key=mapzen-25CV9jq
+        # url:  http://tile.mapzen.com/mapzen/vector/v1/all/{z}/{x}/{y}.mvt?api_key=mapzen-25CV9jq
+        # url:  https://vector.mapzen.com/osm/all/{z}/{x}/{y}.topojson?api_key=mapzen-25CV9jq
         # url:  //vector.mapzen.com/osm/all/{z}/{x}/{y}.topojson?api_key=vector-tiles-W2tPU-Y
         # url:  http://vector.dev.mapzen.com/osm/all/{z}/{x}/{y}.topojson
         # url:  //localhost:8080//osm/all/{z}/{x}/{y}.topojson
@@ -1131,7 +1134,7 @@ layers:
         data: { source: osm, layer: earth }
         draw:
             polygons:
-                order: function() { return feature.sort_key; }
+                order: function() { return feature.sort_rank; }
                 color: [1.0,1.0,1.0]
 
     water:
@@ -1139,14 +1142,14 @@ layers:
         draw:
             waves:
                 interactive: true
-                order: function() { return feature.sort_key; }
+                order: function() { return feature.sort_rank; }
                 color: [0.880, 0.880, 0.880]
         later:
             filter: { $zoom: { min: 12 } }
             draw:
                 waves2:
                     color: [0.780, 0.780, 0.780]
-                    order: function() { return feature.sort_key + 1; }
+                    order: function() { return feature.sort_rank + 1; }
 
         lakes:
             filter:
@@ -1193,7 +1196,7 @@ layers:
             filter: { boundary: yes, kind: ocean, $zoom: {min: 1, max: 17} }
             draw:
                 coast:
-                    order: function() { return feature.sort_key; }
+                    order: function() { return feature.sort_rank; }
                     color: [[1,[0.70,0.70,0.70]],[5,[0.60,0.60,0.60]],[6,[0.50,0.50,0.50]]]
                     width: [[2, 1.0px],[6, 1px], [7, 2px],[10, 2px], [14, 2px]]
                     join: round
@@ -1201,7 +1204,7 @@ layers:
             filter: { boundary: yes, kind: ocean, $zoom: {min: 17} }
             draw:
                 coast:
-                    order: function() { return feature.sort_key; }
+                    order: function() { return feature.sort_rank; }
                     color: [0.661, 0.661, 0.661]
                     width: [[14, 4px],[17, 4px],[20, 10px]]
                     join: round
@@ -1209,7 +1212,7 @@ layers:
             filter: { boundary: yes, not: { kind: ocean }, $zoom: { min: 8 } }
             draw:
                 coast:
-                    order: function() { return feature.sort_key; }
+                    order: function() { return feature.sort_rank; }
                     color: [[6, [0.900, 0.900, 0.900]], [10, [0.761, 0.761, 0.761]],[11,[0.50,0.50,0.50]]]
                     width: [[6,0.75px], [10,1.0px], [14,2.0px], [15,2.0px], [16,3.0px]]
                     join: round
@@ -1235,7 +1238,7 @@ layers:
             filter: { kind: [river,canal,stream,dam,ditch,drain], $zoom: { min: 14 }, not: { is_tunnel: true } }
             draw:
                 stream-waves:
-                    order: function() { return feature.sort_key; }
+                    order: function() { return feature.sort_rank; }
                     interactive: true
                     color: [0.840,0.840,0.840]
                     width: [[14,0.5px],[15,2.0px],[17,6.0px],[18,8.0px]]
@@ -1247,7 +1250,7 @@ layers:
         draw:
             lines:
                 interactive: true
-                order: function() { return feature.sort_key || 275; }
+                order: function() { return feature.sort_rank || 275; }
         railway:
             filter: { kind: [railway,train] }
             draw:
@@ -1277,7 +1280,7 @@ layers:
                 color: [[14,'#bbb'],[16,'#999']]
                 width: [[12,0px],[13,0.25px],[14,0.4px],[15,0.75px],[16,0.75px],[18,1px]]
                 # let roads sort themselves past zoom 14
-                order: function() { return feature.sort_key; }
+                order: function() { return feature.sort_rank; }
                 # but give them all the same outline
                 outline:
                     order: 354
@@ -1287,7 +1290,7 @@ layers:
                 lines:
                     outline:
                         # except bridges and tunnels, their outlines should also self-sort
-                        order: function() { return feature.sort_key || 305; }
+                        order: function() { return feature.sort_rank || 305; }
         service:
             filter: { service: true }
             draw:
@@ -1330,7 +1333,7 @@ layers:
                 interactive: true
                 #color: black
                 width: 1px
-                order: function() { return feature.sort_key; }
+                order: function() { return feature.sort_rank; }
                 # but give them all the same outline
                 outline:
                     order: 352
@@ -1346,7 +1349,7 @@ layers:
             draw:
                 lines:
                     outline:
-                        order: function() { return feature.sort_key; }
+                        order: function() { return feature.sort_rank; }
         bridges-tunnels:
             filter: { any: [is_bridge: yes, is_tunnel: yes] }
             draw:
@@ -1354,7 +1357,7 @@ layers:
                     #cap: butt
                     outline:
                         # except bridges and tunnels, their outlines should also self-sort
-                        order: function() { return feature.sort_key; }
+                        order: function() { return feature.sort_rank; }
 
         # default outlines starting at zoom 16
         default-outline-width:
@@ -1601,13 +1604,13 @@ layers:
                         lines:
                             order: 352
                             outline:
-                                order: function() { return feature.sort_key + 2; }
+                                order: function() { return feature.sort_rank + 2; }
                     primary:
                         filter: { kind: [primary] }
                         draw:
                             lines:
                                 outline:
-                                    order: function() { return feature.sort_key + 1; }
+                                    order: function() { return feature.sort_rank + 1; }
                 routes:
                     filter: { ref: true }
                     draw:
@@ -1621,7 +1624,7 @@ layers:
                         filter: { $zoom: { max: 16 } }
                         draw:
                             lines:
-                                order: function() { return feature.sort_key + 2; }
+                                order: function() { return feature.sort_rank + 2; }
                                 outline:
                                     order: 353
                     # national-routes:
@@ -1828,7 +1831,7 @@ layers:
                         lines:
                             order: 352
                             outline:
-                                order: 353 #function() { return feature.sort_key + 2; }
+                                order: 353 #function() { return feature.sort_rank + 2; }
                 routes:
                     filter: { ref: true, $zoom: { min: 12} }
                     draw:
@@ -1842,7 +1845,7 @@ layers:
                         filter: { $zoom: { max: 15 } }
                         draw:
                             lines:
-                                order: function() { return feature.sort_key + 2; }
+                                order: function() { return feature.sort_rank + 2; }
                                 outline:
                                     order: 353
                     tunnel:
@@ -1996,7 +1999,7 @@ layers:
                         lines:
                             order: 352
                             outline:
-                                order: function() { return feature.sort_key + 3; }
+                                order: function() { return feature.sort_rank + 3; }
                 routes:
                     filter: { ref: true, $zoom: { min: 12} }
                     draw:
@@ -2010,7 +2013,7 @@ layers:
                         filter: { $zoom: { max: 15 } }
                         draw:
                             lines:
-                                order: function() { return feature.sort_key + 3; }
+                                order: function() { return feature.sort_rank + 3; }
                                 outline:
                                     order: 353
                     tunnel:
@@ -2511,7 +2514,7 @@ layers:
                     - highway: steps
             draw:
                 dashedline:
-                    order: function() { return feature.sort_key; }
+                    order: function() { return feature.sort_rank; }
                     color: [1.0,1.0,1.0]
                     width: [[15, 0.5], [16, 0.75px], [17, 1px], [18, 2px], [19, 1.5m]]
                     outline:
@@ -2917,19 +2920,19 @@ layers:
         draw:
             lines:
                 interactive: true
-                order: function() { return feature.sort_key; }
+                order: function() { return feature.sort_rank; }
 #                color: red
 #                width: [[9, 1px], [14, 2px], [16, 3px], [17, 8m]]
         country:
             filter:
                 any:
                     - type: country
-                    - kind: nation
+                    - kind: [nation, country]
                     - admin_level: 2
             draw:
                 country-outerline:
                     style: lines
-                    order: function() { return (feature.sort_key -1); }
+                    order: function() { return (feature.sort_rank -1); }
                     color: [[0, [0.70,0.70,0.70]], [6, [0.815,0.815,0.815]]]
                     width: [[0, 0.5px], [2, 0.75px], [5, 1.7px], [6, 3.5px], [7, 4px], [9, 5px], [14, 7px], [16, 8px], [17, 14m]]
                 lines:
@@ -6211,31 +6214,31 @@ layers:
         data: { source: osm }
         draw:
             park-dots1:
-                order: function() { return feature.sort_key; }
+                order: function() { return feature.sort_rank; }
                 visible: false
             medium-dots:
-                order: function() { return feature.sort_key; }
+                order: function() { return feature.sort_rank; }
                 visible: false
             horizontal-bars:
-                order: function() { return feature.sort_key; }
+                order: function() { return feature.sort_rank; }
                 visible: false
             horizontal-bars-rev:
-                order: function() { return feature.sort_key; }
+                order: function() { return feature.sort_rank; }
                 visible: false
             dots-rev:
-                order: function() { return feature.sort_key; }
+                order: function() { return feature.sort_rank; }
                 visible: false
             pixel-pattern-light:
-                order: function() { return feature.sort_key; }
+                order: function() { return feature.sort_rank; }
                 visible: false
             pixel-pattern-bright:
-                order: function() { return feature.sort_key; }
+                order: function() { return feature.sort_rank; }
                 visible: false
             pixel-pattern-dark:
-                order: function() { return feature.sort_key; }
+                order: function() { return feature.sort_rank; }
                 visible: false
             polygons:
-                order: function() { return feature.sort_key; }
+                order: function() { return feature.sort_rank; }
         tier1:
             filter:
                 any:
@@ -6343,7 +6346,7 @@ layers:
                 filter: { kind: nature_reserve, $zoom: { min: 7 } }
                 draw:
                     pixel-pattern-light:
-                        order: function() { return feature.sort_key; }
+                        order: function() { return feature.sort_rank; }
                 wilderness-areas:
                     filter: function() { return feature.name && feature.name.indexOf("Wilderness") > -1 }
                     draw:
@@ -6667,14 +6670,14 @@ layers:
                 - aviary
         draw:
             dots:
-                order: function() { return feature.sort_key; }
+                order: function() { return feature.sort_rank; }
                 visible: false
             dots-rev:
-                order: function() { return feature.sort_key; }
+                order: function() { return feature.sort_rank; }
                 visible: false
             polygons:
                 visible: false
-                order: function() { return feature.sort_key; }
+                order: function() { return feature.sort_rank; }
         runway:
             filter:
                 kind: runway
