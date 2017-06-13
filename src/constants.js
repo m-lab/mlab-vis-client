@@ -5,7 +5,8 @@ import d3 from 'd3';
 import moment from 'moment';
 
 export const defaultStartDate = moment().subtract(1, 'year');
-export const defaultEndDate = moment();
+// temporarily set this to June 1st until pipeline is fixed
+export const defaultEndDate = moment('20170601', 'YYYYMMDD');
 
 export const timeAggregations = [
   { value: 'day', label: 'Day' },
