@@ -1193,7 +1193,7 @@ layers:
                 waves:
                     color: [0.880, 0.880, 0.880]
         water-boundary-ocean-early:
-            filter: { boundary: yes, kind: ocean, $zoom: {min: 1, max: 17} }
+            filter: { boundary: true, kind: ocean, $zoom: {min: 1, max: 17} }
             draw:
                 coast:
                     order: function() { return feature.sort_rank; }
@@ -1201,7 +1201,7 @@ layers:
                     width: [[2, 1.0px],[6, 1px], [7, 2px],[10, 2px], [14, 2px]]
                     join: round
         water-boundary-ocean-late:
-            filter: { boundary: yes, kind: ocean, $zoom: {min: 17} }
+            filter: { boundary: true, kind: ocean, $zoom: {min: 17} }
             draw:
                 coast:
                     order: function() { return feature.sort_rank; }
@@ -1209,7 +1209,7 @@ layers:
                     width: [[14, 4px],[17, 4px],[20, 10px]]
                     join: round
         water_boundaries-not-ocean:
-            filter: { boundary: yes, not: { kind: ocean }, $zoom: { min: 8 } }
+            filter: { boundary: true, not: { kind: ocean }, $zoom: { min: 8 } }
             draw:
                 coast:
                     order: function() { return feature.sort_rank; }
@@ -1285,7 +1285,7 @@ layers:
                 outline:
                     order: 354
         bridges-tunnels:
-            filter: { any: [is_bridge: yes, is_tunnel: yes] }
+            filter: { any: [is_bridge: true, is_tunnel: true] }
             draw:
                 lines:
                     outline:
@@ -1351,7 +1351,7 @@ layers:
                     outline:
                         order: function() { return feature.sort_rank; }
         bridges-tunnels:
-            filter: { any: [is_bridge: yes, is_tunnel: yes] }
+            filter: { any: [is_bridge: true, is_tunnel: true] }
             draw:
                 lines:
                     #cap: butt
@@ -1411,7 +1411,7 @@ layers:
                         color: [[8, [1.0,1.0,1.0]], [15, [1.0,1.0,1.0]], [16, [0.00,0.00,0.00]]]
                         width: [[8,0px], [15,0px], [16, 3px], [17, 4px], [18, 5px], [19, 6px]]
             link:
-                filter: { is_link: yes } # on- and off-ramps, etc
+                filter: { is_link: true } # on- and off-ramps, etc
                 draw:
                     lines:
                         #color: *highway_link1
@@ -1426,7 +1426,7 @@ layers:
                         lines:
                             order: 352
                 tunnel-link:
-                    filter: {is_tunnel: yes, $zoom: {min: 13} }
+                    filter: {is_tunnel: true, $zoom: {min: 13} }
                     draw:
                         lines:
                             color: [[13,*highway_tunnel1], [14,*highway_tunnel1], [15,[0.8,0.8,0.8]], [16,[0.970,0.970,0.970]]]
@@ -1434,7 +1434,7 @@ layers:
                                 color: [[13, *highway_tunnel_casing1], [15, *highway_tunnel_casing1], [16, [0.80,0.80,0.80]]]
                                 width: [[9, 0px], [15, 0px], [16, 1px], [17, 1px], [18, 2px]]
             tunnel:
-                filter: {is_tunnel: yes, $zoom: {min: 13} }
+                filter: {is_tunnel: true, $zoom: {min: 13} }
                 draw:
                     lines:
                         color: [[13,*highway_tunnel1], [14,*highway_tunnel1], [15,[0.8,0.8,0.8]], [16,[0.950,0.950,0.950]]]
@@ -1442,7 +1442,7 @@ layers:
                             color: [[13, *highway_tunnel_casing1], [15, *highway_tunnel_casing1], [16, [0.85,0.85,0.85]]]
                             width: [[8,0px], [15,0px], [16, 3px], [17, 4px], [18, 5px], [19, 6px]]
             highway_bridge:
-                filter: {is_bridge: yes}
+                filter: {is_bridge: true}
                 draw:
                     lines:
                         cap: round
@@ -1638,7 +1638,7 @@ layers:
                     #                 color: [1.0,1.0,1.0]
                     #                 width: 2px
                     tunnel:
-                        filter: {is_tunnel: yes, $zoom: {min: 13} }
+                        filter: {is_tunnel: true, $zoom: {min: 13} }
                         draw:
                             lines:
                                 color: [[13,[0.70,0.70,0.70]], [14,[0.70,0.70,0.70]], [15,[0.8,0.8,0.8]], [16,[0.950,0.950,0.950]]]
@@ -1800,7 +1800,7 @@ layers:
                                 size: [[18,13px],[19,16px]]
                                 stroke: { color: *text_stroke, width: 6 }
             link:
-                filter: { is_link: yes } # on- and off-ramps, etc
+                filter: { is_link: true } # on- and off-ramps, etc
                 draw:
                     lines:
                         color: [[10, [0.4,0.4,0.4]], [14, [0.75,0.75,0.75]], [15, [0.89, 0.89, 0.89]], [16, [1.0,1.0,1.0]]]
@@ -1809,7 +1809,7 @@ layers:
                             color: [[10, [1.0,1.0,1.0]], [15, [0.50,0.50,0.50]], [16, [0.00,0.00,0.00]]]
                             width: [[10, 0px], [14, 0px], [15, 0px], [16, 1px], [17, 1px], [18, 1px]]
             tunnel:
-                filter: {is_tunnel: yes, $zoom: {min: 13} }
+                filter: {is_tunnel: true, $zoom: {min: 13} }
                 draw:
                     lines:
                         color: [[13,[0.70,0.70,0.70]], [14,[0.70,0.70,0.70]], [15,[0.8,0.8,0.8]], [16,[0.950,0.950,0.950]]]
@@ -1849,7 +1849,7 @@ layers:
                                 outline:
                                     order: 353
                     tunnel:
-                        filter: {is_tunnel: yes, $zoom: {min: 13} }
+                        filter: {is_tunnel: true, $zoom: {min: 13} }
                         draw:
                             lines:
                                 color: [[13,[0.70,0.70,0.70]], [14,[0.70,0.70,0.70]], [15,[0.8,0.8,0.8]], [16,[0.85,0.85,0.85]], [17,[0.950,0.950,0.950]]]
@@ -2017,14 +2017,14 @@ layers:
                                 outline:
                                     order: 353
                     tunnel:
-                        filter: {is_tunnel: yes, $zoom: {min: 13} }
+                        filter: {is_tunnel: true, $zoom: {min: 13} }
                         draw:
                             lines:
                                 color: *major_tunnel1
                                 outline:
                                     color: *major_tunnel_casing1
                 link:
-                    filter: { is_link: yes } # on- and off-ramps, etc
+                    filter: { is_link: true } # on- and off-ramps, etc
                     draw:
                         lines:
                             color: [[14, [0.75,0.75,0.75]], [15, [0.60, 0.60, 0.60]], [16, [0.3,0.3,0.3]], [17, [1.00,1.00,1.00]]]
@@ -2206,14 +2206,14 @@ layers:
                             width: [[11, 1px], [16, 0px], [17, 1.5px]]
 
             tunnel:
-                filter: {is_tunnel: yes, $zoom: {min: 13} }
+                filter: {is_tunnel: true, $zoom: {min: 13} }
                 draw:
                     lines:
                         color: *minor_tunnel1
                         outline:
                             color: *minor_tunnel_casing1
             minor_road_bridge:
-                filter: { is_bridge: yes }
+                filter: { is_bridge: true }
                 draw:
                     lines:
                         cap: round
@@ -2387,7 +2387,7 @@ layers:
                             color: [0.790,0.790,0.790]
                             width: [[14, 0.0px], [15, 0.35px], [16, 0.45px], [17, 0.85px], [18, 1px]]
             bridge:
-                filter: { is_bridge: yes }
+                filter: { is_bridge: true }
                 draw:
                     lines:
                         width: [[14, 0.35px], [15, 0px], [16, 0.25px], [17, 3px], [18, 3px], [19, 4px]]
@@ -2488,7 +2488,7 @@ layers:
                         color: [0.790,0.790,0.790]
                         width: [[14, 0.0px], [15, 0.35px], [16, 0.45px], [17, 0.85px], [18, 1px]]
             bridge:
-                filter: { is_bridge: yes }
+                filter: { is_bridge: true }
                 draw:
                     lines:
                         cap: butt
@@ -2900,7 +2900,7 @@ layers:
             $zoom: { min: 20 }
             any:
                 - kind: address
-                - { label_position: yes, addr_housenumber: true, name: false }
+                - { label_position: true, addr_housenumber: true, name: false }
         draw:
             text-blend-order:
                 interactive: true
@@ -2940,7 +2940,7 @@ layers:
                     color: [1.0,1.0,1.0]
                     width: [[0, 0px], [5, 0px], [6, 1px], [7, 1px], [9, 1px]]
             water:
-                filter: { maritime_boundary: yes }
+                filter: { maritime_boundary: true }
                 draw:
                     country-outerline:
                         visible: false
@@ -2960,7 +2960,7 @@ layers:
                     color: *region_boundary
                     width: [[0, 0.5px], [5, 0.5px], [9, 3.5px], [14, 5.5px], [16, 6.5px], [17, 16m]]
             water:
-                filter: { maritime_boundary: yes }
+                filter: { maritime_boundary: true }
                 draw:
                     lines:
                         visible: false
@@ -3354,7 +3354,7 @@ layers:
                             visible: *icon_visible_populated_places
                             sprite: townspot-m-rev
                     capital:
-                        filter: { capital: yes }
+                        filter: { capital: true }
                         draw:
                             text-blend-order:
                                 offset: [0, 4px] # half icon size
@@ -3381,7 +3381,7 @@ layers:
                             visible: *icon_visible_populated_places
                             sprite: townspot-s-rev
                     capital:
-                        filter: { capital: yes }
+                        filter: { capital: true }
                         draw:
                             text-blend-order:
                                 offset: [0, 3px] # half icon size
@@ -3408,7 +3408,7 @@ layers:
                             visible: *icon_visible_populated_places
                             sprite: townspot-s-rev
                     capital:
-                        filter: { capital: yes }
+                        filter: { capital: true }
                         draw:
                             text-blend-order:
                                 offset: [0, 3px] # half icon size
@@ -3437,7 +3437,7 @@ layers:
                             visible: *icon_visible_populated_places
                             sprite: townspot-l-rev
                     capital:
-                        filter: { capital: yes }
+                        filter: { capital: true }
                         draw:
                             text-blend-order:
                                 offset: [0, 4px] # half icon size
@@ -3464,7 +3464,7 @@ layers:
                             visible: *icon_visible_populated_places
                             sprite: townspot-m-rev
                     capital:
-                        filter: { capital: yes }
+                        filter: { capital: true }
                         draw:
                             text-blend-order:
                                 offset: [0, 3px] # half icon size
@@ -3491,7 +3491,7 @@ layers:
                             sprite: townspot-s-rev
                             priority: 15
                     capital:
-                        filter: { capital: yes }
+                        filter: { capital: true }
                         draw:
                             text-blend-order:
                                 offset: [0, 3px] # half icon size
@@ -3520,7 +3520,7 @@ layers:
                             sprite: townspot-l-rev
                             priority: 7
                     capital:
-                        filter: { capital: yes }
+                        filter: { capital: true }
                         draw:
                             text-blend-order:
                                 offset: [0, 4px] # half icon size
@@ -3547,7 +3547,7 @@ layers:
                             sprite: townspot-m-rev
                             priority: 13
                     capital:
-                        filter: { capital: yes }
+                        filter: { capital: true }
                         draw:
                             text-blend-order:
                                 offset: [0, 4px] # half icon size
@@ -3574,7 +3574,7 @@ layers:
                             sprite: townspot-s-rev
                             priority: 17
                     capital:
-                        filter: { capital: yes }
+                        filter: { capital: true }
                         draw:
                             text-blend-order:
                                 offset: [0, 3px] # half icon size
@@ -3612,7 +3612,7 @@ layers:
                             sprite: townspot-m-rev
                             priority: 7
                     capital:
-                        filter: { capital: yes }
+                        filter: { capital: true }
                         draw:
                             text-blend-order:
                                 offset: [0, 4px] # half icon size
@@ -3640,7 +3640,7 @@ layers:
                             sprite: townspot-m-rev
                             priority: 11
                     capital:
-                        filter: { capital: yes }
+                        filter: { capital: true }
                         draw:
                             text-blend-order:
                                 offset: [0, 3px] # half icon size
@@ -3669,7 +3669,7 @@ layers:
                             sprite: townspot-m-rev
                             priority: 15
                     capital:
-                        filter: { capital: yes }
+                        filter: { capital: true }
                         draw:
                             text-blend-order:
                                 offset: [0, 3px] # half icon size
@@ -3698,7 +3698,7 @@ layers:
                             sprite: townspot-s-rev
                             priority: 19
                     capital:
-                        filter: { capital: yes }
+                        filter: { capital: true }
                         draw:
                             text-blend-order:
                                 offset: [0, 3px] # half icon size
@@ -3712,8 +3712,8 @@ layers:
                         all:
                             - { population: { max: 50000 } }
                         any:
-                            - { capital: yes }
-                            - { state_capital: yes }
+                            - { capital: true }
+                            - { state_capital: true }
                     draw:
                         text-blend-order:
                             visible: *text_visible_populated_places
@@ -3729,7 +3729,7 @@ layers:
                             sprite: townspot-s-rev
                             priority: 19
                     capital:
-                        filter: { capital: yes }
+                        filter: { capital: true }
                         draw:
                             text-blend-order:
                                 offset: [0, 3px] # half icon size
@@ -3758,7 +3758,7 @@ layers:
                             sprite: townspot-l-rev
                             priority: 23
                     capital:
-                        filter: { capital: yes }
+                        filter: { capital: true }
                         draw:
                             text-blend-order:
                                 offset: [0, 4px] # half icon size
@@ -3782,7 +3782,7 @@ layers:
                             visible: *icon_visible_populated_places
                             sprite: townspot-m-rev
                     capital:
-                        filter: { capital: yes }
+                        filter: { capital: true }
                         draw:
                             icons:
                                 sprite: capital-m
@@ -3803,7 +3803,7 @@ layers:
                             sprite: townspot-s-rev
                             priority: 27
                     capital:
-                        filter: { capital: yes }
+                        filter: { capital: true }
                         draw:
                             text-blend-order:
                                 priority: 26
@@ -3867,7 +3867,7 @@ layers:
                             sprite: townspot-m-rev
                             priority: 11
                     capital:
-                        filter: { capital: yes }
+                        filter: { capital: true }
                         draw:
                             text-blend-order:
                                 priority: 10
@@ -3894,7 +3894,7 @@ layers:
                             sprite: townspot-m-rev
                             priority: 15
                     capital:
-                        filter: { capital: yes }
+                        filter: { capital: true }
                         draw:
                             text-blend-order:
                                 priority: 14
@@ -3923,7 +3923,7 @@ layers:
                             sprite: townspot-s-rev
                             priority: 19
                     capital:
-                        filter: { capital: yes }
+                        filter: { capital: true }
                         draw:
                             text-blend-order:
                                 priority: 18
@@ -3935,8 +3935,8 @@ layers:
                         all:
                             - { population: { max: 50000 } }
                         any:
-                            - { capital: yes }
-                            - { state_capital: yes }
+                            - { capital: true }
+                            - { state_capital: true }
                     draw:
                         text-blend-order:
                             visible: *text_visible_populated_places
@@ -3952,7 +3952,7 @@ layers:
                             sprite: townspot-s-rev
                             priority: 19
                     capital:
-                        filter: { capital: yes }
+                        filter: { capital: true }
                         draw:
                             text-blend-order:
                                 priority: 18
@@ -4004,7 +4004,7 @@ layers:
                             sprite: townspot-l-rev
                             priority: 25
                     capital:
-                        filter: { capital: yes }
+                        filter: { capital: true }
                         draw:
                             text-blend-order:
                                 priority: 24
@@ -4028,7 +4028,7 @@ layers:
                             sprite: townspot-m-rev
                             priority: 29
                     capital:
-                        filter: { capital: yes }
+                        filter: { capital: true }
                         draw:
                             text-blend-order:
                                 priority: 27
@@ -4052,7 +4052,7 @@ layers:
                             sprite: townspot-m-rev
                             priority: 33
                     capital:
-                        filter: { capital: yes }
+                        filter: { capital: true }
                         draw:
                             text-blend-order:
                                 priority: 32
@@ -4209,7 +4209,7 @@ layers:
                             sprite: townspot-m-rev
                             priority: 21
                     capital:
-                        filter: { capital: yes }
+                        filter: { capital: true }
                         draw:
                             text-blend-order:
                                 priority: 21
@@ -4233,7 +4233,7 @@ layers:
                             sprite: townspot-s-rev
                             priority: 25
                     capital:
-                        filter: { capital: yes }
+                        filter: { capital: true }
                         draw:
                             text-blend-order:
                                 priority: 24
@@ -4330,7 +4330,7 @@ layers:
                                 size: 18px
                                 stroke: { color: *text_stroke, width: 4 }
                     capital:
-                        filter: { capital: yes }
+                        filter: { capital: true }
                         draw:
                             text-blend-order:
                                 priority: 9
@@ -4348,7 +4348,7 @@ layers:
                                 size: 14px
                                 stroke: { color: *text_stroke, width: 4 }
                     capital:
-                        filter: { capital: yes }
+                        filter: { capital: true }
                         draw:
                             text-blend-order:
                                 priority: 11
@@ -4356,7 +4356,7 @@ layers:
                                     size: 14px
                                     stroke: { color: *text_stroke, width: 4 }
                     state_capital:
-                        filter: { state_capital: yes }
+                        filter: { state_capital: true }
                         draw:
                             text-blend-order:
                                 priority: 12
@@ -4374,7 +4374,7 @@ layers:
                                 size: 11px
                                 stroke: { color: *text_stroke, width: 4 }
                     capital:
-                        filter: { capital: yes }
+                        filter: { capital: true }
                         draw:
                             text-blend-order:
                                 priority: 14
@@ -4486,7 +4486,7 @@ layers:
                                 size: 18px
                                 stroke: { color: *text_stroke, width: 4 }
                     capital:
-                        filter: { capital: yes }
+                        filter: { capital: true }
                         draw:
                             text-blend-order:
                                 priority: 11
@@ -4504,7 +4504,7 @@ layers:
                                 size: 14px
                                 stroke: { color: *text_stroke, width: 4 }
                     capital:
-                        filter: { capital: yes }
+                        filter: { capital: true }
                         draw:
                             text-blend-order:
                                 priority: 13
@@ -4522,7 +4522,7 @@ layers:
                                 size: 11px
                                 stroke: { color: *text_stroke, width: 4 }
                     capital:
-                        filter: { capital: yes }
+                        filter: { capital: true }
                         draw:
                             text-blend-order:
                                 priority: 15
@@ -5432,8 +5432,8 @@ layers:
                 draw:
                     text-blend-order:  { visible: false }
                     icons: { visible: false }
-            yes-early:
-                filter: { kind: [yes], $zoom: { max: 18 } }
+            true-early:
+                filter: { kind: [true], $zoom: { max: 18 } }
                 draw:
                     text-blend-order:  { visible: false }
                     icons: { visible: false }
@@ -5500,7 +5500,7 @@ layers:
                         text-blend-order:
                             visible: false
             tower:
-                filter: { kind: [tower], label_placement: yes }
+                filter: { kind: [tower], label_placement: true }
                 draw:
                     icons:
                         visible: false
@@ -5594,7 +5594,7 @@ layers:
 #                            visible: false
 #            minor-z17-early:
 #                filter:
-#                    kind: [accountant, administrative, advertising_agency, architect, association, atm, bakery, bed_and_breakfast, bicycle, bicycle_parking, bicycle_rental, books, bus_stop, bus_stop, butcher, car, car_repair, chalet, clothes, company, computer, consulting, convenience, doityourself, drinking_water, dry_cleaning, educational_institution, emergency_phone, employment_agency, estate_agent, fashion, financial, florist, foundation, gate, gift, government, greengrocer, guest_house, hairdresser, hostel, hotel, insurance, it, jewelry, lawyer, mast, memorial, mobile_phone, motel, newspaper, ngo, notary, optician, parking, pet, physician, playground, political_party, post_box, religion, research, slipway, subway_entrance, tax_advisor, telecommunication, telephone, theatre, therapist, toilets, traffic_signals, travel_agent, water_tower, yes]
+#                    kind: [accountant, administrative, advertising_agency, architect, association, atm, bakery, bed_and_breakfast, bicycle, bicycle_parking, bicycle_rental, books, bus_stop, bus_stop, butcher, car, car_repair, chalet, clothes, company, computer, consulting, convenience, doityourself, drinking_water, dry_cleaning, educational_institution, emergency_phone, employment_agency, estate_agent, fashion, financial, florist, foundation, gate, gift, government, greengrocer, guest_house, hairdresser, hostel, hotel, insurance, it, jewelry, lawyer, mast, memorial, mobile_phone, motel, newspaper, ngo, notary, optician, parking, pet, physician, playground, political_party, post_box, religion, research, slipway, subway_entrance, tax_advisor, telecommunication, telephone, theatre, therapist, toilets, traffic_signals, travel_agent, water_tower, true]
 #                    area: false
 #                    $zoom: { max: 17 }
 #                draw:
