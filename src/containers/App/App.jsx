@@ -41,14 +41,15 @@ class App extends PureComponent {
               </a>
             </Navbar.Brand>
           </Navbar.Header>        
-          <Nav activeKey={1}>
-            <NavItem eventKey={1} href="/">Visualizations</NavItem>
-            <NavItem eventKey={2} href="https://www.measurementlab.net/tests/">Tests</NavItem>
-            <NavItem eventKey={3} href="https://www.measurementlab.net/data/">Data</NavItem>
-            <NavItem eventKey={4} href="https://www.measurementlab.net/contribute/">Contribute</NavItem>
-            <NavItem eventKey={5} href="https://www.measurementlab.net/blog/">Blog</NavItem>
+          <Nav activeKey={3}>
+            <NavItem eventKey={1} href="/">Home</NavItem>
+            <NavItem eventKey={2} href="https://www.measurementlab.net/about/">About</NavItem>
+            <NavItem eventKey={3} href="/">Visualizations</NavItem>
+            <NavItem eventKey={4} href="https://www.measurementlab.net/data/">Data</NavItem>
+            <NavItem eventKey={5} href="https://www.measurementlab.net/tests/">Tests</NavItem>
             <NavItem eventKey={6} href="https://www.measurementlab.net/publications/">Publications</NavItem>
-            <NavItem eventKey={6} href="https://www.measurementlab.net/about/">About M-Lab</NavItem>
+            <NavItem eventKey={7} href="https://www.measurementlab.net/learn/">Learn</NavItem>
+            <NavItem eventKey={8} href="https://www.measurementlab.net/contribute/">Contribute</NavItem>
           </Nav>
         </Navbar>
         <Navbar bsClass="submenu">      
