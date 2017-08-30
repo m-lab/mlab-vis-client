@@ -42,7 +42,7 @@ class App extends PureComponent {
             </Navbar.Brand>
           </Navbar.Header>        
           <Nav activeKey={3}>
-            <NavItem eventKey={1} href="/">Home</NavItem>
+            <NavItem eventKey={1} href="https://www.measurementlab.net/">Home</NavItem>
             <NavItem eventKey={2} href="https://www.measurementlab.net/about/">About</NavItem>
             <NavItem eventKey={3} href="/">Visualizations</NavItem>
             <NavItem eventKey={4} href="https://www.measurementlab.net/data/">Data</NavItem>
