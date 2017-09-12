@@ -6,7 +6,20 @@
       margin-bottom: 10px;
     }
   }
+  .notification {
+    border-top: 4px solid rgb(155, 210, 199);
+    border-bottom: 4px solid rgb(155, 210, 199);
+    border-left: 4px solid rgb(155, 210, 199);
+    border-right: 4px solid rgb(155, 210, 199);
+    background: rgb(238, 238, 238);
+    margin: 0;
+    padding-left: 10px;
+    padding-right: 10px;
 
+    h3 {
+      margin-top: 0;
+    }
+  }
   .WorldMapContainer {
     margin-top: 15px;
 
