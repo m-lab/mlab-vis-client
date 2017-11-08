@@ -31,7 +31,7 @@ class App extends PureComponent {
 
   renderNav() {
     return (
-      <div>    
+      <div>
         <Navbar>
           <Navbar.Header>
             <Navbar.Brand>
@@ -40,7 +40,7 @@ class App extends PureComponent {
                 <span>viz</span>
               </a>
             </Navbar.Brand>
-          </Navbar.Header>        
+          </Navbar.Header>
           <Nav activeKey={3}>
             <NavItem eventKey={1} href="https://www.measurementlab.net/">Home</NavItem>
             <NavItem eventKey={2} href="https://www.measurementlab.net/about/">About</NavItem>
@@ -52,7 +52,7 @@ class App extends PureComponent {
             <NavItem eventKey={8} href="https://www.measurementlab.net/contribute/">Contribute</NavItem>
           </Nav>
         </Navbar>
-        <Navbar bsClass="submenu">      
+        <Navbar bsClass="submenu">
           <Nav>
             <IndexLinkContainer to="/"><NavItem eventKey={1}>Locations</NavItem></IndexLinkContainer>
             <LinkContainer to="/compare"><NavItem eventKey={4}>Compare</NavItem></LinkContainer>
