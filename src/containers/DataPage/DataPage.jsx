@@ -536,7 +536,7 @@ class DataPage extends PureComponent {
               <p>
                 There are several different ways to access the data used for these visualizations.
                 You can download the data for the individual charts by clicking the CSV or JSON buttons
-                beneath them, you can use the <a href={apiRoot}>REST API</a> that powers these
+                beneath them, you can use the <a href={'http:' + apiRoot}>REST API</a> that powers these
                 visualizations directly, or you can use the interface below.
               </p>
               <p>
