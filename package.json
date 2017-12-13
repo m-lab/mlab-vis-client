@@ -36,8 +36,7 @@
       "env": {
         "NODE_PATH": "./src",
         "NODE_ENV": "production",
-        "PORT": 8080,
-        "APIROOT": "//data-api.measurementlab.net/"
+        "PORT": 8080
       }
     },
     "start-dev": {

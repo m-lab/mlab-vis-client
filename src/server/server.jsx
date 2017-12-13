@@ -108,6 +108,7 @@ if (config.port) {
     console.info('----\n==> ✅  %s is running', config.app.title);
     console.info('==> 💻  Open http://%s:%s in a browser to view the app.',
       config.host, config.port);
+    console.info('==> API service root: ', config.apiRoot);
   });
 } else {
   console.error('==>     ERROR: No PORT environment variable has been specified');

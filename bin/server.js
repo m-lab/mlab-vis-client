@@ -10,6 +10,7 @@ global.__SERVER__ = true;
 global.__DEVELOPMENT__ = process.env.NODE_ENV !== 'production';
 global.__DISABLE_SSR__ = false;
 
+console.log(JSON.stringify(process.env));
 
 if (__DEVELOPMENT__) {
   // If you change this value, also change the value in wepback dev config (dev.config.js)

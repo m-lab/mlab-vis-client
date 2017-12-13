@@ -4,7 +4,7 @@
 
 This project contains the repository for the Measurement Lab visualizations web client - [https://viz.measurementlab.net](https://viz.measurementlab.net)
 
-_mlab-vis-client_ is a NodeJS application using ReactJS. 
+_mlab-vis-client_ is a NodeJS application using ReactJS.
 
 ## General Development Practices
 
@@ -21,6 +21,7 @@ M-Lab follows this general development practice:
 
   * Fork this repo, then clone to your local machine
   * Add a git remote for upstream
+  * Initialize submodules by running `git submodule init` and `git submodule update`
   * Install [NodeJS](https://nodejs.org/en/)
   * Enter the directory where you've cloned your fork of _mlab-vis-client_ and install dependenciesi: `$ npm install`
 
@@ -45,6 +46,11 @@ Now to start the dev server, there are two options:
   * Web Server separate from Webpack Watch
     * Start the web server: `$ npm run start-dev`
     * Start webpack watch: `$ npm run webpack-watch`
+
+If you are running against a local API server, you can overwrite the URL that
+will be used for the api server as part of your run command like so:
+`$ APIROOT=//localhost:8080/ npm run dev`.
+Note that the `//` and final `/` are required.
 
 ### Caching with HardSourceWebpackPlugin
 
@@ -87,7 +93,7 @@ npm run build
 
 ## Deploying to Staging and Production GAE Services
 
-M-Lab maintains separate GCP projects for hosting _staging_ and _production_ instances of the mlab-vis-client application. 
+M-Lab maintains separate GCP projects for hosting _staging_ and _production_ instances of the mlab-vis-client application.
 
   * [_staging_](https://console.cloud.google.com/appengine/services?project=mlab-staging) provides the GAE service, [viz](https://viz-dot-mlab-staging.appspot.com/)
   * [_production_](https://console.cloud.google.com/appengine/services?project=mlab-oti) provides the GAE service, [viz](https://viz.measurementlab.net/)
@@ -96,20 +102,11 @@ Deploying to either staging or production requires the [Google Cloud SDK](https:
 
 ### Deploying Code to GAE
 
-First, set the _project_ property in your Google Cloud SDK configuration. If you are preparing to push changes to _staging_, use _mlab-staging_. If you are preparing to push to production, use the project, _mlab-oti_. 
+To deploy the site to GAE, call:
 
 ```bash
-$ gcloud config set project mlab-staging
+$ KEY_FILE=<your service key> ./deploy.sh -m sandbox|staging|production
 ```
 
 The mlab-vis-client application is configured to deploy to the _viz_ GAE service in the selected project.
 
-Deploy code using either of the following commands:
-
-```bash
-$ npm run deploy
-```
-
-```bash
-$ gcloud app deploy
-```
