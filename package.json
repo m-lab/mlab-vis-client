@@ -21,7 +21,7 @@
     "dev": "concurrently --kill-others \"npm run start-dev\" \"npm run webpack-watch\"",
     "lint": "eslint -c .eslintrc src",
     "postinstall": "npm run webpack-clean-cache && npm run build",
-    "start": "better-npm-run start-prod",
+    "start": "./run.sh -m ${ENV}",
     "start-dev": "better-npm-run start-dev",
     "start-prod": "better-npm-run start-prod",
     "test": "karma start",
