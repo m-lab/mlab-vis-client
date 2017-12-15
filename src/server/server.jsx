@@ -35,7 +35,6 @@ app.use((req, res) => {
     webpackIsomorphicTools.refresh();
   }
 
-
   // react-router history
   const memoryHistory = createHistory(req.originalUrl);
 

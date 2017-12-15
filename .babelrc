@@ -5,6 +5,7 @@
     "transform-runtime",
     "transform-react-display-name",
     "transform-export-extensions",
-    "transform-class-properties"
+    "transform-class-properties",
+    "transform-es2015-classes"
   ]
 }

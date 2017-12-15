@@ -16,14 +16,15 @@
   ],
   "main": "bin/server.js",
   "scripts": {
-    "build": "better-npm-run build",
-    "deploy": "gcloud app deploy",
+    "build": "./build.sh",
+    "deploy": "./deploy.sh -m ${API_MODE}",
     "dev": "concurrently --kill-others \"npm run start-dev\" \"npm run webpack-watch\"",
     "lint": "eslint -c .eslintrc src",
-    "postinstall": "npm run webpack-clean-cache && npm run build",
-    "start": "./run.sh -m ${ENV}",
-    "start-dev": "better-npm-run start-dev",
-    "start-prod": "better-npm-run start-prod",
+    "postinstall": "npm run webpack-clean-cache && env-cmd .env npm run build",
+    "start": "./run.sh",
+    "start-dev": "./run.sh -m development",
+    "start-staging": "./run.sh -m staging",
+    "start-production": "./run.sh -m production",
     "test": "karma start",
     "webpack-dll": "webpack --colors --progress --config webpack/dll.config.js && npm run webpack-clean-cache",
     "webpack-dashboard": "WEBPACK_DASHBOARD=true node webpack/webpack-dev-server.js",
@@ -67,8 +68,7 @@
     "build": {
       "command": "webpack --verbose --colors --display-error-details --config webpack/prod.config.js",
       "env": {
-        "NODE_ENV": "production",
-        "APIROOT": "//data-api.measurementlab.net/"
+        "NODE_ENV": "production"
       }
     }
   },
@@ -80,6 +80,7 @@
     "babel-loader": "^6.2.7",
     "babel-plugin-react-transform": "^2.0.2",
     "babel-plugin-transform-class-properties": "^6.18.0",
+    "babel-plugin-transform-es2015-classes": "^6.24.1",
     "babel-plugin-transform-export-extensions": "^6.8.0",
     "babel-plugin-transform-react-display-name": "^6.8.0",
     "babel-plugin-transform-runtime": "^6.15.0",
@@ -220,6 +221,7 @@
     "babel-eslint": "^7.1.0",
     "chai": "^3.3.0",
     "chai-enzyme": "^0.5.1",
+    "env-cmd": "^7.0.0",
     "enzyme": "^2.4.1",
     "eslint": "^3.6.1",
     "eslint-config-airbnb": "^10.0.1",

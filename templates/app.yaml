@@ -1,6 +1,6 @@
 service: viz
 
-runtime: nodejs
+runtime: custom
 env: flex
 
 automatic_scaling:
@@ -12,3 +12,6 @@ automatic_scaling:
 
 env_variables:
   APIROOT: '{{APIROOT}}'
+  API_MODE: '{{API_MODE}}'
+  NODE_PATH: '{{NODE_PATH}}'
+  NODE_ENV: '{{NODE_ENV}}'

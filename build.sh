@@ -4,7 +4,7 @@ set -e
 set -x
 
 usage() {
-  echo "Usage: $0 -m staging|production|sandbox" $1 1>&2; exit 1;
+  echo "Usage: KEY_FILE=<path> $0 -m staging|production|sandbox" $1 1>&2; exit 1;
 }
 
 DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
@@ -19,16 +19,10 @@ else
         echo "${OPTARG} environment"
         if [[ "${OPTARG}" == production ]]; then
           source $DIR/environments/production.sh
-          cp $DIR/environments/production.sh .env
         elif [[ "${OPTARG}" == staging ]]; then
           source $DIR/environments/staging.sh
-          cp $DIR/environments/staging.sh .env
         elif [[ "${OPTARG}" == sandbox ]]; then
           source $DIR/environments/sandbox.sh
-          cp $DIR/environments/sandbox.sh .env
-        elif [[ "${OPTARG}" == development ]]; then
-          source $DIR/environments/development.sh
-          cp $DIR/environments/development.sh .env
         else
           echo "BAD ARGUMENT TO $0: ${OPTARG}"
           exit 1
@@ -46,6 +40,9 @@ else
   done
 fi
 
-touch src/config.js
-
-node ./bin/server.js
+APIROOT=$APIROOT \
+NODE_ENV=$NODE_ENV \
+NODE_PATH=$NODE_PATH \
+PORT=$PORT \
+webpack --verbose --colors -p --display-error-details \
+    --config webpack/prod.config.js

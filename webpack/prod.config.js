@@ -61,16 +61,14 @@ module.exports = {
     // css files from the extract-text-plugin loader
     new ExtractTextPlugin('[name]-[chunkhash].css', { allChunks: true }),
     new webpack.DefinePlugin({
-      'process.env': {
-        NODE_ENV: '"production"',
-        APIROOT: JSON.stringify(process.env.APIROOT),
-      },
-
+      'process.env.NODE_ENV': '"production"',
+      'process.env.APIROOT': JSON.stringify(process.env.APIROOT),
+      __APIROOT__ : JSON.stringify(process.env.APIROOT),
       __CLIENT__: true,
       __SERVER__: false,
       __DEVELOPMENT__: false,
       __DISABLE_SSR__: false, // <--- Ignores server-side rendering check/warning
-      __DEVTOOLS__: false,  // <-------- DISABLE redux-devtools HERE
+      __DEVTOOLS__: false,    // <-------- DISABLE redux-devtools HERE
       __DEBUG_COMPUTED_PROPS__: false,
     }),
 

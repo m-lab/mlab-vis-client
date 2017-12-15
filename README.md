@@ -87,8 +87,18 @@ npm test
 
 ### Building for Production
 
+API_MODE can be sandbox|staging|production (which all are effectively a production build pointing at an API server within
+the same project) OR development (which is an actual development build.)
+
 ```bash
-npm run build
+API_MODE=staging npm run build
+```
+
+To test whether your build runs as expected you can also run the following command
+which will also match what should be run by GAE.
+
+```bash
+API_MODE=staging npm run start
 ```
 
 ## Deploying to Staging and Production GAE Services
@@ -101,6 +111,9 @@ M-Lab maintains separate GCP projects for hosting _staging_ and _production_ ins
 Deploying to either staging or production requires the [Google Cloud SDK](https://cloud.google.com/sdk/) to be installed on your development system, and your preferred Google account must be given rights to push to both projects.
 
 ### Deploying Code to GAE
+
+Deploying assumes that you have already built the files for the respective
+environment!
 
 To deploy the site to GAE, call:
 

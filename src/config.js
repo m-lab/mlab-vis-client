@@ -5,6 +5,16 @@ if (!theGlobal._babelPolyfill) {
   require('babel-polyfill');
 }
 
+let apiServer = '//data-api.measurementlab.net/';
+if (typeof __APIROOT__ !== "undefined") {
+  apiServer = __APIROOT__;
+} else if (typeof process.env.APIROOT != "undefined") {
+  apiServer = process.env.APIROOT;
+}
+
+console.log(process.env.APIROOT);
+
+
 const environment = {
   development: {
     isProduction: false,
@@ -17,7 +27,7 @@ const environment = {
 module.exports = Object.assign({
   host: process.env.HOST || 'localhost',
   port: process.env.PORT,
-  apiRoot: process.env.APIROOT || '//data-api.measurementlab.net/',
+  apiRoot : apiServer,
 
   // How many API calls the client caches in the LRU cache
   apiCacheLimit: 100,

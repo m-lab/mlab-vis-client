@@ -9,38 +9,51 @@ usage() {
 
 DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
 
-while getopts ":m:d:t:" opt; do
-  case $opt in
-    m)
-      echo "${OPTARG} environment"
-      if [[ "${OPTARG}" == production ]]; then
-        source $DIR/environments/production.sh
-      elif [[ "${OPTARG}" == staging ]]; then
-        source $DIR/environments/staging.sh
-      elif [[ "${OPTARG}" == sandbox ]]; then
-        source $DIR/environments/sandbox.sh
-      else
-        echo "BAD ARGUMENT TO $0: ${OPTARG}"
+if [ -n "${API_MODE}" ]; then
+  source $DIR/environments/$API_MODE.sh
+  cp $DIR/environments/$API_MODE.sh .env
+else
+    while getopts ":m:" opt; do
+    case $opt in
+        m)
+        echo "${OPTARG} environment"
+        if [[ "${OPTARG}" == production ]]; then
+            source $DIR/environments/production.sh
+            cp $DIR/environments/production.sh .env
+        elif [[ "${OPTARG}" == staging ]]; then
+            source $DIR/environments/staging.sh
+            cp $DIR/environments/staging.sh .env
+        elif [[ "${OPTARG}" == sandbox ]]; then
+            source $DIR/environments/sandbox.sh
+            cp $DIR/environments/sandbox.sh .env
+        else
+            echo "BAD ARGUMENT TO $0: ${OPTARG}"
+            exit 1
+        fi
+        ;;
+        \?)
+        echo "Invalid option: -$OPTARG" >&2
         exit 1
-      fi
-      ;;
-    \?)
-      echo "Invalid option: -$OPTARG" >&2
-      exit 1
-      ;;
-    :)
-      echo "Option -$OPTARG requires an argument." >&2
-      exit 1
-      ;;
-  esac
-done
+        ;;
+        :)
+        echo "Option -$OPTARG requires an argument." >&2
+        exit 1
+        ;;
+    esac
+    done
+fi
+
 
 # build app.yaml
 mkdir -p deploy-build
 cp templates/app.yaml deploy-build/
 
 ./travis/substitute_values.sh deploy-build/ \
-    APIROOT ${APIROOT}
+    APIROOT ${APIROOT} \
+    API_MODE ${API_MODE} \
+    NODE_PATH ${NODE_PATH} \
+    NODE_ENV ${NODE_ENV} \
+    PORT ${PORT}
 
 cp deploy-build/app.yaml app.yaml
 
@@ -54,3 +67,4 @@ gcloud app deploy
 # clean up
 rm app.yaml
 rm -rf deploy-build
+rm .env

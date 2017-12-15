@@ -9,8 +9,7 @@ global.__CLIENT__ = false;
 global.__SERVER__ = true;
 global.__DEVELOPMENT__ = process.env.NODE_ENV !== 'production';
 global.__DISABLE_SSR__ = false;
-
-console.log(JSON.stringify(process.env));
+global.__APIROOT__ = process.env.APIROOT;
 
 if (__DEVELOPMENT__) {
   // If you change this value, also change the value in wepback dev config (dev.config.js)
@@ -26,7 +25,6 @@ if (__DEVELOPMENT__) {
   } else {
     pipingIgnoreTest = /(\/\.|~$|\.json$|\.scss$)/i;
   }
-
 
   if (!require('piping')({
       hook: true,

@@ -197,6 +197,7 @@ module.exports = {
         NODE_ENV: '"development"',
         APIROOT: JSON.stringify(process.env.APIROOT),
       },
+      __APIROOT__ : JSON.stringify(process.env.APIROOT),
       __CLIENT__: true,
       __SERVER__: false,
       __DEVELOPMENT__: true,

@@ -1,7 +1,6 @@
 #!/bin/bash
 APIROOT=//data-api.measurementlab.net/
-PROJECT=mlab-oti
 NODE_PATH=./src
-NODE_ENV=production
+NODE_ENV=development
 PORT=8080
-API_MODE=production
+API_MODE=development
