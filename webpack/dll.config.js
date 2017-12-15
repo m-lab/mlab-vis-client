@@ -8,7 +8,7 @@ var webpack = require('webpack');
 var autoprefixer = require('autoprefixer');
 var assetsPath = path.resolve(__dirname, '../static/dist');
 var host = (process.env.HOST || 'localhost');
-var port = (+process.env.PORT + 1) || 3001;
+var port = (+process.env.PORT + 1) || 8081;
 var HardSourceWebpackPlugin = require('hard-source-webpack-plugin');
 
 // https://github.com/halt-hammerzeit/webpack-isomorphic-tools
@@ -195,6 +195,7 @@ module.exports = {
     new webpack.DefinePlugin({
       'process.env': {
         NODE_ENV: '"development"',
+        NODE_PORT: process.env.PORT,
         APIROOT: JSON.stringify(process.env.APIROOT),
       },
       __APIROOT__ : JSON.stringify(process.env.APIROOT),

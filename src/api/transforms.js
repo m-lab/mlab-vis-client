@@ -1,4 +1,4 @@
-import d3 from 'd3';
+import d3 from '../d3';
 import { metrics, ispLabelReplacements } from '../constants';
 import { decodeDate } from '../utils/serialization';
 

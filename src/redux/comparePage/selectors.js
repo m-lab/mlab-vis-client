@@ -1,7 +1,7 @@
 /**
  * Selectors for comparePage
  */
-import d3 from 'd3';
+import d3 from '../../d3';
 import { createSelector } from 'reselect';
 import { metrics, facetTypes } from '../../constants';
 import status from '../status';

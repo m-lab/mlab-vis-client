@@ -30,7 +30,7 @@ export default class Html extends Component {
         <script key="leaflet" src="//cdnjs.cloudflare.com/ajax/libs/leaflet/1.0.0-beta.2/leaflet.js" charSet="UTF-8" />,
         <script key="tangram" src="//mapzen.com/tangram/0.8/tangram.min.js" charSet="UTF-8" />,
         <script key="stamen" src="//stamen-maps.a.ssl.fastly.net/js/tile.stamen.js?v1.3.0" charSet="UTF-8" />,
-        <script key="main" src="//localhost:3001/dist/main.js" charSet="UTF-8" />,
+        <script key="main" src="//localhost:8081/dist/main.js" charSet="UTF-8" />,
       ];
     }
 

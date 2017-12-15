@@ -1,5 +1,5 @@
 import React, { PureComponent, PropTypes } from 'react';
-import d3 from 'd3';
+import d3 from '../../d3';
 import addComputedProps from '../../hoc/addComputedProps';
 
 import { pointToFeature, pointsToLine } from '../../utils/geo';

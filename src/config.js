@@ -26,7 +26,7 @@ const environment = {
 
 module.exports = Object.assign({
   host: process.env.HOST || 'localhost',
-  port: process.env.PORT,
+  port: process.env.NODE_PORT || 8080,
   apiRoot : apiServer,
 
   // How many API calls the client caches in the LRU cache

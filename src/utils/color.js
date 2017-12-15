@@ -1,5 +1,5 @@
 
-import d3 from 'd3';
+import d3 from '../d3';
 import { mod } from './math';
 
 // colors come from: http://tools.medialab.sciences-po.fr/iwanthue/
