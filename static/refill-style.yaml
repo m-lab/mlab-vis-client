@@ -1,6 +1,6 @@
 ﻿# Refill provides a high contrast, black & white basemap useful for data visualization.
 # Give OpenStreetMap data a professional basemap skin using the Tangram graphics library
-# and Mapzen's versatile Vector Tiles.
+# and Nextzen's versatile Vector Tiles.
 #
 # Refill is a modern GL take on Geraldine's work on Toner for Stamen as part of their
 # great CityTracking project. Please use and adapt the open source scene file in
@@ -369,8 +369,8 @@ textures:
 
 sources:
     osm:
-        type: TopoJSON #GeoJSON, MVT, TopoJSON
-        url:  https://tile.mapzen.com/mapzen/vector/v1/all/{z}/{x}/{y}.topojson?api_key=mapzen-tyFU75o
+        type: MVT #TopoJSON #GeoJSON, MVT, TopoJSON
+        url:  https://tile.nextzen.org/tilezen/vector/v1/all/{z}/{x}/{y}.mvt?api_key=Z3Pfk40GTbeRdrn0FVMBPw
         # url:  http://tile.mapzen.com/mapzen/vector/v1/all/{z}/{x}/{y}.mvt?api_key=mapzen-25CV9jq
         # url:  https://vector.mapzen.com/osm/all/{z}/{x}/{y}.topojson?api_key=mapzen-25CV9jq
         # url:  //vector.mapzen.com/osm/all/{z}/{x}/{y}.topojson?api_key=vector-tiles-W2tPU-Y

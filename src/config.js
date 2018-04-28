@@ -34,7 +34,7 @@ module.exports = Object.assign({
   searchCacheLimit: 50, // just those used for search
 
   app: {
-    title: 'MLab Vis',
+    title: 'M-Lab Viz',
     description: 'Measurement Lab Visualizations - Analyzing internet speeds worldwide.',
     head: {
       titleTemplate: '%s - M-Lab Viz',
