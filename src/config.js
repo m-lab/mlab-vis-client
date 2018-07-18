@@ -5,6 +5,16 @@ if (!theGlobal._babelPolyfill) {
   require('babel-polyfill');
 }
 
+let apiServer = '//data-api.measurementlab.net/';
+if (typeof __APIROOT__ !== "undefined") {
+  apiServer = __APIROOT__;
+} else if (typeof process.env.APIROOT != "undefined") {
+  apiServer = process.env.APIROOT;
+}
+
+console.log(process.env.APIROOT);
+
+
 const environment = {
   development: {
     isProduction: false,
@@ -16,15 +26,15 @@ const environment = {
 
 module.exports = Object.assign({
   host: process.env.HOST || 'localhost',
-  port: process.env.PORT,
-  apiRoot: process.env.APIROOT || '//data-api.measurementlab.net/',
+  port: process.env.NODE_PORT || 8080,
+  apiRoot : apiServer,
 
   // How many API calls the client caches in the LRU cache
   apiCacheLimit: 100,
   searchCacheLimit: 50, // just those used for search
 
   app: {
-    title: 'MLab Vis',
+    title: 'M-Lab Viz',
     description: 'Measurement Lab Visualizations - Analyzing internet speeds worldwide.',
     head: {
       titleTemplate: '%s - M-Lab Viz',

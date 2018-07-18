@@ -8,7 +8,7 @@ import {
     DataPage,
     AboutPage,
     NotFoundPage,
-  } from 'containers';
+  } from './containers';
 
 export default () => (
   /**

@@ -10,6 +10,8 @@ import { IndexLink } from 'react-router';
 
 import config from '../../config';
 
+console.log(config);
+
 import '../../assets/base.scss';
 import './App.scss';
 

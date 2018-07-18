@@ -1,5 +1,5 @@
 import React, { PureComponent, PropTypes } from 'react';
-import d3 from 'd3';
+import d3 from '../../d3';
 
 import { colorsFor } from '../../utils/color';
 import { LineChart, CountChart } from '../../components';

@@ -1,7 +1,6 @@
-
 service: viz
 
-runtime: nodejs
+runtime: custom
 env: flex
 
 automatic_scaling:
@@ -10,3 +9,9 @@ automatic_scaling:
   cool_down_period_sec: 120 # default value
   cpu_utilization:
     target_utilization: 0.5
+
+env_variables:
+  APIROOT: '{{APIROOT}}'
+  API_MODE: '{{API_MODE}}'
+  NODE_PATH: '{{NODE_PATH}}'
+  NODE_ENV: '{{NODE_ENV}}'

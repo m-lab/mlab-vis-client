@@ -1,5 +1,5 @@
 import React, { PureComponent, PropTypes } from 'react';
-import d3 from 'd3';
+import d3 from '../../d3';
 import addComputedProps from '../../hoc/addComputedProps';
 
 import { pointToFeature, pointsToLine } from '../../utils/geo';
@@ -232,7 +232,7 @@ class WorldMap extends PureComponent {
         // use our sweet sweet tangram map
         layer = Tangram.leafletLayer({
           scene: 'refill-style.yaml',
-          attribution: '<a href="https://mapzen.com/tangram" target="_blank">Tangram</a> | &copy; OSM contributors | <a href="https://mapzen.com/" target="_blank">Mapzen</a>',
+	  attribution: '<a href="https://mapzen.com/tangram" target="_blank">Ta ngram</a> | <a href="http://www.openstreetmap.org/copyright" target="_blank">© O penStreetMap contributors</a> | <a href="https://www.nextzen.com/" target="_blan k">Nextzen</a>',
         });
       } else {
         // use boring old terrain

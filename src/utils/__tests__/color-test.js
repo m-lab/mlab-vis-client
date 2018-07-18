@@ -1,4 +1,4 @@
-import d3 from 'd3';
+import d3 from '../../d3';
 import { expect } from 'chai';
 import { hashAsn, colorsFor, extractColors } from '../color';
 

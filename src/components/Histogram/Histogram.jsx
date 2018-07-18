@@ -1,5 +1,5 @@
 import React, { PureComponent, PropTypes } from 'react';
-import d3 from 'd3';
+import d3 from '../../d3';
 import { mod } from '../../utils/math';
 import addComputedProps from '../../hoc/addComputedProps';
 

@@ -1,6 +1,6 @@
 import React, { PureComponent, PropTypes } from 'react';
 import Autosuggest from 'react-autosuggest';
-import d3 from 'd3';
+import d3 from '../../d3';
 import classNames from 'classnames';
 
 import { formatNumber, stringToKey } from '../../utils/format';

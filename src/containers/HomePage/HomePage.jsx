@@ -48,7 +48,7 @@ class HomePage extends PureComponent {
           <p>
             M-Lab is transitioning to a new data pipeline that will improve the reliability of its data aggregation system. The transition process will require the publication of data to be paused while we make adjustments to backend systems, which will affect the visualization client. As a result, the charts and data available here temporarily do not include data after May 2017. We apologize for the disruption, and will update our <a href="https://www.measurementlab.net/blog/transitioning-data-pipeline/">Blog Post</a> for updates on the status of the transition.
           </p>
-        </div>        
+        </div>
         <div className="section no-border">
           <h3>Find Your City, Region, or Country</h3>
           <p>
