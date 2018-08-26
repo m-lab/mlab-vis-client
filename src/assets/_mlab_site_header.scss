@@ -125,7 +125,7 @@
       transition: background-color 300ms ease-in-out;
 
       &:hover, &.is-active {
-        background: #afdbd2;
+        background: #666666;
       }
 
       @media screen and (max-width: $screen-sm-min) {
