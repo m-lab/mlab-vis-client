@@ -206,7 +206,7 @@
     "strip-ansi": "^4.0.0",
     "strip-loader": "^0.1.0",
     "style-loader": "^0.13.0",
-    "superagent": "^2.2.0",
+    "superagent": "^3.7.0",
     "symbol-observable": "^1.0.4",
     "timekeeper": "0.1.1",
     "uncontrollable": "^4.1.0",
