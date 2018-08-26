@@ -50,8 +50,9 @@ class App extends PureComponent {
             <NavItem eventKey={4} href="https://www.measurementlab.net/data/">Data</NavItem>
             <NavItem eventKey={5} href="https://www.measurementlab.net/tests/">Tests</NavItem>
             <NavItem eventKey={6} href="https://www.measurementlab.net/publications/">Publications</NavItem>
-            <NavItem eventKey={7} href="https://www.measurementlab.net/learn/">Learn</NavItem>
-            <NavItem eventKey={8} href="https://www.measurementlab.net/contribute/">Contribute</NavItem>
+            <NavItem eventKey={7} href="https://www.measurementlab.net/blog/">Blog</NavItem>
+            <NavItem eventKey={8} href="https://www.measurementlab.net/learn/">Learn</NavItem>
+            <NavItem eventKey={9} href="https://www.measurementlab.net/contribute/">Contribute</NavItem>
           </Nav>
         </Navbar>
         <Navbar bsClass="submenu">
