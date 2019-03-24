@@ -370,7 +370,7 @@ textures:
 sources:
     osm:
         type: MVT #TopoJSON #GeoJSON, MVT, TopoJSON
-        url:  https://tile.nextzen.org/tilezen/vector/v1/all/{z}/{x}/{y}.mvt?api_key=Z3Pfk40GTbeRdrn0FVMBPw
+        url:  https://tile.nextzen.org/tilezen/vector/v1/all/{z}/{x}/{y}.mvt?api_key=QvtSSXrLQnCtGkheQUVIUA
         # url:  http://tile.mapzen.com/mapzen/vector/v1/all/{z}/{x}/{y}.mvt?api_key=mapzen-25CV9jq
         # url:  https://vector.mapzen.com/osm/all/{z}/{x}/{y}.topojson?api_key=mapzen-25CV9jq
         # url:  //vector.mapzen.com/osm/all/{z}/{x}/{y}.topojson?api_key=vector-tiles-W2tPU-Y
