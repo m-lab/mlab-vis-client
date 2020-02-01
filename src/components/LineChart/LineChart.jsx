@@ -1,6 +1,6 @@
 import React, { PureComponent, PropTypes } from 'react';
-import d3 from '../../d3';
 import moment from 'moment';
+import d3 from '../../d3';
 import { multiExtent, findClosestSorted, findEqualSorted } from '../../utils/array';
 import { colorsFor } from '../../utils/color';
 import { standardLineChunkedDefinitions } from '../../utils/chart';
@@ -143,7 +143,7 @@ function visProps(props) {
     .chunk(d => (d.count > threshold ? 'line' : 'below-threshold'))
     .chunkDefinitions(standardLineChunkedDefinitions('#aaa'))
     .transitionInitial(false);
-  
+
   const incidentLineGenerator = d3.line()
     .x((d) => xScale(d.x))
     .y((d) => yScale(d.y));
@@ -186,6 +186,8 @@ class LineChart extends PureComponent {
     idKey: React.PropTypes.string,
     // Whether this is being nested inside an SVG, if true renders a <g>
     inSvg: React.PropTypes.bool,
+    incidentData: React.PropTypes.object,
+    incidentLineGenerator: React.PropTypes.func,
     labelKey: React.PropTypes.string,
     legend: React.PropTypes.object,
     lineChunked: React.PropTypes.func,
@@ -196,6 +198,7 @@ class LineChart extends PureComponent {
     padding: PropTypes.object,
     plotAreaHeight: PropTypes.number,
     plotAreaWidth: PropTypes.number,
+    selectedASN: React.PropTypes.bool,
     // The array of series data (e.g., [{ meta, results }, ...])
     series: PropTypes.array,
     threshold: PropTypes.number,
@@ -270,7 +273,7 @@ class LineChart extends PureComponent {
    * @return {void}
    */
   onMouseMove(mouse) {
-    const { plotAreaHeight, incidentData, selectedASN, onHighlightDate, series, xScale , xKey, yScale } = this.props;
+    const { plotAreaHeight, incidentData, selectedASN, onHighlightDate, series, xScale, xKey, yScale } = this.props;
 
     if (!onHighlightDate) {
       return;
@@ -282,105 +285,110 @@ class LineChart extends PureComponent {
       this.highlightDate.style('display', 'none');
       return;
     }
-    else {
-      this.highlightDate.style('display', 'block');
+    this.highlightDate.style('display', 'block');
 
-      // TODO(amy): this block was outside of the else before, double check this won't break EXISTING functionality
-      let closest;
-      // moving around, find nearest x value.
-      if (series && series.length) {
-        const [mouseX] = mouse;
-        const checkSeries = series[0];
-        closest = findClosestSorted(checkSeries.results, mouseX, d => xScale(d[xKey]))[xKey];
-      }
+    // TODO(amy): this block was outside of the else before, double check this won't break EXISTING functionality
+    let closest;
+    const [mouseX, mouseY] = mouse;
+    // moving around, find nearest x value.
+    if (series && series.length) {
+      const checkSeries = series[0];
+      closest = findClosestSorted(checkSeries.results, mouseX, d => xScale(d[xKey]))[xKey];
+    }
 
-      onHighlightDate(closest); // TODO(amy): this isn't in the demo, see what happens with hover in here
+    onHighlightDate(closest); // TODO(amy): this isn't in the demo, see what happens with hover in here
 
-      this.refLine
-        .attr('x1', xScale(closest))
-        .attr('x2', xScale(closest));
+    this.refLine
+      .attr('x1', xScale(closest))
+      .attr('x2', xScale(closest));
 
-      const highlightedDate = moment(closest);
-      
-      this.infoHoverBox.selectAll('*').remove();
+    const highlightedDate = moment(closest);
 
-      if (selectedASN && incidentData) {
-        for (var incIndex = 0; incIndex < incidentData[selectedASN].length; incIndex++) {
-          
-          // Initialize incident variables
-          const goodDescription = incidentData[selectedASN][incIndex].goodPeriodInfo
-          const badDescription = incidentData[selectedASN][incIndex].badPeriodInfo
-          const incidentDescription = incidentData[selectedASN][incIndex].incidentInfo
+    this.infoHoverBox.selectAll('*').remove();
 
-          const goodYmax = yScale(incidentData[selectedASN][incIndex].goodPeriodMetric);
-          const badYmax = yScale(incidentData[selectedASN][incIndex].badPeriodMetric);
+    if (selectedASN && incidentData) {
+      for (let incIndex = 0; incIndex < incidentData[selectedASN].length; incIndex++) {
+        // Initialize incident variables
+        const goodDescription = incidentData[selectedASN][incIndex].goodPeriodInfo;
+        const badDescription = incidentData[selectedASN][incIndex].badPeriodInfo;
+        const incidentDescription = incidentData[selectedASN][incIndex].incidentInfo;
 
-          const goodWidth = xScale(incidentData[selectedASN][incIndex].goodPeriodEnd) - xScale(incidentData[selectedASN][incIndex].goodPeriodStart);
-          const badWidth = xScale(incidentData[selectedASN][incIndex].badPeriodEnd) - xScale(incidentData[selectedASN][incIndex].badPeriodStart);
-          const goodHeight = plotAreaHeight-goodYmax
-          const badHeight = plotAreaHeight-badYmax
-          const incidentHeight = Math.abs(badYmax - goodYmax)
-          const rectFitsText = (goodWidth > 180) && (badWidth > 180); // NOTE: This also must be manually tuned. It hides hover text in the case 
-                                            // that the area is too small for the text to fit.
-          
-          // Draw the hover state for the good period information
-          if (highlightedDate.isBefore(incidentData[selectedASN][incIndex].goodPeriodEnd) && highlightedDate.isSameOrAfter(incidentData[selectedASN][incIndex].goodPeriodStart) && mouseY > goodYmax) {
-            this.infoHoverBox.append('rect')
-            .classed("good-incident-area", true)
-            .attr('x', xScale(incidentData[selectedASN][incIndex].goodPeriodStart))
-            .attr('y', goodYmax)
-            .attr('width', goodWidth)
-            .attr('height', plotAreaHeight-goodYmax);
+        const goodYmax = yScale(incidentData[selectedASN][incIndex].goodPeriodMetric);
+        const badYmax = yScale(incidentData[selectedASN][incIndex].badPeriodMetric);
 
-            if (rectFitsText) {
-              this.infoHoverBox.append('text')
-              .classed('good-hover-text', true)
-              .attr('x', xScale(incidentData[selectedASN][incIndex].goodPeriodStart) + goodWidth/2)
-              .attr('y', goodYmax + goodHeight/2)
-              .attr("alignment-baseline", "central")
-              .attr("text-anchor", "middle")
-              .text(goodDescription)
-            }
+        const goodWidth = xScale(incidentData[selectedASN][incIndex].goodPeriodEnd)
+          - xScale(incidentData[selectedASN][incIndex].goodPeriodStart);
+        const badWidth = xScale(incidentData[selectedASN][incIndex].badPeriodEnd)
+          - xScale(incidentData[selectedASN][incIndex].badPeriodStart);
+        const goodHeight = plotAreaHeight - goodYmax;
+        const badHeight = plotAreaHeight - badYmax;
+        const incidentHeight = Math.abs(badYmax - goodYmax);
+        // NOTE: This also must be manually tuned. It hides hover text in the case that the area is too small for the text to fit.
+        const rectFitsText = (goodWidth > 180) && (badWidth > 180);
+
+        // Draw the hover state for the good period information
+        if (highlightedDate.isBefore(incidentData[selectedASN][incIndex].goodPeriodEnd)
+          && highlightedDate.isSameOrAfter(incidentData[selectedASN][incIndex].goodPeriodStart)
+          && mouseY > goodYmax) {
+          this.infoHoverBox.append('rect')
+          .classed('good-incident-area', true)
+          .attr('x', xScale(incidentData[selectedASN][incIndex].goodPeriodStart))
+          .attr('y', goodYmax)
+          .attr('width', goodWidth)
+          .attr('height', plotAreaHeight - goodYmax);
+
+          if (rectFitsText) {  // TODO(amy): if there is a problem in rendering hover states, parens might be a cause
+            this.infoHoverBox.append('text')
+            .classed('good-hover-text', true)
+            .attr('x', xScale(incidentData[selectedASN][incIndex].goodPeriodStart) + (goodWidth / 2))
+            .attr('y', goodYmax + (goodHeight / 2))
+            .attr('alignment-baseline', 'central')
+            .attr('text-anchor', 'middle')
+            .text(goodDescription);
           }
+        }
 
-          // Draw the hover state for the bad period information
-          if (highlightedDate.isSameOrBefore(incidentData[selectedASN][incIndex].badPeriodEnd) && highlightedDate.isSameOrAfter(incidentData[selectedASN][incIndex].badPeriodStart) && mouseY > badYmax) {
-            this.infoHoverBox.append('rect')
-            .classed("bad-incident-area", true)
-            .attr('x', xScale(incidentData[selectedASN][incIndex].badPeriodStart))
-            .attr('y', badYmax)
-            .attr('width', badWidth)
-            .attr('height', plotAreaHeight-badYmax)
-            
-            if (rectFitsText) {
-              this.infoHoverBox.append('text')
-              .classed('bad-hover-text', true)            
-              .attr('y', badYmax + badHeight/2)
-              .attr("text-anchor", "middle")
-              .attr("alignment-baseline", "central")
-              .attr('x', xScale(incidentData[selectedASN][incIndex].badPeriodStart) + badWidth/2)
-              .text(badDescription)
-            }
+        // Draw the hover state for the bad period information
+        if (highlightedDate.isSameOrBefore(incidentData[selectedASN][incIndex].badPeriodEnd)
+          && highlightedDate.isSameOrAfter(incidentData[selectedASN][incIndex].badPeriodStart)
+          && mouseY > badYmax) {
+          this.infoHoverBox.append('rect')
+          .classed('bad-incident-area', true)
+          .attr('x', xScale(incidentData[selectedASN][incIndex].badPeriodStart))
+          .attr('y', badYmax)
+          .attr('width', badWidth)
+          .attr('height', plotAreaHeight - badYmax);
+
+          if (rectFitsText) {
+            this.infoHoverBox.append('text')
+            .classed('bad-hover-text', true)
+            .attr('y', badYmax + (badHeight / 2)) // TODO(amy): same here in terms of rendering the hover state as above
+            .attr('text-anchor', 'middle')
+            .attr('alignment-baseline', 'central')
+            .attr('x', xScale(incidentData[selectedASN][incIndex].badPeriodStart) + (badWidth / 2))
+            .text(badDescription);
           }
+        }
 
-          // Draw the hover state for the incident information
-          if (highlightedDate.isSameOrBefore(incidentData[selectedASN][incIndex].badPeriodEnd) && highlightedDate.isSameOrAfter(incidentData[selectedASN][incIndex].badPeriodStart) && mouseY < badYmax && mouseY > goodYmax) {
-            this.infoHoverBox.append('rect')
-            .classed("incident-area", true)
-            .attr('x', xScale(incidentData[selectedASN][incIndex].badPeriodStart))
-            .attr('y', goodYmax)
-            .attr('width', badWidth)
-            .attr('height', badYmax-goodYmax)
+        // Draw the hover state for the incident information
+        if (highlightedDate.isSameOrBefore(incidentData[selectedASN][incIndex].badPeriodEnd)
+          && highlightedDate.isSameOrAfter(incidentData[selectedASN][incIndex].badPeriodStart)
+          && mouseY < badYmax && mouseY > goodYmax) {
+          this.infoHoverBox.append('rect')
+          .classed('incident-area', true)
+          .attr('x', xScale(incidentData[selectedASN][incIndex].badPeriodStart))
+          .attr('y', goodYmax)
+          .attr('width', badWidth)
+          .attr('height', badYmax - goodYmax);
 
-            if (rectFitsText) {
-              this.infoHoverBox.append('text')
-              .classed('incident-hover-text', true)            
-              .attr('y', badYmax - incidentHeight/2)
-              .attr("text-anchor", "middle")
-              .attr("alignment-baseline", "central")
-              .attr('x', xScale(incidentData[selectedASN][incIndex].badPeriodStart) + badWidth/2)
-              .text(incidentDescription)
-            }
+          if (rectFitsText) {
+            this.infoHoverBox.append('text')
+            .classed('incident-hover-text', true)
+            .attr('y', badYmax - (incidentHeight / 2)) // TODO(amy): same here in terms of rendering the hover state as above
+            .attr('text-anchor', 'middle')
+            .attr('alignment-baseline', 'central')
+            .attr('x', xScale(incidentData[selectedASN][incIndex].badPeriodStart) + (badWidth / 2))
+            .text(incidentDescription);
           }
         }
       }
@@ -690,19 +698,26 @@ class LineChart extends PureComponent {
     this.updateIncidentArrow();
 
     if (selectedASN && incidentData) {
-      for (var incIndex = 0; incIndex < incidentData[selectedASN].length; incIndex++) {
-
-        const goodIncidentSeriesArray = [{x: incidentData[selectedASN][incIndex].goodPeriodStart, y: incidentData[selectedASN][incIndex].goodPeriodMetric}, {x: incidentData[selectedASN][incIndex].goodPeriodEnd, y: incidentData[selectedASN][incIndex].goodPeriodMetric} ];
-        const badIncidentSeriesArray = [{x: incidentData[selectedASN][incIndex].badPeriodStart, y: incidentData[selectedASN][incIndex].badPeriodMetric}, {x: incidentData[selectedASN][incIndex].badPeriodEnd, y: incidentData[selectedASN][incIndex].badPeriodMetric} ];
+      for (let incIndex = 0; incIndex < incidentData[selectedASN].length; incIndex++) {
+        const goodIncidentSeriesArray = [
+          { x: incidentData[selectedASN][incIndex].goodPeriodStart,
+            y: incidentData[selectedASN][incIndex].goodPeriodMetric },
+          { x: incidentData[selectedASN][incIndex].goodPeriodEnd,
+            y: incidentData[selectedASN][incIndex].goodPeriodMetric }];
+        const badIncidentSeriesArray = [
+          { x: incidentData[selectedASN][incIndex].badPeriodStart,
+            y: incidentData[selectedASN][incIndex].badPeriodMetric },
+          { x: incidentData[selectedASN][incIndex].badPeriodEnd,
+            y: incidentData[selectedASN][incIndex].badPeriodMetric }];
 
         // Lines for good and bad period medians
         this.goodIncidentLine.append('path')
         .classed('good-incident-line', true)
-        .attr('d', incidentLineGenerator(goodIncidentSeriesArray))
-      
-      this.badIncidentLine.append('path')
+        .attr('d', incidentLineGenerator(goodIncidentSeriesArray));
+
+        this.badIncidentLine.append('path')
         .classed('bad-incident-line', true)
-        .attr('d', incidentLineGenerator(badIncidentSeriesArray))
+        .attr('d', incidentLineGenerator(badIncidentSeriesArray));
       }
     }
   }
@@ -710,7 +725,7 @@ class LineChart extends PureComponent {
   /**
    * Draws the downwards pointing red arrow betewen the good and bad periods.
    * The arrow is drawn using a line and a triangle, positioned on the good and
-   * bad period data that is passed in from props. 
+   * bad period data that is passed in from props.
    */
   updateIncidentArrow() {
     const { incidentData, selectedASN, xScale, yScale } = this.props;
@@ -719,37 +734,40 @@ class LineChart extends PureComponent {
     this.incidentArrowTri.selectAll('*').remove();
 
     if (selectedASN && incidentData) {
-      for (var incIndex = 0; incIndex < incidentData[selectedASN].length; incIndex++) {
+      for (let incIndex = 0; incIndex < incidentData[selectedASN].length; incIndex++) {
         const incidentArrowX = incidentData[selectedASN][incIndex].goodPeriodEnd;
         const triWidth = 20;
         const triHeight = 15;
-        
-        const incidentArrowLineArray = [{x: incidentArrowX, y: incidentData[selectedASN][incIndex].goodPeriodMetric}, {x: incidentArrowX, y: incidentData[selectedASN][incIndex].badPeriodMetric}];
-        
-        
-        const incidentArrowTriArray = [
-          {x: xScale(incidentArrowX), y: yScale(incidentData[selectedASN][incIndex].badPeriodMetric)}, 
-          {x: xScale(incidentArrowX) + triWidth/2, y: yScale(incidentData[selectedASN][incIndex].badPeriodMetric) - triHeight}, 
-          {x: xScale(incidentArrowX) - triWidth/2, y: yScale(incidentData[selectedASN][incIndex].badPeriodMetric) - triHeight}
+
+        const incidentArrowLineArray = [{ x: incidentArrowX, y: incidentData[selectedASN][incIndex].goodPeriodMetric },
+        { x: incidentArrowX, y: incidentData[selectedASN][incIndex].badPeriodMetric }];
+
+        const incidentArrowTriArray = [  // TODO(amy): if an issue with triangle rendering, look here
+          { x: xScale(incidentArrowX),
+            y: yScale(incidentData[selectedASN][incIndex].badPeriodMetric) },
+          { x: xScale(incidentArrowX) + (triWidth / 2),
+            y: yScale(incidentData[selectedASN][incIndex].badPeriodMetric) - triHeight },
+          { x: xScale(incidentArrowX) - (triWidth / 2),
+            y: yScale(incidentData[selectedASN][incIndex].badPeriodMetric) - triHeight },
         ];
 
-        //TRIANGLE
+        // TRIANGLE
         this.incidentArrowTri.append('polygon')
           .classed('incident-arrow-tri', true)
           .data([incidentArrowTriArray])
-          .attr('points', function(d) { 
+          .attr('points', function(d) { // TODO(amy): fix these issues once incident can render
             return d.map(function(d) {
-                return [d.x,d.y].join(",");
-            }).join(" ");
+                return [d.x, d.y].join(',');
+            }).join('');
           });
 
-        //LINE
+        // LINE
         this.incidentArrowLine.append('line')
           .classed('incident-arrow-line', true)
           .attr('x1', xScale(incidentArrowLineArray[0].x))
           .attr('x2', xScale(incidentArrowLineArray[1].x))
           .attr('y1', yScale(incidentArrowLineArray[0].y))
-          .attr('y2', yScale(incidentArrowLineArray[1].y)-triHeight/2);
+          .attr('y2', yScale(incidentArrowLineArray[1].y) - (triHeight / 2));
       }
     }
   }
