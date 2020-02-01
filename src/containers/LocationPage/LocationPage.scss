@@ -12,4 +12,34 @@
     margin-top: 10px;
     margin-bottom: 4px;
   }
+
+  // Incident stylings
+  .exclamation {
+    margin: 0 5px;
+  }
+
+  .isp-select-div {
+    display: inline;
+    margin-left: 25px;
+    max-width: 1000px;
+    min-width: 250px;
+  }
+
+  .show-incident {
+    background-color: rgb(245, 80, 26);
+    border-radius: 8px;
+    box-shadow: 0px 8px 15px rgba(185, 63, 22, 0.4);
+    transition: all 0.3s ease 0s;
+    outline: none;
+    border: none;
+    font-size: 20px;
+    color: #FFF;
+    padding: 6px 12px 6px 6px;
+    display: inline;
+  }
+
+  .upper-row {
+    display: flex;
+    align-items: center;
+  }
 }

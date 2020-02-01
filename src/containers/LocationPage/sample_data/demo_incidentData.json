@@ -1,0 +1,60 @@
+{
+  "AS11486x": [
+    {
+      "goodPeriodStart": "2013-06-01T00:00:00Z",
+      "goodPeriodEnd": "2014-06-01T00:00:00Z",
+      "badPeriodStart": "2014-06-01T00:00:00Z",
+      "badPeriodEnd": "2015-06-01T00:00:00Z",
+      "goodPeriodMetric": 20.046068,
+      "badPeriodMetric": 8.27035,
+      "severity": 0.626146,
+      "numTestsAffected": 4583263,
+      "goodPeriodInfo": "Average download speed: 20.05 mb/s",
+      "badPeriodInfo": "Average download speed: 8.27 mb/s",
+      "incidentInfo": "Download speed dropped by 62.61% affecting 4583263 tests"
+    },
+    {
+      "goodPeriodStart": "2016-01-01T00:00:00Z",
+      "goodPeriodEnd": "2017-01-01T00:00:00Z",
+      "badPeriodStart": "2017-01-01T00:00:00Z",
+      "badPeriodEnd": "2019-04-01T00:00:00Z",
+      "goodPeriodMetric": 31.046068,
+      "badPeriodMetric": 21.27035,
+      "severity": 0.326146,
+      "numTestsAffected": 4788063,
+      "goodPeriodInfo": "Average download speed: 31.05 mb/s",
+      "badPeriodInfo": "Average download speed: 21.27 mb/s",
+      "incidentInfo": "Download speed dropped by 32.61% affecting 4788063 tests"
+    }
+  ],
+  "AS10774x": [
+    {
+      "goodPeriodStart": "2016-01-01T00:00:00Z",
+      "goodPeriodEnd": "2017-01-01T00:00:00Z",
+      "badPeriodStart": "2017-01-01T00:00:00Z",
+      "badPeriodEnd": "2018-01-01T00:00:00Z",
+      "goodPeriodMetric": 15.046068,
+      "badPeriodMetric": 9.27035,
+      "severity": 0.426146,
+      "numTestsAffected": 583263,
+      "goodPeriodInfo": "Average download speed: 15.05 mb/s",
+      "badPeriodInfo": "Average download speed: 9.27 mb/s",
+      "incidentInfo": "Download speed dropped by 42.61% affecting 583263 tests"
+    }
+  ],
+  "AS11404": [
+    {
+      "goodPeriodStart": "2016-01-01T00:00:00Z",
+      "goodPeriodEnd": "2017-01-01T00:00:00Z",
+      "badPeriodStart": "2017-01-01T00:00:00Z",
+      "badPeriodEnd": "2018-01-01T00:00:00Z",
+      "goodPeriodMetric": 40.046068,
+      "badPeriodMetric": 30.27035,
+      "severity": 0.226146,
+      "numTestsAffected": 83263,
+      "goodPeriodInfo": "Average download speed: 40.05 mb/s",
+      "badPeriodInfo": "Average download speed: 30.27 mb/s",
+      "incidentInfo": "Download speed dropped by 22.61% affecting 83263 tests"
+    }
+  ]
+}

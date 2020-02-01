@@ -3,6 +3,7 @@ import Helmet from 'react-helmet';
 import { batchActions } from 'redux-batched-actions';
 import { browserHistory } from 'react-router';
 import momentPropTypes from 'react-moment-proptypes';
+import * as moment from 'moment';
 import Row from 'react-bootstrap/lib/Row';
 import Col from 'react-bootstrap/lib/Col';
 import AutoWidth from 'react-auto-width';
@@ -25,6 +26,7 @@ import {
   MetricSelector,
   TimeAggregationSelector,
   StatusWrapper,
+  Icon,
   IspSelect,
   DateRangeSelector,
   Breadcrumbs,
@@ -65,6 +67,36 @@ const fixedFields = [
   { id: 'lastSixMonths', label: 'Last Six Months' },
   { id: 'lastYear', label: 'Last Year' },
 ];
+
+// reading in the sample incident data, will be replaced once API is implemented
+// eslint-disable-next-line global-require
+const incidentData = require('./sample_data/demo_incidentData.json');
+
+// getting list of isps with incidents to pass into isp select dropdown
+const ispsWithIncidents = [];  // TODO: fix linter loop issues once rendering
+for (const asn in incidentData) {
+  const asnData = {
+    "client_asn_name": asn,
+    "client_asn_number": asn,
+  };
+  ispsWithIncidents.push(asnData);
+}
+
+// convert dates to moment objects within the incidentData object
+if (incidentData) {
+  for (const asn in incidentData) {
+    for (let incIndex = 0; incIndex < incidentData[asn].length; incIndex++) {
+      // TODO(amy): this breaks rendering the whole frontend, FIX THIS!!
+      console.log(incIndex);
+      console.log(incidentData[asn][incIndex]);
+      console.log('///////');
+      // incidentData[asn][incIndex].goodPeriodStart = moment(incidentData[asn][incIndex].goodPeriodStart);
+      // incidentData[asn][incIndex].goodPeriodEnd = moment(incidentData[asn][incIndex].goodPeriodEnd);
+      // incidentData[asn][incIndex].badPeriodStart = moment(incidentData[asn][incIndex].badPeriodStart);
+      // incidentData[asn][incIndex].badPeriodEnd = moment(incidentData[asn][incIndex].badPeriodEnd);
+    }
+  }
+}
 
 function mapStateToProps(state, propsWithUrl) {
   return {
@@ -128,6 +160,10 @@ class LocationPage extends PureComponent {
   constructor(props) {
     super(props);
 
+    this.state = {
+      selected_isp: null, // This is the selected ISP object
+    };
+
     // bind handlers
     this.onHighlightHourly = this.onHighlightHourly.bind(this);
     this.onHighlightTimeSeriesDate = this.onHighlightTimeSeriesDate.bind(this);
@@ -138,6 +174,7 @@ class LocationPage extends PureComponent {
     this.onCompareMetricsChange = this.onCompareMetricsChange.bind(this);
     this.onTimeAggregationChange = this.onTimeAggregationChange.bind(this);
     this.onSelectedClientIspsChange = this.onSelectedClientIspsChange.bind(this);
+    this.onSelectedIncidentClientIspsChange = this.onSelectedIncidentClientIspsChange.bind(this);
     this.onDateRangeChange = this.onDateRangeChange.bind(this);
   }
 
@@ -282,6 +319,31 @@ class LocationPage extends PureComponent {
   onSelectedClientIspsChange(ispIds) {
     const { dispatch } = this.props;
     dispatch(LocationPageActions.changeSelectedClientIspIds(ispIds));
+  }
+
+  /**
+   * Callback for when a line is highlighted in time series
+   */
+  onSelectedIncidentClientIspsChange(selectedASNs) {
+    let selectedIspId;
+    const valLen = selectedASNs.length;
+    if (valLen === 0) {
+      this.setState({ selected_isp: null });
+    } else {
+      if (valLen === 1) {
+        selectedIspId = selectedASNs[0];
+      } else {
+        selectedIspId = selectedASNs[1];
+      }
+
+      let jsonObj = {};
+      for (const obj in ispsWithIncidents) {
+        if (ispsWithIncidents[obj].client_asn_number === selectedIspId) {
+          jsonObj = ispsWithIncidents[obj];
+        }
+      }
+      this.setState({ selected_isp: jsonObj }, () => {});
+    }
   }
 
   /**
@@ -457,6 +519,7 @@ class LocationPage extends PureComponent {
       locationId, locationTimeSeries, timeSeriesStatus, viewMetric, colors,
       annotationTimeSeries } = this.props;
     const chartId = 'providers-time-series';
+    const selected = this.state.selected_isp ? [this.state.selected_isp] : [];
 
     // use location totals as the counts
     const counts = locationTimeSeries && locationTimeSeries.results;
@@ -469,6 +532,26 @@ class LocationPage extends PureComponent {
         <header>
           <h3>Compare Providers</h3>
         </header>
+        {/* TODO(amy): move this to upper right corner within this page */}
+        <div className="upper-row">
+          <div className="show-incident">
+            <Icon
+              name="exclamation"
+              className="exclamation"
+              onClick={undefined}
+            />
+            Incident Found
+          </div>
+          <div className="isp-select-div">
+            <h5>Incident ISPs <HelpTip id="incident-isp-tip" /></h5>
+            <IspSelect
+              isps={ispsWithIncidents}
+              selected={selected}
+              onChange={this.onSelectedIncidentClientIspsChange}
+              placeholder="Show Incident"
+            />
+          </div>
+        </div>
         <StatusWrapper status={timeSeriesStatus}>
           <AutoWidth>
             <LineChartWithCounts
@@ -482,6 +565,8 @@ class LocationPage extends PureComponent {
               highlightDate={highlightTimeSeriesDate}
               onHighlightLine={this.onHighlightTimeSeriesLine}
               highlightLine={highlightTimeSeriesLine}
+              incidentData={incidentData}
+              selectedASN={this.state.selected_isp ? this.state.selected_isp.client_asn_number : null}
               yFormatter={viewMetric.formatter}
               xKey="date"
               yAxisLabel={viewMetric.label}
