@@ -3,7 +3,7 @@ import Helmet from 'react-helmet';
 import { batchActions } from 'redux-batched-actions';
 import { browserHistory } from 'react-router';
 import momentPropTypes from 'react-moment-proptypes';
-import * as moment from 'moment';
+import moment from 'moment';
 import Row from 'react-bootstrap/lib/Row';
 import Col from 'react-bootstrap/lib/Col';
 import AutoWidth from 'react-auto-width';
@@ -86,14 +86,10 @@ for (const asn in incidentData) {
 if (incidentData) {
   for (const asn in incidentData) {
     for (let incIndex = 0; incIndex < incidentData[asn].length; incIndex++) {
-      // TODO(amy): this breaks rendering the whole frontend, FIX THIS!!
-      console.log(incIndex);
-      console.log(incidentData[asn][incIndex]);
-      console.log('///////');
-      // incidentData[asn][incIndex].goodPeriodStart = moment(incidentData[asn][incIndex].goodPeriodStart);
-      // incidentData[asn][incIndex].goodPeriodEnd = moment(incidentData[asn][incIndex].goodPeriodEnd);
-      // incidentData[asn][incIndex].badPeriodStart = moment(incidentData[asn][incIndex].badPeriodStart);
-      // incidentData[asn][incIndex].badPeriodEnd = moment(incidentData[asn][incIndex].badPeriodEnd);
+      incidentData[asn][incIndex].goodPeriodStart = moment(incidentData[asn][incIndex].goodPeriodStart);
+      incidentData[asn][incIndex].goodPeriodEnd = moment(incidentData[asn][incIndex].goodPeriodEnd);
+      incidentData[asn][incIndex].badPeriodStart = moment(incidentData[asn][incIndex].badPeriodStart);
+      incidentData[asn][incIndex].badPeriodEnd = moment(incidentData[asn][incIndex].badPeriodEnd);
     }
   }
 }
