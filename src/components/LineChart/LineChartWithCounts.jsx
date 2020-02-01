@@ -88,6 +88,7 @@ class LineChartWithCounts extends PureComponent {
     // id The ID of the SVG chart (needed for PNG export)
     id: PropTypes.string,
     idKey: PropTypes.string,
+    incidentData: React.PropTypes.object,
     lineChartHeight: PropTypes.number,
     numBins: PropTypes.number,
     // onHighlightDate Callback when the mouse moves across the main area of the chart *   passes in the hovered upon date
@@ -95,6 +96,7 @@ class LineChartWithCounts extends PureComponent {
     // onHighlightLine Callback when a series is highlighted
     onHighlightLine: PropTypes.func,
     padding: PropTypes.object,
+    selectedASN: React.PropTypes.bool,
     // series The array of series data (e.g., [{ meta, results }, ...])
     series: PropTypes.oneOfType([PropTypes.array, PropTypes.object]),
     // width The width in pixels of the SVG chart
@@ -131,7 +133,7 @@ class LineChartWithCounts extends PureComponent {
   render() {
     const { id, width, xKey, annotationSeries, series, highlightLine, highlightDate,
       onHighlightDate, counts, padding, xScale, numBins, colors, idKey, countExtent,
-      lineChartHeight, countChartHeight, highlightCounts } = this.props;
+      lineChartHeight, countChartHeight, highlightCounts, incidentData, selectedASN } = this.props;
 
     const height = lineChartHeight + countChartHeight;
     const highlightColor = highlightLine ? colors[highlightLine.meta[idKey]] : 'rgba(0, 0, 0, 0.08)';
@@ -166,6 +168,8 @@ class LineChartWithCounts extends PureComponent {
               paddingLeft={padding.left}
               paddingRight={padding.right}
               xScale={xScale}
+              incidentData={incidentData}
+              selectedASN={selectedASN}
             />
           </g>
           <g transform={`translate(0 ${lineChartHeight})`}>

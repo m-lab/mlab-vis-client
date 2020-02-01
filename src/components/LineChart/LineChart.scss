@@ -23,4 +23,76 @@
     stroke: #aaa;
     stroke-opacity: 0.5;
   }
+
+  // Incident Styles Variables
+  $good-color: #44BD1D;
+  $bad-color: orangered;
+  $incident-color: red;
+
+  // Incident Styles
+  .incident-arrow-line {
+    stroke-width: 5px !important;
+    stroke: $incident-color;
+  }
+
+  .incident-arrow-tri {
+    stroke-width: 1px !important;
+    fill: $incident-color;
+  }
+
+  .good-incident-line {
+    stroke-width: 3px !important;
+    stroke: $good-color;
+  }
+
+  .good-incident-area {
+    fill: rgb(155, 189, 144);
+    fill-opacity: .5;
+  }
+
+  .bad-incident-line {
+    stroke-width: 3px !important;
+    stroke: $bad-color;
+  }
+
+  .bad-incident-area {
+    fill: #DE8531;
+    fill-opacity: .5;
+  }
+
+  .incident-area {
+    fill: $incident-color;
+    fill-opacity: .3;
+  }
+
+  .good-incident-shading {
+    fill: $good-color;
+    fill-opacity: .5;
+  }
+
+  .bad-incident-shading {
+    fill: $bad-color;
+    fill-opacity: .5;
+  }
+
+  @mixin hover-text {
+    font-size: 13px;
+    font-weight: 400;
+    font-family: Roboto,Helvetica Neue,Helvetica,Arial,sans-serif;
+  }
+
+  .incident-hover-text {
+    @include hover-text;
+    color: $incident-color;
+  }
+
+  .good-hover-text {
+    @include hover-text;
+    color: $good-color;
+  }
+
+  .bad-hover-text {
+    @include hover-text;
+    color: $bad-color;
+  }
 }

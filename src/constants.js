@@ -109,4 +109,5 @@ export const helpTipContent = {
   'fixed-compare-metrics-tip': 'Compare one metric against another over a set of fixed time ranges.',
   'fixed-metric-tip': 'Shows a histogram of metric data broken up into evenly spaced bins. Each bar shows percent of total tests that fall into that bin.',
   'facet-tip': 'Toggle what to aggregate data by.',
+  'incident-isp-tip': 'Select an ISP to show its incidents. Incidents are defined as a sustained 30% or more decrease in median download speeds.',
 };
