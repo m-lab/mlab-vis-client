@@ -96,7 +96,7 @@ class LineChartWithCounts extends PureComponent {
     // onHighlightLine Callback when a series is highlighted
     onHighlightLine: PropTypes.func,
     padding: PropTypes.object,
-    selectedASN: React.PropTypes.bool,
+    selectedASN: React.PropTypes.string,
     // series The array of series data (e.g., [{ meta, results }, ...])
     series: PropTypes.oneOfType([PropTypes.array, PropTypes.object]),
     // width The width in pixels of the SVG chart
