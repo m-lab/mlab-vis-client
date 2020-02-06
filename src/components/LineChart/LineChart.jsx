@@ -296,10 +296,6 @@ class LineChart extends PureComponent {
 
     onHighlightDate(closest);
 
-    this.refLine
-      .attr('x1', xScale(closest))
-      .attr('x2', xScale(closest));
-
     // const highlightedDate = closest;
     const highlightedDate = moment(closest);
 
@@ -425,10 +421,12 @@ class LineChart extends PureComponent {
     this.annotationLines = this.g.append('g').classed('annotation-lines-group', true);
     this.lines = this.g.append('g').classed('lines-group', true);
     this.circles = this.g.append('g').classed('circles-group', true);
+    this.infoHoverBox = this.g.append('g');
     this.goodIncidentLine = this.g.append('g').classed('good-incident-line', true);
     this.badIncidentLine = this.g.append('g').classed('bad-incident-line', true);
     this.incidentArrowLine = this.g.append('g').classed('incident-arrow-line', true);
     this.incidentArrowTri = this.g.append('g').classed('incident-arrow-tri', true);
+    
 
     // container for showing the x highlight date indicator
     this.highlightDate = this.g.append('g').attr('class', 'highlight-date');
@@ -449,14 +447,6 @@ class LineChart extends PureComponent {
       .attr('class', 'highlight-x')
       .attr('dy', 17)
       .attr('text-anchor', 'middle');
-    // add a group to keep track of the hover states for incidents
-    this.refLine = this.highlightDate.append('line')
-      .attr('x1', 0)
-      .attr('x2', 0)
-      .attr('y1', 0)
-      .attr('y2', plotAreaHeight + 3)
-      .attr('class', 'highlight-ref-line');
-    this.infoHoverBox = this.highlightDate.append('g');
 
     // container for showing the highlighted line
     this.highlightLine = this.g.append('g').attr('class', 'highlight-line');
