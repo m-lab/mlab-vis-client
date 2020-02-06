@@ -390,6 +390,7 @@ class LocationPage extends PureComponent {
   renderCityProviders() {
     const { locationInfo } = this.props;
     const locationName = (locationInfo && (locationInfo.shortLabel || locationInfo.label)) || 'Loading...';
+    const selected = this.state.selected_isp ? [this.state.selected_isp] : [];
     return (
       <div className="section">
         <header>
@@ -398,7 +399,31 @@ class LocationPage extends PureComponent {
               <h2>{locationName}</h2>
             </Col>
             <Col md={9}>
-              {this.renderTimeRangeSelector()}
+              <Col md={4}>
+                {this.renderTimeRangeSelector()}
+              </Col>
+              {/* TODO: align this div to the right */}
+              <Col md={8}>
+                <div className="upper-row">
+                  <div className="show-incident">
+                    <Icon
+                      name="exclamation"
+                      className="exclamation"
+                      onClick={undefined}
+                    />
+                    Incident Found
+                  </div>
+                  <div className="isp-select-div">
+                    <h5>Incident ISPs <HelpTip id="incident-isp-tip" /></h5>
+                    <IspSelect
+                      isps={ispsWithIncidents}
+                      selected={selected}
+                      onChange={this.onSelectedIncidentClientIspsChange}
+                      placeholder="Show Incident"
+                    />
+                  </div>
+                </div>
+              </Col>
             </Col>
           </Row>
 
@@ -515,7 +540,6 @@ class LocationPage extends PureComponent {
       locationId, locationTimeSeries, timeSeriesStatus, viewMetric, colors,
       annotationTimeSeries } = this.props;
     const chartId = 'providers-time-series';
-    const selected = this.state.selected_isp ? [this.state.selected_isp] : [];
 
     // use location totals as the counts
     const counts = locationTimeSeries && locationTimeSeries.results;
@@ -528,26 +552,6 @@ class LocationPage extends PureComponent {
         <header>
           <h3>Compare Providers</h3>
         </header>
-        {/* TODO(amy): move this to upper right corner within this page */}
-        <div className="upper-row">
-          <div className="show-incident">
-            <Icon
-              name="exclamation"
-              className="exclamation"
-              onClick={undefined}
-            />
-            Incident Found
-          </div>
-          <div className="isp-select-div">
-            <h5>Incident ISPs <HelpTip id="incident-isp-tip" /></h5>
-            <IspSelect
-              isps={ispsWithIncidents}
-              selected={selected}
-              onChange={this.onSelectedIncidentClientIspsChange}
-              placeholder="Show Incident"
-            />
-          </div>
-        </div>
         <StatusWrapper status={timeSeriesStatus}>
           <AutoWidth>
             <LineChartWithCounts
