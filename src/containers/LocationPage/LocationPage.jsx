@@ -347,9 +347,9 @@ class LocationPage extends PureComponent {
       }
 
       let jsonObj = {};
-      for (const obj in ispsWithIncidents) {
-        if (ispsWithIncidents[obj].client_asn_number === selectedIspId) {
-          jsonObj = ispsWithIncidents[obj];
+      for (const obj in this.ispsWithIncidents) {
+        if (this.ispsWithIncidents[obj].client_asn_number === selectedIspId) {
+          jsonObj = this.ispsWithIncidents[obj];
         }
       }
       this.setState({ selected_isp: jsonObj }, () => {});
@@ -430,7 +430,7 @@ class LocationPage extends PureComponent {
                   <div className="isp-select-div">
                     <h5>Incident ISPs <HelpTip id="incident-isp-tip" /></h5>
                     <IspSelect
-                      isps={ispsWithIncidents}
+                      isps={this.ispsWithIncidents}
                       selected={selected}
                       onChange={this.onSelectedIncidentClientIspsChange}
                       placeholder="Show Incident"
