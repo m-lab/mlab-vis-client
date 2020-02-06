@@ -73,7 +73,7 @@ const fixedFields = [
 const incidentData = require('./sample_data/demo_incidentData.json');
 
 // getting list of isps with incidents to pass into isp select dropdown
-const ispsWithIncidents = [];  // TODO: fix linter loop issues once rendering
+var ispsWithIncidents = [];  // TODO: fix linter loop issues once rendering
 for (const asn in incidentData) {
   const asnData = {
     "client_asn_name": asn,
@@ -390,7 +390,7 @@ class LocationPage extends PureComponent {
   renderCityProviders() {
     const { locationInfo } = this.props;
     const locationName = (locationInfo && (locationInfo.shortLabel || locationInfo.label)) || 'Loading...';
-    const selected = this.state.selected_isp ? [this.state.selected_isp] : [];
+    
     return (
       <div className="section">
         <header>
@@ -402,27 +402,11 @@ class LocationPage extends PureComponent {
               <Col md={4}>
                 {this.renderTimeRangeSelector()}
               </Col>
-              {/* TODO: align this div to the right */}
-              <Col md={8}>
-                <div className="upper-row">
-                  <div className="show-incident">
-                    <Icon
-                      name="exclamation"
-                      className="exclamation"
-                      onClick={undefined}
-                    />
-                    Incident Found
-                  </div>
-                  <div className="isp-select-div">
-                    <h5>Incident ISPs <HelpTip id="incident-isp-tip" /></h5>
-                    <IspSelect
-                      isps={ispsWithIncidents}
-                      selected={selected}
-                      onChange={this.onSelectedIncidentClientIspsChange}
-                      placeholder="Show Incident"
-                    />
-                  </div>
-                </div>
+              <Col md={4}>
+                {this.renderIncidentWarning()}
+              </Col>
+              <Col md={4}>
+                {this.renderIncidentISPSelector()}
               </Col>
             </Col>
           </Row>
@@ -449,6 +433,31 @@ class LocationPage extends PureComponent {
         </Row>
       </div>
     );
+  }
+
+  renderIncidentWarning() {
+    return (
+      <div className="show-incident">
+        <h5>Incident ISPs<HelpTip id="incident-isp-tip" /></h5>
+      </div>
+    )
+  }
+
+  renderIncidentISPSelector() {
+    const { ispsWithIncidents } = this.props;
+
+    const selected = this.state.selected_isp ? [this.state.selected_isp] : [];
+
+    return (
+      <div className="isp-select-div">
+        <IspSelect
+          isps={ispsWithIncidents}
+          selected={selected}
+          onChange={this.onSelectedIncidentClientIspsChange}
+          placeholder="Show Incident"
+        />
+      </div>
+    )
   }
 
   renderTimeRangeSelector() {
