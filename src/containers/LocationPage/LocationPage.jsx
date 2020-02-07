@@ -335,6 +335,8 @@ class LocationPage extends PureComponent {
    * Callback for when a line is highlighted in time series
    */
   onSelectedIncidentClientIspsChange(selectedASNs) {
+    const { clientIspTimeSeries } = this.props;
+
     let selectedIspId;
     const valLen = selectedASNs.length;
     if (valLen === 0) {
@@ -352,7 +354,15 @@ class LocationPage extends PureComponent {
           jsonObj = this.ispsWithIncidents[obj];
         }
       }
-      this.setState({ selected_isp: jsonObj }, () => {});
+      this.setState({ selected_isp: jsonObj }, () => {
+        for (const obj in clientIspTimeSeries.data) {
+          const asnSeriesObj = clientIspTimeSeries.data[obj];
+          if (asnSeriesObj.meta.client_asn_number === this.state.client_asn_number) {
+            // TODO: currently not working, need for line chart to call this somehow
+            this.onHighlightTimeSeriesLine(asnSeriesObj);
+          }
+        }
+      });
     }
   }
 
