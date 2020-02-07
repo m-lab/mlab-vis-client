@@ -72,16 +72,6 @@ const fixedFields = [
 // eslint-disable-next-line global-require
 const incidentData = require('./sample_data/demo_incidentData.json');
 
-// getting list of isps with incidents to pass into isp select dropdown
-var ispsWithIncidents = [];  // TODO: fix linter loop issues once rendering
-for (const asn in incidentData) {
-  const asnData = {
-    "client_asn_name": asn,
-    "client_asn_number": asn,
-  };
-  ispsWithIncidents.push(asnData);
-}
-
 // convert dates to moment objects within the incidentData object
 if (incidentData) {
   for (const asn in incidentData) {
@@ -160,6 +150,9 @@ class LocationPage extends PureComponent {
       selected_isp: null, // This is the selected ISP object
     };
 
+    // getting list of isps with incidents to pass into isp select dropdown
+    this.ispsWithIncidents = [];
+
     // bind handlers
     this.onHighlightHourly = this.onHighlightHourly.bind(this);
     this.onHighlightTimeSeriesDate = this.onHighlightTimeSeriesDate.bind(this);
@@ -212,6 +205,27 @@ class LocationPage extends PureComponent {
     }
 
     this.fetchSelectedClientIspData(props);
+
+    // TODO: find a better way of populating the labels for the incident dropdown before pull request
+    // Creating asn number to label dictionary
+    const asnNumToLabel = {};
+    for (const currentISP in this.props.topClientIsps) {  // TODO: fix linter loop issues once rendering
+      const currentAsnNum = this.props.topClientIsps[currentISP].client_asn_number;
+      if (currentAsnNum in incidentData) {
+        if (!asnNumToLabel[currentAsnNum]) {
+          asnNumToLabel[currentAsnNum] = this.props.topClientIsps[currentISP].label;
+        }
+      }
+    }
+
+    this.ispsWithIncidents = [];
+    for (const asn in incidentData) {
+      const asnData = {
+        client_asn_name: asnNumToLabel[asn],
+        client_asn_number: asn,
+      };
+      this.ispsWithIncidents.push(asnData);
+    }
   }
 
   fetchSelectedClientIspData(props) {
@@ -333,9 +347,9 @@ class LocationPage extends PureComponent {
       }
 
       let jsonObj = {};
-      for (const obj in ispsWithIncidents) {
-        if (ispsWithIncidents[obj].client_asn_number === selectedIspId) {
-          jsonObj = ispsWithIncidents[obj];
+      for (const obj in this.ispsWithIncidents) {
+        if (this.ispsWithIncidents[obj].client_asn_number === selectedIspId) {
+          jsonObj = this.ispsWithIncidents[obj];
         }
       }
       this.setState({ selected_isp: jsonObj }, () => {});
@@ -451,7 +465,7 @@ class LocationPage extends PureComponent {
     return (
       <div className="isp-select-div">
         <IspSelect
-          isps={ispsWithIncidents}
+          isps={this.ispsWithIncidents}
           selected={selected}
           onChange={this.onSelectedIncidentClientIspsChange}
           placeholder="Show Incident"
