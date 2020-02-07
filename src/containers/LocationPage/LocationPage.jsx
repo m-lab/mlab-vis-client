@@ -452,14 +452,12 @@ class LocationPage extends PureComponent {
   renderIncidentWarning() {
     return (
       <div className="show-incident">
-        <h5>Incident ISPs<HelpTip id="incident-isp-tip" /></h5>
+        <h5>Incident Found <HelpTip id="incident-isp-tip" /></h5>
       </div>
     )
   }
 
   renderIncidentISPSelector() {
-    const { ispsWithIncidents } = this.props;
-
     const selected = this.state.selected_isp ? [this.state.selected_isp] : [];
 
     return (
@@ -468,7 +466,7 @@ class LocationPage extends PureComponent {
           isps={this.ispsWithIncidents}
           selected={selected}
           onChange={this.onSelectedIncidentClientIspsChange}
-          placeholder="Show Incident"
+          placeholder="Select Incident ISP to view"
         />
       </div>
     )

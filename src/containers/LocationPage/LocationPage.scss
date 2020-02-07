@@ -33,10 +33,15 @@
     padding: 0px 12px;
     display: inline-block;
     float: right;
+    max-height: 35px;
   }
 
   .upper-row {
     display: flex;
     align-items: center;
+  }
+  
+  .fa-question-circle:before {
+    color: white;
   }
 }
