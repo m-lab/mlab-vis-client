@@ -1,0 +1,49 @@
+@import "../../assets/variables";
+
+.IspSelectWithIncidents {
+  display: inline-block;
+  margin-bottom: 10px;
+  font-size: 0.85em;
+  color: #888;
+  width: 100%;
+
+  .Select {
+    margin-bottom: 10px;
+  }
+
+  .selected-isp {
+    // display: inline-block;
+    padding: 4px 25px 2px 8px;
+    background-color: $brand-primary;
+    color: #fff;
+    margin: 0 4px 4px 0;
+    border-radius: 4px;
+    white-space: nowrap;
+    max-width: 100%;
+    position: relative;
+
+    .isp-label {
+      max-width: 100%;
+      display: inline-block;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      vertical-align: middle;
+    }
+
+    .isp-remove-control {
+      position: absolute;
+      top: 0;
+      right: 0;
+      padding: 0 6px;
+      line-height: 2;
+      border-radius: 0 4px 4px 0;
+      margin: 0;
+      cursor: pointer;
+
+      &:hover {
+        background: rgba(0, 0, 0, 0.1);
+      }
+    }
+  }
+
+}

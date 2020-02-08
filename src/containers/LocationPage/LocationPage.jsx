@@ -26,8 +26,8 @@ import {
   MetricSelector,
   TimeAggregationSelector,
   StatusWrapper,
-  Icon,
-  IspSelect,
+  // IspSelectWithIncidents,
+  // IspSelect,
   DateRangeSelector,
   Breadcrumbs,
   ScatterGroup,
@@ -43,6 +43,8 @@ import urlConnect from '../../url/urlConnect';
 import queryRebuild from '../../url/queryRebuild';
 
 import './LocationPage.scss';
+// TODO: does not work when included above with other components, look into why that is happening
+import IspSelectWithIncidents from '../../components/IspSelectWithIncidents/IspSelectWithIncidents';
 
 // Define how to read/write state to URL query parameters
 const urlQueryConfig = {
@@ -355,13 +357,13 @@ class LocationPage extends PureComponent {
         }
       }
       this.setState({ selected_isp: jsonObj }, () => {
-        for (const obj in clientIspTimeSeries.data) {
-          const asnSeriesObj = clientIspTimeSeries.data[obj];
-          if (asnSeriesObj.meta.client_asn_number === this.state.client_asn_number) {
-            // TODO: currently not working, need for line chart to call this somehow
-            this.onHighlightTimeSeriesLine(asnSeriesObj);
-          }
-        }
+        // for (const obj in clientIspTimeSeries.data) {
+        //   const asnSeriesObj = clientIspTimeSeries.data[obj];
+        //   if (asnSeriesObj.meta.client_asn_number === this.state.selected_isp.client_asn_number) {
+        //     // TODO: currently not working, need for line chart to call this somehow            
+        //     // this.onHighlightTimeSeriesLine(asnSeriesObj);
+        //   }
+        // }
       });
     }
   }
@@ -423,15 +425,7 @@ class LocationPage extends PureComponent {
               <h2>{locationName}</h2>
             </Col>
             <Col md={9}>
-              <Col md={4}>
                 {this.renderTimeRangeSelector()}
-              </Col>
-              <Col md={4}>
-                {this.renderIncidentWarning()}
-              </Col>
-              <Col md={4}>
-                {this.renderIncidentISPSelector()}
-              </Col>
             </Col>
           </Row>
 
@@ -459,6 +453,7 @@ class LocationPage extends PureComponent {
     );
   }
 
+  // TODO: delete this function, CSS, and its instances once new dropdown is done
   renderIncidentWarning() {
     return (
       <div className="show-incident">
@@ -467,20 +462,20 @@ class LocationPage extends PureComponent {
     )
   }
 
-  renderIncidentISPSelector() {
-    const selected = this.state.selected_isp ? [this.state.selected_isp] : [];
+  // renderIncidentISPSelector() {
+  //   const selected = this.state.selected_isp ? [this.state.selected_isp] : [];
 
-    return (
-      <div className="isp-select-div">
-        <IspSelect
-          isps={this.ispsWithIncidents}
-          selected={selected}
-          onChange={this.onSelectedIncidentClientIspsChange}
-          placeholder="Select Incident ISP to view"
-        />
-      </div>
-    )
-  }
+  //   return (
+  //     <div className="isp-select-div">
+  //       <IspSelect
+  //         isps={this.ispsWithIncidents}
+  //         selected={selected}
+  //         onChange={this.onSelectedIncidentClientIspsChange}
+  //         placeholder="Select Incident ISP to view"
+  //       />
+  //     </div>
+  //   )
+  // }
 
   renderTimeRangeSelector() {
     const { startDate, endDate } = this.props;
@@ -500,7 +495,8 @@ class LocationPage extends PureComponent {
     return (
       <div className="client-isp-selector">
         <h5>Client ISPs <HelpTip id="client-isp-tip" /></h5>
-        <IspSelect
+        {this.renderIncidentWarning()}
+        <IspSelectWithIncidents
           isps={topClientIsps}
           selected={selectedClientIspInfo}
           onChange={this.onSelectedClientIspsChange}
