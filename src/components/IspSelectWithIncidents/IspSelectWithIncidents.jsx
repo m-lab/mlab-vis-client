@@ -1,13 +1,13 @@
 
 import React, { PureComponent, PropTypes } from 'react';
-import Select from 'react-select';
+import ReactMultiSelectCheckboxes from 'react-multiselect-checkboxes';
 
 import { Icon } from '../../components';
 
 import { colorsFor } from '../../utils/color';
 
-import '../../assets/react-select.scss';
-import './IspSelectWithIncidents.scss';
+// import '../../assets/react-select.scss';
+// import './IspSelectWithIncidents.scss';
 
 /**
  * ISP Selection and display component
@@ -120,18 +120,29 @@ export default class IspSelectWithIncidents extends PureComponent {
     const { isps, selected, placeholder } = this.props;
     const options = this.getOptions(isps, selected);
     const placeholderText = placeholder || 'Select Client ISP to view';
-    return (
-      <div className="IspSelectWithIncidents">
-        {/* TODO: Check if is possible to add an on hover button to a React Select object
-            or if we need to create our own with custom styling. (https://react-select.com/styles) */}
-        <Select
-          name="isp-select-with-incidents-input"
-          options={options}
-          onChange={this.onAdd}
-          placeholder={placeholderText}
-        />
-        {this.renderSelectedIsps(selected)}
-      </div>
-    );
+    // console.log(options)
+    // const options1 = [
+    //   { label: 'Thing 1', value: 1},
+    //   { label: 'Thing 2', value: 2},
+    // ];
+    // return (
+    //   <div >
+    //     {/* TODO: Check if is possible to add an on hover button to a React Select object
+    //         or if we need to create our own with custom styling. (https://react-select.com/styles) */}
+    //     <ReactMultiSelectCheckboxes
+    //       // name="isp-select-with-incidents-input"
+    //       options={options1}
+    //       children={options1}
+    //       // onChange={this.onAdd}
+    //       // placeholder={placeholderText}
+    //     />
+    //     {this.renderSelectedIsps(selected)}
+    //    </div>
+    // );
+    const options1 = [
+      { label: 'Thing 1', value: 1},
+      { label: 'Thing 2', value: 2},
+    ];
+    return ( <ReactMultiSelectCheckboxes options={options1} /> );
   }
 }
