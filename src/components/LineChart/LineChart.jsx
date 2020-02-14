@@ -453,6 +453,28 @@ class LineChart extends PureComponent {
     this.highlightLine.append('rect').attr('class', 'series-overlay');
     this.highlightLine.append('g');
 
+    // add in pop-out for incident hovers
+    // Features of the annotation
+    const annotations = [
+      {
+        note: {
+          label: "Here is the annotation label",
+          title: "Annotation title"
+        },
+        x: 100,
+        y: 100,
+        dy: 100,
+        dx: 100
+      }
+    ]
+
+      // Add annotation to the chart
+      var makeAnnotations = svgAnnotation.annotation()
+        .annotations(annotations)
+      d3.select(".pop-out-incident-hover")
+        .append("g")
+        .call(makeAnnotations)
+
     // add in mouse listener -- this should be added above the lines and axes
     const that = this;
     this.mouseListener = this.g.append('rect')

@@ -26,6 +26,7 @@ import {
   MetricSelector,
   TimeAggregationSelector,
   StatusWrapper,
+  IspSelect,
   // IspSelectWithIncidents,
   DateRangeSelector,
   Breadcrumbs,
@@ -461,20 +462,20 @@ class LocationPage extends PureComponent {
     )
   }
 
-  // renderIncidentISPSelector() {
-  //   const selected = this.state.selected_isp ? [this.state.selected_isp] : [];
+  renderIncidentISPSelector() {
+    const selected = this.state.selected_isp ? [this.state.selected_isp] : [];
 
-  //   return (
-  //     <div className="isp-select-div">
-  //       <IspSelect
-  //         isps={this.ispsWithIncidents}
-  //         selected={selected}
-  //         onChange={this.onSelectedIncidentClientIspsChange}
-  //         placeholder="Select Incident ISP to view"
-  //       />
-  //     </div>
-  //   )
-  // }
+    return (
+      <div className="isp-select-div">
+        <IspSelect
+          isps={this.ispsWithIncidents}
+          selected={selected}
+          onChange={this.onSelectedIncidentClientIspsChange}
+          // placeholder="Select Incident ISP to view"
+        />
+      </div>
+    )
+  }
 
   renderTimeRangeSelector() {
     const { startDate, endDate } = this.props;
@@ -493,13 +494,14 @@ class LocationPage extends PureComponent {
 
     return (
       <div className="client-isp-selector">
+        {/* {this.renderIncidentWarning()}
+        {this.renderIncidentISPSelector()} */}
         <h5>Client ISPs <HelpTip id="client-isp-tip" /></h5>
-        {this.renderIncidentWarning()}
-        <IspSelectWithIncidents
+        {/* <IspSelectWithIncidents
           isps={topClientIsps}
           selected={selectedClientIspInfo}
           onChange={this.onSelectedClientIspsChange}
-        />
+        /> */}
       </div>
     );
   }
