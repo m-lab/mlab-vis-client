@@ -17,7 +17,6 @@ export default class IspSelect extends PureComponent {
   static propTypes = {
     isps: PropTypes.array,
     onChange: React.PropTypes.func,
-    placeholder: PropTypes.string,
     selected: PropTypes.array,
   }
 
@@ -116,16 +115,16 @@ export default class IspSelect extends PureComponent {
    * @return {React.Component} The rendered container
    */
   render() {
-    const { isps, selected, placeholder } = this.props;
+    const { isps, selected } = this.props;
     const options = this.getOptions(isps, selected);
-    const placeholderText = placeholder || 'Select Client ISP to view';
+    // const values = this.getOptions(selected);
     return (
       <div className="IspSelect">
         <Select
           name="isp-select-input"
           options={options}
           onChange={this.onAdd}
-          placeholder={placeholderText}
+          placeholder="Select Client ISP to view"
         />
         {this.renderSelectedIsps(selected)}
       </div>
