@@ -33,6 +33,7 @@ import {
   HistoGroup,
   SummaryTable,
   HelpTip,
+  // IncidentTip,
 } from '../../components';
 
 import { LocationSearch } from '../../containers';
@@ -44,6 +45,7 @@ import queryRebuild from '../../url/queryRebuild';
 import './LocationPage.scss';
 // TODO: does not work when included above with other components, look into why that is happening
 import IspSelectWithIncidents from '../../components/IspSelectWithIncidents/IspSelectWithIncidents';
+import IncidentTip from '../../components/IncidentTip/IncidentTip';
 
 // Define how to read/write state to URL query parameters
 const urlQueryConfig = {
