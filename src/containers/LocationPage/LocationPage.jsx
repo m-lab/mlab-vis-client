@@ -7,6 +7,8 @@ import moment from 'moment';
 import Row from 'react-bootstrap/lib/Row';
 import Col from 'react-bootstrap/lib/Col';
 import AutoWidth from 'react-auto-width';
+import IspSelectWithIncidents from '../../components/IspSelectWithIncidents/IspSelectWithIncidents';
+
 
 import * as LocationPageSelectors from '../../redux/locationPage/selectors';
 import * as LocationPageActions from '../../redux/locationPage/actions';
@@ -44,8 +46,6 @@ import queryRebuild from '../../url/queryRebuild';
 
 import './LocationPage.scss';
 // TODO: does not work when included above with other components, look into why that is happening
-import IspSelectWithIncidents from '../../components/IspSelectWithIncidents/IspSelectWithIncidents';
-import IncidentTip from '../../components/IncidentTip/IncidentTip';
 
 // Define how to read/write state to URL query parameters
 const urlQueryConfig = {
@@ -491,13 +491,14 @@ class LocationPage extends PureComponent {
   }
 
   renderClientIspSelector() {
-    const { topClientIsps = [], selectedClientIspInfo } = this.props;
+    const { topClientIsps = [], selectedClientIspInfo, incidentData } = this.props;
 
     return (
       <div className="client-isp-selector">
         <h5>Client ISPs <HelpTip id="client-isp-tip" /></h5>
         {this.renderIncidentWarning()}
         <IspSelectWithIncidents
+          incidentData={incidentData}
           isps={topClientIsps}
           selected={selectedClientIspInfo}
           onChange={this.onSelectedClientIspsChange}
