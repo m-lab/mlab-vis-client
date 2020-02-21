@@ -26,7 +26,7 @@ import {
   MetricSelector,
   TimeAggregationSelector,
   StatusWrapper,
-  // IspSelectWithIncidents,
+  IspSelect,
   DateRangeSelector,
   Breadcrumbs,
   ScatterGroup,
@@ -425,6 +425,8 @@ class LocationPage extends PureComponent {
             </Col>
             <Col md={9}>
                 {this.renderTimeRangeSelector()}
+                {/* TODO: remove this */}
+                {this.renderIncidentISPSelector()}
             </Col>
           </Row>
 
@@ -461,20 +463,22 @@ class LocationPage extends PureComponent {
     )
   }
 
-  // renderIncidentISPSelector() {
-  //   const selected = this.state.selected_isp ? [this.state.selected_isp] : [];
+  // TODO: remove this
+  renderIncidentISPSelector() {
+    const selected = this.state.selected_isp ? [this.state.selected_isp] : [];
 
-  //   return (
-  //     <div className="isp-select-div">
-  //       <IspSelect
-  //         isps={this.ispsWithIncidents}
-  //         selected={selected}
-  //         onChange={this.onSelectedIncidentClientIspsChange}
-  //         placeholder="Select Incident ISP to view"
-  //       />
-  //     </div>
-  //   )
-  // }
+    return (
+      <div className="isp-select-div">
+        <IspSelect
+          isps={this.ispsWithIncidents}
+          selected={selected}
+          onChange={this.onSelectedIncidentClientIspsChange}
+          // placeholder="Select Incident ISP to view"
+        />
+      </div>
+    )
+  }
+  // TODO: up until here
 
   renderTimeRangeSelector() {
     const { startDate, endDate } = this.props;
