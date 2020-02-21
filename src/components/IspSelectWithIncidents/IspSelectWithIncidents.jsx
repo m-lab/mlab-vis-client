@@ -1,6 +1,5 @@
 
 import React, { PureComponent, PropTypes } from 'react';
-import ReactMultiSelectCheckboxes from 'react-multiselect-checkboxes';
 import IncidentTip from '../IncidentTip/IncidentTip';
 
 import { Icon } from '../../components';
@@ -79,14 +78,13 @@ export default class IspSelectWithIncidents extends PureComponent {
     }
     options = options.map(isp => ({ value: isp.client_asn_number, label: isp.client_asn_name }));
 
-    var i;
+    let i;
     for (i of options) {
-      if ( i["value"] in incidentData ) {
-        i["hasInc"] = True;
+      if (i.value in incidentData) {
+        i.hasInc = true;
       }
     }
-
-    return options; 
+    return options;
   }
 
   renderDropdown() {
@@ -106,19 +104,24 @@ export default class IspSelectWithIncidents extends PureComponent {
     // }
 
     // TODO: Before making pull request make sure that console errors dont result from async and this code.
-    const words = ['sky', 'blue', 'falcon', 'wood', 'cloud'];
-    const items = words.map((word, idx) => {
-        return <li key={idx}>{word}</li>;
+    const items = options.map(option => {
+      if ('hasInc' in option) {
+        return <li><input type="checkbox" />{option.label}<IncidentTip /></li>;
+      }
+      return <li><input type="checkbox" />{option.label}</li>;
     });
 
-    return(
-      <ul>
-        {items}
-      </ul>
-    )
-
+    return (
+      <div>
+        <span className="anchor">Select an Incident</span>
+        <ul>
+          {items}
+        </ul>
+      </div>
+    );
   }
 
+  // TODO: put selected pills back
   // /**
   //  * Render individual isp name
   //  * @return {React.Component} active isps
@@ -145,7 +148,6 @@ export default class IspSelectWithIncidents extends PureComponent {
   //   const colors = colorsFor(selectedIsps, (d) => d.client_asn_number);
   //   return (
   //     <div className="active-isps">
-  //       {/* TODO: use map of selected ISPs to render the checkboxes in the dropdown instead of creating labels */}
   //       {selectedIsps.map((selectedIsp) =>
   //         this.renderIsp(selectedIsp, colors[selectedIsp.client_asn_number])
   //       )}

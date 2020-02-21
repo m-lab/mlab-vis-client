@@ -491,12 +491,12 @@ class LocationPage extends PureComponent {
   }
 
   renderClientIspSelector() {
-    const { topClientIsps = [], selectedClientIspInfo, incidentData } = this.props;
+    const { topClientIsps = [], selectedClientIspInfo } = this.props;
 
     return (
       <div className="client-isp-selector">
         <h5>Client ISPs <HelpTip id="client-isp-tip" /></h5>
-        {this.renderIncidentWarning()}
+        {/* {this.renderIncidentWarning()} */}
         <IspSelectWithIncidents
           incidentData={incidentData}
           isps={topClientIsps}
