@@ -34,6 +34,7 @@ export default class IspSelectWithIncidents extends PureComponent {
     super(props);
     this.onAdd = this.onAdd.bind(this);
     this.onRemove = this.onRemove.bind(this);
+    this.toggleCheckbox = this.toggleCheckbox.bind(this);
   }
 
   /**
@@ -66,6 +67,19 @@ export default class IspSelectWithIncidents extends PureComponent {
     }
   }
 
+  toggleCheckbox(value) {
+    const { isps } = this.props;
+    // get option Object for corresponding ISP
+    const optionObj = isps.find(isp => isp.client_asn_number === value.target.id);
+    if (value.target.checked == true) {
+      // TODO: onAdding not updated selected isps and url params
+      this.onAdd(optionObj);
+    }
+    else {
+      this.onRemove(optionObj);
+    }
+  }
+
   /**
    * convert array of ISPs to an array of options to display
    * @param {Array} isps ISPs to convert
@@ -73,15 +87,19 @@ export default class IspSelectWithIncidents extends PureComponent {
    */
   getOptions(isps, selected, incidentData) {
     let options = isps;
-    if (selected && selected.length) {
-      options = isps.filter(isp => !selected.find(d => d.client_asn_number === isp.client_asn_number));
-    }
+    // TODO: delete this code and remove selected from function header and calls (make sure doesn't break existing functionality)
+    // if (selected && selected.length) {
+    //   options = isps.filter(isp => !selected.find(d => d.client_asn_number === isp.client_asn_number));
+    // }
     options = options.map(isp => ({ value: isp.client_asn_number, label: isp.client_asn_name }));
 
-    let i;
-    for (i of options) {
-      if (i.value in incidentData) {
-        i.hasInc = true;
+    // TODO: without checking incidentData, onAdd + onRemove throw errors. Do we always want to pass in incidentData?
+    if (incidentData) {
+      let i;
+      for (i of options) {
+        if (i.value in incidentData) {
+          i.hasInc = true;
+        }
       }
     }
     return options;
@@ -90,25 +108,16 @@ export default class IspSelectWithIncidents extends PureComponent {
   renderDropdown() {
     const { isps, selected, incidentData } = this.props;
     const options = this.getOptions(isps, selected, incidentData);
-
-    // let selectOptions = document.createElement('ul'); 
-    // for (let i in options) {
-    //   let li = document.createElement('li');
-    //   li.appendChild(document.createElement('input').setAttribute("type", "checkbox"));
-    //   li.appendChild(document.createTextNode(i["label"]));
-    //   if ("hasInc" in i ) {
-    //     li.appendChild( <IncidentTip /> );
-    //   }
-
-    //   selectOptions.appendChild(li);
-    // }
+    // TODO: maybe have isps be a asn number to corresponding object map so it doesn't have to create it each time its rendered
+    const selectedASNs = selected.map(obj => obj.client_asn_number);
 
     // TODO: Before making pull request make sure that console errors dont result from async and this code.
     const items = options.map(option => {
+      let checkedVal = selectedASNs.includes(option.value) ? true : false;
       if ('hasInc' in option) {
-        return <li><input type="checkbox" />{option.label}<IncidentTip /></li>;
+        return <li><input type="checkbox" id={option.value} checked={checkedVal} onClick={this.toggleCheckbox}/> {option.label}<IncidentTip id="incident-isp-tip" /></li>;
       }
-      return <li><input type="checkbox" />{option.label}</li>;
+      return <li><input type="checkbox" id={option.value} checked={checkedVal} onClick={this.toggleCheckbox}/>{option.label}</li>;
     });
 
     return (
