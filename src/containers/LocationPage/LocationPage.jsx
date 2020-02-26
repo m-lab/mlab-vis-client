@@ -498,6 +498,7 @@ class LocationPage extends PureComponent {
         <h5>Client ISPs <HelpTip id="client-isp-tip" /></h5>
         {/* {this.renderIncidentWarning()} */}
         <IspSelectWithIncidents
+          changeTimeAggregation={this.onTimeAggregationChange}
           incidentData={incidentData}
           isps={topClientIsps}
           selected={selectedClientIspInfo}

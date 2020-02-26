@@ -6,7 +6,6 @@ import { Icon } from '../../components';
 
 import { colorsFor } from '../../utils/color';
 
-// import '../../assets/react-select.scss';
 import './IspSelectWithIncidents.scss';
 
 /**
@@ -15,6 +14,7 @@ import './IspSelectWithIncidents.scss';
 export default class IspSelectWithIncidents extends PureComponent {
 
   static propTypes = {
+    changeTimeAggregation: React.PropTypes.func,
     incidentData: React.PropTypes.object,
     isps: PropTypes.array,
     onChange: React.PropTypes.func,
@@ -34,6 +34,8 @@ export default class IspSelectWithIncidents extends PureComponent {
     super(props);
     this.onAdd = this.onAdd.bind(this);
     this.onRemove = this.onRemove.bind(this);
+    this.showIncident = this.showIncident.bind(this);
+    this.removeAllExceptOne = this.removeAllExceptOne.bind(this);
     this.toggleCheckbox = this.toggleCheckbox.bind(this);
   }
 
@@ -71,12 +73,8 @@ export default class IspSelectWithIncidents extends PureComponent {
    * @param {Array} isps ISPs to convert
    * @return {Array} array of {value: label:} objects
    */
-  getOptions(isps, selected, incidentData) {
+  getOptions(isps, incidentData) {
     let options = isps;
-    // TODO: delete this code and remove selected from function header and calls (make sure doesn't break existing functionality)
-    // if (selected && selected.length) {
-    //   options = isps.filter(isp => !selected.find(d => d.client_asn_number === isp.client_asn_number));
-    // }
     options = options.map(isp => ({ value: isp.client_asn_number, label: isp.client_asn_name }));
 
     // TODO: without checking incidentData, onAdd + onRemove throw errors. Do we always want to pass in incidentData?
@@ -89,6 +87,41 @@ export default class IspSelectWithIncidents extends PureComponent {
       }
     }
     return options;
+  }
+
+  /**
+   * Callback to remove all selected values except the asn provided.
+   * If provided asn is unselected, it is then forcefully selected.
+   * @param {Array} {Object} ISP object to remove
+   */
+  removeAllExceptOne(incidentASN) {
+    const { isps, selected, onChange } = this.props;
+    const ispsToRemoveObjs = selected.filter((optionObj) => optionObj.client_asn_number !== incidentASN);
+    const ispsToRemoveASNs = ispsToRemoveObjs.map(obj => obj.client_asn_number);
+    const filtered = selected.filter((isp) =>
+      !ispsToRemoveASNs.includes(isp.client_asn_number)
+    );
+
+    // if provided ISP was unselected, we then force select it
+    if (selected.length === ispsToRemoveObjs.length) { 
+      const incidentObject = isps.find(isp => isp.client_asn_number === incidentASN);
+      filtered.push(incidentObject);
+    }
+
+    const values = this.getOptions(filtered);
+    if (onChange) {
+      onChange(values.map(value => value.value));
+    }
+  }
+
+  showIncident(value) {
+    const { changeTimeAggregation } = this.props;
+
+    // force time aggregation to month view
+    changeTimeAggregation('month');
+
+    // deselect all other ISPs except the ISP with incidents
+    this.removeAllExceptOne(value.target.id);
   }
 
   toggleCheckbox(value) {
@@ -104,17 +137,17 @@ export default class IspSelectWithIncidents extends PureComponent {
 
   renderDropdown() {
     const { isps, selected, incidentData } = this.props;
-    const options = this.getOptions(isps, selected, incidentData);
+    const options = this.getOptions(isps, incidentData);
     // TODO: maybe have isps be a asn number to corresponding object map so it doesn't have to create it each time its rendered
     const selectedASNs = selected.map(obj => obj.client_asn_number);
 
     // TODO: Before making pull request make sure that console errors dont result from async and this code.
     const items = options.map(option => {
-      let checkedVal = selectedASNs.includes(option.value) ? true : false;
+      const checkedVal = !!selectedASNs.includes(option.value);
       if ('hasInc' in option) {
-        return <li><input type="checkbox" id={option.value} checked={checkedVal} onClick={this.toggleCheckbox}/> {option.label}<IncidentTip id="incident-isp-tip" /></li>;
+        return <li><input type="checkbox" id={option.value} checked={checkedVal} onClick={this.toggleCheckbox} /> {option.label}<IncidentTip id="incident-isp-tip" /> <button id={option.value} onClick={this.showIncident}>Show Incident</button></li>;
       }
-      return <li><input type="checkbox" id={option.value} checked={checkedVal} onClick={this.toggleCheckbox}/>{option.label}</li>;
+      return <li><input type="checkbox" id={option.value} checked={checkedVal} onClick={this.toggleCheckbox} />{option.label}</li>;
     });
 
     return (
