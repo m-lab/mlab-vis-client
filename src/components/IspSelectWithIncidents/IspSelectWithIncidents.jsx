@@ -46,8 +46,7 @@ export default class IspSelectWithIncidents extends PureComponent {
     const { selected, onChange } = this.props;
     // convert to options first
     const values = this.getOptions(selected);
-    // addValue is a option Object
-    values.push(addValue);
+    values.push({ value: addValue.client_asn_number, label: addValue.client_asn_name });
     if (onChange) {
       onChange(values.map(value => value.value));
     }
@@ -64,19 +63,6 @@ export default class IspSelectWithIncidents extends PureComponent {
     const values = this.getOptions(filtered);
     if (onChange) {
       onChange(values.map(value => value.value));
-    }
-  }
-
-  toggleCheckbox(value) {
-    const { isps } = this.props;
-    // get option Object for corresponding ISP
-    const optionObj = isps.find(isp => isp.client_asn_number === value.target.id);
-    if (value.target.checked == true) {
-      // TODO: onAdding not updated selected isps and url params
-      this.onAdd(optionObj);
-    }
-    else {
-      this.onRemove(optionObj);
     }
   }
 
@@ -103,6 +89,17 @@ export default class IspSelectWithIncidents extends PureComponent {
       }
     }
     return options;
+  }
+
+  toggleCheckbox(value) {
+    const { isps } = this.props;
+    // get option Object for corresponding ISP
+    const optionObj = isps.find(isp => isp.client_asn_number === value.target.id);
+    if (value.target.checked === true) {
+      this.onAdd(optionObj);
+    } else {
+      this.onRemove(optionObj);
+    }
   }
 
   renderDropdown() {
