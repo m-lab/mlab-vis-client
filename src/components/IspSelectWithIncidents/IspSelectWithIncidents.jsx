@@ -144,11 +144,13 @@ export default class IspSelectWithIncidents extends PureComponent {
   showIncident(value) {
     const { changeTimeAggregation } = this.props;
 
+    // deselect all other ISPs except the ISP with incidents
+    this.removeAllExceptOne(value.target.id);
+
     // force time aggregation to month view
     changeTimeAggregation('month');
 
-    // deselect all other ISPs except the ISP with incidents
-    this.removeAllExceptOne(value.target.id);
+    // TODO: toggle the incident viewer on
   }
 
   toggleCheckbox(value) {
