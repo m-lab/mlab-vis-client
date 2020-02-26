@@ -37,6 +37,7 @@ export default class IspSelectWithIncidents extends PureComponent {
     this.showIncident = this.showIncident.bind(this);
     this.removeAllExceptOne = this.removeAllExceptOne.bind(this);
     this.toggleCheckbox = this.toggleCheckbox.bind(this);
+    this.toggleDropdown = this.toggleDropdown.bind(this);
   }
 
   /**
@@ -65,6 +66,32 @@ export default class IspSelectWithIncidents extends PureComponent {
     const values = this.getOptions(filtered);
     if (onChange) {
       onChange(values.map(value => value.value));
+    }
+  }
+
+  toggleDropdown() {
+    var items = document.getElementById('items');
+    if (items.classList.contains('visible')){
+      items.classList.remove('visible');
+      items.style.display = "none";
+    }
+  
+    else {
+        items.classList.add('visible');
+        items.style.display = "block";
+    }
+  }
+
+  toggleCheckbox(value) {
+    const { isps } = this.props;
+    // get option Object for corresponding ISP
+    const optionObj = isps.find(isp => isp.client_asn_number === value.target.id);
+    if (value.target.checked == true) {
+      // TODO: onAdding not updated selected isps and url params
+      this.onAdd(optionObj);
+    }
+    else {
+      this.onRemove(optionObj);
     }
   }
 
@@ -151,9 +178,9 @@ export default class IspSelectWithIncidents extends PureComponent {
     });
 
     return (
-      <div>
-        <span className="anchor">Select an Incident</span>
-        <ul>
+      <div className="dropdownCheckList">
+        <span className="anchor" onClick={this.toggleDropdown}>Select Client ISP to view</span>
+        <ul id="items" className="items">
           {items}
         </ul>
       </div>
