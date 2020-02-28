@@ -179,9 +179,9 @@ export default class IspSelectWithIncidents extends PureComponent {
     const items = options.map(option => {
       const checkedVal = !!selectedASNs.includes(option.value);
       if ('hasInc' in option) {
-        return <li><input type="checkbox" id={option.value} checked={checkedVal} onClick={this.toggleCheckbox} /> {option.label}<IncidentTip id="incident-isp-tip" /> <button id={option.value} onClick={this.showIncident}>Show Incident</button></li>;
+        return <li key={option.value}><input type="checkbox" id={option.value} checked={checkedVal} onClick={this.toggleCheckbox} /> {option.label}<IncidentTip id="incident-isp-tip" /> <button className="show-inc-btn" id={option.value} onClick={this.showIncident}>Show Incident</button></li>;
       }
-      return <li><input type="checkbox" id={option.value} checked={checkedVal} onClick={this.toggleCheckbox} />{option.label}</li>;
+      return <li key={option.value}><input type="checkbox" id={option.value} checked={checkedVal} onClick={this.toggleCheckbox} /> {option.label}</li>;
     });
 
     return (

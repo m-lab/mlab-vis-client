@@ -51,6 +51,7 @@
   display: inline-block;
   width: 100%;
 }
+
 .dropdownCheckList .anchor {
   position: relative;
   cursor: pointer;
@@ -62,6 +63,7 @@
   color: rgb(180, 180, 180);
   border-radius: 4px;
 }
+
 .dropdownCheckList .anchor:after {
   position: absolute;
   content: "";
@@ -76,21 +78,35 @@
   -webkit-transform: rotate(-135deg);
   transform: rotate(-135deg);
 }
+
 .dropdownCheckList .anchor:active:after {
   right: 8px;
   top: 21%;
 }
+
 .dropdownCheckList ul.items {
-  padding: 2px;
+  padding: 8px;
   display: none;
-  margin: 0;
   border: 1px solid #ccc;
   border-radius: 0px 0px 4px 4px;
   border-top: none;
   width: 100%;
+  color: #3c4043;
+  letter-spacing: 0.1px;
+  min-height: 38px;
+  overflow: hidden;
 }
 .dropdownCheckList ul.items li {
   list-style: none;
   margin: 0 4px 4px 0;
-  // padding: 4px 25px 2px 8px;
+}
+
+.show-inc-btn {
+  float: right;
+  border: none;
+  border-radius: 4px;
+  background: #fff;
+  color: #4285f4;
+  text-transform: uppercase;
+  font: 400 14px Roboto, HelveticaNeue, Arial, sans-serif;
 }
