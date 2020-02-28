@@ -90,6 +90,19 @@ export default class IspSelectWithIncidents extends PureComponent {
     return options;
   }
 
+  showIncident(value) {
+    const { isps, changeTimeAggregation } = this.props;
+
+    // deselect all other ISPs except the ISP with incidents
+    this.removeAllExceptOne(value.target.id);
+
+    // TODO: force time aggregation to month view
+    // changeTimeAggregation('month');
+
+    // TODO: toggle the incident viewer on
+  }
+
+
   toggleDropdown() {
     const items = document.getElementById('items');
     const anchor = document.getElementById('anchor');
@@ -129,18 +142,6 @@ export default class IspSelectWithIncidents extends PureComponent {
     if (onChange) {
       onChange(values.map(value => value.value));
     }
-  }
-
-  showIncident(value) {
-    const { changeTimeAggregation } = this.props;
-
-    // deselect all other ISPs except the ISP with incidents
-    this.removeAllExceptOne(value.target.id);
-
-    // force time aggregation to month view
-    changeTimeAggregation('month');
-
-    // TODO: toggle the incident viewer on
   }
 
   toggleCheckbox(value) {
@@ -222,7 +223,7 @@ export default class IspSelectWithIncidents extends PureComponent {
       <div >
         {this.renderDropdown()}
         {/* {this.renderSelectedIsps(selected)} */}
-       </div>
+      </div>
     );
   }
 }
