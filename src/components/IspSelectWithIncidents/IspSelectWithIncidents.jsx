@@ -87,19 +87,6 @@ export default class IspSelectWithIncidents extends PureComponent {
     }
   }
 
-  toggleCheckbox(value) {
-    const { isps } = this.props;
-    // get option Object for corresponding ISP
-    const optionObj = isps.find(isp => isp.client_asn_number === value.target.id);
-    if (value.target.checked == true) {
-      // TODO: onAdding not updated selected isps and url params
-      this.onAdd(optionObj);
-    }
-    else {
-      this.onRemove(optionObj);
-    }
-  }
-
   /**
    * convert array of ISPs to an array of options to display
    * @param {Array} isps ISPs to convert
