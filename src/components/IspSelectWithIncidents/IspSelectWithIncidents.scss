@@ -85,20 +85,26 @@
 }
 
 .dropdownCheckList ul.items {
-  padding: 8px;
   display: none;
   border: 1px solid #ccc;
   border-radius: 0px 0px 4px 4px;
   border-top: none;
   width: 100%;
-  color: #3c4043;
-  letter-spacing: 0.1px;
-  min-height: 38px;
-  overflow: hidden;
+  padding-inline-start: 0px;
+  
 }
 .dropdownCheckList ul.items li {
   list-style: none;
-  margin: 0 4px 4px 0;
+  background-color: #fff;
+  color: #666;
+  padding: 8px 4px;
+  font-size: .85em;
+  font-weight: 300;
+  font-family: Roboto,Helvetica Neue,Helvetica,Arial,sans-serif;
+}
+
+.dropdownCheckList ul.items li:hover {
+  background-color: rgb(240, 245, 254);
 }
 
 .show-inc-btn {
@@ -108,5 +114,5 @@
   background: #fff;
   color: #4285f4;
   text-transform: uppercase;
-  font: 400 14px Roboto, HelveticaNeue, Arial, sans-serif;
+  // font: 400 14px Roboto, HelveticaNeue, Arial, sans-serif;
 }
