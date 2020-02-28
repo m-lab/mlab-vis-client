@@ -273,7 +273,7 @@ class LineChart extends PureComponent {
    * @return {void}
    */
   onMouseMove(mouse) {
-    const { plotAreaHeight, incidentData, selectedASN, onHighlightDate, series, xScale, xKey, yScale } = this.props;
+    const { plotAreaHeight, plotAreaWidth, incidentData, selectedASN, onHighlightDate, series, xScale, xKey, yScale } = this.props;
 
     if (!onHighlightDate) {
       return;
@@ -319,6 +319,8 @@ class LineChart extends PureComponent {
         const goodHeight = plotAreaHeight - goodYmax;
         const badHeight = plotAreaHeight - badYmax;
         const incidentHeight = Math.abs(badYmax - goodYmax);
+        // TODO [Jacqui]: do some date manipulation to figure out how much space there is to the left/right of the graph
+        // TODO: must do this based on the pixels !!!!
         // Values chosen for aesthetic purposes
         const dx = 30
         const dy = 20
@@ -326,30 +328,17 @@ class LineChart extends PureComponent {
         // TODO(amy): fix linter issues here without breaking hover functionality
         // Draw the hover state for the good period information when mouse hovers over the median download speed line
         if (highlightedDate.isBefore(incidentData[selectedASN][incIndex].goodPeriodEnd) && highlightedDate.isSameOrAfter(incidentData[selectedASN][incIndex].goodPeriodStart) && (mouseY < goodYmax+10) && (mouseY > goodYmax-10)) {
-          const screenFitsGoodAnnotationDx = true
-          const screenFitsGoodAnnotationDy = true
+          const screenFitsGoodAnnotationDx = plotAreaWidth > goodWidth + badWidth + (2*dx) + 5 // TODO: this is definitely not right
+          const screenFitsGoodAnnotationDy = plotAreaHeight > goodHeight + dy + 5
+          console.log("plotAreaWidth", plotAreaWidth)
+          console.log("goodHWidth", goodWidth)
+          console.log("goodWidth + badWidth + dx + 5", goodWidth + badWidth + dx + 5)
+          console.log("mouseX", mouseX)
 
           const goodDx = screenFitsGoodAnnotationDx ? -dx : dx
           const goodDy = screenFitsGoodAnnotationDy ? -dy : dy
 
           this.addAnnotation(goodDescription, xScale(incidentData[selectedASN][incIndex].goodPeriodStart) + goodWidth / 2, goodYmax, goodDx, goodDy)
-
-          // if (screenFitsGoodAnnotation) {
-          //   this.infoHoverBox.append('rect')
-          //   .classed('good-incident-area', true)
-          //   .attr('x', xScale(incidentData[selectedASN][incIndex].goodPeriodStart))
-          //   .attr('y', goodYmax)
-          //   .attr('width', goodWidth)
-          //   .attr('height', plotAreaHeight - goodYmax);
-
-          //   this.infoHoverBox.append('text')
-          //   .classed('good-hover-text', true)
-          //   .attr('x', xScale(incidentData[selectedASN][incIndex].goodPeriodStart) + goodWidth / 2)
-          //   .attr('y', goodYmax + goodHeight / 2)
-          //   .attr('alignment-baseline', 'central')
-          //   .attr('text-anchor", "middle')
-          //   .text(goodDescription)
-          // }
         }
 
         // Draw the hover state for the bad period information
