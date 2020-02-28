@@ -7,6 +7,7 @@ import IncidentTip from '../IncidentTip/IncidentTip';
 // import { colorsFor } from '../../utils/color';
 
 import './IspSelectWithIncidents.scss';
+import {Icon} from '../../components';
 
 /**
  * ISP Selection and display component
@@ -93,16 +94,17 @@ export default class IspSelectWithIncidents extends PureComponent {
   toggleDropdown() {
     const items = document.getElementById('items');
     const anchor = document.getElementById('anchor');
+    const arrow = document.getElementById('dropdown-arrow');
     if (items.classList.contains('visible')) {
       items.classList.remove('visible');
       items.style.display = 'none';
-      // Make border-radius 4 for bottom corners of anchor
+      arrow.style.transform = 'none';
       anchor.style.borderRadius = '4px';
     } else {
       items.classList.add('visible');
       items.style.display = 'block';
-      // Make border-radius 0 for bottom corners of anchor
       anchor.style.borderRadius = '4px 4px 0px 0px';
+      arrow.style.transform = 'translateY(6px) rotate(180deg)';
     }
   }
 
@@ -120,7 +122,7 @@ export default class IspSelectWithIncidents extends PureComponent {
     );
 
     // if provided ISP was unselected, we then force select it
-    if (selected.length === ispsToRemoveObjs.length) { 
+    if (selected.length === ispsToRemoveObjs.length) {
       const incidentObject = isps.find(isp => isp.client_asn_number === incidentASN);
       filtered.push(incidentObject);
     }
@@ -164,14 +166,21 @@ export default class IspSelectWithIncidents extends PureComponent {
     const items = options.map(option => {
       const checkedVal = !!selectedASNs.includes(option.value);
       if ('hasInc' in option) {
-        return <li key={option.value}><input type="checkbox" id={option.value} checked={checkedVal} onClick={this.toggleCheckbox} /> {option.label}<IncidentTip id="incident-isp-tip" /> <button className="show-inc-btn" id={option.value} onClick={this.showIncident}>Show Incident</button></li>;
+        return (<li key={option.value}>
+          <input className="isp-toggle-checkbox" type="checkbox" id={option.value} checked={checkedVal} onClick={this.toggleCheckbox} />
+          {option.label} <IncidentTip id="incident-isp-tip" /> 
+          <button className="show-inc-btn" id={option.value} onClick={this.showIncident}>Show Incident</button>
+        </li>);
       }
-      return <li key={option.value}><input type="checkbox" id={option.value} checked={checkedVal} onClick={this.toggleCheckbox} /> {option.label}</li>;
+      return (<li key={option.value}>
+        <input className="isp-toggle-checkbox" type="checkbox" id={option.value} checked={checkedVal} onClick={this.toggleCheckbox} />
+        {option.label}
+      </li>);
     });
 
     return (
       <div className="dropdownCheckList">
-        <span id="anchor" className="anchor" onClick={this.toggleDropdown}>Select Client ISP to view</span>
+        <span id="anchor" className="anchor" onClick={this.toggleDropdown}>Select Client ISP to view <Icon id="dropdown-arrow" className="dropdown-arrow" name="sort-down" /></span>
         <ul id="items" className="items">
           {items}
         </ul>
@@ -222,7 +231,7 @@ export default class IspSelectWithIncidents extends PureComponent {
       <div >
         {this.renderDropdown()}
         {/* {this.renderSelectedIsps(selected)} */}
-       </div>
+      </div>
     );
   }
 }
