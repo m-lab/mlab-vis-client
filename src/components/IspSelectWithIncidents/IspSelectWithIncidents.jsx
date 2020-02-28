@@ -93,16 +93,28 @@ export default class IspSelectWithIncidents extends PureComponent {
 
   showIncident(value) {
     const { isps, changeTimeAggregation } = this.props;
+    // HERE IS THE SITUATION:
+    // Both of these functions use 'callbacks' defined in location page to do their shit.
+    // You can use either of them, but the one that appears below the other one overrides its predecessor.
+    // One way to possibly solve this issue would involve writing a new function in LocationPage that runs both
+    // of these properly and then passing that function down to this component to be called.
+
+    // If you look in Location page at what these callback functions do, they really are just calling a function passed
+    // by props called 'Dispatch' which is a redux thing. So if we wanted to follow the callback breadcrumbs all the way
+    // to the point when we could address this async problem, it would involve dealing with redux files (in the redux directory)
+    
+    // The reason that I think this is an async problem in the first place is that it involves changing the url.
+    // IDEA: Maybe we could find a solution by looking in LocationPage for a time when they try and use two 
+    // redux-url-altering callbacks in tandem and replicate the way that they do that but with changeISPs and changeAggr.
 
     // deselect all other ISPs except the ISP with incidents
     this.removeAllExceptOne(value.target.id);
 
     // TODO: force time aggregation to month view
-    // changeTimeAggregation('month');
+    changeTimeAggregation('month');
 
     // TODO: toggle the incident viewer on
   }
-
 
   toggleDropdown() {
     const items = document.getElementById('items');
