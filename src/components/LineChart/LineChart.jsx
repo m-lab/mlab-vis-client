@@ -319,146 +319,107 @@ class LineChart extends PureComponent {
         const goodHeight = plotAreaHeight - goodYmax;
         const badHeight = plotAreaHeight - badYmax;
         const incidentHeight = Math.abs(badYmax - goodYmax);
-        // NOTE: This also must be manually tuned. It hides hover text in the case that the area is too small for the text to fit.
-        const rectFitsText = (goodWidth > 180) && (badWidth > 180);
+        // Values chosen for aesthetic purposes
+        const dx = 30
+        const dy = 20
 
         // TODO(amy): fix linter issues here without breaking hover functionality
-        // Draw the hover state for the good period information
-        if (highlightedDate.isBefore(incidentData[selectedASN][incIndex].goodPeriodEnd) && highlightedDate.isSameOrAfter(incidentData[selectedASN][incIndex].goodPeriodStart) && mouseY > goodYmax) {
-          
+        // Draw the hover state for the good period information when mouse hovers over the median download speed line
+        if (highlightedDate.isBefore(incidentData[selectedASN][incIndex].goodPeriodEnd) && highlightedDate.isSameOrAfter(incidentData[selectedASN][incIndex].goodPeriodStart) && (mouseY < goodYmax+10) && (mouseY > goodYmax-10)) {
+          const screenFitsGoodAnnotationDx = true
+          const screenFitsGoodAnnotationDy = true
 
-          if (rectFitsText) {
-            this.infoHoverBox.append('rect')
-            .classed('good-incident-area', true)
-            .attr('x', xScale(incidentData[selectedASN][incIndex].goodPeriodStart))
-            .attr('y', goodYmax)
-            .attr('width', goodWidth)
-            .attr('height', plotAreaHeight - goodYmax);
+          const goodDx = screenFitsGoodAnnotationDx ? -dx : dx
+          const goodDy = screenFitsGoodAnnotationDy ? -dy : dy
 
-            this.infoHoverBox.append('text')
-            .classed('good-hover-text', true)
-            .attr('x', xScale(incidentData[selectedASN][incIndex].goodPeriodStart) + goodWidth / 2)
-            .attr('y', goodYmax + goodHeight / 2)
-            .attr('alignment-baseline', 'central')
-            .attr('text-anchor", "middle')
-            .text(goodDescription)
-          }
-          else {
-            // TODO: this is where the incident annotation goes
-            // annotations for hovering over an incident
-              const annotation = [
-                {
-                  note: {
-                    label: goodDescription,
-                  },
-                  x: xScale(incidentData[selectedASN][incIndex].goodPeriodStart) + goodWidth / 2,
-                  y: goodYmax,
-                  // TODO: figure out where to put these on the graph
-                  dy: -20,
-                  dx: -50
-                }
-              ]
-              // Add to chart
-              
-              var makeAnnotations = svgAnnotation.annotation()
-                .annotations(annotation)
-                d3.select(".incident-annotation")
-                  .append("g")
-                  .style('font-size', 10)
-                  .call(makeAnnotations)
-              this.incidentAnnotation.append(makeAnnotations)
-          }
+          this.addAnnotation(goodDescription, xScale(incidentData[selectedASN][incIndex].goodPeriodStart) + goodWidth / 2, goodYmax, goodDx, goodDy)
+
+          // if (screenFitsGoodAnnotation) {
+          //   this.infoHoverBox.append('rect')
+          //   .classed('good-incident-area', true)
+          //   .attr('x', xScale(incidentData[selectedASN][incIndex].goodPeriodStart))
+          //   .attr('y', goodYmax)
+          //   .attr('width', goodWidth)
+          //   .attr('height', plotAreaHeight - goodYmax);
+
+          //   this.infoHoverBox.append('text')
+          //   .classed('good-hover-text', true)
+          //   .attr('x', xScale(incidentData[selectedASN][incIndex].goodPeriodStart) + goodWidth / 2)
+          //   .attr('y', goodYmax + goodHeight / 2)
+          //   .attr('alignment-baseline', 'central')
+          //   .attr('text-anchor", "middle')
+          //   .text(goodDescription)
+          // }
         }
 
         // Draw the hover state for the bad period information
-        if (highlightedDate.isSameOrBefore(incidentData[selectedASN][incIndex].badPeriodEnd) && highlightedDate.isSameOrAfter(incidentData[selectedASN][incIndex].badPeriodStart) && mouseY > badYmax) {
+        if (highlightedDate.isSameOrBefore(incidentData[selectedASN][incIndex].badPeriodEnd) && highlightedDate.isSameOrAfter(incidentData[selectedASN][incIndex].badPeriodStart) && (mouseY < badYmax+10) && (mouseY > badYmax-10)) {
+          const screenFitsBadAnnotationDx = true
+          const screenFitsBadAnnotationDy = true
 
-          if (rectFitsText) {
-            this.infoHoverBox.append('rect')
-            .classed("bad-incident-area", true)
-            .attr('x', xScale(incidentData[selectedASN][incIndex].badPeriodStart))
-            .attr('y', badYmax)
-            .attr('width', badWidth)
-            .attr('height', plotAreaHeight - badYmax);
+          const badDx = screenFitsBadAnnotationDx ? dx : -dx
+          const badDy = screenFitsBadAnnotationDy ? dy : -dy
 
-            this.infoHoverBox.append('text')
-            .classed('bad-hover-text', true)            
-            .attr('y', badYmax + badHeight / 2)
-            .attr('text-anchor', 'middle')
-            .attr('alignment-baseline', 'central')
-            .attr('x', xScale(incidentData[selectedASN][incIndex].badPeriodStart) + badWidth / 2)
-            .text(badDescription);
-          }
-          else {
-            // TODO: this is where the incident annotation goes
-            // annotations for hovering over an incident
-              const annotation = [
-                {
-                  note: {
-                    label: badDescription,
-                  },
-                  x: xScale(incidentData[selectedASN][incIndex].badPeriodStart) + badWidth / 2,
-                  y: badYmax,
-                  // TODO: figure out where to put these on the graph
-                  dy: 10,
-                  dx: 30
-                }
-              ]
-              // Add to chart
-              var makeAnnotations = svgAnnotation.annotation()
-                .annotations(annotation)
-                d3.select(".incident-annotation")
-                  .append("g")
-                  .style('font-size', 10)
-                  .call(makeAnnotations)
-          }
+          this.addAnnotation(badDescription, xScale(incidentData[selectedASN][incIndex].badPeriodStart) + badWidth / 2, badYmax, badDx, badDy)
+
+          // TODO [Jacqui]: change this case so that it draws the annotation in a good spot depending on the graph width
+          // if (screenFitsBadAnnotation) {
+            
+            // this.infoHoverBox.append('rect')
+            // .classed("bad-incident-area", true)
+            // .attr('x', xScale(incidentData[selectedASN][incIndex].badPeriodStart))
+            // .attr('y', badYmax)
+            // .attr('width', badWidth)
+            // .attr('height', plotAreaHeight - badYmax);
+
+            // this.infoHoverBox.append('text')
+            // .classed('bad-hover-text', true)            
+            // .attr('y', badYmax + badHeight / 2)
+            // .attr('text-anchor', 'middle')
+            // .attr('alignment-baseline', 'central')
+            // .attr('x', xScale(incidentData[selectedASN][incIndex].badPeriodStart) + badWidth / 2)
+            // .text(badDescription);
+          // }
+          // else {
+          //   this.addAnnotation(badDescription, xScale(incidentData[selectedASN][incIndex].badPeriodStart) + badWidth / 2, badYmax, 30, 10)
+          // }
         }
 
         // Draw the hover state for the incident information
-        if (highlightedDate.isSameOrBefore(incidentData[selectedASN][incIndex].badPeriodEnd) && highlightedDate.isSameOrAfter(incidentData[selectedASN][incIndex].badPeriodStart) && mouseY < badYmax && mouseY > goodYmax) {
-          
-          if (rectFitsText) {
-            this.infoHoverBox.append('rect')
-            .classed("incident-area", true)
-            .attr('x', xScale(incidentData[selectedASN][incIndex].badPeriodStart))
-            .attr('y', goodYmax)
-            .attr('width', badWidth)
-            .attr('height', badYmax - goodYmax);
+        const dateRangeEnd = incidentData[selectedASN][incIndex].badPeriodStart.clone().add(1, 'M')
+        const dateRangeStart = incidentData[selectedASN][incIndex].badPeriodStart.clone()
 
-            this.infoHoverBox.append('text')
-            .classed('incident-hover-text', true)           
-            .attr('y', badYmax - incidentHeight / 2)
-            .attr('text-anchor', 'middle')
-            .attr('alignment-baseline', 'central')
-            .attr('x', xScale(incidentData[selectedASN][incIndex].badPeriodStart) + badWidth / 2)
-            .text(incidentDescription);
-          }
-          else {
-            // TODO: this is where the incident annotation goes
-            // annotations for hovering over an incident
-              const annotation = [
-                {
-                  note: {
-                    label: incidentDescription,
-                  },
-                  x: xScale(incidentData[selectedASN][incIndex].badPeriodStart),
-                  y: badYmax,
-                  // TODO: figure out where to put these on the graph
-                  dy: -15,
-                  dx: 30
-                }
-              ]
-              // Add to chart
-              var makeAnnotations = svgAnnotation.annotation()
-                .annotations(annotation)
-                d3.select(".incident-annotation")
-                  .append("g")
-                  .style('font-size', 10)
-                  .call(makeAnnotations)
-          }
+        if (highlightedDate.isSameOrAfter(dateRangeStart) && highlightedDate.isSameOrBefore(dateRangeEnd) && mouseY < badYmax && mouseY > goodYmax) {
+          
+          // If incident is drawn, then there will always be sufficient space for annotation to be added
+          this.addAnnotation(incidentDescription, xScale(incidentData[selectedASN][incIndex].badPeriodStart), badYmax, dx, -dy)
         }
       }
     }
+  }
+// TODO: jacqui
+  /**
+   * Add incident annotations to the graph
+   */
+  addAnnotation(description, x, y, dx, dy) {
+    const annotation = [
+      {
+        note: {
+          label: description,
+        },
+        x,
+        y,
+        dx,
+        dy
+      }
+    ]
+    // Append annotation to the graph
+    var makeAnnotations = svgAnnotation.annotation()
+      .annotations(annotation)
+      d3.select(".incident-annotation")
+        .append("g")
+        .style('font-size', 10) //TODO: make this bold
+        .call(makeAnnotations)
   }
 
   /**
