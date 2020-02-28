@@ -2,9 +2,9 @@
 import React, { PureComponent, PropTypes } from 'react';
 import IncidentTip from '../IncidentTip/IncidentTip';
 
-import { Icon } from '../../components';
+// import { Icon } from '../../components';
 
-import { colorsFor } from '../../utils/color';
+// import { colorsFor } from '../../utils/color';
 
 import './IspSelectWithIncidents.scss';
 
@@ -69,24 +69,6 @@ export default class IspSelectWithIncidents extends PureComponent {
     }
   }
 
-  toggleDropdown() {
-    var items = document.getElementById('items');
-    var anchor = document.getElementById('anchor');
-    if (items.classList.contains('visible')){
-      items.classList.remove('visible');
-      items.style.display = "none";
-      // Make border-radius 4 for bottom corners of anchor
-      anchor.style.borderRadius = "4px";
-    }
-  
-    else {
-        items.classList.add('visible');
-        items.style.display = "block";
-      // Make border-radius 0 for bottom corners of anchor
-      anchor.style.borderRadius = "4px 4px 0px 0px";
-    }
-  }
-
   /**
    * convert array of ISPs to an array of options to display
    * @param {Array} isps ISPs to convert
@@ -106,6 +88,22 @@ export default class IspSelectWithIncidents extends PureComponent {
       }
     }
     return options;
+  }
+
+  toggleDropdown() {
+    const items = document.getElementById('items');
+    const anchor = document.getElementById('anchor');
+    if (items.classList.contains('visible')) {
+      items.classList.remove('visible');
+      items.style.display = 'none';
+      // Make border-radius 4 for bottom corners of anchor
+      anchor.style.borderRadius = '4px';
+    } else {
+      items.classList.add('visible');
+      items.style.display = 'block';
+      // Make border-radius 0 for bottom corners of anchor
+      anchor.style.borderRadius = '4px 4px 0px 0px';
+    }
   }
 
   /**
