@@ -69,14 +69,19 @@ export default class IspSelectWithIncidents extends PureComponent {
 
   toggleDropdown() {
     var items = document.getElementById('items');
+    var anchor = document.getElementById('anchor');
     if (items.classList.contains('visible')){
       items.classList.remove('visible');
       items.style.display = "none";
+      // Make border-radius 4 for bottom corners of anchor
+      anchor.style.borderRadius = "4px";
     }
   
     else {
         items.classList.add('visible');
         items.style.display = "block";
+      // Make border-radius 0 for bottom corners of anchor
+      anchor.style.borderRadius = "4px 4px 0px 0px";
     }
   }
 
@@ -146,7 +151,7 @@ export default class IspSelectWithIncidents extends PureComponent {
 
     return (
       <div className="dropdownCheckList">
-        <span className="anchor" onClick={this.toggleDropdown}>Select Client ISP to view</span>
+        <span id="anchor" className="anchor" onClick={this.toggleDropdown}>Select Client ISP to view</span>
         <ul id="items" className="items">
           {items}
         </ul>
