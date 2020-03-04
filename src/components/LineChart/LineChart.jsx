@@ -48,10 +48,10 @@ function getYdomain(props) {
   if (!yDomain) {
     yDomain = multiExtent(combinedData, d => d[yKey], oneSeries => oneSeries.results) || [];
 
-    if (yDomain[0] == null) {
+    if (yDomain[0] === null) {
       yDomain[0] = 0;
     }
-    if (yDomain[1] == null) {
+    if (yDomain[1] === null) {
       yDomain[1] = 1;
     }
   }
