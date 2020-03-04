@@ -95,8 +95,8 @@
   border-top: none;
   width: 100%;
   padding-inline-start: 0px;
-  
 }
+
 .dropdownCheckList ul.items li {
   list-style: none;
   background-color: #fff;
@@ -135,7 +135,10 @@
 
 .dropdown-arrow {
   float: right;
-  // display: inline-block;
   right: 8px;
-  color: #999
+  color: #999;
+  -webkit-transition: 0.1s linear;
+  -moz-transition: 0.1s linear;
+  -o-transition:0.1s linear;
+  transition: 0.1s linear;
 }
