@@ -273,8 +273,8 @@ class LineChart extends PureComponent {
    * @return {void}
    */
   onMouseMove(mouse) {
-    const { plotAreaHeight, plotAreaWidth, forceZeroMin, incidentData, selectedASN, onHighlightDate, series, annotationSeries, xExtent, xScale, xKey, yScale, yKey, yExtent } = this.props;
-
+    const { plotAreaHeight, forceZeroMin, incidentData, selectedASN, onHighlightDate, series, annotationSeries, xExtent, xScale, xKey, yScale, yKey, yExtent } = this.props;
+    
     if (!onHighlightDate) {
       return;
     }
@@ -322,8 +322,6 @@ class LineChart extends PureComponent {
         const badWidth = xScale(incidentData[selectedASN][incIndex].badPeriodEnd)
           - xScale(incidentData[selectedASN][incIndex].badPeriodStart);
         const goodHeight = plotAreaHeight - goodYmax;
-        // const badHeight = plotAreaHeight - badYmax;
-        // const incidentHeight = Math.abs(badYmax - goodYmax);
         // Values chosen for aesthetic purposes
         const dx = 30;
         const dy = 20;
