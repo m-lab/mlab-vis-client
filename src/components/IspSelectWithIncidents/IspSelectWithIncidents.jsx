@@ -7,7 +7,7 @@ import IncidentTip from '../IncidentTip/IncidentTip';
 // import { colorsFor } from '../../utils/color';
 
 import './IspSelectWithIncidents.scss';
-import {Icon} from '../../components';
+import { Icon } from '../../components';
 
 /**
  * ISP Selection and display component
