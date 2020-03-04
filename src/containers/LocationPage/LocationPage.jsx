@@ -146,7 +146,7 @@ class LocationPage extends PureComponent {
     super(props);
 
     this.state = {
-      selected_isp: null, // This is the selected ISP object
+      incident_asn: null, // This is the selected ISP object
     };
 
     // bind handlers
@@ -161,6 +161,7 @@ class LocationPage extends PureComponent {
     this.onSelectedClientIspsChange = this.onSelectedClientIspsChange.bind(this);
     this.onShowIncidentChange = this.onShowIncidentChange.bind(this);
     this.onDateRangeChange = this.onDateRangeChange.bind(this);
+    this.changeIncidentASN = this.changeIncidentASN.bind(this);
   }
 
   componentDidMount() {
@@ -351,6 +352,14 @@ class LocationPage extends PureComponent {
   }
 
   /**
+   * Changes the state which determines which ISP to render incidents for (if present)
+   * @param {String} asn the asn number for the incident object if specified
+   */
+  changeIncidentASN(asn) {
+    this.setState({ incident_asn: asn }, () => {});
+  }
+
+  /**
    * Helper to get the extent key based on the metric
    *
    * Combines upload and download as 'throughput'
@@ -437,6 +446,7 @@ class LocationPage extends PureComponent {
           selected={selectedClientIspInfo}
           onChange={this.onSelectedClientIspsChange}
           onShowIncident={this.onShowIncidentChange}
+          onChangeIncidentASN={this.changeIncidentASN}
         />
       </div>
     );
@@ -530,7 +540,7 @@ class LocationPage extends PureComponent {
               onHighlightLine={this.onHighlightTimeSeriesLine}
               highlightLine={highlightTimeSeriesLine}
               incidentData={incidentData}
-              selectedASN={this.state.selected_isp ? this.state.selected_isp.client_asn_number : null}
+              selectedASN={this.state.incident_asn ? this.state.incident_asn : null}
               yFormatter={viewMetric.formatter}
               xKey="date"
               yAxisLabel={viewMetric.label}

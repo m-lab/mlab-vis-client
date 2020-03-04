@@ -14,6 +14,7 @@ export default class IspSelectWithIncidents extends PureComponent {
     incidentData: React.PropTypes.object,
     isps: PropTypes.object,
     onChange: React.PropTypes.func,
+    onChangeIncidentASN: React.PropTypes.func,
     onShowIncident: React.PropTypes.func,
     placeholder: PropTypes.string,
     selected: PropTypes.array,
@@ -43,7 +44,9 @@ export default class IspSelectWithIncidents extends PureComponent {
    * @param {Object} {value: label:} option object to Add
    */
   onAdd(addValue) {
-    const { selected, onChange } = this.props;
+    const { selected, onChange, onChangeIncidentASN } = this.props;
+    // remove incident viewer if present
+    onChangeIncidentASN();
     // convert to options first
     const values = this.getOptions(selected);
     values.push({ value: addValue.client_asn_number, label: addValue.client_asn_name });
@@ -58,7 +61,9 @@ export default class IspSelectWithIncidents extends PureComponent {
    * @param {Object} ISP object to remove
    */
   onRemove(removeValue) {
-    const { selected, onChange } = this.props;
+    const { selected, onChange, onChangeIncidentASN } = this.props;
+    // remove incident viewer if present
+    onChangeIncidentASN();
     const filtered = selected.filter((isp) => isp.client_asn_number !== removeValue.client_asn_number);
     const values = this.getOptions(filtered);
     if (onChange) {
@@ -87,9 +92,12 @@ export default class IspSelectWithIncidents extends PureComponent {
   }
 
   showIncident(value) {
+    const { onChangeIncidentASN } = this.props;
+    const incidentASN = value.target.id;
     // deselect all other ISPs except the ISP with incidents and force time aggregation to month
-    this.removeAllExceptOne(value.target.id);
-    // TODO: Toggle the incident viewer on
+    this.removeAllExceptOne(incidentASN);
+    // toggle the incident viewer on
+    onChangeIncidentASN(incidentASN);
   }
 
   toggleDropdown() {
