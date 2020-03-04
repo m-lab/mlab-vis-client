@@ -155,21 +155,35 @@ export default class IspSelectWithIncidents extends PureComponent {
     const items = options.map(option => {
       const checkedVal = !!selectedASNs.includes(option.value);
       if ('hasInc' in option) {
-        return (<li key={option.value}>
-          <input className="isp-toggle-checkbox" type="checkbox" id={option.value} checked={checkedVal} onClick={this.toggleCheckbox} />
-          {option.label} <IncidentTip id="incident-isp-tip" /> 
-          <button className="show-inc-btn" id={option.value} onClick={this.showIncident}>Show Incident</button>
-        </li>);
+        return (
+          <li key={option.value}>
+            <input
+              className="isp-toggle-checkbox"
+              type="checkbox" id={option.value}
+              checked={checkedVal}
+              onClick={this.toggleCheckbox}
+            />
+            {option.label} <IncidentTip id="incident-isp-tip" />
+            <button className="show-inc-btn" id={option.value} onClick={this.showIncident}>Show Incident</button>
+          </li>
+        );
       }
       return (<li key={option.value}>
-        <input className="isp-toggle-checkbox" type="checkbox" id={option.value} checked={checkedVal} onClick={this.toggleCheckbox} />
+        <input
+          className="isp-toggle-checkbox"
+          type="checkbox" id={option.value}
+          checked={checkedVal}
+          onClick={this.toggleCheckbox}
+        />
         {option.label}
       </li>);
     });
 
     return (
       <div className="dropdownCheckList">
-        <span id="anchor" className="anchor" onClick={this.toggleDropdown}>Select Client ISP to view <Icon id="dropdown-arrow" className="dropdown-arrow" name="sort-down" /></span>
+        <span id="anchor" className="anchor" onClick={this.toggleDropdown}>Select Client ISP to view
+          <Icon id="dropdown-arrow" className="dropdown-arrow" name="sort-down" />
+        </span>
         <ul id="items" className="items">
           {items}
         </ul>
