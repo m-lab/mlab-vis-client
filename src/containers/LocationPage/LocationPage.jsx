@@ -149,9 +149,6 @@ class LocationPage extends PureComponent {
       selected_isp: null, // This is the selected ISP object
     };
 
-    // getting list of isps with incidents to pass into isp select dropdown
-    this.ispsWithIncidents = [];
-
     // bind handlers
     this.onHighlightHourly = this.onHighlightHourly.bind(this);
     this.onHighlightTimeSeriesDate = this.onHighlightTimeSeriesDate.bind(this);
@@ -162,7 +159,6 @@ class LocationPage extends PureComponent {
     this.onCompareMetricsChange = this.onCompareMetricsChange.bind(this);
     this.onTimeAggregationChange = this.onTimeAggregationChange.bind(this);
     this.onSelectedClientIspsChange = this.onSelectedClientIspsChange.bind(this);
-    // this.onSelectedIncidentClientIspsChange = this.onSelectedIncidentClientIspsChange.bind(this);
     this.onShowIncidentChange = this.onShowIncidentChange.bind(this);
     this.onDateRangeChange = this.onDateRangeChange.bind(this);
   }
@@ -205,27 +201,6 @@ class LocationPage extends PureComponent {
     }
 
     this.fetchSelectedClientIspData(props);
-
-    // TODO: find a better way of populating the labels for the incident dropdown before pull request
-    // Creating asn number to label dictionary
-    const asnNumToLabel = {};
-    for (const currentISP in this.props.topClientIsps) {  // TODO: fix linter loop issues once rendering
-      const currentAsnNum = this.props.topClientIsps[currentISP].client_asn_number;
-      if (currentAsnNum in incidentData) {
-        if (!asnNumToLabel[currentAsnNum]) {
-          asnNumToLabel[currentAsnNum] = this.props.topClientIsps[currentISP].label;
-        }
-      }
-    }
-
-    this.ispsWithIncidents = [];
-    for (const asn in incidentData) {
-      const asnData = {
-        client_asn_name: asnNumToLabel[asn],
-        client_asn_number: asn,
-      };
-      this.ispsWithIncidents.push(asnData);
-    }
   }
 
   fetchSelectedClientIspData(props) {
@@ -331,35 +306,6 @@ class LocationPage extends PureComponent {
     dispatch(LocationPageActions.changeSelectedClientIspIds(ispIds));
   }
 
-  // TODO: Can delete this function after incident viewer is implemented, was previously used in the incident dropdown
-  /**
-   * Callback for when a line is highlighted in time series
-   */
-  onSelectedIncidentClientIspsChange(selectedASNs) {
-    const { clientIspTimeSeries } = this.props;
-
-    let selectedIspId;
-    const valLen = selectedASNs.length;
-    if (valLen === 0) {
-      this.setState({ selected_isp: null });
-    } else {
-      if (valLen === 1) {
-        selectedIspId = selectedASNs[0];
-      } else {
-        selectedIspId = selectedASNs[1];
-      }
-
-      let jsonObj = {};
-      for (const obj in this.ispsWithIncidents) {
-        if (this.ispsWithIncidents[obj].client_asn_number === selectedIspId) {
-          jsonObj = this.ispsWithIncidents[obj];
-        }
-      }
-      this.setState({ selected_isp: jsonObj }, () => {
-      });
-    }
-  }
-
   /**
    * Callback to show an incident and change the time aggregation to month
    * @param {Array} ispIds Ids of ISPs to change
@@ -424,7 +370,7 @@ class LocationPage extends PureComponent {
   renderCityProviders() {
     const { locationInfo } = this.props;
     const locationName = (locationInfo && (locationInfo.shortLabel || locationInfo.label)) || 'Loading...';
-    
+
     return (
       <div className="section">
         <header>
