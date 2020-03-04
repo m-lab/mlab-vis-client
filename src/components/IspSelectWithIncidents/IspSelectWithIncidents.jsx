@@ -2,10 +2,6 @@
 import React, { PureComponent, PropTypes } from 'react';
 import IncidentTip from '../IncidentTip/IncidentTip';
 
-// import { Icon } from '../../components';
-
-// import { colorsFor } from '../../utils/color';
-
 import './IspSelectWithIncidents.scss';
 import { Icon } from '../../components';
 
@@ -156,7 +152,6 @@ export default class IspSelectWithIncidents extends PureComponent {
     // TODO: maybe have isps be a asn number to corresponding object map so it doesn't have to create it each time its rendered
     const selectedASNs = selected.map(obj => obj.client_asn_number);
 
-    // TODO: Before making pull request make sure that console errors dont result from async and this code.
     const items = options.map(option => {
       const checkedVal = !!selectedASNs.includes(option.value);
       if ('hasInc' in option) {
@@ -182,40 +177,6 @@ export default class IspSelectWithIncidents extends PureComponent {
     );
   }
 
-  // TODO: put selected pills back
-  // /**
-  //  * Render individual isp name
-  //  * @return {React.Component} active isps
-  //  */
-  // renderIsp(isp, color) {
-  //   const style = { backgroundColor: color };
-  //   return (
-  //     <div key={isp.client_asn_number} className="selected-isp" style={style}>
-  //       <span className="isp-label">{isp.client_asn_name}</span>
-  //       <Icon
-  //         name="close"
-  //         className="isp-remove-control"
-  //         onClick={() => this.onRemove(isp)}
-  //       />
-  //     </div>
-  //   );
-  // }
-
-  // /**
-  //  * Render selected ISP pills
-  //  * @return {React.Component} active isps
-  //  */
-  // renderSelectedIsps(selectedIsps) {
-  //   const colors = colorsFor(selectedIsps, (d) => d.client_asn_number);
-  //   return (
-  //     <div className="active-isps">
-  //       {selectedIsps.map((selectedIsp) =>
-  //         this.renderIsp(selectedIsp, colors[selectedIsp.client_asn_number])
-  //       )}
-  //     </div>
-  //   );
-  // }
-
   /**
    * The main render method.
    * @return {React.Component} The rendered container
@@ -224,7 +185,6 @@ export default class IspSelectWithIncidents extends PureComponent {
     return (
       <div >
         {this.renderDropdown()}
-        {/* {this.renderSelectedIsps(selected)} */}
       </div>
     );
   }
