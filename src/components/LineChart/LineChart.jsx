@@ -12,6 +12,58 @@ import { testThreshold } from '../../constants';
 import './LineChart.scss';
 
 /**
+ * Find the domain of date values in the graph
+ */
+function getXdomain(props) {
+  const {
+    series = [],
+    xExtent,
+    xKey,
+    annotationSeries,
+  } = props;
+
+  const combinedData = [...series, ...annotationSeries];
+
+  // set up the domains based on extent. Use the prop if provided, otherwise calculate
+  let xDomain = xExtent;
+  if (!xDomain) {
+    xDomain = multiExtent(combinedData, d => d[xKey], oneSeries => oneSeries.results);
+  }
+  return xDomain;
+}
+
+/**
+ * Find the range of y-values in the graph
+ */
+function getYdomain(props) {
+  const {
+    series = [],
+    forceZeroMin,
+    yExtent,
+    yKey,
+    annotationSeries,
+  } = props;
+  const combinedData = [...series, ...annotationSeries];
+  let yDomain = yExtent;
+  if (!yDomain) {
+    yDomain = multiExtent(combinedData, d => d[yKey], oneSeries => oneSeries.results) || [];
+
+    if (yDomain[0] == null) {
+      yDomain[0] = 0;
+    }
+    if (yDomain[1] == null) {
+      yDomain[1] = 1;
+    }
+  }
+
+  // force 0 as the min in the yDomain if specified
+  if (forceZeroMin) {
+    yDomain = [0, yDomain ? yDomain[1] : 1];
+  }
+  return yDomain;
+}
+
+/**
  * Figure out what is needed to render the chart
  * based on the props of the component
  */
@@ -20,16 +72,13 @@ function visProps(props) {
     idKey,
     labelKey,
     series = [],
-    forceZeroMin,
     height,
     paddingLeft = 50,
     paddingRight = 20,
     incidentData,
     threshold,
     width,
-    xExtent,
     xKey,
-    yExtent,
     yKey,
     yFormatter,
   } = props;
@@ -79,28 +128,8 @@ function visProps(props) {
   const xMax = plotAreaWidth;
   const yMin = plotAreaHeight;
   const yMax = 0;
-
-  // set up the domains based on extent. Use the prop if provided, otherwise calculate
-  let xDomain = xExtent;
-  if (!xDomain) {
-    xDomain = multiExtent(combinedData, d => d[xKey], oneSeries => oneSeries.results);
-  }
-  let yDomain = yExtent;
-  if (!yDomain) {
-    yDomain = multiExtent(combinedData, d => d[yKey], oneSeries => oneSeries.results) || [];
-
-    if (yDomain[0] == null) {
-      yDomain[0] = 0;
-    }
-    if (yDomain[1] == null) {
-      yDomain[1] = 1;
-    }
-  }
-
-  // force 0 as the min in the yDomain if specified
-  if (forceZeroMin) {
-    yDomain = [0, yDomain ? yDomain[1] : 1];
-  }
+  const xDomain = getXdomain(props);
+  const yDomain = getYdomain(props);
 
   // use the props xScale if provided, otherwise compute it
   if (!xScale) {
@@ -274,7 +303,7 @@ class LineChart extends PureComponent {
    */
   onMouseMove(mouse) {
     const { plotAreaHeight, forceZeroMin, incidentData, selectedASN, onHighlightDate, series, annotationSeries, xExtent, xScale, xKey, yScale, yKey, yExtent } = this.props;
-    
+
     if (!onHighlightDate) {
       return;
     }
@@ -326,28 +355,8 @@ class LineChart extends PureComponent {
         const dx = 30;
         const dy = 20;
         const padding = 10;
-
-        const combinedData = [...series, ...annotationSeries];
-        let xDomain = xExtent;
-        if (!xDomain) {
-          xDomain = multiExtent(combinedData, d => d[xKey], oneSeries => oneSeries.results);
-        }
-        let yDomain = yExtent;
-        if (!yDomain) {
-          yDomain = multiExtent(combinedData, d => d[yKey], oneSeries => oneSeries.results) || [];
-
-          if (yDomain[0] == null) {
-            yDomain[0] = 0;
-          }
-          if (yDomain[1] == null) {
-            yDomain[1] = 1;
-          }
-        }
-
-        // force 0 as the min in the yDomain if specified
-        if (forceZeroMin) {
-          yDomain = [0, yDomain ? yDomain[1] : 1];
-        }
+        const xDomain = getXdomain(this.props);
+        const yDomain = getYdomain(this.props);
         const rightPixels = xScale(xDomain[1]) - xScale(badEnd);
         const bottomPixels = yScale(yDomain[0]) - badYmax;
         const screenFitsGoodAnnotationDy = plotAreaHeight > goodHeight + (2 * dy) + padding;
