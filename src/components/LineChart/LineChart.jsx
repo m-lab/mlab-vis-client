@@ -325,8 +325,6 @@ class LineChart extends PureComponent {
     }
 
     onHighlightDate(closest);
-
-    // const highlightedDate = closest;
     const highlightedDate = moment(closest);
 
     this.infoHoverBox.selectAll('*').remove();
