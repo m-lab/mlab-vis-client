@@ -12,7 +12,7 @@ export default class IspSelectWithIncidents extends PureComponent {
 
   static propTypes = {
     incidentData: React.PropTypes.object,
-    isps: PropTypes.array,
+    isps: PropTypes.object,
     onChange: React.PropTypes.func,
     onShowIncident: React.PropTypes.func,
     placeholder: PropTypes.string,
@@ -20,7 +20,7 @@ export default class IspSelectWithIncidents extends PureComponent {
   }
 
   static defaultProps = {
-    isps: [],
+    isps: {},
     selected: [],
   }
 
@@ -67,15 +67,14 @@ export default class IspSelectWithIncidents extends PureComponent {
   }
 
   /**
-   * convert array of ISPs to an array of options to display
+   * convert dictionary of ISPs to an array of options to display
    * @param {Array} isps ISPs to convert
    * @return {Array} array of {value: label:} objects
    */
   getOptions(isps, incidentData) {
-    let options = isps;
+    let options = Object.values(isps);
     options = options.map(isp => ({ value: isp.client_asn_number, label: isp.client_asn_name }));
 
-    // TODO: without checking incidentData, onAdd + onRemove throw errors. Do we always want to pass in incidentData?
     if (incidentData) {
       let i;
       for (i of options) {
@@ -124,8 +123,8 @@ export default class IspSelectWithIncidents extends PureComponent {
     );
 
     // if provided ISP was unselected, we then force select it
-    if (selected.length === ispsToRemoveObjs.length) {
-      const incidentObject = isps.find(isp => isp.client_asn_number === incidentASN);
+    if (selected.length === ispsToRemoveASNs.length) {
+      const incidentObject = isps[incidentASN];
       filtered.push(incidentObject);
     }
 
@@ -138,7 +137,7 @@ export default class IspSelectWithIncidents extends PureComponent {
   toggleCheckbox(value) {
     const { isps } = this.props;
     // get option Object for corresponding ISP
-    const optionObj = isps.find(isp => isp.client_asn_number === value.target.id);
+    const optionObj = isps[value.target.id];
     if (value.target.checked === true) {
       this.onAdd(optionObj);
     } else {

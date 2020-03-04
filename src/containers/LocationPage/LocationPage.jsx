@@ -67,10 +67,9 @@ const fixedFields = [
   { id: 'lastYear', label: 'Last Year' },
 ];
 
-// reading in the sample incident data, will be replaced once API is implemented
+// TODO: Replace once API is implemented, currently reading in the sample incident data
 // eslint-disable-next-line global-require
-// const incidentData = require('./sample_data/demo_incidentData.json');
-const incidentData = {};
+const incidentData = require('./sample_data/demo_incidentData.json');
 
 // convert dates to moment objects within the incidentData object
 if (incidentData) {
@@ -423,12 +422,18 @@ class LocationPage extends PureComponent {
   renderClientIspSelector() {
     const { topClientIsps = [], selectedClientIspInfo } = this.props;
 
+    // Create ASN Number to ISP Object dictionary
+    const asnToISPObj = {};
+    for (const currIsp in topClientIsps) {
+      asnToISPObj[topClientIsps[currIsp].client_asn_number] = topClientIsps[currIsp];
+    }
+
     return (
       <div className="client-isp-selector">
         <h5>Client ISPs <HelpTip id="client-isp-tip" /></h5>
         <IspSelectWithIncidents
           incidentData={incidentData}
-          isps={topClientIsps}
+          isps={asnToISPObj}
           selected={selectedClientIspInfo}
           onChange={this.onSelectedClientIspsChange}
           onShowIncident={this.onShowIncidentChange}
