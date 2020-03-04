@@ -166,7 +166,8 @@ class LocationPage extends PureComponent {
     this.onCompareMetricsChange = this.onCompareMetricsChange.bind(this);
     this.onTimeAggregationChange = this.onTimeAggregationChange.bind(this);
     this.onSelectedClientIspsChange = this.onSelectedClientIspsChange.bind(this);
-    this.onSelectedIncidentClientIspsChange = this.onSelectedIncidentClientIspsChange.bind(this);
+    // this.onSelectedIncidentClientIspsChange = this.onSelectedIncidentClientIspsChange.bind(this);
+    this.onShowIncidentChange = this.onShowIncidentChange.bind(this);
     this.onDateRangeChange = this.onDateRangeChange.bind(this);
   }
 
@@ -334,6 +335,7 @@ class LocationPage extends PureComponent {
     dispatch(LocationPageActions.changeSelectedClientIspIds(ispIds));
   }
 
+  // TODO: Can delete this function after incident viewer is implemented, was previously used in the incident dropdown
   /**
    * Callback for when a line is highlighted in time series
    */
@@ -358,14 +360,23 @@ class LocationPage extends PureComponent {
         }
       }
       this.setState({ selected_isp: jsonObj }, () => {
-        // for (const obj in clientIspTimeSeries.data) {
-        //   const asnSeriesObj = clientIspTimeSeries.data[obj];
-        //   if (asnSeriesObj.meta.client_asn_number === this.state.selected_isp.client_asn_number) {
-        //     // TODO: currently not working, need for line chart to call this somehow            
-        //     // this.onHighlightTimeSeriesLine(asnSeriesObj);
-        //   }
-        // }
       });
+    }
+  }
+
+  /**
+   * Callback to show an incident and change the time aggregation to month
+   * @param {Array} ispIds Ids of ISPs to change
+   */
+  onShowIncidentChange(ispIds) {
+    const { dispatch } = this.props;
+    const actions = [];
+
+    actions.push(LocationPageActions.changeSelectedClientIspIds(ispIds));
+    actions.push(LocationPageActions.changeTimeAggregation('month'));
+
+    if (actions.length) {
+      dispatch(batchActions(actions));
     }
   }
 
@@ -426,7 +437,7 @@ class LocationPage extends PureComponent {
               <h2>{locationName}</h2>
             </Col>
             <Col md={9}>
-                {this.renderTimeRangeSelector()}
+              {this.renderTimeRangeSelector()}
             </Col>
           </Row>
 
@@ -454,30 +465,6 @@ class LocationPage extends PureComponent {
     );
   }
 
-  // TODO: delete this function, CSS, and its instances once new dropdown is done
-  renderIncidentWarning() {
-    return (
-      <div className="show-incident">
-        <h5>Incident Found <HelpTip id="incident-isp-tip" /></h5>
-      </div>
-    )
-  }
-
-  // renderIncidentISPSelector() {
-  //   const selected = this.state.selected_isp ? [this.state.selected_isp] : [];
-
-  //   return (
-  //     <div className="isp-select-div">
-  //       <IspSelect
-  //         isps={this.ispsWithIncidents}
-  //         selected={selected}
-  //         onChange={this.onSelectedIncidentClientIspsChange}
-  //         placeholder="Select Incident ISP to view"
-  //       />
-  //     </div>
-  //   )
-  // }
-
   renderTimeRangeSelector() {
     const { startDate, endDate } = this.props;
 
@@ -496,13 +483,12 @@ class LocationPage extends PureComponent {
     return (
       <div className="client-isp-selector">
         <h5>Client ISPs <HelpTip id="client-isp-tip" /></h5>
-        {/* {this.renderIncidentWarning()} */}
         <IspSelectWithIncidents
-          changeTimeAggregation={this.onTimeAggregationChange}
           incidentData={incidentData}
           isps={topClientIsps}
           selected={selectedClientIspInfo}
           onChange={this.onSelectedClientIspsChange}
+          onShowIncident={this.onShowIncidentChange}
         />
       </div>
     );
