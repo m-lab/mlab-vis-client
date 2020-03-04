@@ -470,7 +470,7 @@ class LocationPage extends PureComponent {
   //         isps={this.ispsWithIncidents}
   //         selected={selected}
   //         onChange={this.onSelectedIncidentClientIspsChange}
-  //         // placeholder="Select Incident ISP to view"
+  //         placeholder="Select Incident ISP to view"
   //       />
   //     </div>
   //   )
