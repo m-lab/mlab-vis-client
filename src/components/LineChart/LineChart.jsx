@@ -725,7 +725,6 @@ class LineChart extends PureComponent {
 
     this.goodIncidentLine.selectAll('*').remove();
     this.badIncidentLine.selectAll('*').remove();
-    // TODO: remove annotations
     this.incidentAnnotation.selectAll('*').remove();
 
     this.updateIncidentArrow();
