@@ -302,7 +302,7 @@ class LineChart extends PureComponent {
    * @return {void}
    */
   onMouseMove(mouse) {
-    const { plotAreaHeight, forceZeroMin, incidentData, selectedASN, onHighlightDate, series, annotationSeries, xExtent, xScale, xKey, yScale, yKey, yExtent } = this.props;
+    const { plotAreaHeight, incidentData, selectedASN, onHighlightDate, series, xScale, xKey, yScale } = this.props;
 
     if (!onHighlightDate) {
       return;
