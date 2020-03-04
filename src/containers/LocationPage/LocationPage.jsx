@@ -7,8 +7,6 @@ import moment from 'moment';
 import Row from 'react-bootstrap/lib/Row';
 import Col from 'react-bootstrap/lib/Col';
 import AutoWidth from 'react-auto-width';
-import IspSelectWithIncidents from '../../components/IspSelectWithIncidents/IspSelectWithIncidents';
-
 
 import * as LocationPageSelectors from '../../redux/locationPage/selectors';
 import * as LocationPageActions from '../../redux/locationPage/actions';
@@ -28,14 +26,13 @@ import {
   MetricSelector,
   TimeAggregationSelector,
   StatusWrapper,
-  // IspSelectWithIncidents,
+  IspSelectWithIncidents,
   DateRangeSelector,
   Breadcrumbs,
   ScatterGroup,
   HistoGroup,
   SummaryTable,
   HelpTip,
-  // IncidentTip,
 } from '../../components';
 
 import { LocationSearch } from '../../containers';
@@ -45,7 +42,6 @@ import urlConnect from '../../url/urlConnect';
 import queryRebuild from '../../url/queryRebuild';
 
 import './LocationPage.scss';
-// TODO: does not work when included above with other components, look into why that is happening
 
 // Define how to read/write state to URL query parameters
 const urlQueryConfig = {

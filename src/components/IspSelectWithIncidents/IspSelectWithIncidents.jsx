@@ -2,10 +2,6 @@
 import React, { PureComponent, PropTypes } from 'react';
 import IncidentTip from '../IncidentTip/IncidentTip';
 
-// import { Icon } from '../../components';
-
-// import { colorsFor } from '../../utils/color';
-
 import './IspSelectWithIncidents.scss';
 import { Icon } from '../../components';
 

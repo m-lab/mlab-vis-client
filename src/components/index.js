@@ -19,6 +19,7 @@ export HourChartWithCounts from './HourChart/HourChartWithCounts';
 export CountChart from './CountChart/CountChart';
 export Search from './Search/Search';
 export IspSelect from './IspSelect/IspSelect';
+export IspSelectWithIncidents from './IspSelectWithIncidents/IspSelectWithIncidents';
 export DateRangeSelector from './DateRangeSelector/DateRangeSelector';
 export Breadcrumbs from './Breadcrumbs/Breadcrumbs';
 export LineChartSmallMult from './LineChartSmallMult/LineChartSmallMult';
