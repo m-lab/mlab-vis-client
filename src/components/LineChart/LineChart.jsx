@@ -349,14 +349,19 @@ class LineChart extends PureComponent {
         const badWidth = xScale(incidentData[selectedASN][incIndex].badPeriodEnd)
           - xScale(incidentData[selectedASN][incIndex].badPeriodStart);
         const goodHeight = plotAreaHeight - goodYmax;
-        // Values chosen for aesthetic purposes
+        // Annotation width
         const dx = 30;
+        // Annotation height
         const dy = 20;
+        // Variable to ensure that the annotation has white space around it if it is at the edge of the graph
         const padding = 10;
         const xDomain = getXdomain(this.props);
         const yDomain = getYdomain(this.props);
+        // The number of pixels that exist between the end of the incident and the max domain of the graph
         const rightPixels = xScale(xDomain[1]) - xScale(badEnd);
+        // The number of pixels that exist between the bad period line and the min range of the graph
         const bottomPixels = yScale(yDomain[0]) - badYmax;
+        // Booleans to determine annotation placement
         const screenFitsGoodAnnotationDy = plotAreaHeight > goodHeight + (2 * dy) + padding;
         const screenFitsBadAnnotationDx = (4 * dx) - (badWidth / 2) < rightPixels + padding;
         const screenFitsBadAnnotationDy = (5 * dy) < bottomPixels - padding;
@@ -494,6 +499,10 @@ class LineChart extends PureComponent {
 
   /**
    * Add incident annotations to the graph
+   * @param {int} x - The starting x position of the annotation
+   * @param {int} y - The starting y position of the annotation
+   * @param {int} dx - The change in x position, can be negative (draws left), or positive (draws right)
+   * @param {int} dy - The change in y position, can be negative (draws above), or positive (draws below)
    */
   addAnnotation(description, x, y, dx, dy) {
     const annotation = [
