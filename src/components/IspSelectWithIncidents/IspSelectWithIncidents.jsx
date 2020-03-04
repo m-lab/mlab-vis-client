@@ -15,10 +15,10 @@ import {Icon} from '../../components';
 export default class IspSelectWithIncidents extends PureComponent {
 
   static propTypes = {
-    changeTimeAggregation: React.PropTypes.func,
     incidentData: React.PropTypes.object,
     isps: PropTypes.array,
     onChange: React.PropTypes.func,
+    onShowIncident: React.PropTypes.func,
     placeholder: PropTypes.string,
     selected: PropTypes.array,
   }
@@ -92,28 +92,9 @@ export default class IspSelectWithIncidents extends PureComponent {
   }
 
   showIncident(value) {
-    const { isps, changeTimeAggregation } = this.props;
-    // HERE IS THE SITUATION:
-    // Both of these functions use 'callbacks' defined in location page to do their shit.
-    // You can use either of them, but the one that appears below the other one overrides its predecessor.
-    // One way to possibly solve this issue would involve writing a new function in LocationPage that runs both
-    // of these properly and then passing that function down to this component to be called.
-
-    // If you look in Location page at what these callback functions do, they really are just calling a function passed
-    // by props called 'Dispatch' which is a redux thing. So if we wanted to follow the callback breadcrumbs all the way
-    // to the point when we could address this async problem, it would involve dealing with redux files (in the redux directory)
-    
-    // The reason that I think this is an async problem in the first place is that it involves changing the url.
-    // IDEA: Maybe we could find a solution by looking in LocationPage for a time when they try and use two 
-    // redux-url-altering callbacks in tandem and replicate the way that they do that but with changeISPs and changeAggr.
-
-    // deselect all other ISPs except the ISP with incidents
+    // deselect all other ISPs except the ISP with incidents and force time aggregation to month
     this.removeAllExceptOne(value.target.id);
-
-    // TODO: force time aggregation to month view
-    changeTimeAggregation('month');
-
-    // TODO: toggle the incident viewer on
+    // TODO: Toggle the incident viewer on
   }
 
   toggleDropdown() {
@@ -139,7 +120,7 @@ export default class IspSelectWithIncidents extends PureComponent {
    * @param {Array} {Object} ISP object to remove
    */
   removeAllExceptOne(incidentASN) {
-    const { isps, selected, onChange } = this.props;
+    const { isps, selected, onShowIncident } = this.props;
     const ispsToRemoveObjs = selected.filter((optionObj) => optionObj.client_asn_number !== incidentASN);
     const ispsToRemoveASNs = ispsToRemoveObjs.map(obj => obj.client_asn_number);
     const filtered = selected.filter((isp) =>
@@ -153,8 +134,8 @@ export default class IspSelectWithIncidents extends PureComponent {
     }
 
     const values = this.getOptions(filtered);
-    if (onChange) {
-      onChange(values.map(value => value.value));
+    if (onShowIncident) {
+      onShowIncident(values.map(value => value.value));
     }
   }
 

@@ -167,6 +167,7 @@ class LocationPage extends PureComponent {
     this.onTimeAggregationChange = this.onTimeAggregationChange.bind(this);
     this.onSelectedClientIspsChange = this.onSelectedClientIspsChange.bind(this);
     this.onSelectedIncidentClientIspsChange = this.onSelectedIncidentClientIspsChange.bind(this);
+    this.onShowIncidentChange = this.onShowIncidentChange.bind(this);
     this.onDateRangeChange = this.onDateRangeChange.bind(this);
   }
 
@@ -370,6 +371,22 @@ class LocationPage extends PureComponent {
   }
 
   /**
+   * Callback to show an incident and change the time aggregation to month
+   * @param {Array} ispIds Ids of ISPs to change
+   */
+  onShowIncidentChange(ispIds) {
+    const { dispatch } = this.props;
+    const actions = [];
+
+    actions.push(LocationPageActions.changeSelectedClientIspIds(ispIds));
+    actions.push(LocationPageActions.changeTimeAggregation('month'));
+
+    if (actions.length) {
+      dispatch(batchActions(actions));
+    }
+  }
+
+  /**
    * Callback for when start or end date is changed
    * @param {Date} startDate new startDate
    * @param {Date} endDate new endDate
@@ -498,11 +515,11 @@ class LocationPage extends PureComponent {
         <h5>Client ISPs <HelpTip id="client-isp-tip" /></h5>
         {/* {this.renderIncidentWarning()} */}
         <IspSelectWithIncidents
-          changeTimeAggregation={this.onTimeAggregationChange}
           incidentData={incidentData}
           isps={topClientIsps}
           selected={selectedClientIspInfo}
           onChange={this.onSelectedClientIspsChange}
+          onShowIncident={this.onShowIncidentChange}
         />
       </div>
     );
