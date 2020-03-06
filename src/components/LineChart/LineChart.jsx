@@ -366,7 +366,6 @@ class LineChart extends PureComponent {
         const screenFitsBadAnnotationDx = (4 * dx) - (badWidth / 2) < rightPixels + padding;
         const screenFitsBadAnnotationDy = (5 * dy) < bottomPixels - padding;
 
-        // TODO(amy): fix linter issues here without breaking hover functionality
         // Draw the hover state for the good period information when mouse hovers over the median download speed line
         if (highlightedDate.isBefore(goodEnd) && highlightedDate.isSameOrAfter(goodStart) && (mouseY < goodYmax + 10) && (mouseY > goodYmax - 10)) {
           // If there is enough space above the incident,
