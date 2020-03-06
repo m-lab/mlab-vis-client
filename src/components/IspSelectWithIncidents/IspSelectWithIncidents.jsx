@@ -41,7 +41,7 @@ export default class IspSelectWithIncidents extends PureComponent {
   /**
    * Callback to add a specified option to the
    * selected ISP list
-   * @param {Object} {value: label:} option object to Add
+   * @param {Object} addValue option object to Add
    */
   onAdd(addValue) {
     const { selected, onChange, onChangeIncidentASN } = this.props;
@@ -58,7 +58,7 @@ export default class IspSelectWithIncidents extends PureComponent {
   /**
    * Callback to remove a specified value from the
    * selected ISP list
-   * @param {Object} ISP object to remove
+   * @param {Object} removeValue ISP object to remove
    */
   onRemove(removeValue) {
     const { selected, onChange, onChangeIncidentASN } = this.props;
@@ -74,6 +74,7 @@ export default class IspSelectWithIncidents extends PureComponent {
   /**
    * convert dictionary of ISPs to an array of options to display
    * @param {Array} isps ISPs to convert
+   * @param {Dictionary} incidentData Information about which ISPs have incidents in the timeframe.
    * @return {Array} array of {value: label:} objects
    */
   getOptions(isps, incidentData) {
@@ -91,6 +92,10 @@ export default class IspSelectWithIncidents extends PureComponent {
     return options;
   }
 
+  /**
+   * Removes all ISPs except the desired incident ISP and toggles the incident viewer on.
+   * @param {Object} value An object containing the ASN of our desired ISP
+   */
   showIncident(value) {
     const { onChangeIncidentASN } = this.props;
     const incidentASN = value.target.id;
@@ -100,6 +105,9 @@ export default class IspSelectWithIncidents extends PureComponent {
     onChangeIncidentASN(incidentASN);
   }
 
+  /**
+   * Toggles the dropdown. Currently, this function handles all of the logic that belongs in state and css.
+   */
   toggleDropdown() {
     const items = document.getElementById('items');
     const anchor = document.getElementById('anchor');
@@ -120,7 +128,7 @@ export default class IspSelectWithIncidents extends PureComponent {
   /**
    * Callback to remove all selected values except the asn provided.
    * If provided asn is unselected, it is then forcefully selected.
-   * @param {Array} {Object} ISP object to remove
+   * @param {Array} incidentASN ISP object to isolate
    */
   removeAllExceptOne(incidentASN) {
     const { isps, selected, onShowIncident } = this.props;
@@ -142,6 +150,10 @@ export default class IspSelectWithIncidents extends PureComponent {
     }
   }
 
+  /**
+   * Callback to handle checkbox ticking and unticking.
+   * @param {Object} value Used to identify which ISP's checkbox has been toggled. 
+   */
   toggleCheckbox(value) {
     const { isps } = this.props;
     // get option Object for corresponding ISP
@@ -153,6 +165,9 @@ export default class IspSelectWithIncidents extends PureComponent {
     }
   }
 
+  /**
+   * Render function that pulls logic pieces together and creates visual checkbox dropdown.
+   */
   renderDropdown() {
     const { isps, selected, incidentData } = this.props;
     const options = this.getOptions(isps, incidentData);
