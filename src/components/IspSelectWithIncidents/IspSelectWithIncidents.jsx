@@ -107,6 +107,7 @@ export default class IspSelectWithIncidents extends PureComponent {
 
   /**
    * Toggles the dropdown. Currently, this function handles all of the logic that belongs in state and css.
+   * See Issue #20 for more about this possible code-health improvement.
    */
   toggleDropdown() {
     const items = document.getElementById('items');
@@ -167,6 +168,7 @@ export default class IspSelectWithIncidents extends PureComponent {
 
   /**
    * Render function that pulls logic pieces together and creates visual checkbox dropdown.
+   * @return {React.Component} The rendered container
    */
   renderDropdown() {
     const { isps, selected, incidentData } = this.props;
