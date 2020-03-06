@@ -338,7 +338,7 @@ class LineChart extends PureComponent {
             .attr('y', goodYmax + goodHeight / 2)
             .attr('alignment-baseline', 'central')
             .attr('text-anchor", "middle')
-            .text(goodDescription);
+            .text(goodDescription)
           }
         }
 
