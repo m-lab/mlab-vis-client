@@ -1,5 +1,6 @@
 import React, { PureComponent, PropTypes } from 'react';
 import moment from 'moment';
+import svgAnnotation from 'd3-svg-annotation';
 import d3 from '../../d3';
 import { multiExtent, findClosestSorted, findEqualSorted } from '../../utils/array';
 import { colorsFor } from '../../utils/color';
@@ -11,6 +12,58 @@ import { testThreshold } from '../../constants';
 import './LineChart.scss';
 
 /**
+ * Find the domain of date values in the graph
+ */
+function getXdomain(props) {
+  const {
+    series = [],
+    xExtent,
+    xKey,
+    annotationSeries,
+  } = props;
+
+  const combinedData = [...series, ...annotationSeries];
+
+  // set up the domains based on extent. Use the prop if provided, otherwise calculate
+  let xDomain = xExtent;
+  if (!xDomain) {
+    xDomain = multiExtent(combinedData, d => d[xKey], oneSeries => oneSeries.results);
+  }
+  return xDomain;
+}
+
+/**
+ * Find the range of y-values in the graph
+ */
+function getYdomain(props) {
+  const {
+    series = [],
+    forceZeroMin,
+    yExtent,
+    yKey,
+    annotationSeries,
+  } = props;
+  const combinedData = [...series, ...annotationSeries];
+  let yDomain = yExtent;
+  if (!yDomain) {
+    yDomain = multiExtent(combinedData, d => d[yKey], oneSeries => oneSeries.results) || [];
+
+    if (yDomain[0] === null) {
+      yDomain[0] = 0;
+    }
+    if (yDomain[1] === null) {
+      yDomain[1] = 1;
+    }
+  }
+
+  // force 0 as the min in the yDomain if specified
+  if (forceZeroMin) {
+    yDomain = [0, yDomain ? yDomain[1] : 1];
+  }
+  return yDomain;
+}
+
+/**
  * Figure out what is needed to render the chart
  * based on the props of the component
  */
@@ -19,16 +72,13 @@ function visProps(props) {
     idKey,
     labelKey,
     series = [],
-    forceZeroMin,
     height,
     paddingLeft = 50,
     paddingRight = 20,
     incidentData,
     threshold,
     width,
-    xExtent,
     xKey,
-    yExtent,
     yKey,
     yFormatter,
   } = props;
@@ -78,28 +128,8 @@ function visProps(props) {
   const xMax = plotAreaWidth;
   const yMin = plotAreaHeight;
   const yMax = 0;
-
-  // set up the domains based on extent. Use the prop if provided, otherwise calculate
-  let xDomain = xExtent;
-  if (!xDomain) {
-    xDomain = multiExtent(combinedData, d => d[xKey], oneSeries => oneSeries.results);
-  }
-  let yDomain = yExtent;
-  if (!yDomain) {
-    yDomain = multiExtent(combinedData, d => d[yKey], oneSeries => oneSeries.results) || [];
-
-    if (yDomain[0] == null) {
-      yDomain[0] = 0;
-    }
-    if (yDomain[1] == null) {
-      yDomain[1] = 1;
-    }
-  }
-
-  // force 0 as the min in the yDomain if specified
-  if (forceZeroMin) {
-    yDomain = [0, yDomain ? yDomain[1] : 1];
-  }
+  const xDomain = getXdomain(props);
+  const yDomain = getYdomain(props);
 
   // use the props xScale if provided, otherwise compute it
   if (!xScale) {
@@ -295,8 +325,6 @@ class LineChart extends PureComponent {
     }
 
     onHighlightDate(closest);
-
-    // const highlightedDate = closest;
     const highlightedDate = moment(closest);
 
     this.infoHoverBox.selectAll('*').remove();
@@ -311,75 +339,69 @@ class LineChart extends PureComponent {
         const goodYmax = yScale(incidentData[selectedASN][incIndex].goodPeriodMetric);
         const badYmax = yScale(incidentData[selectedASN][incIndex].badPeriodMetric);
 
+        const goodStart = incidentData[selectedASN][incIndex].goodPeriodStart;
+        const goodEnd = incidentData[selectedASN][incIndex].goodPeriodEnd;
+        const badStart = incidentData[selectedASN][incIndex].badPeriodStart;
+        const badEnd = incidentData[selectedASN][incIndex].badPeriodEnd;
+
         const goodWidth = xScale(incidentData[selectedASN][incIndex].goodPeriodEnd)
           - xScale(incidentData[selectedASN][incIndex].goodPeriodStart);
         const badWidth = xScale(incidentData[selectedASN][incIndex].badPeriodEnd)
           - xScale(incidentData[selectedASN][incIndex].badPeriodStart);
         const goodHeight = plotAreaHeight - goodYmax;
-        const badHeight = plotAreaHeight - badYmax;
-        const incidentHeight = Math.abs(badYmax - goodYmax);
-        // NOTE: This also must be manually tuned. It hides hover text in the case that the area is too small for the text to fit.
-        const rectFitsText = (goodWidth > 180) && (badWidth > 180);
+        // Annotation width
+        const dx = 30;
+        // Annotation height
+        const dy = 20;
+        // Variable to ensure that the annotation has white space around it if it is at the edge of the graph
+        const padding = 10;
+        const xDomain = getXdomain(this.props);
+        const yDomain = getYdomain(this.props);
+        // The number of pixels that exist between the end of the incident and the max domain of the graph
+        const rightPixels = xScale(xDomain[1]) - xScale(badEnd);
+        // The number of pixels that exist between the bad period line and the min range of the graph
+        const bottomPixels = yScale(yDomain[0]) - badYmax;
+        // Booleans to determine annotation placement
+        const screenFitsGoodAnnotationDy = plotAreaHeight > goodHeight + (2 * dy) + padding;
+        const screenFitsBadAnnotationDx = (4 * dx) - (badWidth / 2) < rightPixels + padding;
+        const screenFitsBadAnnotationDy = (5 * dy) < bottomPixels - padding;
 
-        // TODO(amy): fix linter issues here without breaking hover functionality
-        // Draw the hover state for the good period information
-        if (highlightedDate.isBefore(incidentData[selectedASN][incIndex].goodPeriodEnd) && highlightedDate.isSameOrAfter(incidentData[selectedASN][incIndex].goodPeriodStart) && mouseY > goodYmax) {
-          this.infoHoverBox.append('rect')
-          .classed('good-incident-area', true)
-          .attr('x', xScale(incidentData[selectedASN][incIndex].goodPeriodStart))
-          .attr('y', goodYmax)
-          .attr('width', goodWidth)
-          .attr('height', plotAreaHeight - goodYmax);
+        // Draw the hover state for the good period information when mouse hovers over the median download speed line
+        if (highlightedDate.isBefore(goodEnd) && highlightedDate.isSameOrAfter(goodStart) && (mouseY < goodYmax + 10) && (mouseY > goodYmax - 10)) {
+          // If there is enough space above the incident,
+          // always draw the annotation to the top and right
+          const goodDx = screenFitsGoodAnnotationDy ? dx : -dx;
+          const goodDy = screenFitsGoodAnnotationDy ? -dy : dy;
 
-          if (rectFitsText) {
-            this.infoHoverBox.append('text')
-            .classed('good-hover-text', true)
-            .attr('x', xScale(incidentData[selectedASN][incIndex].goodPeriodStart) + goodWidth / 2)
-            .attr('y', goodYmax + goodHeight / 2)
-            .attr('alignment-baseline', 'central')
-            .attr('text-anchor", "middle')
-            .text(goodDescription)
-          }
+          this.addAnnotation(goodDescription, xScale(goodStart) + (goodWidth / 2), goodYmax, goodDx, goodDy);
         }
 
         // Draw the hover state for the bad period information
-        if (highlightedDate.isSameOrBefore(incidentData[selectedASN][incIndex].badPeriodEnd) && highlightedDate.isSameOrAfter(incidentData[selectedASN][incIndex].badPeriodStart) && mouseY > badYmax) {
-          this.infoHoverBox.append('rect')
-          .classed("bad-incident-area", true)
-          .attr('x', xScale(incidentData[selectedASN][incIndex].badPeriodStart))
-          .attr('y', badYmax)
-          .attr('width', badWidth)
-          .attr('height', plotAreaHeight - badYmax);
-
-          if (rectFitsText) {
-            this.infoHoverBox.append('text')
-            .classed('bad-hover-text', true)            
-            .attr('y', badYmax + badHeight / 2)
-            .attr('text-anchor', 'middle')
-            .attr('alignment-baseline', 'central')
-            .attr('x', xScale(incidentData[selectedASN][incIndex].badPeriodStart) + badWidth / 2)
-            .text(badDescription);
+        if (highlightedDate.isSameOrBefore(badEnd) && highlightedDate.isSameOrAfter(badStart) && (mouseY < badYmax + 10) && (mouseY > badYmax - 10)) {
+          const badDx = screenFitsBadAnnotationDx ? dx : -dx;
+          let badDy;
+          if (!screenFitsBadAnnotationDx) {
+            // If there is no room to the right of the incident,
+            // add the annotation to the bottom and left
+            badDy = dy;
+          } else if (screenFitsGoodAnnotationDy && screenFitsBadAnnotationDx) {
+            // If there is room for the good annotation on the top
+            // and room for the bad annotation to the right,
+            // keep the bad annotation consistent with good and arrow annotations
+            badDy = -dy;
+          } else {
+            badDy = screenFitsBadAnnotationDy ? dy : -dy;
           }
+          this.addAnnotation(badDescription, xScale(badStart) + (badWidth / 2), badYmax, badDx, badDy);
         }
 
         // Draw the hover state for the incident information
-        if (highlightedDate.isSameOrBefore(incidentData[selectedASN][incIndex].badPeriodEnd) && highlightedDate.isSameOrAfter(incidentData[selectedASN][incIndex].badPeriodStart) && mouseY < badYmax && mouseY > goodYmax) {
-          this.infoHoverBox.append('rect')
-          .classed("incident-area", true)
-          .attr('x', xScale(incidentData[selectedASN][incIndex].badPeriodStart))
-          .attr('y', goodYmax)
-          .attr('width', badWidth)
-          .attr('height', badYmax - goodYmax);
+        const dateRangeEnd = incidentData[selectedASN][incIndex].badPeriodStart.clone().add(1, 'M');
+        const dateRangeStart = incidentData[selectedASN][incIndex].badPeriodStart.clone();
 
-          if (rectFitsText) {
-            this.infoHoverBox.append('text')
-            .classed('incident-hover-text', true)           
-            .attr('y', badYmax - incidentHeight / 2)
-            .attr('text-anchor', 'middle')
-            .attr('alignment-baseline', 'central')
-            .attr('x', xScale(incidentData[selectedASN][incIndex].badPeriodStart) + badWidth / 2)
-            .text(incidentDescription);
-          }
+        if (highlightedDate.isSameOrAfter(dateRangeStart) && highlightedDate.isSameOrBefore(dateRangeEnd) && mouseY < badYmax && mouseY > goodYmax) {
+          // If incident is drawn, then there will always be sufficient space for annotation to be added
+          this.addAnnotation(incidentDescription, xScale(incidentData[selectedASN][incIndex].badPeriodStart), badYmax, dx, -dy);
         }
       }
     }
@@ -426,7 +448,7 @@ class LineChart extends PureComponent {
     this.badIncidentLine = this.g.append('g').classed('bad-incident-line', true);
     this.incidentArrowLine = this.g.append('g').classed('incident-arrow-line', true);
     this.incidentArrowTri = this.g.append('g').classed('incident-arrow-tri', true);
-    
+    this.incidentAnnotation = this.g.append('g').classed('incident-annotation', true);
 
     // container for showing the x highlight date indicator
     this.highlightDate = this.g.append('g').attr('class', 'highlight-date');
@@ -472,6 +494,33 @@ class LineChart extends PureComponent {
   getYAxisLabel() {
     const { yAxisLabel, yAxisUnit } = this.props;
     return `${yAxisLabel}${yAxisUnit ? ` (${yAxisUnit})` : ''}`;
+  }
+
+  /**
+   * Add incident annotations to the graph
+   * @param {int} x - The starting x position of the annotation
+   * @param {int} y - The starting y position of the annotation
+   * @param {int} dx - The change in x position, can be negative (draws left), or positive (draws right)
+   * @param {int} dy - The change in y position, can be negative (draws above), or positive (draws below)
+   */
+  addAnnotation(description, x, y, dx, dy) {
+    const annotation = [
+      {
+        note: {
+          label: description,
+        },
+        color: ['black'],
+        x,
+        y,
+        dx,
+        dy,
+      },
+    ];
+    // Append annotation to the graph
+    const makeAnnotations = svgAnnotation.annotation()
+      .annotations(annotation);
+    d3.select('.incident-annotation')
+      .call(makeAnnotations);
   }
 
   /**
@@ -684,6 +733,7 @@ class LineChart extends PureComponent {
 
     this.goodIncidentLine.selectAll('*').remove();
     this.badIncidentLine.selectAll('*').remove();
+    this.incidentAnnotation.selectAll('*').remove();
 
     this.updateIncidentArrow();
 

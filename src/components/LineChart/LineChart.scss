@@ -75,6 +75,11 @@
     fill-opacity: .5;
   }
 
+  .incident-annotation {
+    font-size: 10px;
+    font-weight: 300;
+  }
+
   @mixin hover-text {
     font-size: 13px;
     font-weight: 400;
