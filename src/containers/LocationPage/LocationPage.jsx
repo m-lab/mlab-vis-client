@@ -26,7 +26,7 @@ import {
   MetricSelector,
   TimeAggregationSelector,
   StatusWrapper,
-  // IspSelectWithIncidents,
+  IspSelectWithIncidents,
   DateRangeSelector,
   Breadcrumbs,
   ScatterGroup,
@@ -42,8 +42,6 @@ import urlConnect from '../../url/urlConnect';
 import queryRebuild from '../../url/queryRebuild';
 
 import './LocationPage.scss';
-// TODO: does not work when included above with other components, look into why that is happening
-import IspSelectWithIncidents from '../../components/IspSelectWithIncidents/IspSelectWithIncidents';
 
 // Define how to read/write state to URL query parameters
 const urlQueryConfig = {
@@ -69,7 +67,7 @@ const fixedFields = [
   { id: 'lastYear', label: 'Last Year' },
 ];
 
-// reading in the sample incident data, will be replaced once API is implemented
+// TODO: Replace once API is implemented, currently reading in the sample incident data
 // eslint-disable-next-line global-require
 const incidentData = require('./sample_data/demo_incidentData.json');
 
@@ -148,11 +146,8 @@ class LocationPage extends PureComponent {
     super(props);
 
     this.state = {
-      selected_isp: null, // This is the selected ISP object
+      incident_asn: null, // This is the selected ISP object
     };
-
-    // getting list of isps with incidents to pass into isp select dropdown
-    this.ispsWithIncidents = [];
 
     // bind handlers
     this.onHighlightHourly = this.onHighlightHourly.bind(this);
@@ -164,8 +159,9 @@ class LocationPage extends PureComponent {
     this.onCompareMetricsChange = this.onCompareMetricsChange.bind(this);
     this.onTimeAggregationChange = this.onTimeAggregationChange.bind(this);
     this.onSelectedClientIspsChange = this.onSelectedClientIspsChange.bind(this);
-    this.onSelectedIncidentClientIspsChange = this.onSelectedIncidentClientIspsChange.bind(this);
+    this.onShowIncidentChange = this.onShowIncidentChange.bind(this);
     this.onDateRangeChange = this.onDateRangeChange.bind(this);
+    this.changeIncidentASN = this.changeIncidentASN.bind(this);
   }
 
   componentDidMount() {
@@ -206,27 +202,6 @@ class LocationPage extends PureComponent {
     }
 
     this.fetchSelectedClientIspData(props);
-
-    // TODO: find a better way of populating the labels for the incident dropdown before pull request
-    // Creating asn number to label dictionary
-    const asnNumToLabel = {};
-    for (const currentISP in this.props.topClientIsps) {  // TODO: fix linter loop issues once rendering
-      const currentAsnNum = this.props.topClientIsps[currentISP].client_asn_number;
-      if (currentAsnNum in incidentData) {
-        if (!asnNumToLabel[currentAsnNum]) {
-          asnNumToLabel[currentAsnNum] = this.props.topClientIsps[currentISP].label;
-        }
-      }
-    }
-
-    this.ispsWithIncidents = [];
-    for (const asn in incidentData) {
-      const asnData = {
-        client_asn_name: asnNumToLabel[asn],
-        client_asn_number: asn,
-      };
-      this.ispsWithIncidents.push(asnData);
-    }
   }
 
   fetchSelectedClientIspData(props) {
@@ -333,37 +308,18 @@ class LocationPage extends PureComponent {
   }
 
   /**
-   * Callback for when a line is highlighted in time series
+   * Callback to show an incident and change the time aggregation to month
+   * @param {Array} ispIds Ids of ISPs to select or deselect based on current selection state
    */
-  onSelectedIncidentClientIspsChange(selectedASNs) {
-    const { clientIspTimeSeries } = this.props;
+  onShowIncidentChange(ispIds) {
+    const { dispatch } = this.props;
+    const actions = [];
 
-    let selectedIspId;
-    const valLen = selectedASNs.length;
-    if (valLen === 0) {
-      this.setState({ selected_isp: null });
-    } else {
-      if (valLen === 1) {
-        selectedIspId = selectedASNs[0];
-      } else {
-        selectedIspId = selectedASNs[1];
-      }
+    actions.push(LocationPageActions.changeSelectedClientIspIds(ispIds));
+    actions.push(LocationPageActions.changeTimeAggregation('month'));
 
-      let jsonObj = {};
-      for (const obj in this.ispsWithIncidents) {
-        if (this.ispsWithIncidents[obj].client_asn_number === selectedIspId) {
-          jsonObj = this.ispsWithIncidents[obj];
-        }
-      }
-      this.setState({ selected_isp: jsonObj }, () => {
-        // for (const obj in clientIspTimeSeries.data) {
-        //   const asnSeriesObj = clientIspTimeSeries.data[obj];
-        //   if (asnSeriesObj.meta.client_asn_number === this.state.selected_isp.client_asn_number) {
-        //     // TODO: currently not working, need for line chart to call this somehow            
-        //     // this.onHighlightTimeSeriesLine(asnSeriesObj);
-        //   }
-        // }
-      });
+    if (actions.length) {
+      dispatch(batchActions(actions));
     }
   }
 
@@ -396,6 +352,14 @@ class LocationPage extends PureComponent {
   }
 
   /**
+   * Change the state to render incidents for a specified ISP (if it has an incident)
+   * @param {String} asn the asn number for the incident object if specified
+   */
+  changeIncidentASN(asn) {
+    this.setState({ incident_asn: asn }, () => {});
+  }
+
+  /**
    * Helper to get the extent key based on the metric
    *
    * Combines upload and download as 'throughput'
@@ -415,7 +379,7 @@ class LocationPage extends PureComponent {
   renderCityProviders() {
     const { locationInfo } = this.props;
     const locationName = (locationInfo && (locationInfo.shortLabel || locationInfo.label)) || 'Loading...';
-    
+
     return (
       <div className="section">
         <header>
@@ -424,7 +388,7 @@ class LocationPage extends PureComponent {
               <h2>{locationName}</h2>
             </Col>
             <Col md={9}>
-                {this.renderTimeRangeSelector()}
+              {this.renderTimeRangeSelector()}
             </Col>
           </Row>
 
@@ -452,30 +416,6 @@ class LocationPage extends PureComponent {
     );
   }
 
-  // TODO: delete this function, CSS, and its instances once new dropdown is done
-  renderIncidentWarning() {
-    return (
-      <div className="show-incident">
-        <h5>Incident Found <HelpTip id="incident-isp-tip" /></h5>
-      </div>
-    )
-  }
-
-  // renderIncidentISPSelector() {
-  //   const selected = this.state.selected_isp ? [this.state.selected_isp] : [];
-
-  //   return (
-  //     <div className="isp-select-div">
-  //       <IspSelect
-  //         isps={this.ispsWithIncidents}
-  //         selected={selected}
-  //         onChange={this.onSelectedIncidentClientIspsChange}
-  //         placeholder="Select Incident ISP to view"
-  //       />
-  //     </div>
-  //   )
-  // }
-
   renderTimeRangeSelector() {
     const { startDate, endDate } = this.props;
 
@@ -491,14 +431,22 @@ class LocationPage extends PureComponent {
   renderClientIspSelector() {
     const { topClientIsps = [], selectedClientIspInfo } = this.props;
 
+    // Create ASN Number to ISP Object dictionary
+    const asnToISPObj = {};
+    for (const currIsp in topClientIsps) {
+      asnToISPObj[topClientIsps[currIsp].client_asn_number] = topClientIsps[currIsp];
+    }
+
     return (
       <div className="client-isp-selector">
         <h5>Client ISPs <HelpTip id="client-isp-tip" /></h5>
-        {this.renderIncidentWarning()}
         <IspSelectWithIncidents
-          isps={topClientIsps}
+          incidentData={incidentData}
+          isps={asnToISPObj}
           selected={selectedClientIspInfo}
           onChange={this.onSelectedClientIspsChange}
+          onShowIncident={this.onShowIncidentChange}
+          onChangeIncidentASN={this.changeIncidentASN}
         />
       </div>
     );
@@ -592,7 +540,7 @@ class LocationPage extends PureComponent {
               onHighlightLine={this.onHighlightTimeSeriesLine}
               highlightLine={highlightTimeSeriesLine}
               incidentData={incidentData}
-              selectedASN={this.state.selected_isp ? this.state.selected_isp.client_asn_number : null}
+              selectedASN={this.state.incident_asn ? this.state.incident_asn : null}
               yFormatter={viewMetric.formatter}
               xKey="date"
               yAxisLabel={viewMetric.label}

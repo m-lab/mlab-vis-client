@@ -24,24 +24,9 @@
     min-width: 250px;
   }
 
-  .show-incident {
-    background-color: rgb(245, 80, 26);
-    border-radius: 6px;
-    outline: none;
-    border: none;
-    color: #FFF;
-    padding: 0px 12px;
-    display: inline-block;
-    float: right;
-    max-height: 35px;
-  }
-
   .upper-row {
     display: flex;
     align-items: center;
   }
   
-  .fa-question-circle:before {
-    color: white;
-  }
 }

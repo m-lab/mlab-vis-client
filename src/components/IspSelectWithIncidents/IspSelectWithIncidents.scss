@@ -6,44 +6,80 @@
   font-size: 0.85em;
   color: #888;
   width: 100%;
+}
 
-  .Select {
-    margin-bottom: 10px;
-  }
+.dropdownCheckList {
+  display: inline-block;
+  width: 100%;
+}
 
-  .selected-isp {
-    display: inline-block;
-    padding: 4px 25px 2px 8px;
-    background-color: $brand-primary;
-    color: #fff;
-    margin: 0 4px 4px 0;
-    border-radius: 4px;
-    white-space: nowrap;
-    max-width: 100%;
-    position: relative;
+.dropdownCheckList .anchor {
+  position: relative;
+  cursor: pointer;
+  display: inline-block;
+  padding: 8px 10px;
+  border: 1px solid #ccc;
+  width: 100%;
+  font-size: 10pt;
+  color: rgb(180, 180, 180);
+  border-radius: 4px;
+  -webkit-user-select: none; /* Safari */        
+  -moz-user-select: none; /* Firefox */
+  -ms-user-select: none; /* IE10+/Edge */
+  user-select: none; /* Standard */
+}
 
-    .isp-label {
-      max-width: 100%;
-      display: inline-block;
-      overflow: hidden;
-      text-overflow: ellipsis;
-      vertical-align: middle;
-    }
+.dropdownCheckList ul.items {
+  display: none;
+  border: 1px solid #ccc;
+  border-radius: 0px 0px 4px 4px;
+  border-top: none;
+  width: 100%;
+  padding-inline-start: 0px;
+}
 
-    .isp-remove-control {
-      position: absolute;
-      top: 0;
-      right: 0;
-      padding: 0 6px;
-      line-height: 2;
-      border-radius: 0 4px 4px 0;
-      margin: 0;
-      cursor: pointer;
+.dropdownCheckList ul.items li {
+  list-style: none;
+  background-color: #fff;
+  border-radius: 4px;
+  color: #666;
+  padding: 8px 4px;
+  font-size: .85em;
+  font-weight: 300;
+  font-family: Roboto,Helvetica Neue,Helvetica,Arial,sans-serif;
+  -webkit-user-select: none; /* Safari */        
+  -moz-user-select: none; /* Firefox */
+  -ms-user-select: none; /* IE10+/Edge */
+  user-select: none; /* Standard */
+}
 
-      &:hover {
-        background: rgba(0, 0, 0, 0.1);
-      }
-    }
-  }
+.dropdownCheckList ul.items li:hover {
+  background-color: rgb(240, 245, 254);
+}
 
+.show-inc-btn {
+  float: right;
+  border: none;
+  border-radius: 4px;
+  background: rgb(240, 245, 254);
+  color: #4285f4;
+  text-transform: uppercase;
+}
+
+.show-inc-btn:hover {
+  background: rgb(227, 234, 247); 
+}
+
+.isp-toggle-checkbox {
+  margin: 0px 4px !important;
+}
+
+.dropdown-arrow {
+  float: right;
+  right: 8px;
+  color: #999;
+  -webkit-transition: 0.1s linear;
+  -moz-transition: 0.1s linear;
+  -o-transition:0.1s linear;
+  transition: 0.1s linear;
 }
