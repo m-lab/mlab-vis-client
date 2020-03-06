@@ -156,7 +156,6 @@ export default class IspSelectWithIncidents extends PureComponent {
   renderDropdown() {
     const { isps, selected, incidentData } = this.props;
     const options = this.getOptions(isps, incidentData);
-    // TODO: maybe have isps be a asn number to corresponding object map so it doesn't have to create it each time its rendered
     const selectedASNs = selected.map(obj => obj.client_asn_number);
 
     const items = options.map(option => {
