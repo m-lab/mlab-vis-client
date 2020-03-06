@@ -309,7 +309,7 @@ class LocationPage extends PureComponent {
 
   /**
    * Callback to show an incident and change the time aggregation to month
-   * @param {Array} ispIds Ids of ISPs to change
+   * @param {Array} ispIds Ids of ISPs to select or deselect based on current selection state
    */
   onShowIncidentChange(ispIds) {
     const { dispatch } = this.props;
@@ -352,7 +352,7 @@ class LocationPage extends PureComponent {
   }
 
   /**
-   * Changes the state which determines which ISP to render incidents for (if present)
+   * Change the state to render incidents for a specified ISP (if it has an incident)
    * @param {String} asn the asn number for the incident object if specified
    */
   changeIncidentASN(asn) {
