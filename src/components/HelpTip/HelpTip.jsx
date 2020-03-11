@@ -1,5 +1,6 @@
 import React, { PureComponent, PropTypes } from 'react';
 import ReactTooltip from 'react-tooltip';
+import dompurify from 'dompurify';
 
 import { Icon } from '../../components';
 
@@ -42,7 +43,7 @@ export default class HelpTip extends PureComponent {
           effect="solid"
           offset={offset}
         >
-          <span dangerouslySetInnerHTML={{ __html: content }} />
+          <span dangerouslySetInnerHTML={{ __html: dompurify.sanitize(content) }} />
         </ReactTooltip>
       </span>
     );

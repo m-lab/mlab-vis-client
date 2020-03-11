@@ -28,7 +28,7 @@ export default class Html extends Component {
       return [
         <script key="vendor" src={assets.javascript.vendor} charSet="UTF-8" />,
         <script key="leaflet" src="//cdnjs.cloudflare.com/ajax/libs/leaflet/1.0.0-beta.2/leaflet.js" charSet="UTF-8" />,
-	<script key="tangram" src="https://www.nextzen.org/tangram/0.14/tangram.min.js" charSet="UTF-8" />,
+        <script key="tangram" src="https://www.nextzen.org/tangram/0.14/tangram.min.js" charSet="UTF-8" />,
         <script key="stamen" src="//stamen-maps.a.ssl.fastly.net/js/tile.stamen.js?v1.3.0" charSet="UTF-8" />,
         <script key="main" src="//localhost:8081/dist/main.js" charSet="UTF-8" />,
       ];
