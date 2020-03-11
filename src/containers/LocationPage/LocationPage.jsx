@@ -72,7 +72,6 @@ const fixedFields = [
 const incidentData = require('./sample_data/demo_incidentData.json');
 
 // convert dates to moment objects within the incidentData object
-// TODO: print incidentData, if list use index!!
 if (incidentData) {
   const incidentASNs = Object.keys(incidentData);
   for (let asnIndex = 0; asnIndex < incidentASNs.length; asnIndex++){
