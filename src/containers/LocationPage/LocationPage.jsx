@@ -72,8 +72,11 @@ const fixedFields = [
 const incidentData = require('./sample_data/demo_incidentData.json');
 
 // convert dates to moment objects within the incidentData object
+// TODO: print incidentData, if list use index!!
 if (incidentData) {
-  for (const asn in incidentData) {
+  const incidentASNs = Object.keys(incidentData);
+  for (let asnIndex = 0; asnIndex < incidentASNs.length; asnIndex++){
+    const asn = incidentASNs[asnIndex];
     for (let incIndex = 0; incIndex < incidentData[asn].length; incIndex++) {
       incidentData[asn][incIndex].goodPeriodStart = moment(incidentData[asn][incIndex].goodPeriodStart);
       incidentData[asn][incIndex].goodPeriodEnd = moment(incidentData[asn][incIndex].goodPeriodEnd);
@@ -433,8 +436,8 @@ class LocationPage extends PureComponent {
 
     // Create ASN Number to ISP Object dictionary
     const asnToISPObj = {};
-    for (const currIsp in topClientIsps) {
-      asnToISPObj[topClientIsps[currIsp].client_asn_number] = topClientIsps[currIsp];
+    for (let currIspIndex = 0; currIspIndex < topClientIsps.length; currIspIndex++) {
+      asnToISPObj[topClientIsps[currIspIndex].client_asn_number] = topClientIsps[currIspIndex];
     }
 
     return (

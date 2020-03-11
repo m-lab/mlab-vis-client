@@ -377,7 +377,11 @@ class LineChart extends PureComponent {
         }
 
         // Draw the hover state for the bad period information
-        if (highlightedDate.isSameOrBefore(badEnd) && highlightedDate.isSameOrAfter(badStart) && (mouseY < badYmax + 10) && (mouseY > badYmax - 10)) {
+        if (highlightedDate.isSameOrBefore(badEnd) &&
+            highlightedDate.isSameOrAfter(badStart) &&
+            (mouseY < badYmax + 10) &&
+            (mouseY > badYmax - 10)
+        ) {
           const badDx = screenFitsBadAnnotationDx ? dx : -dx;
           let badDy;
           if (!screenFitsBadAnnotationDx) {
@@ -399,9 +403,19 @@ class LineChart extends PureComponent {
         const dateRangeEnd = incidentData[selectedASN][incIndex].badPeriodStart.clone().add(1, 'M');
         const dateRangeStart = incidentData[selectedASN][incIndex].badPeriodStart.clone();
 
-        if (highlightedDate.isSameOrAfter(dateRangeStart) && highlightedDate.isSameOrBefore(dateRangeEnd) && mouseY < badYmax && mouseY > goodYmax) {
+        if (highlightedDate.isSameOrAfter(dateRangeStart) &&
+            highlightedDate.isSameOrBefore(dateRangeEnd) &&
+            mouseY < badYmax &&
+            mouseY > goodYmax
+        ) {
           // If incident is drawn, then there will always be sufficient space for annotation to be added
-          this.addAnnotation(incidentDescription, xScale(incidentData[selectedASN][incIndex].badPeriodStart), badYmax, dx, -dy);
+          this.addAnnotation(
+            incidentDescription,
+            xScale(incidentData[selectedASN][incIndex].badPeriodStart),
+            badYmax,
+            dx,
+            -dy
+          );
         }
       }
     }
@@ -517,6 +531,7 @@ class LineChart extends PureComponent {
       },
     ];
     // Append annotation to the graph
+    // eslint-disable-next-line import/no-named-as-default-member
     const makeAnnotations = svgAnnotation.annotation()
       .annotations(annotation);
     d3.select('.incident-annotation')
@@ -795,11 +810,9 @@ class LineChart extends PureComponent {
         this.incidentArrowTri.append('polygon')
           .classed('incident-arrow-tri', true)
           .data([incidentArrowTriArray])
-          .attr('points', function(d) { 
-            return d.map(function(d) {
-              return [d.x, d.y].join(',');
-            }).join(' ' );
-          });
+          .attr('points', (d) =>
+            d.map((d) =>
+              [d.x, d.y].join(',')).join(' '));
 
         // LINE
         this.incidentArrowLine.append('line')
