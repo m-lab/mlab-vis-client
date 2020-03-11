@@ -123,6 +123,7 @@
     "deep-equal": "^1.0.1",
     "define-properties": "^1.1.2",
     "dom-helpers": "^3.2.1",
+    "dompurify": "^2.0.8",
     "es-abstract": "^1.8.0",
     "es-to-primitive": "^1.1.1",
     "express": "^4.17.1",
