@@ -27,6 +27,7 @@ import {
   TimeAggregationSelector,
   StatusWrapper,
   IspSelectWithIncidents,
+  IspSelect,
   DateRangeSelector,
   Breadcrumbs,
   ScatterGroup,
@@ -395,7 +396,7 @@ class LocationPage extends PureComponent {
         </header>
         <Row>
           <Col md={3}>
-            {this.renderClientIspSelector()}
+            {this.renderClientIspSelectorWithIncidents()}
             {this.renderMetricSelector()}
             {this.renderTimeAggregationSelector()}
           </Col>
@@ -428,7 +429,7 @@ class LocationPage extends PureComponent {
     );
   }
 
-  renderClientIspSelector() {
+  renderClientIspSelectorWithIncidents() {
     const { topClientIsps = [], selectedClientIspInfo } = this.props;
 
     // Create ASN Number to ISP Object dictionary
@@ -447,6 +448,21 @@ class LocationPage extends PureComponent {
           onChange={this.onSelectedClientIspsChange}
           onShowIncident={this.onShowIncidentChange}
           onChangeIncidentASN={this.changeIncidentASN}
+        />
+      </div>
+    );
+  }
+
+  renderClientIspSelector() {
+    const { topClientIsps = [], selectedClientIspInfo } = this.props;
+
+    return (
+      <div className="client-isp-selector">
+        <h5>Client ISPs <HelpTip id="client-isp-tip" /></h5>
+        <IspSelect
+          isps={topClientIsps}
+          selected={selectedClientIspInfo}
+          onChange={this.onSelectedClientIspsChange}
         />
       </div>
     );
