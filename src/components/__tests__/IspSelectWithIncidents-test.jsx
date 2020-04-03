@@ -10,7 +10,31 @@ chai.use(chaiEnzyme());
 describe('components', () => {
   describe('IspSelectWithIncidents', () => {
     it('selecting multiple ISPs', () => {
-      expect(true).to.equal(true);
+      // Sample data for this test, no incidents necessary we are just testing that 'selected' ASNs are checked.
+      const isps = {
+        AS10774x: { client_asn_name: 'AT&T', client_asn_number: 'AS10774x' },
+        AS10796x: { client_asn_name: 'Time Warner Cable', client_asn_number: 'AS10796x' },
+        AS11486x: { client_asn_name: 'Verizon', client_asn_number: 'AS11486x' },
+        AS10507: { client_asn_name: 'Sprint Personal Communications Systems', client_asn_number: 'AS10507' },
+      };
+      const incidentData = {};
+      const selected = [{ client_asn_name: 'AT&T', client_asn_number: 'AS10774x' }];
+
+      const wrapper = shallow(
+        <IspSelectWithIncidents
+          incidentData={incidentData}
+          isps={isps}
+          selected={selected}
+        />
+      );
+
+      // Select AT&T
+      // TODO uncomment: expect(wrapper.find('#AS10774x').at(0).props.checked).to.equal(true);
+      
+      /* Where Roman left off:
+          - Talk to Amy and ask what exactly to be testing here. You are currently testing that an ASN passed in as 'selected' will be checked (this is probably the wrong thing to test)
+          - The reason that the test on the last line isnt finding anything is likely because the selected prop (line 21) that is being passed in isnt formatted properly.
+      */
     });
 
     it('removing multiple ISPs', () => {
