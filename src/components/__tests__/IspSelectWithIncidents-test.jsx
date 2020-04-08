@@ -10,7 +10,13 @@ chai.use(chaiEnzyme());
 describe('components', () => {
   describe('IspSelectWithIncidents', () => {
     it('selecting multiple ISPs', () => {
-      // Sample data for this test, no incidents necessary we are just testing that 'selected' ASNs are checked.
+
+      const att = { client_asn_name: 'AT&T', client_asn_number: 'AS10774x' };
+      let selected = [];
+
+      const mockChange = function(ispIds) { selected.push(ispIds); };
+
+      // Sample data for this test
       const isps = {
         AS10774x: { client_asn_name: 'AT&T', client_asn_number: 'AS10774x' },
         AS10796x: { client_asn_name: 'Time Warner Cable', client_asn_number: 'AS10796x' },
@@ -18,22 +24,28 @@ describe('components', () => {
         AS10507: { client_asn_name: 'Sprint Personal Communications Systems', client_asn_number: 'AS10507' },
       };
       const incidentData = {};
-      const selected = [{ client_asn_name: 'AT&T', client_asn_number: 'AS10774x' }];
 
       const wrapper = shallow(
         <IspSelectWithIncidents
           incidentData={incidentData}
           isps={isps}
           selected={selected}
+          onChange={mockChange}
         />
       );
 
+      // Call select function on AT&T
+      // wrapper.simulate("onAdd({ client_asn_name: 'AT&T', client_asn_number: 'AS10774x' })");
+      wrapper.find('#AS10774x').simulate('toggleCheckbox');
+
       // Select AT&T
-      // TODO uncomment: expect(wrapper.find('#AS10774x').at(0).props.checked).to.equal(true);
-      
+      wrapper.update();
+      // expect(wrapper.find('#AS10774x').props().checked).to.equal(true);
+
       /* Where Roman left off:
-          - Talk to Amy and ask what exactly to be testing here. You are currently testing that an ASN passed in as 'selected' will be checked (this is probably the wrong thing to test)
-          - The reason that the test on the last line isnt finding anything is likely because the selected prop (line 21) that is being passed in isnt formatted properly.
+          - Line 39 is not actually doing anything :( you need to call that toggleCheckbox() somehow!
+          - Once you get line 39 to do something, uncomment line 43 (which works as intended) and test is done.
+          - Once you get AT&T working, make sure to add the same tests for another ISP, because the nam eof the test is 'selecting MULTIPLE isps" 
       */
     });
 
