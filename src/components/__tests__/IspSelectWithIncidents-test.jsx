@@ -1,5 +1,5 @@
 import React from 'react';
-import { shallow } from 'enzyme';
+import { shallow, mount } from 'enzyme';
 import chai, { expect } from 'chai';
 
 import chaiEnzyme from 'chai-enzyme';
@@ -11,10 +11,9 @@ describe('components', () => {
   describe('IspSelectWithIncidents', () => {
     it('selecting multiple ISPs', () => {
 
-      const att = { client_asn_name: 'AT&T', client_asn_number: 'AS10774x' };
       let selected = [];
 
-      const mockChange = function(ispIds) { selected.push(ispIds); };
+      const mockChange = function(ispId) { selected.push(ispId); };
 
       // Sample data for this test
       const isps = {
@@ -25,32 +24,78 @@ describe('components', () => {
       };
       const incidentData = {};
 
-      const wrapper = shallow(
+      const onChangeIncidentASN = function(){return;};
+
+      const wrapper = mount(
         <IspSelectWithIncidents
           incidentData={incidentData}
           isps={isps}
+          onChangeIncidentASN={onChangeIncidentASN}
           selected={selected}
           onChange={mockChange}
         />
       );
 
       // Call select function on AT&T
-      // wrapper.simulate("onAdd({ client_asn_name: 'AT&T', client_asn_number: 'AS10774x' })");
-      wrapper.find('#AS10774x').simulate('toggleCheckbox');
+      wrapper.instance().onAdd({client_asn_name: 'AT&T', client_asn_number: 'AS10774x' });
 
+      // Make sure that an item has been added to parent's 'selected' member
+      expect(selected).to.have.lengthOf(1);
+
+      // Add Verison
+      wrapper.instance().onAdd({client_asn_name: 'Verison', client_asn_number: 'AS11486x' });
+      
       // Select AT&T
-      wrapper.update();
-      // expect(wrapper.find('#AS10774x').props().checked).to.equal(true);
+      expect(selected).to.have.lengthOf(2);
 
-      /* Where Roman left off:
-          - Line 39 is not actually doing anything :( you need to call that toggleCheckbox() somehow!
-          - Once you get line 39 to do something, uncomment line 43 (which works as intended) and test is done.
-          - Once you get AT&T working, make sure to add the same tests for another ISP, because the nam eof the test is 'selecting MULTIPLE isps" 
-      */
+      // Make sure another item has been added
+      wrapper.unmount();
+
     });
 
     it('removing multiple ISPs', () => {
-      expect(true).to.equal(true);
+      let selected = ['AS10774x', 'AS11486x', 'AS10796x'];
+
+      const mockChange = function(ispId) { 
+        const i = selected.indexOf(ispId);
+        selected.splice(i, 1); 
+      };
+
+      // Sample data for this test
+      const isps = {
+        AS10774x: { client_asn_name: 'AT&T', client_asn_number: 'AS10774x' },
+        AS10796x: { client_asn_name: 'Time Warner Cable', client_asn_number: 'AS10796x' },
+        AS11486x: { client_asn_name: 'Verizon', client_asn_number: 'AS11486x' },
+        AS10507: { client_asn_name: 'Sprint Personal Communications Systems', client_asn_number: 'AS10507' },
+      };
+      const incidentData = {};
+
+      const onChangeIncidentASN = function(){return;};
+
+      const wrapper = mount(
+        <IspSelectWithIncidents
+          incidentData={incidentData}
+          isps={isps}
+          onChangeIncidentASN={onChangeIncidentASN}
+          selected={selected}
+          onChange={mockChange}
+        />
+      );
+
+      // Call select function on AT&T
+      wrapper.instance().onRemove({client_asn_name: 'AT&T', client_asn_number: 'AS10774x' });
+
+      // Make sure that an item has been added to parent's 'selected' member
+      expect(selected).to.have.lengthOf(2);
+
+      // Add Verison
+      wrapper.instance().onRemove({client_asn_name: 'Verison', client_asn_number: 'AS11486x' });
+      
+      // Select AT&T
+      expect(selected).to.have.lengthOf(1);
+
+      // Make sure another item has been added
+      wrapper.unmount();
     });
 
     it('check if ISPs with incidents have an incident tooltip and an incident viewer button', () => {
