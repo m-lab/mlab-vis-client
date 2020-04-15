@@ -435,8 +435,8 @@ class LocationPage extends PureComponent {
 
     // Create ASN Number to ISP Object dictionary
     const asnToISPObj = {};
-    for (let currIspIndex = 0; currIspIndex < topClientIsps.length; currIspIndex++) {
-      asnToISPObj[topClientIsps[currIspIndex].client_asn_number] = topClientIsps[currIspIndex];
+    for (let ispIndex = 0; ispIndex < topClientIsps.length; ispIndex++) {
+      asnToISPObj[topClientIsps[ispIndex].client_asn_number] = topClientIsps[ispIndex];
     }
 
     return (
