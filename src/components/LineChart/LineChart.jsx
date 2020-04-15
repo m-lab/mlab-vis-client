@@ -1,6 +1,6 @@
 import React, { PureComponent, PropTypes } from 'react';
 import moment from 'moment';
-import svgAnnotation from 'd3-svg-annotation';
+import * as svgAnnotation from 'd3-svg-annotation';
 import d3 from '../../d3';
 import { multiExtent, findClosestSorted, findEqualSorted } from '../../utils/array';
 import { colorsFor } from '../../utils/color';
@@ -530,8 +530,8 @@ class LineChart extends PureComponent {
         dy,
       },
     ];
+
     // Append annotation to the graph
-    // eslint-disable-next-line import/no-named-as-default-member
     const makeAnnotations = svgAnnotation.annotation()
       .annotations(annotation);
     d3.select('.incident-annotation')
