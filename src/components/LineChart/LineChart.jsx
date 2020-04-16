@@ -1,6 +1,6 @@
 import React, { PureComponent, PropTypes } from 'react';
 import moment from 'moment';
-import svgAnnotation from 'd3-svg-annotation';
+import * as svgAnnotation from 'd3-svg-annotation';
 import d3 from '../../d3';
 import { multiExtent, findClosestSorted, findEqualSorted } from '../../utils/array';
 import { colorsFor } from '../../utils/color';
@@ -377,7 +377,11 @@ class LineChart extends PureComponent {
         }
 
         // Draw the hover state for the bad period information
-        if (highlightedDate.isSameOrBefore(badEnd) && highlightedDate.isSameOrAfter(badStart) && (mouseY < badYmax + 10) && (mouseY > badYmax - 10)) {
+        if (highlightedDate.isSameOrBefore(badEnd) &&
+            highlightedDate.isSameOrAfter(badStart) &&
+            (mouseY < badYmax + 10) &&
+            (mouseY > badYmax - 10)
+        ) {
           const badDx = screenFitsBadAnnotationDx ? dx : -dx;
           let badDy;
           if (!screenFitsBadAnnotationDx) {
@@ -399,9 +403,19 @@ class LineChart extends PureComponent {
         const dateRangeEnd = incidentData[selectedASN][incIndex].badPeriodStart.clone().add(1, 'M');
         const dateRangeStart = incidentData[selectedASN][incIndex].badPeriodStart.clone();
 
-        if (highlightedDate.isSameOrAfter(dateRangeStart) && highlightedDate.isSameOrBefore(dateRangeEnd) && mouseY < badYmax && mouseY > goodYmax) {
+        if (highlightedDate.isSameOrAfter(dateRangeStart) &&
+            highlightedDate.isSameOrBefore(dateRangeEnd) &&
+            mouseY < badYmax &&
+            mouseY > goodYmax
+        ) {
           // If incident is drawn, then there will always be sufficient space for annotation to be added
-          this.addAnnotation(incidentDescription, xScale(incidentData[selectedASN][incIndex].badPeriodStart), badYmax, dx, -dy);
+          this.addAnnotation(
+            incidentDescription,
+            xScale(incidentData[selectedASN][incIndex].badPeriodStart),
+            badYmax,
+            dx,
+            -dy
+          );
         }
       }
     }
@@ -516,6 +530,7 @@ class LineChart extends PureComponent {
         dy,
       },
     ];
+
     // Append annotation to the graph
     const makeAnnotations = svgAnnotation.annotation()
       .annotations(annotation);
@@ -795,11 +810,9 @@ class LineChart extends PureComponent {
         this.incidentArrowTri.append('polygon')
           .classed('incident-arrow-tri', true)
           .data([incidentArrowTriArray])
-          .attr('points', function(d) { 
-            return d.map(function(d) {
-              return [d.x, d.y].join(',');
-            }).join(' ' );
-          });
+          .attr('points', (d) =>
+            d.map((d) =>
+              [d.x, d.y].join(',')).join(' '));
 
         // LINE
         this.incidentArrowLine.append('line')
