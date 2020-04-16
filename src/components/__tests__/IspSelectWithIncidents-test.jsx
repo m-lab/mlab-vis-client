@@ -22,6 +22,7 @@ describe('components', () => {
         AS11486x: { client_asn_name: 'Verizon', client_asn_number: 'AS11486x' },
         AS10507: { client_asn_name: 'Sprint Personal Communications Systems', client_asn_number: 'AS10507' },
       };
+        
       const incidentData = {};
 
       const onChangeIncidentASN = function(){return;};
@@ -130,10 +131,31 @@ describe('components', () => {
     });
 
     it('handling showing an incident for an ISP', () => {
-      expect(true).to.equal(true);
-    });
+// We handle this by checking the parent (location page)'s incident_asn state var, which = null when not displaying an incident. 
 
-    it('handling showing multiple incidents for an ISP', () => {
+      // const isps = {
+        // AS10774x: { client_asn_name: 'AT&T', client_asn_number: 'AS10774x' },
+        // AS10796x: { client_asn_name: 'Time Warner Cable', client_asn_number: 'AS10796x' },
+        // AS11486x: { client_asn_name: 'Verizon', client_asn_number: 'AS11486x' },
+        // AS10507: { client_asn_name: 'Sprint Personal Communications Systems', client_asn_number: 'AS10507' },
+      // };
+      // const incidentData = {
+        // AS11486x: [{}, {}], // Verizon with 2 incidents
+        // AS10774x: [{}],  // AT&T with one incident
+      // };
+      // const selected = ['AS10774x', 'AS11486x', 'AS10796x'];
+// 
+      // let incident_asn = null;
+// 
+      // 
+// 
+      // const wrapper = shallow(
+        // <IspSelectWithIncidents
+          // incidentData={incidentData}
+          // isps={isps}
+          // selected={selected}
+        // />
+      // );
       expect(true).to.equal(true);
     });
   });
