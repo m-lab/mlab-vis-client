@@ -37,18 +37,22 @@ describe('components', () => {
       );
 
       // Call select function on AT&T
-      wrapper.instance().onAdd({ client_asn_name: 'AT&T', client_asn_number: 'AS10774x' });
+      const att = isps.AS10774x;
+      wrapper.instance().onAdd({ client_asn_name: att.client_asn_name, client_asn_number: att.client_asn_number });
+
+      console.log('AT&T');
+      console.log(selected);
 
       // Make sure that an item has been added to parent's 'selected' member
       expect(selected).to.have.lengthOf(1);
+      expect(selected).to.eql([[att.client_asn_number]]);
 
-      // Add Verison
+      // Add Verizon
       wrapper.instance().onAdd({ client_asn_name: 'Verison', client_asn_number: 'AS11486x' });
 
-      // Select AT&T
+      // Expect Verizon and AT&T to be in selected
       expect(selected).to.have.lengthOf(2);
 
-      // Make sure another item has been added
       wrapper.unmount();
     });
 
@@ -87,13 +91,12 @@ describe('components', () => {
       // Make sure that an item has been added to parent's 'selected' member
       expect(selected).to.have.lengthOf(2);
 
-      // Add Verison
+      // Add Verizon
       wrapper.instance().onRemove({ client_asn_name: 'Verison', client_asn_number: 'AS11486x' });
 
       // Select AT&T
       expect(selected).to.have.lengthOf(1);
 
-      // Make sure another item has been added
       wrapper.unmount();
     });
 
@@ -126,6 +129,8 @@ describe('components', () => {
       // so each ISP with an incident should have two instances of their id.
       expect(wrapper.find('#AS11486x')).to.have.lengthOf(2);
       expect(wrapper.find('#AS10774x')).to.have.lengthOf(2);
+
+      wrapper.unmount();
     });
   });
 });
