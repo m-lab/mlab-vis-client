@@ -72,7 +72,7 @@ export default class IspSelectWithIncidents extends PureComponent {
   }
 
   /**
-   * convert dictionary of ISPs to an array of options to display
+   * Convert dictionary of ISPs to an array of options to display
    * @param {Array} isps ISPs to convert
    * @param {Dictionary} incidentData Information about which ISPs have incidents in the timeframe.
    * @return {Array} array of {value: label:} objects
