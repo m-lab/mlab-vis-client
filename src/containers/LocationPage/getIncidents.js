@@ -1,3 +1,12 @@
+
+/* NOTE: This file is unused.
+ *       its purpose is so that whoever trys to integrate the API
+ *       into the Viz Client in the future has some starter code.
+ *       Note that this attmepts to simply use http requests instead
+ *       of using Dispatch like the other data fetching methods in
+ *       the client. Good luck! 
+*/
+
 // require modules
 const moment = require('moment');
 const axios = require('axios');
