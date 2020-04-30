@@ -75,13 +75,14 @@ const incidentData = require('./sample_data/demo_incidentData.json');
 // convert dates to moment objects within the incidentData object
 if (incidentData) {
   const incidentASNs = Object.keys(incidentData);
-  for (let asnIndex = 0; asnIndex < incidentASNs.length; asnIndex++){
+  for (let asnIndex = 0; asnIndex < incidentASNs.length; asnIndex++) {
     const asn = incidentASNs[asnIndex];
     for (let incIndex = 0; incIndex < incidentData[asn].length; incIndex++) {
-      incidentData[asn][incIndex].goodPeriodStart = moment(incidentData[asn][incIndex].goodPeriodStart);
-      incidentData[asn][incIndex].goodPeriodEnd = moment(incidentData[asn][incIndex].goodPeriodEnd);
-      incidentData[asn][incIndex].badPeriodStart = moment(incidentData[asn][incIndex].badPeriodStart);
-      incidentData[asn][incIndex].badPeriodEnd = moment(incidentData[asn][incIndex].badPeriodEnd);
+      const currentIncident = incidentData[asn][incIndex];
+      currentIncident.goodPeriodStart = moment(currentIncident.goodPeriodStart);
+      currentIncident.goodPeriodEnd = moment(currentIncident.goodPeriodEnd);
+      currentIncident.badPeriodStart = moment(currentIncident.badPeriodStart);
+      currentIncident.badPeriodEnd = moment(currentIncident.badPeriodEnd);
     }
   }
 }
@@ -319,6 +320,8 @@ class LocationPage extends PureComponent {
     const actions = [];
 
     actions.push(LocationPageActions.changeSelectedClientIspIds(ispIds));
+
+    // Automatically changes time aggregation to month based on our definition of an incident
     actions.push(LocationPageActions.changeTimeAggregation('month'));
 
     if (actions.length) {
@@ -434,10 +437,11 @@ class LocationPage extends PureComponent {
   renderClientIspSelectorWithIncidents() {
     const { topClientIsps = [], selectedClientIspInfo } = this.props;
 
-    // Create ASN Number to ISP Object dictionary
+    // Create ASN to ISP Object dictionary
     const asnToISPObj = {};
     for (let ispIndex = 0; ispIndex < topClientIsps.length; ispIndex++) {
-      asnToISPObj[topClientIsps[ispIndex].client_asn_number] = topClientIsps[ispIndex];
+      const incidents = topClientIsps[ispIndex];
+      asnToISPObj[incidents.client_asn_number] = incidents;
     }
 
     return (
