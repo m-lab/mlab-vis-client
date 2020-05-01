@@ -1,10 +1,13 @@
 
 /* NOTE: This file is unused.
- *       its purpose is so that whoever trys to integrate the API
- *       into the Viz Client in the future has some starter code.
- *       Note that this attmepts to simply use http requests instead
+ *
+ *       its purpose is so that whoever trys to integrate the Google
+ *       Cloud Storage data into the Viz Client in the future has
+ *       some starter code.
+ *
+ *       Note that this attempts to simply use http requests instead
  *       of using Dispatch like the other data fetching methods in
- *       the client. Good luck! 
+ *       the the Location page Good luck! 
 */
 
 // require modules
@@ -105,7 +108,7 @@ export default function useAsyncHook(startDate, endDate, locationId) {
   return result;
 }
 
-// // TODO: delete, just a sample call
+// Sample Call using API
 // let startDate = '2015-05-01T00:00:00Z';
 // let endDate = '2018-08-02T00:00:00Z';
 // let locationCode = 'na';
