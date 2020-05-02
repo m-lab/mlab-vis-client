@@ -9,7 +9,6 @@ chai.use(chaiEnzyme());
 
 describe('components', () => {
   describe('IspSelectWithIncidents', () => {
-
     // Sample data for tests
     const isps = {
       AS10774x: { client_asn_name: 'AT&T', client_asn_number: 'AS10774x' },
@@ -19,12 +18,22 @@ describe('components', () => {
     };
 
     const att = isps.AS10774x;
+    const twc = isps.AS10796x;
     const verizon = isps.AS11486x;
 
     it('selecting multiple ISPs', () => {
       const selected = [];
 
-      const mockChange = function (ispId) { selected.push(ispId); };
+      function mockChange(ispIds) {
+        // Add ISP to selected if currently not added
+        for (let i = 0; i < ispIds.length; i++) {
+          const ispId = ispIds[i];
+          const existsInSelected = selected.some(isp => isp.client_asn_number === ispId);
+          if (!existsInSelected) {
+            selected.push(isps[ispId]);
+          }
+        }
+      }
 
       const incidentData = {};
 
@@ -40,34 +49,35 @@ describe('components', () => {
         />
       );
 
-      let instance = wrapper.instance();
+      const instance = wrapper.instance();
 
       // Call select function on AT&T
       instance.onAdd(att);
 
       // Make sure that an item has been added to parent's 'selected' member
-      expect(selected).to.have.lengthOf(1);
-      expect(selected).to.eql([[att.client_asn_number]]);
+      expect(selected).to.eql([att]);
 
       // Add Verizon
       instance.onAdd(verizon);
 
       // Expect Verizon and AT&T to be in selected
-      expect(selected).to.have.lengthOf(2);
-      // expect(selected).to.eql([[att.client_asn_number], [Verizon.client_asn_number]]);
+      expect(selected).to.eql([att, verizon]);
 
       wrapper.unmount();
     });
 
     it('removing multiple ISPs', () => {
-      let selected = ['AS10774x', 'AS11486x', 'AS10796x'];
+      const selected = [att, verizon, twc];
 
-      const mockChange = function (ispId) {
-        const i = selected.indexOf(ispId);
-        selected.splice(i, 1);
-        // selected = [for (id of selected) if (id != ispId) id];
-        // selected = selected.filter(id => id != ispId);
-      };
+      function mockChange(ispIds) {
+        // ISP is deleted if in selected but not passed into this function
+        for (let i = 0; i < selected.length; i++) {
+          const isp = selected[i];
+          if (!ispIds.includes(isp.client_asn_number)) {
+            selected.splice(i, 1);
+          }
+        }
+      }
 
       const incidentData = {};
 
@@ -83,26 +93,24 @@ describe('components', () => {
         />
       );
 
-      console.log(selected);
+      const instance = wrapper.instance();
 
-      // C// Call select function on AT&T
-      wrapper.instance().onRemove({ client_asn_name: 'AT&T', client_asn_number: 'AS10774x' });
+      // Remove AT&T from selected
+      instance.onRemove(att);
 
-      // Make sure that an item has been removed from parent's 'selected' member
-      expect(selected).to.have.lengthOf(2);
-      // expect(selected).to.eql(['AS11486x', 'AS10796x']);
+      // Make sure that AT&T was removed
+      expect(selected).to.eql([verizon, twc]);
 
-      // Remove Verizon
-      wrapper.instance().onRemove(verizon);
+      // Remove Verizon from selected
+      instance.onRemove(verizon);
 
       // Make sure that Verizon was removed
-      expect(selected).to.have.lengthOf(1);
-      // expect(selected).to.eql([['AS10796x']]);
+      expect(selected).to.eql([twc]);
 
       wrapper.unmount();
     });
 
-    it('check if ISPs with incidents have an incident tooltip and an incident viewer button', () => {      
+    it('check if ISPs with incidents have an incident tooltip and an incident viewer button', () => {
       const incidentData = {
         AS11486x: [{}, {}], // Verizon with 2 incidents
         AS10774x: [{}],  // AT&T with one incident
