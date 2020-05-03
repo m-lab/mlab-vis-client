@@ -24,7 +24,7 @@ describe('components', () => {
     it('selecting multiple ISPs', () => {
       const selected = [];
 
-      function mockChange(ispIds) {
+      function mockSelect(ispIds) {
         // Add ISP to selected if currently not added
         for (let i = 0; i < ispIds.length; i++) {
           const ispId = ispIds[i];
@@ -45,7 +45,7 @@ describe('components', () => {
           isps={isps}
           onChangeIncidentASN={onChangeIncidentASN}
           selected={selected}
-          onChange={mockChange}
+          onChange={mockSelect}
         />
       );
 
@@ -69,7 +69,7 @@ describe('components', () => {
     it('removing multiple ISPs', () => {
       const selected = [att, verizon, twc];
 
-      function mockChange(ispIds) {
+      function mockRemove(ispIds) {
         // ISP is deleted if in selected but not passed into this function
         for (let i = 0; i < selected.length; i++) {
           const isp = selected[i];
@@ -89,7 +89,7 @@ describe('components', () => {
           isps={isps}
           onChangeIncidentASN={onChangeIncidentASN}
           selected={selected}
-          onChange={mockChange}
+          onChange={mockRemove}
         />
       );
 
