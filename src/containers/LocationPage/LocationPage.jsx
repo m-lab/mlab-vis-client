@@ -69,10 +69,8 @@ const fixedFields = [
 ];
 
 // TODO: Replace hardcoded data once API is implemented
-// Modify the assignment of incidentData in order to read in sample incident data
 // eslint-disable-next-line global-require
-// const incidentData = require('./sample_data/demo_incidentData.json');
-const incidentData = undefined
+const incidentData = require('./sample_data/demo_incidentData.json');
 
 // convert dates to moment objects within the incidentData object
 if (incidentData) {
