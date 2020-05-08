@@ -6,7 +6,7 @@ import { Icon } from '../../components';
 
 import { helpTipContent } from '../../constants';
 
-import './HelpTip.scss';
+import '../HelpTip/HelpTip.scss';
 
 /**
  * Component for (?) tooltips seen around the site.
@@ -35,7 +35,7 @@ export default class HelpTip extends PureComponent {
 
     return (
       <span className="HelpTip">
-        <a data-tip data-for={id}><Icon name="question-circle" id={id} /></a>
+        <a data-tip data-for={id}><Icon name="exclamation-circle" id={id} /></a>
         <ReactTooltip
           id={id}
           place={place}

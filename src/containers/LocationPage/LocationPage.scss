@@ -12,4 +12,21 @@
     margin-top: 10px;
     margin-bottom: 4px;
   }
+
+  // Incident stylings
+  .exclamation {
+    margin: 0 5px;
+  }
+
+  .isp-select-div {
+    display: inline;
+    max-width: 1000px;
+    min-width: 250px;
+  }
+
+  .upper-row {
+    display: flex;
+    align-items: center;
+  }
+  
 }

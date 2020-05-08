@@ -1,4 +1,6 @@
 import React, { PureComponent, PropTypes } from 'react';
+import moment from 'moment';
+import * as svgAnnotation from 'd3-svg-annotation';
 import d3 from '../../d3';
 import { multiExtent, findClosestSorted, findEqualSorted } from '../../utils/array';
 import { colorsFor } from '../../utils/color';
@@ -10,6 +12,58 @@ import { testThreshold } from '../../constants';
 import './LineChart.scss';
 
 /**
+ * Find the domain of date values in the graph
+ */
+function getXdomain(props) {
+  const {
+    series = [],
+    xExtent,
+    xKey,
+    annotationSeries,
+  } = props;
+
+  const combinedData = [...series, ...annotationSeries];
+
+  // set up the domains based on extent. Use the prop if provided, otherwise calculate
+  let xDomain = xExtent;
+  if (!xDomain) {
+    xDomain = multiExtent(combinedData, d => d[xKey], oneSeries => oneSeries.results);
+  }
+  return xDomain;
+}
+
+/**
+ * Find the range of y-values in the graph
+ */
+function getYdomain(props) {
+  const {
+    series = [],
+    forceZeroMin,
+    yExtent,
+    yKey,
+    annotationSeries,
+  } = props;
+  const combinedData = [...series, ...annotationSeries];
+  let yDomain = yExtent;
+  if (!yDomain) {
+    yDomain = multiExtent(combinedData, d => d[yKey], oneSeries => oneSeries.results) || [];
+
+    if (yDomain[0] === null) {
+      yDomain[0] = 0;
+    }
+    if (yDomain[1] === null) {
+      yDomain[1] = 1;
+    }
+  }
+
+  // force 0 as the min in the yDomain if specified
+  if (forceZeroMin) {
+    yDomain = [0, yDomain ? yDomain[1] : 1];
+  }
+  return yDomain;
+}
+
+/**
  * Figure out what is needed to render the chart
  * based on the props of the component
  */
@@ -18,15 +72,13 @@ function visProps(props) {
     idKey,
     labelKey,
     series = [],
-    forceZeroMin,
     height,
     paddingLeft = 50,
     paddingRight = 20,
+    incidentData,
     threshold,
     width,
-    xExtent,
     xKey,
-    yExtent,
     yKey,
     yFormatter,
   } = props;
@@ -76,28 +128,8 @@ function visProps(props) {
   const xMax = plotAreaWidth;
   const yMin = plotAreaHeight;
   const yMax = 0;
-
-  // set up the domains based on extent. Use the prop if provided, otherwise calculate
-  let xDomain = xExtent;
-  if (!xDomain) {
-    xDomain = multiExtent(combinedData, d => d[xKey], oneSeries => oneSeries.results);
-  }
-  let yDomain = yExtent;
-  if (!yDomain) {
-    yDomain = multiExtent(combinedData, d => d[yKey], oneSeries => oneSeries.results) || [];
-
-    if (yDomain[0] == null) {
-      yDomain[0] = 0;
-    }
-    if (yDomain[1] == null) {
-      yDomain[1] = 1;
-    }
-  }
-
-  // force 0 as the min in the yDomain if specified
-  if (forceZeroMin) {
-    yDomain = [0, yDomain ? yDomain[1] : 1];
-  }
+  const xDomain = getXdomain(props);
+  const yDomain = getYdomain(props);
 
   // use the props xScale if provided, otherwise compute it
   if (!xScale) {
@@ -141,11 +173,16 @@ function visProps(props) {
     .chunkDefinitions(standardLineChunkedDefinitions('#aaa'))
     .transitionInitial(false);
 
+  const incidentLineGenerator = d3.line()
+    .x((d) => xScale(d.x))
+    .y((d) => yScale(d.y));
 
   return {
     annotationLineChunked,
     annotationSeries,
     colors,
+    incidentData,
+    incidentLineGenerator,
     plotAreaHeight,
     padding,
     plotAreaWidth,
@@ -178,6 +215,8 @@ class LineChart extends PureComponent {
     idKey: React.PropTypes.string,
     // Whether this is being nested inside an SVG, if true renders a <g>
     inSvg: React.PropTypes.bool,
+    incidentData: React.PropTypes.object,
+    incidentLineGenerator: React.PropTypes.func,
     labelKey: React.PropTypes.string,
     legend: React.PropTypes.object,
     lineChunked: React.PropTypes.func,
@@ -188,6 +227,7 @@ class LineChart extends PureComponent {
     padding: PropTypes.object,
     plotAreaHeight: PropTypes.number,
     plotAreaWidth: PropTypes.number,
+    selectedASN: React.PropTypes.string,
     // The array of series data (e.g., [{ meta, results }, ...])
     series: PropTypes.array,
     threshold: PropTypes.number,
@@ -262,7 +302,7 @@ class LineChart extends PureComponent {
    * @return {void}
    */
   onMouseMove(mouse) {
-    const { onHighlightDate, series, xScale, xKey } = this.props;
+    const { plotAreaHeight, incidentData, selectedASN, onHighlightDate, series, xScale, xKey, yScale } = this.props;
 
     if (!onHighlightDate) {
       return;
@@ -271,18 +311,114 @@ class LineChart extends PureComponent {
     if (mouse === null) {
       // mouse out
       onHighlightDate(null);
+      this.highlightDate.style('display', 'none');
       return;
     }
+    this.highlightDate.style('display', 'block');
 
     let closest;
+    const [mouseX, mouseY] = mouse;
     // moving around, find nearest x value.
     if (series && series.length) {
-      const [mouseX] = mouse;
       const checkSeries = series[0];
       closest = findClosestSorted(checkSeries.results, mouseX, d => xScale(d[xKey]))[xKey];
     }
 
     onHighlightDate(closest);
+    const highlightedDate = moment(closest);
+
+    this.infoHoverBox.selectAll('*').remove();
+
+    if (selectedASN && incidentData) {
+      for (let incIndex = 0; incIndex < incidentData[selectedASN].length; incIndex++) {
+        // Initialize incident variables
+        const goodDescription = incidentData[selectedASN][incIndex].goodPeriodInfo;
+        const badDescription = incidentData[selectedASN][incIndex].badPeriodInfo;
+        const incidentDescription = incidentData[selectedASN][incIndex].incidentInfo;
+
+        const goodYmax = yScale(incidentData[selectedASN][incIndex].goodPeriodMetric);
+        const badYmax = yScale(incidentData[selectedASN][incIndex].badPeriodMetric);
+
+        const goodStart = incidentData[selectedASN][incIndex].goodPeriodStart;
+        const goodEnd = incidentData[selectedASN][incIndex].goodPeriodEnd;
+        const badStart = incidentData[selectedASN][incIndex].badPeriodStart;
+        const badEnd = incidentData[selectedASN][incIndex].badPeriodEnd;
+
+        const goodWidth = xScale(incidentData[selectedASN][incIndex].goodPeriodEnd)
+          - xScale(incidentData[selectedASN][incIndex].goodPeriodStart);
+        const badWidth = xScale(incidentData[selectedASN][incIndex].badPeriodEnd)
+          - xScale(incidentData[selectedASN][incIndex].badPeriodStart);
+        const goodHeight = plotAreaHeight - goodYmax;
+        // Annotation width
+        const dx = 30;
+        // Annotation height
+        const dy = 20;
+        // Variable to ensure that the annotation has white space around it if it is at the edge of the graph
+        const padding = 10;
+        const xDomain = getXdomain(this.props);
+        const yDomain = getYdomain(this.props);
+        // The number of pixels that exist between the end of the incident and the max domain of the graph
+        const rightPixels = xScale(xDomain[1]) - xScale(badEnd);
+        // The number of pixels that exist between the bad period line and the min range of the graph
+        const bottomPixels = yScale(yDomain[0]) - badYmax;
+        // Booleans to determine annotation placement
+        const screenFitsGoodAnnotationDy = plotAreaHeight > goodHeight + (2 * dy) + padding;
+        const screenFitsBadAnnotationDx = (4 * dx) - (badWidth / 2) < rightPixels + padding;
+        const screenFitsBadAnnotationDy = (5 * dy) < bottomPixels - padding;
+
+        // Draw the hover state for the good period information when mouse hovers over the median download speed line
+        if (highlightedDate.isBefore(goodEnd) && highlightedDate.isSameOrAfter(goodStart) && (mouseY < goodYmax + 10) && (mouseY > goodYmax - 10)) {
+          // If there is enough space above the incident,
+          // always draw the annotation to the top and right
+          const goodDx = screenFitsGoodAnnotationDy ? dx : -dx;
+          const goodDy = screenFitsGoodAnnotationDy ? -dy : dy;
+
+          this.addAnnotation(goodDescription, xScale(goodStart) + (goodWidth / 2), goodYmax, goodDx, goodDy);
+        }
+
+        // Draw the hover state for the bad period information
+        if (highlightedDate.isSameOrBefore(badEnd) &&
+            highlightedDate.isSameOrAfter(badStart) &&
+            (mouseY < badYmax + 10) &&
+            (mouseY > badYmax - 10)
+        ) {
+          const badDx = screenFitsBadAnnotationDx ? dx : -dx;
+          let badDy;
+          if (!screenFitsBadAnnotationDx) {
+            // If there is no room to the right of the incident,
+            // add the annotation to the bottom and left
+            badDy = dy;
+          } else if (screenFitsGoodAnnotationDy && screenFitsBadAnnotationDx) {
+            // If there is room for the good annotation on the top
+            // and room for the bad annotation to the right,
+            // keep the bad annotation consistent with good and arrow annotations
+            badDy = -dy;
+          } else {
+            badDy = screenFitsBadAnnotationDy ? dy : -dy;
+          }
+          this.addAnnotation(badDescription, xScale(badStart) + (badWidth / 2), badYmax, badDx, badDy);
+        }
+
+        // Draw the hover state for the incident information
+        const dateRangeEnd = incidentData[selectedASN][incIndex].badPeriodStart.clone().add(1, 'M');
+        const dateRangeStart = incidentData[selectedASN][incIndex].badPeriodStart.clone();
+
+        if (highlightedDate.isSameOrAfter(dateRangeStart) &&
+            highlightedDate.isSameOrBefore(dateRangeEnd) &&
+            mouseY < badYmax &&
+            mouseY > goodYmax
+        ) {
+          // If incident is drawn, then there will always be sufficient space for annotation to be added
+          this.addAnnotation(
+            incidentDescription,
+            xScale(incidentData[selectedASN][incIndex].badPeriodStart),
+            badYmax,
+            dx,
+            -dy
+          );
+        }
+      }
+    }
   }
 
   /**
@@ -321,8 +457,14 @@ class LineChart extends PureComponent {
     this.annotationLines = this.g.append('g').classed('annotation-lines-group', true);
     this.lines = this.g.append('g').classed('lines-group', true);
     this.circles = this.g.append('g').classed('circles-group', true);
+    this.infoHoverBox = this.g.append('g');
+    this.goodIncidentLine = this.g.append('g').classed('good-incident-line', true);
+    this.badIncidentLine = this.g.append('g').classed('bad-incident-line', true);
+    this.incidentArrowLine = this.g.append('g').classed('incident-arrow-line', true);
+    this.incidentArrowTri = this.g.append('g').classed('incident-arrow-tri', true);
+    this.incidentAnnotation = this.g.append('g').classed('incident-annotation', true);
 
-    // container for showing the x highlighte date indicator
+    // container for showing the x highlight date indicator
     this.highlightDate = this.g.append('g').attr('class', 'highlight-date');
     this.highlightDate.append('line')
       .attr('x1', 0)
@@ -369,6 +511,34 @@ class LineChart extends PureComponent {
   }
 
   /**
+   * Add incident annotations to the graph
+   * @param {int} x - The starting x position of the annotation
+   * @param {int} y - The starting y position of the annotation
+   * @param {int} dx - The change in x position, can be negative (draws left), or positive (draws right)
+   * @param {int} dy - The change in y position, can be negative (draws above), or positive (draws below)
+   */
+  addAnnotation(description, x, y, dx, dy) {
+    const annotation = [
+      {
+        note: {
+          label: description,
+        },
+        color: ['black'],
+        x,
+        y,
+        dx,
+        dy,
+      },
+    ];
+
+    // Append annotation to the graph
+    const makeAnnotations = svgAnnotation.annotation()
+      .annotations(annotation);
+    d3.select('.incident-annotation')
+      .call(makeAnnotations);
+  }
+
+  /**
    * Update the d3 chart - this is the main drawing function
    */
   update() {
@@ -397,6 +567,7 @@ class LineChart extends PureComponent {
     this.updateLines();
     this.updateHighlightDate(highlightValues);
     this.updateHighlightLine();
+    this.updateIncident();
   }
 
   updateHighlightDate(highlightValues) {
@@ -567,6 +738,91 @@ class LineChart extends PureComponent {
       .attr('y2', d => yScale(d.results[yKey]));
 
     constantBinding.exit().remove();
+  }
+
+  /**
+   * Render the incident "good" and "bad" periods reference lines on the chart.
+   */
+  updateIncident() {
+    const { incidentData, selectedASN, incidentLineGenerator } = this.props;
+
+    this.goodIncidentLine.selectAll('*').remove();
+    this.badIncidentLine.selectAll('*').remove();
+    this.incidentAnnotation.selectAll('*').remove();
+
+    this.updateIncidentArrow();
+
+    if (selectedASN && incidentData) {
+      for (let incIndex = 0; incIndex < incidentData[selectedASN].length; incIndex++) {
+        const goodIncidentSeriesArray = [
+          { x: incidentData[selectedASN][incIndex].goodPeriodStart,
+            y: incidentData[selectedASN][incIndex].goodPeriodMetric },
+          { x: incidentData[selectedASN][incIndex].goodPeriodEnd,
+            y: incidentData[selectedASN][incIndex].goodPeriodMetric }];
+        const badIncidentSeriesArray = [
+          { x: incidentData[selectedASN][incIndex].badPeriodStart,
+            y: incidentData[selectedASN][incIndex].badPeriodMetric },
+          { x: incidentData[selectedASN][incIndex].badPeriodEnd,
+            y: incidentData[selectedASN][incIndex].badPeriodMetric }];
+
+        // Lines for good and bad period medians
+        this.goodIncidentLine.append('path')
+        .classed('good-incident-line', true)
+        .attr('d', incidentLineGenerator(goodIncidentSeriesArray));
+
+        this.badIncidentLine.append('path')
+        .classed('bad-incident-line', true)
+        .attr('d', incidentLineGenerator(badIncidentSeriesArray));
+      }
+    }
+  }
+
+  /**
+   * Draws the downwards pointing red arrow betewen the good and bad periods.
+   * The arrow is drawn using a line and a triangle, positioned on the good and
+   * bad period data that is passed in from props.
+   */
+  updateIncidentArrow() {
+    const { incidentData, selectedASN, xScale, yScale } = this.props;
+
+    this.incidentArrowLine.selectAll('*').remove();
+    this.incidentArrowTri.selectAll('*').remove();
+
+    if (selectedASN && incidentData) {
+      for (let incIndex = 0; incIndex < incidentData[selectedASN].length; incIndex++) {
+        const incidentArrowX = incidentData[selectedASN][incIndex].goodPeriodEnd;
+        const triWidth = 20;
+        const triHeight = 15;
+
+        const incidentArrowLineArray = [{ x: incidentArrowX, y: incidentData[selectedASN][incIndex].goodPeriodMetric },
+        { x: incidentArrowX, y: incidentData[selectedASN][incIndex].badPeriodMetric }];
+
+        const incidentArrowTriArray = [
+          { x: xScale(incidentArrowX),
+            y: yScale(incidentData[selectedASN][incIndex].badPeriodMetric) },
+          { x: xScale(incidentArrowX) + (triWidth / 2),
+            y: yScale(incidentData[selectedASN][incIndex].badPeriodMetric) - triHeight },
+          { x: xScale(incidentArrowX) - (triWidth / 2),
+            y: yScale(incidentData[selectedASN][incIndex].badPeriodMetric) - triHeight },
+        ];
+
+        // TRIANGLE
+        this.incidentArrowTri.append('polygon')
+          .classed('incident-arrow-tri', true)
+          .data([incidentArrowTriArray])
+          .attr('points', (d) =>
+            d.map((d) =>
+              [d.x, d.y].join(',')).join(' '));
+
+        // LINE
+        this.incidentArrowLine.append('line')
+          .classed('incident-arrow-line', true)
+          .attr('x1', xScale(incidentArrowLineArray[0].x))
+          .attr('x2', xScale(incidentArrowLineArray[1].x))
+          .attr('y1', yScale(incidentArrowLineArray[0].y))
+          .attr('y2', yScale(incidentArrowLineArray[1].y) - (triHeight / 2));
+      }
+    }
   }
 
   /**
