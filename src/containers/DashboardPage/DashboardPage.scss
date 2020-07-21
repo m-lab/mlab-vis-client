@@ -1,0 +1,66 @@
+.AA {
+  font-size: 20px;
+}
+
+.sticky {
+  background-color: white;
+  padding-top: 1rem;
+  position: sticky;
+  top: 0rem;
+}
+
+.group {
+  display: flex;
+  justify-content: space-between;
+  margin: 3rem 0;
+}
+
+.group > * {
+  flex-grow: 1;
+  flex-shrink: 1;
+  flex-basis: 40%;
+}
+
+.chart-placeholder {
+  background-color: #ebebeb;
+  border: 1px solid black;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  min-height: 300px;
+  text-align: center;
+}
+
+.chart-placeholder + * {
+  margin-left: 1rem;
+}
+
+.dynamic-value {
+  background-color: #ccc;
+  color: black;
+  // font-size: 20px;
+  font-weight: 900;
+  padding: .1em .3em;
+}
+
+details {
+  margin-bottom: 1rem;
+}
+
+details div {
+  background-color: #ebebeb;
+  padding-bottom: 1rem;
+  padding-left: 1rem;
+  padding-right: 1rem;
+  width: 80%;
+}
+
+details summary {
+  background-color: white;
+  cursor: pointer;
+  font-style: italic;
+}
+
+// details div {
+//   padding: 1rem;
+// }

@@ -5,6 +5,7 @@ import {
     HomePage,
     LocationPage,
     ComparePage,
+    DashboardPage,
     DataPage,
     AboutPage,
     NotFoundPage,
@@ -33,6 +34,8 @@ export default () => (
     <Route path="data" component={DataPage} />
 
     <Route path="about" component={AboutPage} />
+
+    <Route path="dashboard" component={DashboardPage} />
 
     { /* Catch all route */ }
     <Route path="*" component={NotFoundPage} status={404} />
