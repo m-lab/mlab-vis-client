@@ -1,6 +1,7 @@
 import { mean, sum } from 'd3-array';
 import { nest } from 'd3-collection';
 import { format } from 'd3-format'
+import { timeParse } from 'd3-time-format';
 import React, { Component } from 'react';
 import { browserHistory } from 'react-router';
 
@@ -8,21 +9,14 @@ import UrlHandler from '../../url/UrlHandler';
 import urlConnect from '../../url/urlConnect';
 
 import regions from './regions';
+import BarChart from './BarChart';
 import RegionSelect from './RegionSelect';
 
 import './DashboardPage.scss';
 
 import DATA from './data.json';
 
-const urlQueryConfig = {
-//   viewMetric: { type: 'string', defaultValue: 'download', urlKey: 'metric' },
-//   compareMetricX: { type: 'string', defaultValue: 'download', urlKey: 'compareX' },
-//   compareMetricY: { type: 'string', defaultValue: 'upload', urlKey: 'compareY' },
-
-//   // chart options
-//   showBaselines: { type: 'boolean', defaultValue: false, urlKey: 'baselines' },
-//   showRegionalValues: { type: 'boolean', defaultValue: true, urlKey: 'regional' },
-};
+const urlQueryConfig = {};
 
 const urlHandler = new UrlHandler(urlQueryConfig, browserHistory);
 
@@ -31,6 +25,8 @@ function mapStateToProps(state, propsWithUrl) {
     ...propsWithUrl,
   };
 }
+
+const parseDate = timeParse('%Y-%m-%d')
 
 class DashboardPage extends Component {
   static propTypes = {}
@@ -44,6 +40,7 @@ class DashboardPage extends Component {
       data: [],
       audioServicePercent: 0,
       meanSamples: 0,
+      samplesBarChartData: [],
       videoServicePercent: 0,
       totalSamples: 0,
       zeroSampleDays: 0,
@@ -86,9 +83,15 @@ class DashboardPage extends Component {
     const samples = [];
     const audioServicePercents = [];
     const videoServicePercents = [];
+    const samplesBarChartData = [];
 
     byDate.forEach(d => {
       samples.push(+d.values[0].samples);
+
+      samplesBarChartData.push({
+        date: parseDate(d.key),
+        samples: +d.values[0].samples,
+      });
 
       audioServicePercents.push(
         this.calculatePercentageOfSamplesAboveThreshold(
@@ -108,6 +111,7 @@ class DashboardPage extends Component {
       data,
       audioServicePercent: mean(audioServicePercents),
       meanSamples: mean(samples),
+      samplesBarChartData,
       totalSamples: sum(samples),
       videoServicePercent: mean(videoServicePercents),
       zeroSampleDays: samples.filter(d => d === 0).length,
@@ -135,6 +139,7 @@ class DashboardPage extends Component {
       meanSamples,
       regionId,
       regionLabel,
+      samplesBarChartData,
       videoServicePercent,
       totalSamples,
       zeroSampleDays,
@@ -149,7 +154,7 @@ class DashboardPage extends Component {
           {' '}
           <RegionSelect onChange={this.handleRegionChange} value={regionId} />
           {' '}
-          since <span className="dynamic-value">January 1, 2020</span>. You can see the <a>data from our API</a> or <a>contribute to the global data set by taking a speed test</a>.
+          since <span className="dynamic-value">January 1, 2020</span>. You can see the <a href={dataSourceUrl}>data from our API</a> or <a>contribute to the global data set by taking a speed test</a>.
         </p>
       </div>
       <div className="group">
@@ -165,7 +170,12 @@ class DashboardPage extends Component {
       </div>
       <div className="group">
         <div className="chart-placeholder">
-          "Samples per day" (bar chart) goes here
+          Samples per day
+          <BarChart
+            data={samplesBarChartData}
+            xAttribute="date"
+            yAttribute="samples"
+          />
         </div>
         <div>
           <p>Our data from <span className="dynamic-value">{regionLabel}</span> during this time period is <span className="dynamic-value">pretty good</span>, with a mean of approximately <span className="dynamic-value">{format(',.0f')(meanSamples)}</span> tests per day. There were <span className="dynamic-value">{format(',.0f')(zeroSampleDays)}</span> days where no successful test was recorded.</p>
