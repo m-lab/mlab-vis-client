@@ -31,7 +31,7 @@ a {
   // border: 1px solid black;
   display: flex;
   flex-direction: column;
-  justify-content: center;
+  justify-content: space-between;
   min-height: 300px;
   text-align: center;
 }
@@ -66,8 +66,6 @@ details summary {
   font-style: italic;
 }
 
-.bar-chart {
-  .tick {
-    font-size: 14px;
-  }
+.tick {
+  font-size: 14px;
 }

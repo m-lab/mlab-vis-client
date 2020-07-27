@@ -99,7 +99,7 @@ const BarChart = ({
 
 BarChart.defaultProps = {
   data: [],
-  fillFn: () => 'green',
+  fillFn: () => 'rgb(155, 210, 199)',
   height: 220,
   margin: {
     left: 40,
