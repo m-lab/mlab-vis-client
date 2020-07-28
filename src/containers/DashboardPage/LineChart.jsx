@@ -68,7 +68,7 @@ class LineChart extends Component {
       .y((d) => chartHeight - yScale(d[yAttribute]));
 
     return (
-      <div className={`line-chart ${isFetching ? 'is-fetching' : ''}`}>
+      <div className={`line-chart ${isFetching ? "is-fetching" : ""}`}>
         <svg
           height={height}
           onMouseLeave={this.onMouseLeave}
@@ -76,9 +76,9 @@ class LineChart extends Component {
           viewBox={`0 0 ${width} ${height}`}
         >
           <g transform={`translate(0, ${margin.top})`}>
-            {yAxisTicks.map((tick) => (
+            {yAxisTicks.map((tick, i) => (
               <g
-                key={tick}
+                key={`${tick}-${i}`}
                 className="tick"
                 transform={`translate(0, ${chartHeight - yScale(tick)})`}
               >
@@ -101,7 +101,7 @@ class LineChart extends Component {
           >
             {xAxisTicks.map((tick, i) => (
               <g
-                key={tick}
+                key={`${tick}-${i}`}
                 className="tick"
                 transform={`translate(${xScale(tick)}, 0)`}
               >

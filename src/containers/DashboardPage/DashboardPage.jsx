@@ -11,6 +11,7 @@ import urlConnect from '../../url/urlConnect';
 
 import regions from './regions';
 import BarChart from './BarChart';
+import HeatmapChart from "./HeatmapChart";
 import LineChart from "./LineChart";
 import RegionSelect from './RegionSelect';
 
@@ -28,7 +29,7 @@ function mapStateToProps(state, propsWithUrl) {
   };
 }
 
-const formatDate = timeFormat("%B %d");
+const formatDate = timeFormat("%B %e");
 const parseDate = timeParse('%Y-%m-%d');
 
 class DashboardPage extends Component {
@@ -121,10 +122,21 @@ class DashboardPage extends Component {
   }
 
   processDataFromFetch(fetchData) {
-    const data = fetchData;
     const byDate = nest()
       .key((d) => d.test_date)
-      .entries(fetchData);
+      .entries(fetchData)
+      .map(({ key, values }) => {
+        const unique =  uniqBy(values, d => d.bucket_max);
+        const sorted = unique.sort((a, b) => {
+          if (a.bucket_max > b.bucket_max) return 1;
+          if (a.bucket_max < b.bucket_max) return -1;
+          return 0;
+        });
+        return {
+          key,
+          values: sorted,
+        };
+      });
     const samples = [];
     const audioServicePercents = [];
     const videoServicePercents = [];
@@ -178,7 +190,7 @@ class DashboardPage extends Component {
 
     this.setState({
       ...this.state,
-      data,
+      data: byDate,
       isFetching: false,
       meanAudioServicePercent: mean(audioServicePercents),
       meanSamples: mean(samples),
@@ -199,7 +211,10 @@ class DashboardPage extends Component {
   handleRegionChange(e) {
     const { value } = e.target;
     const match = regions.find((region) => {
-      const key = `${region.continent}/${region.country}/${region.region}`;
+      let key = `${region.continent}/${region.country}/${region.region}`;
+      if (!region.region) {
+        key = `${region.continent}/${region.country}`;
+      }
       return key === value;
     });
 
@@ -222,6 +237,18 @@ class DashboardPage extends Component {
     );
   }
 
+  renderDataQualityText() {
+    const {
+    meanSamples,
+    zeroSampleDays,
+    } = this.state
+
+    if (zeroSampleDays === 0 && meanSamples > 200) return 'pretty good';
+    if (zeroSampleDays === 0 && meanSamples < 200) return 'OK';
+    if (zeroSampleDays > 0 && meanSamples < 200) return 'sparse';
+    return 'normal';
+  }
+
   renderBarChartText() {
     const {
       currentHoverIndicatorDate,
@@ -236,7 +263,7 @@ class DashboardPage extends Component {
         <p>
           Our data from <span className="dynamic-value">{regionLabel}</span>{" "}
           during this time period is{" "}
-          <span className="dynamic-value">pretty good</span>, with a mean of
+          <span className="dynamic-value">{this.renderDataQualityText()}</span>, with a mean of
           approximately{" "}
           <span className="dynamic-value">
             {typeof meanSamples === "string"
@@ -325,7 +352,7 @@ class DashboardPage extends Component {
       <p>
         On{" "}
         <span className="dynamic-value">
-          {timeFormat("%B %d")(currentHoverIndicatorDate)}
+          {formatDate(currentHoverIndicatorDate)}
         </span>
         ,{" "}
         <span className="dynamic-value">
@@ -346,15 +373,14 @@ class DashboardPage extends Component {
   render() {
     const {
       currentHoverIndicatorDate,
+      data,
       isFetching,
-      meanSamples,
       regionId,
       regionLabel,
       samplesBarChartData,
       serviceThresholdLineChartData,
       totalSamples,
       year,
-      zeroSampleDays,
     } = this.state;
 
     const dataSourceUrl = `https://api.measurementlab.net/${regionId}/${year}/histogram_daily_stats.json`;
@@ -375,11 +401,13 @@ class DashboardPage extends Component {
 
     return (
       <div className="dashboard-page">
-        <div className="group sticky">
+        <div className="dashboard-controls group sticky">
           <p>
             Measurement Lab has recorded approximately{" "}
             <span className="dynamic-value">
-              {typeof totalSamples === 'string' ? totalSamples : format(",")(totalSamples)}
+              {typeof totalSamples === "string"
+                ? totalSamples
+                : format(",")(totalSamples)}
             </span>{" "}
             speed tests from{" "}
             <RegionSelect onChange={this.handleRegionChange} value={regionId} />{" "}
@@ -406,7 +434,7 @@ class DashboardPage extends Component {
               isFetching={isFetching}
               onHover={this.handleChartHover}
               strokeFn={(d) => {
-                if (d.name === "Audio") return "hotpink";
+                if (d.name === "Audio") return "rgb(225, 138, 212)";
                 return "rgb(155, 210, 199)";
               }}
               xAttribute="date"
@@ -457,7 +485,13 @@ class DashboardPage extends Component {
             </p>
           </div>
           <div className="chart-placeholder">
-            "Binned sample speed distribution" (heatmap) goes here
+            Speed tests by bucket per day in {regionLabel}
+            <HeatmapChart
+              currentHoverIndicatorDate={currentHoverIndicatorDate}
+              data={data}
+              isFetching={isFetching}
+              onHover={this.handleChartHover}
+            />
           </div>
         </div>
         <div>

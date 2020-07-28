@@ -6,14 +6,18 @@ import regions from './regions';
 const RegionSelect = ({ onChange, value }) => {
   return (
     <select onChange={onChange} value={value}>
-      {regions.map(region => (
-        <option
-          key={`${region.continent}/${region.country}/${region.region}`}
-          value={`${region.continent}/${region.country}/${region.region}`}
-        >
-          {region.label}
-        </option>
-      ))}
+      {regions.map(region => {
+        let value = `${region.continent}/${region.country}/${region.region}`;
+
+        if (!region.region) {
+          value = `${region.continent}/${region.country}`
+        }
+        return (
+          <option key={value} value={value}>
+            {region.label}
+          </option>
+        )
+      })}
     </select>
   );
 };

@@ -62,11 +62,16 @@ class BarChart extends Component {
 
     return (
       <div className={`bar-chart ${isFetching ? "is-fetching" : ""}`}>
-        <svg height={height} width={width} viewBox={`0 0 ${width} ${height}`}>
+        <svg
+          height={height}
+          width={width}
+          onMouseLeave={this.onMouseLeave}
+          viewBox={`0 0 ${width} ${height}`}
+        >
           <g className="y-axis" transform={`translate(0, ${margin.top})`}>
-            {yAxisTicks.map((tick) => (
+            {yAxisTicks.map((tick, i) => (
               <g
-                key={tick}
+                key={`${tick}-${i}`}
                 className="tick"
                 transform={`translate(0, ${chartHeight - yScale(tick)})`}
               >
@@ -89,7 +94,7 @@ class BarChart extends Component {
           >
             {xAxisTicks.map((tick, i) => (
               <g
-                key={tick}
+                key={`${tick}-${i}`}
                 className="tick"
                 transform={`translate(${xScale(tick)}, 0)`}
               >
