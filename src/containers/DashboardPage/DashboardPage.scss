@@ -102,10 +102,14 @@ table {
   width: 100%;
 }
 
+thead {
+  border-bottom: 1px solid black;
+}
+
 th, td {
   text-align: center;
 }
 
 tr:nth-child(even) {
-  background-color: #cccccc;
+  background-color: #ebebeb;
 }

@@ -44,13 +44,13 @@ class DashboardPage extends Component {
       year: 2020,
       data: [],
       isFetching: true,
-      meanAudioServicePercent: 0,
-      meanSamples: 0,
+      meanAudioServicePercent: '--',
+      meanSamples: '--',
       samplesBarChartData: [],
       serviceThresholdLineChartData: [],
-      meanVideoServicePercent: 0,
-      totalSamples: 0,
-      zeroSampleDays: 0,
+      meanVideoServicePercent: '--',
+      totalSamples: '--',
+      zeroSampleDays: '--',
     };
 
     this.fetchData = this.fetchData.bind(this);
@@ -238,9 +238,13 @@ class DashboardPage extends Component {
           during this time period is{" "}
           <span className="dynamic-value">pretty good</span>, with a mean of
           approximately{" "}
-          <span className="dynamic-value">{formatNumber(meanSamples)}</span>{" "}
+          <span className="dynamic-value">
+            {typeof meanSamples === "string"
+              ? `${meanSamples}`
+              : formatNumber(meanSamples)}
+          </span>{" "}
           tests per day. There were{" "}
-          <span className="dynamic-value">{formatNumber(zeroSampleDays)}</span>{" "}
+          <span className="dynamic-value">{typeof zeroSampleDays === 'string' ? zeroSampleDays : formatNumber(zeroSampleDays)}</span>{" "}
           days where no successful test was recorded.
         </p>
       );
@@ -278,13 +282,19 @@ class DashboardPage extends Component {
         <p>
           On average,{" "}
           <span className="dynamic-value">
-            {format(".0%")(meanAudioServicePercent)}
+            {typeof meanAudioServicePercent === "string"
+              ? meanAudioServicePercent
+              : format(".0%")(meanAudioServicePercent)}
           </span>{" "}
           of the tests had sufficient bandwidth for making{" "}
           <span className="audio-label">audio</span> calls (at least 2 megabits
           per second) and{" "}
           <span className="dynamic-value">
-            {format(".0%")(meanVideoServicePercent)}
+            {
+              typeof meanVideoServicePercent === 'string' ? meanVideoServicePercent : format(".0%")(
+                meanVideoServicePercent
+              )
+            }
           </span>{" "}
           of the tests enough for successful{" "}
           <span className="video-label">video</span> calls (at least 10 mbps).
@@ -368,7 +378,9 @@ class DashboardPage extends Component {
         <div className="group sticky">
           <p>
             Measurement Lab has recorded approximately{" "}
-            <span className="dynamic-value">{format(",")(totalSamples)}</span>{" "}
+            <span className="dynamic-value">
+              {typeof totalSamples === 'string' ? totalSamples : format(",")(totalSamples)}
+            </span>{" "}
             speed tests from{" "}
             <RegionSelect onChange={this.handleRegionChange} value={regionId} />{" "}
             {timeParameterEl} You can see the{" "}
