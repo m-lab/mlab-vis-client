@@ -230,6 +230,7 @@ class DashboardPage extends Component {
       samplesBarChartData,
       zeroSampleDays,
     } = this.state;
+    const formatNumber = format(",.0f");
     if (currentHoverIndicatorDate === null) {
       return (
         <p>
@@ -237,9 +238,9 @@ class DashboardPage extends Component {
           during this time period is{" "}
           <span className="dynamic-value">pretty good</span>, with a mean of
           approximately{" "}
-          <span className="dynamic-value">{format(",.0f")(meanSamples)}</span>{" "}
+          <span className="dynamic-value">{formatNumber(meanSamples)}</span>{" "}
           tests per day. There were{" "}
-          <span className="dynamic-value">{format(",.0f")(zeroSampleDays)}</span>{" "}
+          <span className="dynamic-value">{formatNumber(zeroSampleDays)}</span>{" "}
           days where no successful test was recorded.
         </p>
       );
@@ -251,11 +252,15 @@ class DashboardPage extends Component {
         formatDate(currentHoverIndicatorDate)
     );
 
-    console.log({ match, currentHoverIndicatorDate, samplesBarChartData });
-
     return (
       <p>
-        We recorded <span className="dynamic-value">{match.samples}</span> tests from <span className="dynamic-value">{regionLabel}</span> on <span className="dynamic-value">{formatDate(currentHoverIndicatorDate)}</span>.
+        We recorded{" "}
+        <span className="dynamic-value">{formatNumber(match.samples)}</span> tests
+        from <span className="dynamic-value">{regionLabel}</span> on{" "}
+        <span className="dynamic-value">
+          {formatDate(currentHoverIndicatorDate)}
+        </span>
+        .
       </p>
     );
   }
@@ -359,7 +364,7 @@ class DashboardPage extends Component {
     );
 
     return (
-      <div className="AA">
+      <div className="dashboard-page">
         <div className="group sticky">
           <p>
             Measurement Lab has recorded approximately{" "}
@@ -382,7 +387,7 @@ class DashboardPage extends Component {
             </p>
           </div>
           <div className="chart-placeholder">
-            Percentage of samples by service thresholds in {regionLabel}
+            Percentage of tests by service thresholds in {regionLabel}
             <LineChart
               currentHoverIndicatorDate={currentHoverIndicatorDate}
               data={serviceThresholdLineChartData}
@@ -399,7 +404,7 @@ class DashboardPage extends Component {
         </div>
         <div className="group column-reverse">
           <div className="chart-placeholder">
-            Samples per day in {regionLabel}
+            Speed tests per day in {regionLabel}
             <BarChart
               currentHoverIndicatorDate={currentHoverIndicatorDate}
               data={samplesBarChartData}
@@ -413,7 +418,8 @@ class DashboardPage extends Component {
             {this.renderBarChartText()}
             <p>
               <i>
-                You can hover over the chart to the left to see more details about a particular day.
+                You can hover over the chart to the left to see more details
+                about a particular day.
               </i>
             </p>
           </div>
@@ -440,6 +446,131 @@ class DashboardPage extends Component {
           </div>
           <div className="chart-placeholder">
             "Binned sample speed distribution" (heatmap) goes here
+          </div>
+        </div>
+        <div>
+          <p>
+            We have more detailed geographic data for{" "}
+            <span className="dynamic-value">{regionLabel}</span> and you can see
+            data for{" "}
+            <span className="dynamic-value">
+              {regionLabel === "Louisiana" ? "parishes" : "counties"},
+              Congressional districts, and ZIP codes
+            </span>{" "}
+            below. The tables represent the daily average values for the time
+            period and you can see the underlying data with the "source" links.
+          </p>
+          <div>
+            <table>
+              <caption>
+                Speed tests by{" "}
+                {regionLabel === "Louisiana" ? "parish" : "county"}{" "}
+                <a>(source)</a>
+              </caption>
+              <thead>
+                <tr>
+                  <th>
+                    {regionLabel === "Louisiana" ? "Parish" : "County"} name
+                  </th>
+                  <th>FIPS</th>
+                  <th>Test count</th>
+                  <th>Sufficient for audio</th>
+                  <th>Sufficient for video</th>
+                  <th>Median dl</th>
+                  <th>Median up</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td>County 1</td>
+                  <td>00000</td>
+                  <td>100</td>
+                  <td>40%</td>
+                  <td>20%</td>
+                  <td>100 mbps</td>
+                  <td>40 mbps</td>
+                </tr>
+                <tr>
+                  <td>County 1</td>
+                  <td>00000</td>
+                  <td>100</td>
+                  <td>40%</td>
+                  <td>20%</td>
+                  <td>100 mbps</td>
+                  <td>40 mbps</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+          <div>
+            <table>
+              <caption>
+                Speed tests by Congressional district <a>(source)</a>
+              </caption>
+              <thead>
+                <tr>
+                  <th>District</th>
+                  <th>Test count</th>
+                  <th>Sufficient for audio</th>
+                  <th>Sufficient for video</th>
+                  <th>Median dl</th>
+                  <th>Median up</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td>District 4</td>
+                  <td>100</td>
+                  <td>40%</td>
+                  <td>20%</td>
+                  <td>100 mbps</td>
+                  <td>40 mbps</td>
+                </tr>
+                <tr>
+                  <td>District 5</td>
+                  <td>100</td>
+                  <td>40%</td>
+                  <td>20%</td>
+                  <td>100 mbps</td>
+                  <td>40 mbps</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+          <div>
+            <table>
+              <caption>
+                Speed tests by ZIP code <a>(source)</a>
+              </caption>
+              <thead>
+                <tr>
+                  <th>ZIP</th>
+                  <th>Test count</th>
+                  <th>Sufficient for audio</th>
+                  <th>Sufficient for video</th>
+                  <th>Median dl</th>
+                  <th>Median up</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td>99923</td>
+                  <td>100</td>
+                  <td>40%</td>
+                  <td>20%</td>
+                  <td>100 mbps</td>
+                  <td>40 mbps</td>
+                </tr>
+                <tr>
+                  <td>99924</td>
+                  <td>100</td>
+                  <td>40%</td>
+                  <td>20%</td>
+                  <td>100 mbps</td>
+                  <td>40 mbps</td>
+                </tr>
+              </tbody>
+            </table>
           </div>
         </div>
       </div>
