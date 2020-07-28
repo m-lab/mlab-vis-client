@@ -15,9 +15,20 @@ a {
 
 .group {
   display: flex;
+  flex-direction: column;
   justify-content: space-between;
   margin: 3rem 0;
   margin-bottom: 1rem;
+}
+
+.group.column-reverse {
+  flex-direction: column-reverse;
+}
+
+@media (min-width: 564px) {
+  .group {
+    flex-direction: row !important;
+  }
 }
 
 .group > * {
@@ -40,12 +51,22 @@ a {
   margin-left: 1rem;
 }
 
-.dynamic-value {
+.dynamic-value,
+.audio-label,
+.video-label {
   background-color: #ccc;
   color: black;
   // font-size: 20px;
   font-weight: 900;
-  padding: .1em .3em;
+  padding: .05em .3em;
+}
+
+.audio-label {
+  background-color: hotpink;
+}
+
+.video-label {
+  background-color: rgb(155, 210, 199);
 }
 
 details {
@@ -68,4 +89,9 @@ details summary {
 
 .tick {
   font-size: 14px;
+}
+
+.is-fetching {
+  pointer-events: none;
+  opacity: .5;
 }

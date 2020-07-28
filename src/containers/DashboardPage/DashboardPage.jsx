@@ -1,7 +1,7 @@
 import { mean, sum } from 'd3-array';
 import { nest } from 'd3-collection';
 import { format } from 'd3-format'
-import { timeParse } from 'd3-time-format';
+import { timeParse, timeFormat } from 'd3-time-format';
 import uniqBy from 'lodash.uniqby';
 import React, { Component } from 'react';
 import { browserHistory } from 'react-router';
@@ -28,19 +28,22 @@ function mapStateToProps(state, propsWithUrl) {
   };
 }
 
+const formatDate = timeFormat("%B %d");
 const parseDate = timeParse('%Y-%m-%d');
 
 class DashboardPage extends Component {
-  static propTypes = {}
+  static propTypes = {};
 
   constructor(props) {
     super(props);
 
     this.state = {
-      regionId: 'NA/US/ND',
-      regionLabel: 'North Dakota',
+      currentHoverIndicatorDate: null,
+      regionId: "NA/US/ND",
+      regionLabel: "North Dakota",
       year: 2020,
       data: [],
+      isFetching: true,
       meanAudioServicePercent: 0,
       meanSamples: 0,
       samplesBarChartData: [],
@@ -51,53 +54,63 @@ class DashboardPage extends Component {
     };
 
     this.fetchData = this.fetchData.bind(this);
+    this.handleChartHover = this.handleChartHover.bind(this);
+    this.handleRegionChange = this.handleRegionChange.bind(this);
     this.handleYearChange = this.handleYearChange.bind(this);
     this.processDataFromFetch = this.processDataFromFetch.bind(this);
+    this.renderBarChartText = this.renderBarChartText.bind(this);
+    this.renderLineChartText = this.renderLineChartText.bind(this);
     this.setStateWithRegion = this.setStateWithRegion.bind(this);
-    this.handleRegionChange = this.handleRegionChange.bind(this);
   }
 
   componentDidMount() {
     this.fetchData();
-    // this.processDataFromFetch(DATA);
   }
 
   fetchData() {
     const { regionId, year } = this.state;
     const url = `https://api.measurementlab.net/${regionId}/${year}/histogram_daily_stats.json`;
 
-    console.log(`fetching data from ${url}`);
-    try {
-      fetch(url).then(response => {
-        const { status } = response;
+    this.setState(
+      {
+        ...this.state,
+        isFetching: true,
+      },
+      () => {
+        console.log(`fetching data from ${url}`);
+        fetch(url).then((response) => {
+          const { status } = response;
 
-        if (status !== 200) {
-          console.error(`There was an error (${status}) returned from the fetch`);
-          return;
-        }
+          if (status !== 200) {
+            console.error(
+              `There was an error (${status}) returned from the fetch`
+            );
+            return;
+          }
 
-        response.json().then(data => this.processDataFromFetch(data));
-      });
-    } catch (e) {
-      console.error(e);
-      debugger;
-    }
+          response.json().then((data) => this.processDataFromFetch(data));
+        });
+      }
+    );
   }
 
   setStateWithRegion({ regionId, regionLabel }) {
     if (this.state.regionId === regionId) return;
 
-    this.setState({
-      ...this.state,
-      regionId,
-      regionLabel,
-    }, () => {
-      this.fetchData();
-    });
+    this.setState(
+      {
+        ...this.state,
+        regionId,
+        regionLabel,
+      },
+      () => {
+        this.fetchData();
+      }
+    );
   }
 
   calculatePercentageOfSamplesAboveThreshold(tests, threshold) {
-    const uniqTests = uniqBy(tests, d => d.bucket_max);
+    const uniqTests = uniqBy(tests, (d) => d.bucket_max);
     const aboveThreshold = uniqTests.filter((d) => d.bucket_max > threshold);
     const totalSamplesAbove = aboveThreshold.reduce((accum, next) => {
       const sampleCount = next.dl_frac * +next.dl_samples;
@@ -108,9 +121,10 @@ class DashboardPage extends Component {
   }
 
   processDataFromFetch(fetchData) {
-    console.log('got new data!', fetchData[0]);
     const data = fetchData;
-    const byDate = nest().key(d => d.test_date).entries(fetchData);
+    const byDate = nest()
+      .key((d) => d.test_date)
+      .entries(fetchData);
     const samples = [];
     const audioServicePercents = [];
     const videoServicePercents = [];
@@ -126,7 +140,7 @@ class DashboardPage extends Component {
       },
     ];
 
-    byDate.forEach(d => {
+    byDate.forEach((d) => {
       samples.push(+d.values[0].dl_samples);
 
       samplesBarChartData.push({
@@ -136,14 +150,13 @@ class DashboardPage extends Component {
 
       audioServicePercents.push(
         this.calculatePercentageOfSamplesAboveThreshold(
-          d.values, 2.51188643150958
+          d.values,
+          2.51188643150958
         )
       );
 
       videoServicePercents.push(
-        this.calculatePercentageOfSamplesAboveThreshold(
-          d.values, 10
-        )
+        this.calculatePercentageOfSamplesAboveThreshold(d.values, 10)
       );
     });
 
@@ -166,19 +179,26 @@ class DashboardPage extends Component {
     this.setState({
       ...this.state,
       data,
+      isFetching: false,
       meanAudioServicePercent: mean(audioServicePercents),
       meanSamples: mean(samples),
       samplesBarChartData,
       serviceThresholdLineChartData,
       totalSamples: sum(samples),
       meanVideoServicePercent: mean(videoServicePercents),
-      zeroSampleDays: samples.filter(d => d === 0).length,
+      zeroSampleDays: samples.filter((d) => d === 0).length,
+    });
+  }
+
+  handleChartHover(hoverDate) {
+    this.setState({
+      currentHoverIndicatorDate: hoverDate,
     });
   }
 
   handleRegionChange(e) {
     const { value } = e.target;
-    const match = regions.find(region => {
+    const match = regions.find((region) => {
       const key = `${region.continent}/${region.country}/${region.region}`;
       return key === value;
     });
@@ -191,23 +211,132 @@ class DashboardPage extends Component {
 
   handleYearChange(e) {
     const { value } = e.target;
-    this.setState({
-      ...this.state,
-      year: +value,
-    }, () => {
-      this.fetchData();
-    });
+    this.setState(
+      {
+        ...this.state,
+        year: +value,
+      },
+      () => {
+        this.fetchData();
+      }
+    );
+  }
+
+  renderBarChartText() {
+    const {
+      currentHoverIndicatorDate,
+      regionLabel,
+      meanSamples,
+      samplesBarChartData,
+      zeroSampleDays,
+    } = this.state;
+    if (currentHoverIndicatorDate === null) {
+      return (
+        <p>
+          Our data from <span className="dynamic-value">{regionLabel}</span>{" "}
+          during this time period is{" "}
+          <span className="dynamic-value">pretty good</span>, with a mean of
+          approximately{" "}
+          <span className="dynamic-value">{format(",.0f")(meanSamples)}</span>{" "}
+          tests per day. There were{" "}
+          <span className="dynamic-value">{format(",.0f")(zeroSampleDays)}</span>{" "}
+          days where no successful test was recorded.
+        </p>
+      );
+    }
+
+    const match = samplesBarChartData.find(
+      (d) =>
+        formatDate(d.date) ===
+        formatDate(currentHoverIndicatorDate)
+    );
+
+    console.log({ match, currentHoverIndicatorDate, samplesBarChartData });
+
+    return (
+      <p>
+        We recorded <span className="dynamic-value">{match.samples}</span> tests from <span className="dynamic-value">{regionLabel}</span> on <span className="dynamic-value">{formatDate(currentHoverIndicatorDate)}</span>.
+      </p>
+    );
+  }
+
+  renderLineChartText() {
+    const {
+      currentHoverIndicatorDate,
+      meanAudioServicePercent,
+      meanVideoServicePercent,
+      serviceThresholdLineChartData,
+    } = this.state;
+
+    if (currentHoverIndicatorDate === null) {
+      return (
+        <p>
+          On average,{" "}
+          <span className="dynamic-value">
+            {format(".0%")(meanAudioServicePercent)}
+          </span>{" "}
+          of the tests had sufficient bandwidth for making{" "}
+          <span className="audio-label">audio</span> calls (at least 2 megabits
+          per second) and{" "}
+          <span className="dynamic-value">
+            {format(".0%")(meanVideoServicePercent)}
+          </span>{" "}
+          of the tests enough for successful{" "}
+          <span className="video-label">video</span> calls (at least 10 mbps).
+        </p>
+      );
+    }
+
+    const serviceThresholdData = serviceThresholdLineChartData[0]
+      ? [
+          serviceThresholdLineChartData[0].values.find(
+            (d) =>
+              formatDate(d.date) ===
+              formatDate(currentHoverIndicatorDate)
+          ),
+          serviceThresholdLineChartData[1].values.find(
+            (d) =>
+              formatDate(d.date) ===
+              formatDate(currentHoverIndicatorDate)
+          ),
+      ]
+      : [];
+
+    if (!serviceThresholdData[0]) {
+      return '';
+    }
+
+    return (
+      <p>
+        On{" "}
+        <span className="dynamic-value">
+          {timeFormat("%B %d")(currentHoverIndicatorDate)}
+        </span>
+        ,{" "}
+        <span className="dynamic-value">
+          {format(".0%")(serviceThresholdData[0].samples_above_threshold_pct)}
+        </span>{" "}
+        of the tests had sufficient bandwidth for making{" "}
+        <span className="audio-label">audio</span> calls (at least 2 megabits
+        per second) and{" "}
+        <span className="dynamic-value">
+          {format(".0%")(serviceThresholdData[1].samples_above_threshold_pct)}
+        </span>{" "}
+        of the tests enough for successful{" "}
+        <span className="video-label">video</span> calls (at least 10 mbps).
+      </p>
+    );
   }
 
   render() {
     const {
-      meanAudioServicePercent,
+      currentHoverIndicatorDate,
+      isFetching,
       meanSamples,
       regionId,
       regionLabel,
       samplesBarChartData,
       serviceThresholdLineChartData,
-      meanVideoServicePercent,
       totalSamples,
       year,
       zeroSampleDays,
@@ -216,19 +345,16 @@ class DashboardPage extends Component {
     const dataSourceUrl = `https://api.measurementlab.net/${regionId}/${year}/histogram_daily_stats.json`;
 
     const timeParameterEl = (
-      <div style={{ display: 'inline-block' }}>
-        {year === 2020 ? 'since' : 'between' }
-        {' '}
-        <span className="dynamic-value">January 1
-          {year === 2020 ? ', ' : ' through December 31,'}
-          <select
-            onChange={this.handleYearChange}
-            value={year}
-          >
+      <div style={{ display: "inline-block" }}>
+        {year === 2020 ? "since" : "between"}{" "}
+        <span className="dynamic-value">
+          January 1{year === 2020 ? ", " : " through December 31,"}
+          <select onChange={this.handleYearChange} value={year}>
             <option>2020</option>
             <option>2019</option>
           </select>
-        </span>.
+        </span>
+        .
       </div>
     );
 
@@ -247,34 +373,23 @@ class DashboardPage extends Component {
         </div>
         <div className="group">
           <div>
+            {this.renderLineChartText()}
             <p>
-              On average,{" "}
-              <span className="dynamic-value">
-                {format(".0%")(meanAudioServicePercent)}
-              </span>{" "}
-              of the tests had sufficient bandwidth for making audio calls (at
-              least 2 megabits per second) and{" "}
-              <span className="dynamic-value">
-                {format(".0%")(meanVideoServicePercent)}
-              </span>{" "}
-              of the tests enough for successful video calls (at least 10 mbps).
-            </p>
-            <p>
-              You can hover over the chart to the right to see more details
-              about a particular day.{" "}
               <i>
-                The previous sentence will change with the viewer's mouse to
-                become the "tooltip" for the chart. When the cursor is moved off
-                of the chart, the original text will be restored.
+                You can hover over the chart to the right to see more details
+                about a particular day.
               </i>
             </p>
           </div>
           <div className="chart-placeholder">
             Percentage of samples by service thresholds in {regionLabel}
             <LineChart
+              currentHoverIndicatorDate={currentHoverIndicatorDate}
               data={serviceThresholdLineChartData}
-              strokeFn={d => {
-                if (d.name === 'Audio') return 'hotpink';
+              isFetching={isFetching}
+              onHover={this.handleChartHover}
+              strokeFn={(d) => {
+                if (d.name === "Audio") return "hotpink";
                 return "rgb(155, 210, 199)";
               }}
               xAttribute="date"
@@ -282,37 +397,23 @@ class DashboardPage extends Component {
             />
           </div>
         </div>
-        <div className="group">
+        <div className="group column-reverse">
           <div className="chart-placeholder">
             Samples per day in {regionLabel}
             <BarChart
+              currentHoverIndicatorDate={currentHoverIndicatorDate}
               data={samplesBarChartData}
+              isFetching={isFetching}
+              onHover={this.handleChartHover}
               xAttribute="date"
               yAttribute="samples"
             />
           </div>
           <div>
+            {this.renderBarChartText()}
             <p>
-              Our data from <span className="dynamic-value">{regionLabel}</span>{" "}
-              during this time period is{" "}
-              <span className="dynamic-value">pretty good</span>, with a mean of
-              approximately{" "}
-              <span className="dynamic-value">
-                {format(",.0f")(meanSamples)}
-              </span>{" "}
-              tests per day. There were{" "}
-              <span className="dynamic-value">
-                {format(",.0f")(zeroSampleDays)}
-              </span>{" "}
-              days where no successful test was recorded.
-            </p>
-            <p>
-              You can hover over the chart to the left to see more details about
-              a particular day.{" "}
               <i>
-                The previous sentence will change with the viewer's mouse to
-                become the "tooltip" for the chart. When the cursor is moved off
-                of the chart, the original text will be restored.
+                You can hover over the chart to the left to see more details about a particular day.
               </i>
             </p>
           </div>
