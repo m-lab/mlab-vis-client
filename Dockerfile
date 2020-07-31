@@ -16,7 +16,7 @@ COPY . /app/
 # as well.
 # This command will also cat the npm-debug.log file after the
 # build, if it exists.
-RUN npm install -g env-cmd --unsafe-perm
+RUN npm install -g env-cmd@7 --unsafe-perm
 RUN npm install --unsafe-perm || \
   ((if [ -f npm-debug.log ]; then \
       cat npm-debug.log; \
