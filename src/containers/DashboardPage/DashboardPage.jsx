@@ -463,7 +463,7 @@ class DashboardPage extends Component {
     const dataSourceUrl = `https://api.measurementlab.net/${regionId}/${year}/histogram_daily_stats.json`;
 
     const timeParameterEl = (
-      <div style={{ display: "inline-block" }}>
+      <span style={{ display: "inline-block" }}>
         {year === 2020 ? "since" : "between"}{" "}
         <span className="dynamic-value">
           January 1{year === 2020 ? ", " : " through December 31,"}
@@ -473,13 +473,13 @@ class DashboardPage extends Component {
           </select>
         </span>
         .
-      </div>
+      </span>
     );
 
     return (
       <div className="dashboard-page">
         <div className="dashboard-controls sticky">
-          <p>
+          <div>
             Measurement Lab has recorded approximately{" "}
             <span className="dynamic-value">
               {typeof totalSamples === "string"
@@ -487,11 +487,14 @@ class DashboardPage extends Component {
                 : format(",")(totalSamples)}
             </span>{" "}
             speed tests from{" "}
-            <RegionSelect onChange={this.handleRegionChange} value={regionId} />{" "}
+            <RegionSelect
+              onChange={this.handleRegionChange}
+              value={regionId}
+            />{" "}
             {timeParameterEl} You can see the{" "}
             <a href={dataSourceUrl}>data from our API</a> or{" "}
             <a>contribute to the global data set by taking a speed test</a>.
-          </p>
+          </div>
         </div>
         <h1>Internet speed data from {regionLabel}</h1>
         <div className="group">
