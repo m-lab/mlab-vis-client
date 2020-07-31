@@ -157,7 +157,7 @@ BarChart.defaultProps = {
   fillFn: () => 'rgb(155, 210, 199)',
   height: 220,
   margin: {
-    left: 40,
+    left: 60,
     right: 20,
     top: 20,
     bottom: 20,

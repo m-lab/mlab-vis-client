@@ -1,7 +1,6 @@
 import { extent } from 'd3-array';
 import { format } from 'd3-format';
 import { timeFormat, timeParse } from 'd3-time-format';
-import { line } from 'd3-shape';
 import { scaleLinear, scaleTime } from 'd3-scale';
 import React, { Component } from 'react';
 
@@ -74,7 +73,7 @@ class HeatmapChart extends Component {
                     height={legendCellWidth / 3}
                     fill={colorScale(step)}
                   />
-                  <text stroke="black" fontSize="8" dx="2" dy="15">
+                  <text strokeWidth=".25px" stroke="black" fontSize="8" dx="2" dy="15">
                     {step * 100}%
                   </text>
                 </g>
@@ -88,9 +87,15 @@ class HeatmapChart extends Component {
                 data[0].values.map((value, i) => {
                   const y = (i + 1) * cellHeight;
                   return (
-                    <g key={i} transform={`translate(0, ${y - 2})`}>
+                    <g
+                      key={i}
+                      transform={`translate(0, ${y + 2 - cellHeight / 2})`}
+                    >
                       <text fontSize="8px">
-                        {format(",")(value.bucket_max).slice(0, 6)}
+                        {format(".2s")(value.bucket_min)}
+                        {"  "}-{"  "}
+                        {format(".2s")(value.bucket_max)}
+                        {i === 0 && <tspan>{"  "} mbps</tspan>}
                       </text>
                     </g>
                   );
@@ -172,7 +177,7 @@ HeatmapChart.defaultProps = {
   onHover: () => {},
   height: 220,
   margin: {
-    left: 40,
+    left: 60,
     right: 20,
     top: 20,
     bottom: 20,

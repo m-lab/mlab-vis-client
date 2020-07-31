@@ -8,6 +8,9 @@ a {
 }
 
 .dashboard-controls {
+  margin: 3rem 0;
+  margin-bottom: 1rem;
+  padding-bottom: .45rem;
   z-index: 10;
 }
 
@@ -30,7 +33,7 @@ a {
   flex-direction: column-reverse;
 }
 
-@media (min-width: 564px) {
+@media (min-width: 700px) {
   .group {
     flex-direction: row !important;
   }
@@ -131,13 +134,23 @@ details[open] summary {
 }
 
 table {
-  margin-bottom: 2rem;
+  margin-bottom: 2.5rem;
   width: 100%;
 }
 
 caption {
   color: black;
-  font-size: 1.2em;
+}
+
+caption > span {
+  display: flex;
+  justify-content: space-between;
+}
+
+caption h3 {
+  font-size: 24px;
+  margin-top: 0;
+  margin-bottom: 0;
 }
 
 caption a {
@@ -146,10 +159,6 @@ caption a {
 
 thead {
   border-bottom: 1px solid black;
-}
-
-th, td {
-  text-align: center;
 }
 
 tr:nth-child(even) {

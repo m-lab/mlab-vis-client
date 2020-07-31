@@ -40,17 +40,17 @@ class DashboardPage extends Component {
 
     this.state = {
       currentHoverIndicatorDate: null,
-      regionId: "NA/US/ND",
-      regionLabel: "North Dakota",
-      year: 2020,
-      data: [],
+      heatMapData: [],
       isFetching: true,
       meanAudioServicePercent: '--',
       meanSamples: '--',
+      regionId: "NA/US",
+      regionLabel: "the United States",
       samplesBarChartData: [],
       serviceThresholdLineChartData: [],
       meanVideoServicePercent: '--',
       totalSamples: '--',
+      year: 2020,
       zeroSampleDays: '--',
     };
 
@@ -65,6 +65,7 @@ class DashboardPage extends Component {
   }
 
   componentDidMount() {
+    console.log('<DashboardPage /> mounted!');
     this.fetchData();
   }
 
@@ -76,6 +77,11 @@ class DashboardPage extends Component {
       {
         ...this.state,
         isFetching: true,
+        meanAudioServicePercent: '--',
+        meanSamples: '--',
+        meanVideoServicePercent: '--',
+        totalSamples: '--',
+        zeroSampleDays: '--',
       },
       () => {
         console.log(`fetching data from ${url}`);
@@ -188,16 +194,87 @@ class DashboardPage extends Component {
       });
     });
 
+    const heatMapData = byDate.map((dateGroup) => {
+      const { key, values } = dateGroup;
+
+      const binned = [
+        {
+          min: 0,
+          max: 2.5118864315095806,
+        },
+        {
+          min: 2.5118864315095806,
+          max: 10,
+        },
+        {
+          min: 10,
+          max: 63.0957344480193,
+        },
+        {
+          min: 63.0957344480193,
+          max: 99.99999999999994,
+        },
+        {
+          min: 99.99999999999994,
+          max: 630.95734448019368,
+        },
+        {
+          min: 630.95734448019368,
+          max: 10000.00000000002,
+        },
+      ];
+
+      let totalSamples = 0;
+
+      values.forEach((value, i) => {
+        const {
+          bucket_max,
+          bucket_min,
+          dl_frac,
+          dl_samples,
+        } = value;
+
+        if (i === 0) totalSamples = +dl_samples;
+        const numberOfSamplesInValue = dl_frac * +dl_samples;
+
+        const bin = binned.find(b => {
+          const isMinOrGreater = bucket_min >= b.min;
+          const isMaxOrLess = b.max ? bucket_max <= b.max : true;
+          return isMinOrGreater && isMaxOrLess;
+        });
+
+        if (!bin.samples) {
+          bin.samples = 0;
+        }
+
+        bin.samples += numberOfSamplesInValue;
+      });
+
+      return {
+        key,
+        values: binned.map(b => {
+          const { min, max, samples } = b
+
+          return {
+            bucket_max: max,
+            bucket_min: min,
+            dl_samples: samples,
+            dl_frac: samples / totalSamples,
+          };
+        }),
+      };
+    });
+
     this.setState({
       ...this.state,
-      data: byDate,
+      heatMapData,
       isFetching: false,
       meanAudioServicePercent: mean(audioServicePercents),
       meanSamples: mean(samples),
+      meanVideoServicePercent: mean(videoServicePercents),
       samplesBarChartData,
       serviceThresholdLineChartData,
       totalSamples: sum(samples),
-      meanVideoServicePercent: mean(videoServicePercents),
       zeroSampleDays: samples.filter((d) => d === 0).length,
     });
   }
@@ -241,7 +318,7 @@ class DashboardPage extends Component {
     const {
     meanSamples,
     zeroSampleDays,
-    } = this.state
+    } = this.state;
 
     if (zeroSampleDays === 0 && meanSamples > 200) return 'pretty good';
     if (zeroSampleDays === 0 && meanSamples < 200) return 'OK';
@@ -373,7 +450,7 @@ class DashboardPage extends Component {
   render() {
     const {
       currentHoverIndicatorDate,
-      data,
+      heatMapData,
       isFetching,
       regionId,
       regionLabel,
@@ -401,7 +478,7 @@ class DashboardPage extends Component {
 
     return (
       <div className="dashboard-page">
-        <div className="dashboard-controls group sticky">
+        <div className="dashboard-controls sticky">
           <p>
             Measurement Lab has recorded approximately{" "}
             <span className="dynamic-value">
@@ -416,6 +493,7 @@ class DashboardPage extends Component {
             <a>contribute to the global data set by taking a speed test</a>.
           </p>
         </div>
+        <h1>Internet speed data from {regionLabel}</h1>
         <div className="group">
           <div>
             {this.renderLineChartText()}
@@ -469,31 +547,32 @@ class DashboardPage extends Component {
             <p>
               Another way we can look at our data from{" "}
               <span className="dynamic-value">{regionLabel}</span> is to look at
-              the percentage of tests (per day) that were within a speed
+              the percentage of tests (per day) that were within a download speed
               "bucket".
             </p>
             <details>
               <summary>Learn more about our bucket approach.</summary>
               <div>
                 We divide up our traffic into "buckets", depending on the
-                measured speed. We do this because of X, Y, and Z.
+                measured speed for both upload and download values. We do this because of X, Y, and Z.
               </div>
             </details>
             <p>
-              The more tests that were within a bucket, the brighter the color
-              will be in the chart to the right.
+              The more tests within a bucket within a day, the brighter the color
+              will be in the chart to the right. For example, if 50% of today's test samples measured a download speed of less than 2.5 megabits per second (mbps), then the cell associated all the way to the right on the first row would be colored bright pink.
             </p>
           </div>
           <div className="chart-placeholder">
             Speed tests by bucket per day in {regionLabel}
             <HeatmapChart
               currentHoverIndicatorDate={currentHoverIndicatorDate}
-              data={data}
+              data={heatMapData}
               isFetching={isFetching}
               onHover={this.handleChartHover}
             />
           </div>
         </div>
+        <h2>Data by internal political boundaries</h2>
         <div>
           <p>
             We have more detailed geographic data for{" "}
@@ -509,9 +588,15 @@ class DashboardPage extends Component {
           <div>
             <table>
               <caption>
-                Speed tests by{" "}
-                {regionLabel === "Louisiana" ? "parish" : "county"}{" "}
-                <a>(source)</a>
+                <span>
+                  <h3>
+                    Speed tests by{" "}
+                    {regionLabel === "Louisiana" ? "parish" : "county"}{" "}
+                  </h3>
+                  <span>
+                    <a>See the data</a>
+                  </span>
+                </span>
               </caption>
               <thead>
                 <tr>
@@ -551,7 +636,12 @@ class DashboardPage extends Component {
           <div>
             <table>
               <caption>
-                Speed tests by Congressional district <a>(source)</a>
+                <span>
+                  <h3>Speed tests by Congressional districts</h3>
+                  <span>
+                    <a>See the data</a>
+                  </span>
+                </span>
               </caption>
               <thead>
                 <tr>
@@ -586,7 +676,12 @@ class DashboardPage extends Component {
           <div>
             <table>
               <caption>
-                Speed tests by ZIP code <a>(source)</a>
+                <span>
+                  <h3>Speed tests by ZIP code</h3>
+                  <span>
+                    <a>See the data</a>
+                  </span>
+                </span>
               </caption>
               <thead>
                 <tr>

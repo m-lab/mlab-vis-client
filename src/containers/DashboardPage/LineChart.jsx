@@ -3,6 +3,7 @@ import { format } from 'd3-format';
 import { timeFormat } from 'd3-time-format';
 import { line } from 'd3-shape';
 import { scaleLinear, scaleTime } from 'd3-scale';
+import flatten from 'lodash.flatten';
 import React, { Component } from 'react';
 
 import './DashboardPage.scss';
@@ -44,12 +45,9 @@ class LineChart extends Component {
     const chartHeight = height - margin.top - margin.bottom;
     const chartWidth = width - margin.left - margin.right;
     const barWidth = data[0] ? chartWidth / data[0].values.length : 0;
-    const xAttributes = data
-      .map((d) => d.values.map((dd) => dd[xAttribute]))
-      .flat();
-    const yAttributes = data
-      .map((d) => d.values.map((dd) => dd[yAttribute]))
-      .flat();
+    const xAttributes = flatten(data.map((d) =>
+      d.values.map((dd) => dd[xAttribute])
+    ));
     const xScaleFn = xType === "time" ? scaleTime : scaleLinear;
     const yScaleFn = scaleLinear;
 
@@ -132,7 +130,7 @@ class LineChart extends Component {
             )}
             {data.map((d, i) => (
               <path
-                key={d.key}
+                key={`${d.key}-${i}`}
                 d={l(d.values)}
                 fill="none"
                 stroke={strokeFn(d, i)}
@@ -141,6 +139,7 @@ class LineChart extends Component {
             {data[0] &&
               data[0].values.map(({ date }) => (
                 <rect
+                  key={date}
                   fill="transparent"
                   stroke="transparent"
                   height={chartHeight}

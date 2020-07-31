@@ -10,13 +10,13 @@ const RegionSelect = ({ onChange, value }) => {
         let value = `${region.continent}/${region.country}/${region.region}`;
 
         if (!region.region) {
-          value = `${region.continent}/${region.country}`
+          value = `${region.continent}/${region.country}`;
         }
         return (
           <option key={value} value={value}>
             {region.label}
           </option>
-        )
+        );
       })}
     </select>
   );
