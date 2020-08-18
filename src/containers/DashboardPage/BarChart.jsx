@@ -6,24 +6,34 @@ import React, { Component } from 'react';
 
 import './DashboardPage.scss';
 
-const formatDate = timeFormat('%b %0d')
+const formatDate = timeFormat('%b %0d');
 
 class BarChart extends Component {
   constructor(props) {
     super(props);
 
-    this.onMouseEnter = this.onMouseEnter.bind(this);
-    this.onMouseLeave = this.onMouseLeave.bind(this);
+    this.handleClick = this.handleClick.bind(this);
+    this.handleMouseEnter = this.handleMouseEnter.bind(this);
+    this.handleMouseLeave = this.handleMouseLeave.bind(this);
   }
 
-  onMouseEnter(d) {
+  handleClick() {
+    this.props.onClick();
+  }
+
+  handleMouseEnter(d) {
     return () => {
-      this.props.onHover(d);
+      const { isHoverDisabled, onHover } = this.props;
+
+      if (isHoverDisabled) return;
+      onHover(d);
     };
   }
 
-  onMouseLeave() {
-    this.props.onHover(null);
+  handleMouseLeave() {
+    const { isHoverDisabled, onHover } = this.props;
+    if (isHoverDisabled) return;
+    onHover(null);
   }
 
   render() {
@@ -32,6 +42,7 @@ class BarChart extends Component {
       data,
       fillFn,
       height,
+      isHoverDisabled,
       isFetching,
       margin,
       width,
@@ -45,7 +56,7 @@ class BarChart extends Component {
     const barWidth = chartWidth / data.length;
     const xAttributes = data.map((d) => d[xAttribute]);
     const yAttributes = data.map((d) => d[yAttribute]);
-    const xScaleFn = xType === "time" ? scaleTime : scaleLinear;
+    const xScaleFn = xType === 'time' ? scaleTime : scaleLinear;
     const yScaleFn = scaleLinear;
 
     const xScale = xScaleFn()
@@ -58,14 +69,15 @@ class BarChart extends Component {
     const xAxisTicks = extent(xAttributes);
     const yAxisTicks = [0, Math.floor(max(yAttributes) / 2), max(yAttributes)];
 
-    const xTickFormat = xType === "time" ? formatDate : format(",");
+    const xTickFormat = xType === 'time' ? formatDate : format(',');
 
     return (
-      <div className={`bar-chart ${isFetching ? "is-fetching" : ""}`}>
+      <div className={`bar-chart ${isFetching ? 'is-fetching' : ''}`}>
         <svg
           height={height}
           width={width}
-          onMouseLeave={this.onMouseLeave}
+          onClick={this.handleClick}
+          onMouseLeave={this.handleMouseLeave}
           viewBox={`0 0 ${width} ${height}`}
         >
           <g className="y-axis" transform={`translate(0, ${margin.top})`}>
@@ -75,7 +87,7 @@ class BarChart extends Component {
                 className="tick"
                 transform={`translate(0, ${chartHeight - yScale(tick)})`}
               >
-                <text>{format(",")(tick)}</text>
+                <text>{format(',')(tick)}</text>
                 <line
                   x1={margin.left}
                   y1="0"
@@ -129,7 +141,7 @@ class BarChart extends Component {
                 x2={xScale(currentHoverIndicatorDate)}
                 y1="0"
                 y2={chartHeight}
-                stroke="#121212"
+                stroke={isHoverDisabled ? '#FFD670' : '#121212'}
                 strokeDasharray="5 3"
               />
             )}
@@ -142,7 +154,7 @@ class BarChart extends Component {
                 x={xScale(d[xAttribute]) - barWidth / 2}
                 y={0}
                 width={barWidth}
-                onMouseEnter={this.onMouseEnter(d[xAttribute])}
+                onMouseEnter={this.handleMouseEnter(d[xAttribute])}
               />
             ))}
           </g>
@@ -156,6 +168,7 @@ BarChart.defaultProps = {
   data: [],
   fillFn: () => 'rgb(155, 210, 199)',
   height: 220,
+  isHoverDisabled: false,
   margin: {
     left: 60,
     right: 20,

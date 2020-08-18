@@ -6,25 +6,36 @@ import React, { Component } from 'react';
 
 import './DashboardPage.scss';
 
-const formatDate = timeFormat("%b %0d");
-const parseDate = timeParse("%Y-%m-%d")
+const formatDate = timeFormat('%b %0d');
+const parseDate = timeParse('%Y-%m-%d');
 
 class HeatmapChart extends Component {
   constructor(props) {
     super(props);
 
+    this.handleClick = this.handleClick.bind(this);
     this.handleMouseEnter = this.handleMouseEnter.bind(this);
     this.handleMouseLeave = this.handleMouseLeave.bind(this);
   }
 
   handleMouseEnter(d) {
     return () => {
-      this.props.onHover(d);
+      const { isHoverDisabled, onHover } = this.props;
+
+      if (isHoverDisabled) return;
+      onHover(d);
     };
   }
 
   handleMouseLeave() {
-    this.props.onHover(null);
+    const { isHoverDisabled, onHover } = this.props;
+    if (isHoverDisabled) return;
+    onHover(null);
+  }
+
+
+  handleClick() {
+    this.props.onClick();
   }
 
   render() {
@@ -32,6 +43,7 @@ class HeatmapChart extends Component {
       currentHoverIndicatorDate,
       data,
       height,
+      isHoverDisabled,
       isFetching,
       margin,
       strokeFn,
@@ -49,14 +61,15 @@ class HeatmapChart extends Component {
 
     const colorScale = scaleLinear()
       .domain([0, 0.25, 0.5, 0.75, 1])
-      .range(["rgb(21, 59, 80)", "#9BD2C7", "#E18AD4", "#FF9770", "#FFD670"]);
+      .range(['rgb(21, 59, 80)', '#9BD2C7', '#E18AD4', '#FF9770', '#FFD670']);
     const xScale = scaleTime().domain(dateExtent).range([0, chartWidth]);
 
     return (
-      <div className={`heatmap-chart ${isFetching ? "is-fetching" : ""}`}>
+      <div className={`heatmap-chart ${isFetching ? 'is-fetching' : ''}`}>
         <svg
           height={height}
-          onMouseLeave={this.onMouseLeave}
+          onClick={this.handleClick}
+          onMouseLeave={this.handleMouseLeave}
           width={width}
           viewBox={`0 0 ${width} ${height}`}
         >
@@ -92,10 +105,10 @@ class HeatmapChart extends Component {
                       transform={`translate(0, ${y + 2 - cellHeight / 2})`}
                     >
                       <text fontSize="8px">
-                        {format(".2s")(value.bucket_min)}
-                        {"  "}-{"  "}
-                        {format(".2s")(value.bucket_max)}
-                        {i === 0 && <tspan>{"  "} mbps</tspan>}
+                        {format('.2s')(value.bucket_min)}
+                        {'  '}-{'  '}
+                        {format('.2s')(value.bucket_max)}
+                        {i === 0 && <tspan>{'  '} mbps</tspan>}
                       </text>
                     </g>
                   );
@@ -160,7 +173,7 @@ class HeatmapChart extends Component {
                 x2={xScale(currentHoverIndicatorDate)}
                 y1="0"
                 y2={chartHeight}
-                stroke="#FFD670"
+                stroke={isHoverDisabled ? '#FFD670' : '#121212'}
                 strokeDasharray="5 3"
               />
             )}
@@ -182,8 +195,8 @@ HeatmapChart.defaultProps = {
     top: 20,
     bottom: 20,
   },
-  xType: "time",
-  yType: "linear",
+  xType: 'time',
+  yType: 'linear',
   width: 500,
 };
 

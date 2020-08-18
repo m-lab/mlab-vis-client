@@ -8,24 +8,34 @@ import React, { Component } from 'react';
 
 import './DashboardPage.scss';
 
-const formatDate = timeFormat("%b %0d");
+const formatDate = timeFormat('%b %0d');
 
 class LineChart extends Component {
   constructor(props) {
     super(props);
 
-    this.onMouseEnter = this.onMouseEnter.bind(this);
-    this.onMouseLeave = this.onMouseLeave.bind(this);
+    this.handleClick = this.handleClick.bind(this);
+    this.handleMouseEnter = this.handleMouseEnter.bind(this);
+    this.handleMouseLeave = this.handleMouseLeave.bind(this);
   }
 
-  onMouseEnter(d) {
+  handleClick() {
+    this.props.onClick();
+  }
+
+  handleMouseEnter(d) {
     return () => {
-      this.props.onHover(d);
+      const { isHoverDisabled, onHover } = this.props;
+
+      if (isHoverDisabled) return;
+      onHover(d);
     };
   }
 
-  onMouseLeave() {
-    this.props.onHover(null);
+  handleMouseLeave() {
+    const { isHoverDisabled, onHover } = this.props;
+    if (isHoverDisabled) return;
+    onHover(null);
   }
 
   render() {
@@ -33,6 +43,7 @@ class LineChart extends Component {
       currentHoverIndicatorDate,
       data,
       height,
+      isHoverDisabled,
       isFetching,
       margin,
       strokeFn,
@@ -48,11 +59,11 @@ class LineChart extends Component {
     const xAttributes = flatten(data.map((d) =>
       d.values.map((dd) => dd[xAttribute])
     ));
-    const xScaleFn = xType === "time" ? scaleTime : scaleLinear;
+    const xScaleFn = xType === 'time' ? scaleTime : scaleLinear;
     const yScaleFn = scaleLinear;
 
     const xAxisTicks = extent(xAttributes);
-    const xTickFormat = xType === "time" ? formatDate : format(",");
+    const xTickFormat = xType === 'time' ? formatDate : format(',');
 
     const xScale = xScaleFn()
       .domain(extent(xAttributes))
@@ -66,10 +77,11 @@ class LineChart extends Component {
       .y((d) => chartHeight - yScale(d[yAttribute]));
 
     return (
-      <div className={`line-chart ${isFetching ? "is-fetching" : ""}`}>
+      <div className={`line-chart ${isFetching ? 'is-fetching' : ''}`}>
         <svg
           height={height}
-          onMouseLeave={this.onMouseLeave}
+          onClick={this.handleClick}
+          onMouseLeave={this.handleMouseLeave}
           width={width}
           viewBox={`0 0 ${width} ${height}`}
         >
@@ -80,7 +92,7 @@ class LineChart extends Component {
                 className="tick"
                 transform={`translate(0, ${chartHeight - yScale(tick)})`}
               >
-                <text>{format(".0%")(tick)}</text>
+                <text>{format('.0%')(tick)}</text>
                 <line
                   x1={margin.left}
                   y1="0"
@@ -124,7 +136,7 @@ class LineChart extends Component {
                 x2={xScale(currentHoverIndicatorDate)}
                 y1="0"
                 y2={yScale(1)}
-                stroke="#121212"
+                stroke={isHoverDisabled ? '#FFD670' : '#121212'}
                 strokeDasharray="5 3"
               />
             )}
@@ -146,7 +158,7 @@ class LineChart extends Component {
                   width={barWidth}
                   x={xScale(new Date(date)) - barWidth / 2}
                   y="0"
-                  onMouseEnter={this.onMouseEnter(date)}
+                  onMouseEnter={this.handleMouseEnter(date)}
                 />
               ))}
           </g>
@@ -167,9 +179,9 @@ LineChart.defaultProps = {
     top: 20,
     bottom: 20,
   },
-  strokeFn: () => "rgb(155, 210, 199)",
-  xType: "time",
-  yType: "linear",
+  strokeFn: () => 'rgb(155, 210, 199)',
+  xType: 'time',
+  yType: 'linear',
   width: 500,
 };
 
