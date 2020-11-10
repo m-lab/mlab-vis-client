@@ -46,7 +46,6 @@ class HeatmapChart extends Component {
       isHoverDisabled,
       isFetching,
       margin,
-      strokeFn,
       width,
       xAttribute,
       yAttribute,
@@ -60,8 +59,8 @@ class HeatmapChart extends Component {
     const cellHeight = chartHeight / (data[0] ? data[0].values.length : 1);
 
     const colorScale = scaleLinear()
-      .domain([0, 0.25, 0.5, 0.75, 1])
-      .range(['rgb(21, 59, 80)', '#9BD2C7', '#E18AD4', '#FF9770', '#FFD670']);
+      .domain([0, 0.25, 1])
+      .range(['#EBEBEB', '#9BD2C7', 'rgb(21, 59, 80)']);
     const xScale = scaleTime().domain(dateExtent).range([0, chartWidth]);
 
     return (

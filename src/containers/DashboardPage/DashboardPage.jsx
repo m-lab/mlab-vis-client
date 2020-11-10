@@ -67,7 +67,6 @@ class DashboardPage extends Component {
   }
 
   componentDidMount() {
-    console.log('<DashboardPage /> mounted!');
     this.fetchData();
   }
 
@@ -291,18 +290,18 @@ class DashboardPage extends Component {
     });
   }
 
-  handleRegionChange(e) {
-    const { value } = e.target;
+  handleRegionChange(nextRegionId) {
+    console.log({ nextRegionId });
     const match = regions.find((region) => {
       let key = `${region.continent}/${region.country}/${region.region}`;
       if (!region.region) {
         key = `${region.continent}/${region.country}`;
       }
-      return key === value;
+      return key === nextRegionId;
     });
 
     this.setStateWithRegion({
-      regionId: value,
+      regionId: nextRegionId,
       regionLabel: match.label,
     });
   }

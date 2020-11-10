@@ -165,7 +165,7 @@
     "react-addons-perf": "^15.3.1",
     "react-addons-shallow-compare": "^15.3.1",
     "react-auto-width": "^0.1.0",
-    "react-autosuggest": "^6.0.2",
+    "react-autosuggest": "^6.1.0",
     "react-autowhatever": "^10.1.0",
     "react-bootstrap": "^0.30.2",
     "react-deep-force-update": "^1.1.1",
