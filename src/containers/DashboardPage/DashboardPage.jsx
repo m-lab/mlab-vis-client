@@ -472,7 +472,7 @@ class DashboardPage extends Component {
       <span style={{ display: 'inline-block' }}>
         {year === 2020 ? 'since' : 'between'}{' '}
         <span className="dynamic-value">
-          January 1{year === 2020 ? ', ' : ' through December 31,'}
+          January 1{year === 2020 ? ', ' : ' and December 31,'}
           <select onChange={this.handleYearChange} value={year}>
             <option>2020</option>
             <option>2019</option>
