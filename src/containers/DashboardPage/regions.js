@@ -119,7 +119,7 @@ const regions = [
 export default regions.map((r) => {
   const { continent, country, region } = r;
   const id = region
-    ? `${continent}/${country}/${region}`
+    ? `${continent}/${country}/${country}-${region}`
     : `${continent}/${country}`;
   return {
     ...r,

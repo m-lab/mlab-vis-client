@@ -1,6 +1,6 @@
 import { mean, sum } from 'd3-array';
 import { nest } from 'd3-collection';
-import { format } from 'd3-format'
+import { format } from 'd3-format';
 import { timeParse, timeFormat } from 'd3-time-format';
 import uniqBy from 'lodash.uniqby';
 import React, { Component } from 'react';
@@ -72,17 +72,19 @@ class DashboardPage extends Component {
 
   fetchData() {
     const { regionId, year } = this.state;
-    const url = `https://api.measurementlab.net/${regionId}/${year}/histogram_daily_stats.json`;
+    // https://storage.cloud.google.com/api.measurementlab.net/NA/US/MD/2020/histogram_daily_stats.json
+    // https://statistics.mlab-sandbox.measurementlab.net/v0/NA/US/2020/histogram_daily_stats.json
+    const url = `https://statistics.mlab-sandbox.measurementlab.net/v0/${regionId}/${year}/histogram_daily_stats.json`;
 
     this.setState(
       {
         ...this.state,
         isFetching: true,
-        meanAudioServicePercent: '--',
-        meanSamples: '--',
-        meanVideoServicePercent: '--',
-        totalSamples: '--',
-        zeroSampleDays: '--',
+        meanAudioServicePercent: "--",
+        meanSamples: "--",
+        meanVideoServicePercent: "--",
+        totalSamples: "--",
+        zeroSampleDays: "--",
       },
       () => {
         console.log(`fetching data from ${url}`);
@@ -121,16 +123,16 @@ class DashboardPage extends Component {
     const uniqTests = uniqBy(tests, (d) => d.bucket_max);
     const aboveThreshold = uniqTests.filter((d) => d.bucket_max > threshold);
     const totalSamplesAbove = aboveThreshold.reduce((accum, next) => {
-      const sampleCount = next.dl_frac * +next.dl_samples;
-      return accum + sampleCount;
+      // const sampleCount = next.dl_frac * +next.dl_samples;
+      return accum + next.dl_samples_bucket;
     }, 0);
-    const percentageAbove = totalSamplesAbove / +tests[0].dl_samples;
+    const percentageAbove = totalSamplesAbove / +tests[0].dl_samples_day;
     return percentageAbove;
   }
 
   processDataFromFetch(fetchData) {
     const byDate = nest()
-      .key((d) => d.test_date)
+      .key((d) => d.date)
       .entries(fetchData)
       .map(({ key, values }) => {
         const unique =  uniqBy(values, d => d.bucket_max);
@@ -160,11 +162,11 @@ class DashboardPage extends Component {
     ];
 
     byDate.forEach((d) => {
-      samples.push(+d.values[0].dl_samples);
+      samples.push(+d.values[0].dl_samples_day);
 
       samplesBarChartData.push({
         date: parseDate(d.key),
-        samples: +d.values[0].dl_samples,
+        samples: +d.values[0].dl_samples_day,
       });
 
       audioServicePercents.push(
@@ -209,10 +211,10 @@ class DashboardPage extends Component {
         },
         {
           min: 10,
-          max: 99,
+          max: 101,
         },
         {
-          min: 99,
+          min: 100,
           max: 1000,
         },
         {
@@ -227,36 +229,45 @@ class DashboardPage extends Component {
         const {
           bucket_max,
           bucket_min,
-          dl_frac,
-          dl_samples,
+          // dl_frac,
+          dl_samples_bucket,
+          dl_samples_day,
         } = value;
 
-        if (i === 0) totalSamples = +dl_samples;
-        const numberOfSamplesInValue = dl_frac * +dl_samples;
+        if (i === 0) totalSamples = +dl_samples_day;
+        const numberOfSamplesInValue = dl_samples_bucket;
 
         const bin = binned.find(b => {
-          const isMinOrGreater = parseInt(bucket_min) >= parseInt(b.min);
-          const isMaxOrLess = b.max ? parseInt(bucket_max) <= parseInt(b.max) : true;
+          const isMinOrGreater = parseInt(bucket_min, 10) >= parseInt(b.min, 10);
+          const isMaxOrLess = b.max ? parseInt(bucket_max, 10) <= parseInt(b.max, 10) : true;
           return isMinOrGreater && isMaxOrLess;
         });
 
-        if (!bin.samples) {
-          bin.samples = 0;
+        try {
+          if (!bin.samples) {
+            bin.samples = 0;
+          }
+        } catch (e) {
+          debugger
         }
 
         bin.samples += numberOfSamplesInValue;
       });
 
+      const median = values[0].download_MED;
+
       return {
         key,
-        values: binned.map(b => {
-          const { min, max, samples } = b
+        median: values[0].download_MED,
+        values: binned.map((b) => {
+          const { min, max, samples } = b;
 
           return {
             bucket_max: max,
             bucket_min: min,
             dl_samples: samples,
             dl_frac: samples / totalSamples,
+            includes_median: median > min && median < max,
           };
         }),
       };
@@ -293,7 +304,7 @@ class DashboardPage extends Component {
   handleRegionChange(nextRegionId) {
     console.log({ nextRegionId });
     const match = regions.find((region) => {
-      let key = `${region.continent}/${region.country}/${region.region}`;
+      let key = `${region.continent}/${region.country}/${region.country}-${region.region}`;
       if (!region.region) {
         key = `${region.continent}/${region.country}`;
       }

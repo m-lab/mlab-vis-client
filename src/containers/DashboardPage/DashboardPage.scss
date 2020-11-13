@@ -98,15 +98,15 @@ details summary {
   padding: .2rem;
 }
 
-details summary::before {
-  content: '► ';
-  display: inline-block;
-  margin-right: .5rem;
-}
+// details summary::before {
+//   content: '► ';
+//   display: inline-block;
+//   margin-right: .5rem;
+// }
 
-details[open] summary::before {
-  content: '▼ ';
-}
+// details[open] summary::before {
+//   content: '▼ ';
+// }
 
 details[open] summary {
   background-color: #ebebeb;
