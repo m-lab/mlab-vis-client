@@ -1,21 +1,21 @@
-import { mean, sum } from 'd3-array';
-import { nest } from 'd3-collection';
-import { format } from 'd3-format';
-import { timeParse, timeFormat } from 'd3-time-format';
-import uniqBy from 'lodash.uniqby';
-import React, { Component } from 'react';
-import { browserHistory } from 'react-router';
+import { mean, sum } from "d3-array";
+import { nest } from "d3-collection";
+import { format } from "d3-format";
+import { timeParse, timeFormat } from "d3-time-format";
+import uniqBy from "lodash.uniqby";
+import React, { Component } from "react";
+import { browserHistory } from "react-router";
 
-import UrlHandler from '../../url/UrlHandler';
-import urlConnect from '../../url/urlConnect';
+import UrlHandler from "../../url/UrlHandler";
+import urlConnect from "../../url/urlConnect";
 
-import regions from './regions';
-import BarChart from './BarChart';
-import HeatmapChart from './HeatmapChart';
-import LineChart from './LineChart';
-import RegionSelect from './RegionSelect';
+import regions from "./regions";
+import BarChart from "./BarChart";
+import HeatmapChart from "./HeatmapChart";
+import LineChart from "./LineChart";
+import RegionSelect from "./RegionSelect";
 
-import './DashboardPage.scss';
+import "./DashboardPage.scss";
 
 // import DATA from './data.json';
 
@@ -29,8 +29,8 @@ function mapStateToProps(state, propsWithUrl) {
   };
 }
 
-const formatDate = timeFormat('%B %e');
-const parseDate = timeParse('%Y-%m-%d');
+const formatDate = timeFormat("%B %e");
+const parseDate = timeParse("%Y-%m-%d");
 
 class DashboardPage extends Component {
   static propTypes = {};
@@ -43,16 +43,16 @@ class DashboardPage extends Component {
       heatMapData: [],
       isHoverDisabled: false,
       isFetching: true,
-      meanAudioServicePercent: '--',
-      meanSamples: '--',
-      regionId: 'NA/US',
-      regionLabel: 'the United States',
+      meanAudioServicePercent: "--",
+      meanSamples: "--",
+      regionId: "NA/US",
+      regionLabel: "the United States",
       samplesBarChartData: [],
       serviceThresholdLineChartData: [],
-      meanVideoServicePercent: '--',
-      totalSamples: '--',
+      meanVideoServicePercent: "--",
+      totalSamples: "--",
       year: 2020,
-      zeroSampleDays: '--',
+      zeroSampleDays: "--",
     };
 
     this.fetchData = this.fetchData.bind(this);
@@ -135,7 +135,7 @@ class DashboardPage extends Component {
       .key((d) => d.date)
       .entries(fetchData)
       .map(({ key, values }) => {
-        const unique =  uniqBy(values, d => d.bucket_max);
+        const unique = uniqBy(values, (d) => d.bucket_max);
         const sorted = unique.sort((a, b) => {
           if (a.bucket_max > b.bucket_max) return 1;
           if (a.bucket_max < b.bucket_max) return -1;
@@ -152,11 +152,11 @@ class DashboardPage extends Component {
     const samplesBarChartData = [];
     const serviceThresholdLineChartData = [
       {
-        name: 'Audio',
+        name: "Audio",
         values: [],
       },
       {
-        name: 'Video',
+        name: "Video",
         values: [],
       },
     ];
@@ -211,6 +211,10 @@ class DashboardPage extends Component {
         },
         {
           min: 10,
+          max: 64, // real bucket value is 63.095734448019655
+        },
+        {
+          min: 63,
           max: 101,
         },
         {
@@ -229,26 +233,26 @@ class DashboardPage extends Component {
         const {
           bucket_max,
           bucket_min,
-          // dl_frac,
           dl_samples_bucket,
           dl_samples_day,
         } = value;
 
+        // eslint-disable-next-line camelcase
         if (i === 0) totalSamples = +dl_samples_day;
+        // eslint-disable-next-line camelcase
         const numberOfSamplesInValue = dl_samples_bucket;
 
-        const bin = binned.find(b => {
-          const isMinOrGreater = parseInt(bucket_min, 10) >= parseInt(b.min, 10);
-          const isMaxOrLess = b.max ? parseInt(bucket_max, 10) <= parseInt(b.max, 10) : true;
+        const bin = binned.find((b) => {
+          const isMinOrGreater =
+            parseInt(bucket_min, 10) >= parseInt(b.min, 10);
+          const isMaxOrLess = b.max
+            ? parseInt(bucket_max, 10) <= parseInt(b.max, 10)
+            : true;
           return isMinOrGreater && isMaxOrLess;
         });
 
-        try {
-          if (!bin.samples) {
-            bin.samples = 0;
-          }
-        } catch (e) {
-          debugger
+        if (!bin.samples) {
+          bin.samples = 0;
         }
 
         bin.samples += numberOfSamplesInValue;
@@ -331,15 +335,12 @@ class DashboardPage extends Component {
   }
 
   renderDataQualityText() {
-    const {
-    meanSamples,
-    zeroSampleDays,
-    } = this.state;
+    const { meanSamples, zeroSampleDays } = this.state;
 
-    if (zeroSampleDays === 0 && meanSamples > 200) return 'pretty good';
-    if (zeroSampleDays === 0 && meanSamples < 200) return 'OK';
-    if (zeroSampleDays > 0 && meanSamples < 200) return 'sparse';
-    return 'normal';
+    if (zeroSampleDays === 0 && meanSamples > 200) return "pretty good";
+    if (zeroSampleDays === 0 && meanSamples < 200) return "OK";
+    if (zeroSampleDays > 0 && meanSamples < 200) return "sparse";
+    return "normal";
   }
 
   renderBarChartText() {
@@ -350,37 +351,39 @@ class DashboardPage extends Component {
       samplesBarChartData,
       zeroSampleDays,
     } = this.state;
-    const formatNumber = format(',.0f');
+    const formatNumber = format(",.0f");
     if (currentHoverIndicatorDate === null) {
       return (
         <p>
-          Our data from <span className="dynamic-value">{regionLabel}</span>{' '}
-          during this time period is{' '}
-          <span className="dynamic-value">{this.renderDataQualityText()}</span>, with a mean of
-          approximately{' '}
+          Our data from <span className="dynamic-value">{regionLabel}</span>{" "}
+          during this time period is{" "}
+          <span className="dynamic-value">{this.renderDataQualityText()}</span>,
+          with a mean of approximately{" "}
           <span className="dynamic-value">
-            {typeof meanSamples === 'string'
+            {typeof meanSamples === "string"
               ? `${meanSamples}`
               : formatNumber(meanSamples)}
-          </span>{' '}
-          tests per day. There were{' '}
-          <span className="dynamic-value">{typeof zeroSampleDays === 'string' ? zeroSampleDays : formatNumber(zeroSampleDays)}</span>{' '}
+          </span>{" "}
+          tests per day. There were{" "}
+          <span className="dynamic-value">
+            {typeof zeroSampleDays === "string"
+              ? zeroSampleDays
+              : formatNumber(zeroSampleDays)}
+          </span>{" "}
           days where no successful test was recorded.
         </p>
       );
     }
 
     const match = samplesBarChartData.find(
-      (d) =>
-        formatDate(d.date) ===
-        formatDate(currentHoverIndicatorDate)
+      (d) => formatDate(d.date) === formatDate(currentHoverIndicatorDate)
     );
 
     return (
       <p>
-        We recorded{' '}
-        <span className="dynamic-value">{formatNumber(match.samples)}</span> tests
-        from <span className="dynamic-value">{regionLabel}</span> on{' '}
+        We recorded{" "}
+        <span className="dynamic-value">{formatNumber(match.samples)}</span>{" "}
+        tests from <span className="dynamic-value">{regionLabel}</span> on{" "}
         <span className="dynamic-value">
           {formatDate(currentHoverIndicatorDate)}
         </span>
@@ -400,23 +403,21 @@ class DashboardPage extends Component {
     if (currentHoverIndicatorDate === null) {
       return (
         <p>
-          On average,{' '}
+          On average,{" "}
           <span className="dynamic-value">
-            {typeof meanAudioServicePercent === 'string'
+            {typeof meanAudioServicePercent === "string"
               ? meanAudioServicePercent
-              : format('.0%')(meanAudioServicePercent)}
-          </span>{' '}
-          of the tests had sufficient bandwidth for making{' '}
+              : format(".0%")(meanAudioServicePercent)}
+          </span>{" "}
+          of the tests had sufficient bandwidth for making{" "}
           <span className="audio-label">audio</span> calls (at least 2 megabits
-          per second) and{' '}
+          per second) and{" "}
           <span className="dynamic-value">
-            {
-              typeof meanVideoServicePercent === 'string' ? meanVideoServicePercent : format('.0%')(
-                meanVideoServicePercent
-              )
-            }
-          </span>{' '}
-          of the tests enough for successful{' '}
+            {typeof meanVideoServicePercent === "string"
+              ? meanVideoServicePercent
+              : format(".0%")(meanVideoServicePercent)}
+          </span>{" "}
+          of the tests enough for successful{" "}
           <span className="video-label">video</span> calls (at least 10 mbps).
         </p>
       );
@@ -425,39 +426,35 @@ class DashboardPage extends Component {
     const serviceThresholdData = serviceThresholdLineChartData[0]
       ? [
           serviceThresholdLineChartData[0].values.find(
-            (d) =>
-              formatDate(d.date) ===
-              formatDate(currentHoverIndicatorDate)
+            (d) => formatDate(d.date) === formatDate(currentHoverIndicatorDate)
           ),
           serviceThresholdLineChartData[1].values.find(
-            (d) =>
-              formatDate(d.date) ===
-              formatDate(currentHoverIndicatorDate)
+            (d) => formatDate(d.date) === formatDate(currentHoverIndicatorDate)
           ),
-      ]
+        ]
       : [];
 
     if (!serviceThresholdData[0]) {
-      return '';
+      return "";
     }
 
     return (
       <p>
-        On{' '}
+        On{" "}
         <span className="dynamic-value">
           {formatDate(currentHoverIndicatorDate)}
         </span>
-        ,{' '}
+        ,{" "}
         <span className="dynamic-value">
-          {format('.0%')(serviceThresholdData[0].samples_above_threshold_pct)}
-        </span>{' '}
-        of the tests had sufficient bandwidth for making{' '}
+          {format(".0%")(serviceThresholdData[0].samples_above_threshold_pct)}
+        </span>{" "}
+        of the tests had sufficient bandwidth for making{" "}
         <span className="audio-label">audio</span> calls (at least 2 megabits
-        per second) and{' '}
+        per second) and{" "}
         <span className="dynamic-value">
-          {format('.0%')(serviceThresholdData[1].samples_above_threshold_pct)}
-        </span>{' '}
-        of the tests enough for successful{' '}
+          {format(".0%")(serviceThresholdData[1].samples_above_threshold_pct)}
+        </span>{" "}
+        of the tests enough for successful{" "}
         <span className="video-label">video</span> calls (at least 10 mbps).
       </p>
     );
@@ -480,10 +477,10 @@ class DashboardPage extends Component {
     const dataSourceUrl = `https://api.measurementlab.net/${regionId}/${year}/histogram_daily_stats.json`;
 
     const timeParameterEl = (
-      <span style={{ display: 'inline-block' }}>
-        {year === 2020 ? 'since' : 'between'}{' '}
+      <span style={{ display: "inline-block" }}>
+        {year === 2020 ? "since" : "between"}{" "}
         <span className="dynamic-value">
-          January 1{year === 2020 ? ', ' : ' and December 31,'}
+          January 1{year === 2020 ? ", " : " and December 31,"}
           <select onChange={this.handleYearChange} value={year}>
             <option>2020</option>
             <option>2019</option>
@@ -497,19 +494,16 @@ class DashboardPage extends Component {
       <div className="dashboard-page">
         <div className="dashboard-controls sticky">
           <div>
-            Measurement Lab has recorded approximately{' '}
+            Measurement Lab has recorded approximately{" "}
             <span className="dynamic-value">
-              {typeof totalSamples === 'string'
+              {typeof totalSamples === "string"
                 ? totalSamples
-                : format(',')(totalSamples)}
-            </span>{' '}
-            speed tests from{' '}
-            <RegionSelect
-              onChange={this.handleRegionChange}
-              value={regionId}
-            />{' '}
-            {timeParameterEl} You can see the{' '}
-            <a href={dataSourceUrl}>data from our API</a> or{' '}
+                : format(",")(totalSamples)}
+            </span>{" "}
+            speed tests from{" "}
+            <RegionSelect onChange={this.handleRegionChange} value={regionId} />{" "}
+            {timeParameterEl} You can see the{" "}
+            <a href={dataSourceUrl}>data from our API</a> or{" "}
             <a>contribute to the global data set by taking a speed test</a>.
           </div>
         </div>
@@ -534,8 +528,8 @@ class DashboardPage extends Component {
               onClick={this.handleChartClick}
               onHover={this.handleChartHover}
               strokeFn={(d) => {
-                if (d.name === 'Audio') return 'rgb(225, 138, 212)';
-                return 'rgb(155, 210, 199)';
+                if (d.name === "Audio") return "rgb(225, 138, 212)";
+                return "rgb(155, 210, 199)";
               }}
               xAttribute="date"
               yAttribute="samples_above_threshold_pct"
@@ -569,25 +563,29 @@ class DashboardPage extends Component {
         <div className="group">
           <div>
             <p>
-              Another way we can look at our data from{' '}
+              Another way we can look at our data from{" "}
               <span className="dynamic-value">{regionLabel}</span> is to look at
-              the percentage of tests (per day) that were within a download speed
-              "bucket".
+              the percentage of tests (per day) that were within a download
+              speed "bucket".
             </p>
             <details>
               <summary>Learn more about our bucket approach.</summary>
               <div>
                 We divide up our traffic into "buckets", depending on the
-                measured speed for both upload and download values. We do this because of X, Y, and Z.
+                measured speed for both upload and download values. We do this
+                because of X, Y, and Z.
               </div>
             </details>
             <p>
-              The more tests within a bucket within a day, the brighter the color
-              will be in the chart to the right. For example, if 50% of today's test samples measured a download speed of less than 2.5 megabits per second (mbps), then the cell associated all the way to the right on the first row would be colored bright pink.
+              A gray color indicates that the number of samples within that
+              bucket was close to the mean. A pink color tells you that there
+              was a higher than average amount of samples in the bucket, and a
+              more green color tells you that there less than the average amount
+              of tests in that bucket.
             </p>
           </div>
           <div className="chart-placeholder">
-            Speed tests by bucket per day in {regionLabel}
+            Distribution of tests by bucket per day in {regionLabel}
             <HeatmapChart
               currentHoverIndicatorDate={currentHoverIndicatorDate}
               data={heatMapData}
@@ -601,13 +599,13 @@ class DashboardPage extends Component {
         <h2>Data by internal political boundaries</h2>
         <div>
           <p>
-            We have more detailed geographic data for{' '}
+            We have more detailed geographic data for{" "}
             <span className="dynamic-value">{regionLabel}</span> and you can see
-            data for{' '}
+            data for{" "}
             <span className="dynamic-value">
-              {regionLabel === 'Louisiana' ? 'parishes' : 'counties'},
+              {regionLabel === "Louisiana" ? "parishes" : "counties"},
               Congressional districts, and ZIP codes
-            </span>{' '}
+            </span>{" "}
             below. The tables represent the daily average values for the time
             period and you can see the underlying data with the "source" links.
           </p>
@@ -616,8 +614,8 @@ class DashboardPage extends Component {
               <caption>
                 <span>
                   <h3>
-                    Speed tests by{' '}
-                    {regionLabel === 'Louisiana' ? 'parish' : 'county'}{' '}
+                    Speed tests by{" "}
+                    {regionLabel === "Louisiana" ? "parish" : "county"}{" "}
                   </h3>
                   <span>
                     <a>See the data</a>
@@ -627,7 +625,7 @@ class DashboardPage extends Component {
               <thead>
                 <tr>
                   <th>
-                    {regionLabel === 'Louisiana' ? 'Parish' : 'County'} name
+                    {regionLabel === "Louisiana" ? "Parish" : "County"} name
                   </th>
                   <th>FIPS</th>
                   <th>Test count</th>
@@ -744,6 +742,5 @@ class DashboardPage extends Component {
     );
   }
 }
-
 
 export default urlConnect(urlHandler, mapStateToProps)(DashboardPage);

@@ -1,13 +1,14 @@
-import { extent } from 'd3-array';
-import { format } from 'd3-format';
-import { timeFormat, timeParse } from 'd3-time-format';
-import { scaleLinear, scaleTime } from 'd3-scale';
-import React, { Component } from 'react';
+/* eslint-disable react/prop-types */
+import { extent, mean } from "d3-array";
+import { format } from "d3-format";
+import { timeFormat, timeParse } from "d3-time-format";
+import { scaleLinear, scaleLog, scaleTime } from "d3-scale";
+import React, { Component } from "react";
 
-import './DashboardPage.scss';
+import "./DashboardPage.scss";
 
-const formatDate = timeFormat('%b %0d');
-const parseDate = timeParse('%Y-%m-%d');
+const formatDate = timeFormat("%b %0d");
+const parseDate = timeParse("%Y-%m-%d");
 
 class HeatmapChart extends Component {
   constructor(props) {
@@ -33,7 +34,6 @@ class HeatmapChart extends Component {
     onHover(null);
   }
 
-
   handleClick() {
     this.props.onClick();
   }
@@ -47,10 +47,10 @@ class HeatmapChart extends Component {
       isFetching,
       margin,
       width,
-      xAttribute,
-      yAttribute,
-      xType,
-      yType,
+      // xAttribute,
+      // yAttribute,
+      // xType,
+      // yType,
     } = this.props;
     const dateExtent = extent(data, (d) => parseDate(d.key));
     const chartHeight = height - margin.top - margin.bottom;
@@ -58,13 +58,21 @@ class HeatmapChart extends Component {
     const cellWidth = chartWidth / data.length;
     const cellHeight = chartHeight / (data[0] ? data[0].values.length : 1);
 
-    const colorScale = scaleLinear()
-      .domain([0, 0.25, 1])
-      .range(['#EBEBEB', '#9BD2C7', 'rgb(21, 59, 80)']);
-    const xScale = scaleTime().domain(dateExtent).range([0, chartWidth]);
+    const fractionValues = data
+      .map((d) => d.values.map((dd) => dd.dl_frac))
+      .flat();
+    const fractionExtent = extent(fractionValues);
+    const fractionMean = mean(fractionValues);
+
+    const colorScale = scaleLog()
+      .domain([fractionExtent[0], fractionMean, fractionExtent[1]])
+      .range(["rgb(155, 210, 199)", "#CCCCCC", "rgb(225, 138, 212)"]);
+    const xScale = scaleTime()
+      .domain(dateExtent)
+      .range([0, cellWidth * data.length]);
 
     return (
-      <div className={`heatmap-chart ${isFetching ? 'is-fetching' : ''}`}>
+      <div className={`heatmap-chart ${isFetching ? "is-fetching" : ""}`}>
         <svg
           height={height}
           onClick={this.handleClick}
@@ -73,7 +81,12 @@ class HeatmapChart extends Component {
           viewBox={`0 0 ${width} ${height}`}
         >
           <g transform={`translate(${chartWidth / 2.2}, 0)`}>
-            {[0, 0.25, 0.5, 0.75, 1].map((step, i) => {
+            {[
+              fractionExtent[0],
+              fractionMean,
+              fractionExtent[1],
+              fractionExtent[1] * 2,
+            ].map((step, i) => {
               const legendCellWidth = 20;
               return (
                 <g
@@ -81,12 +94,20 @@ class HeatmapChart extends Component {
                   transform={`translate(${i * (legendCellWidth * 1.3)}, 0)`}
                 >
                   <rect
-                    width={legendCellWidth}
-                    height={legendCellWidth / 3}
                     fill={colorScale(step)}
+                    height={legendCellWidth / 3}
+                    transform="translate(0, -2)"
+                    width={legendCellWidth}
                   />
-                  <text strokeWidth=".25px" stroke="black" fontSize="8" dx="2" dy="15">
-                    {step * 100}%
+                  <text
+                    strokeWidth=".25px"
+                    stroke="black"
+                    fontSize="10"
+                    dx="2"
+                    dy="17"
+                  >
+                    {Math.floor(step * 100)}%
+                    {i === 3 && " percent of the daily tests"}
                   </text>
                 </g>
               );
@@ -103,11 +124,11 @@ class HeatmapChart extends Component {
                       key={i}
                       transform={`translate(0, ${y + 2 - cellHeight / 2})`}
                     >
-                      <text fontSize="8px">
-                        {format('.2s')(value.bucket_min)}
-                        {'  '}-{'  '}
-                        {format('.2s')(value.bucket_max)}
-                        {i === 0 && <tspan>{'  '} mbps</tspan>}
+                      <text fontSize="10px">
+                        {format(".2s")(value.bucket_min)}
+                        {"  "}-{"  "}
+                        {format(".2s")(value.bucket_max)}
+                        {i === 0 && <tspan>{"  "} mbps</tspan>}
                       </text>
                     </g>
                   );
@@ -172,7 +193,7 @@ class HeatmapChart extends Component {
                 x2={xScale(currentHoverIndicatorDate)}
                 y1="0"
                 y2={chartHeight}
-                stroke={isHoverDisabled ? '#FFD670' : '#121212'}
+                stroke={isHoverDisabled ? "#FFD670" : "#121212"}
                 strokeDasharray="5 3"
               />
             )}
@@ -189,13 +210,13 @@ HeatmapChart.defaultProps = {
   onHover: () => {},
   height: 220,
   margin: {
-    left: 60,
+    left: 65,
     right: 20,
-    top: 20,
+    top: 25,
     bottom: 20,
   },
-  xType: 'time',
-  yType: 'linear',
+  xType: "time",
+  yType: "linear",
   width: 500,
 };
 
