@@ -3,6 +3,7 @@ import { extent, mean } from "d3-array";
 import { format } from "d3-format";
 import { timeFormat, timeParse } from "d3-time-format";
 import { scaleLinear, scaleLog, scaleTime } from "d3-scale";
+import flatten from "lodash.flatten";
 import React, { Component } from "react";
 
 import "./DashboardPage.scss";
@@ -58,9 +59,9 @@ class HeatmapChart extends Component {
     const cellWidth = chartWidth / data.length;
     const cellHeight = chartHeight / (data[0] ? data[0].values.length : 1);
 
-    const fractionValues = data
-      .map((d) => d.values.map((dd) => dd.dl_frac))
-      .flat();
+    const fractionValues = flatten(
+      data.map((d) => d.values.map((dd) => dd.dl_frac))
+    );
     const fractionExtent = extent(fractionValues);
     const fractionMean = mean(fractionValues);
 
