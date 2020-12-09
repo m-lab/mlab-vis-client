@@ -45,8 +45,8 @@ class DashboardPage extends Component {
       isFetching: true,
       meanAudioServicePercent: "--",
       meanSamples: "--",
-      regionId: "NA/US",
-      regionLabel: "the United States",
+      regionId: "NA/US/US-AZ",
+      regionLabel: "Arizona",
       samplesBarChartData: [],
       serviceThresholdLineChartData: [],
       meanVideoServicePercent: "--",
@@ -594,148 +594,6 @@ class DashboardPage extends Component {
               onClick={this.handleChartClick}
               onHover={this.handleChartHover}
             />
-          </div>
-        </div>
-        <h2>Data by internal political boundaries</h2>
-        <div>
-          <p>
-            We have more detailed geographic data for{" "}
-            <span className="dynamic-value">{regionLabel}</span> and you can see
-            data for{" "}
-            <span className="dynamic-value">
-              {regionLabel === "Louisiana" ? "parishes" : "counties"},
-              Congressional districts, and ZIP codes
-            </span>{" "}
-            below. The tables represent the daily average values for the time
-            period and you can see the underlying data with the "source" links.
-          </p>
-          <div>
-            <table>
-              <caption>
-                <span>
-                  <h3>
-                    Speed tests by{" "}
-                    {regionLabel === "Louisiana" ? "parish" : "county"}{" "}
-                  </h3>
-                  <span>
-                    <a>See the data</a>
-                  </span>
-                </span>
-              </caption>
-              <thead>
-                <tr>
-                  <th>
-                    {regionLabel === "Louisiana" ? "Parish" : "County"} name
-                  </th>
-                  <th>FIPS</th>
-                  <th>Test count</th>
-                  <th>Sufficient for audio</th>
-                  <th>Sufficient for video</th>
-                  <th>Median dl</th>
-                  <th>Median up</th>
-                </tr>
-              </thead>
-              <tbody>
-                <tr>
-                  <td>County 1</td>
-                  <td>00000</td>
-                  <td>100</td>
-                  <td>40%</td>
-                  <td>20%</td>
-                  <td>100 mbps</td>
-                  <td>40 mbps</td>
-                </tr>
-                <tr>
-                  <td>County 1</td>
-                  <td>00000</td>
-                  <td>100</td>
-                  <td>40%</td>
-                  <td>20%</td>
-                  <td>100 mbps</td>
-                  <td>40 mbps</td>
-                </tr>
-              </tbody>
-            </table>
-          </div>
-          <div>
-            <table>
-              <caption>
-                <span>
-                  <h3>Speed tests by Congressional districts</h3>
-                  <span>
-                    <a>See the data</a>
-                  </span>
-                </span>
-              </caption>
-              <thead>
-                <tr>
-                  <th>District</th>
-                  <th>Test count</th>
-                  <th>Sufficient for audio</th>
-                  <th>Sufficient for video</th>
-                  <th>Median dl</th>
-                  <th>Median up</th>
-                </tr>
-              </thead>
-              <tbody>
-                <tr>
-                  <td>District 4</td>
-                  <td>100</td>
-                  <td>40%</td>
-                  <td>20%</td>
-                  <td>100 mbps</td>
-                  <td>40 mbps</td>
-                </tr>
-                <tr>
-                  <td>District 5</td>
-                  <td>100</td>
-                  <td>40%</td>
-                  <td>20%</td>
-                  <td>100 mbps</td>
-                  <td>40 mbps</td>
-                </tr>
-              </tbody>
-            </table>
-          </div>
-          <div>
-            <table>
-              <caption>
-                <span>
-                  <h3>Speed tests by ZIP code</h3>
-                  <span>
-                    <a>See the data</a>
-                  </span>
-                </span>
-              </caption>
-              <thead>
-                <tr>
-                  <th>ZIP</th>
-                  <th>Test count</th>
-                  <th>Sufficient for audio</th>
-                  <th>Sufficient for video</th>
-                  <th>Median dl</th>
-                  <th>Median up</th>
-                </tr>
-              </thead>
-              <tbody>
-                <tr>
-                  <td>99923</td>
-                  <td>100</td>
-                  <td>40%</td>
-                  <td>20%</td>
-                  <td>100 mbps</td>
-                  <td>40 mbps</td>
-                </tr>
-                <tr>
-                  <td>99924</td>
-                  <td>100</td>
-                  <td>40%</td>
-                  <td>20%</td>
-                  <td>100 mbps</td>
-                  <td>40 mbps</td>
-                </tr>
-              </tbody>
-            </table>
           </div>
         </div>
       </div>
