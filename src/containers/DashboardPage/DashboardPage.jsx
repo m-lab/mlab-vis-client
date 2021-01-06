@@ -355,7 +355,7 @@ class DashboardPage extends Component {
     if (currentHoverIndicatorDate === null) {
       return (
         <p>
-          Our data from <span className="dynamic-value">{regionLabel}</span>{" "}
+          Our NDT data from <span className="dynamic-value">{regionLabel}</span>{" "}
           during this time period is{" "}
           <span className="dynamic-value">{this.renderDataQualityText()}</span>,
           with a mean of approximately{" "}
@@ -500,26 +500,26 @@ class DashboardPage extends Component {
                 ? totalSamples
                 : format(",")(totalSamples)}
             </span>{" "}
-            speed tests from{" "}
+            NDT tests from{" "}
             <RegionSelect onChange={this.handleRegionChange} value={regionId} />{" "}
             {timeParameterEl} You can see the{" "}
             <a href={dataSourceUrl}>data from our API</a> or{" "}
-            <a>contribute to the global data set by taking a speed test</a>.
+            <a>contribute to the global data set by taking an NDT test</a>.
           </div>
         </div>
-        <h1>Internet speed data from {regionLabel}</h1>
+        <h2>NDT measurements from {regionLabel}</h1>
         <div className="group">
           <div>
             {this.renderLineChartText()}
             <p>
               <i>
                 You can hover over the chart to the right to see more details
-                about a particular day.
+                about a particular day or click on a specific day to select it.
               </i>
             </p>
           </div>
           <div className="chart-placeholder">
-            Percentage of tests by service thresholds in {regionLabel}
+            Percentage of NDT tests by service thresholds in {regionLabel}
             <LineChart
               currentHoverIndicatorDate={currentHoverIndicatorDate}
               data={serviceThresholdLineChartData}
@@ -538,7 +538,7 @@ class DashboardPage extends Component {
         </div>
         <div className="group column-reverse">
           <div className="chart-placeholder">
-            Speed tests per day in {regionLabel}
+            NDT tests per day in {regionLabel}
             <BarChart
               currentHoverIndicatorDate={currentHoverIndicatorDate}
               data={samplesBarChartData}
@@ -555,7 +555,7 @@ class DashboardPage extends Component {
             <p>
               <i>
                 You can hover over the chart to the left to see more details
-                about a particular day.
+                about a particular day or click on a specific day to select it.
               </i>
             </p>
           </div>
@@ -563,29 +563,26 @@ class DashboardPage extends Component {
         <div className="group">
           <div>
             <p>
-              Another way we can look at our data from{" "}
-              <span className="dynamic-value">{regionLabel}</span> is to look at
-              the percentage of tests (per day) that were within a download
-              speed "bucket".
+              Another way we can look at NDT data from{" "}
+              <span className="dynamic-value">{regionLabel}</span> is to look at the percentage of tests (per day) that were within different ranges or "buckets" of download speeds. The distribution of tests viewed in this way is called a histogram.
             </p>
             <details>
-              <summary>Learn more about our bucket approach.</summary>
+              <summary>Learn more about our histogram/bucket approach.</summary>
               <div>
-                We divide up our traffic into "buckets", depending on the
-                measured speed for both upload and download values. We do this
-                because of X, Y, and Z.
+                To create a histogram, we divide our measurements into "buckets" for both upload and download speeds - histograms require bucketing, and are a very understandable way of viewing network speed data.
+
+                Because network traffic speeds span more than three orders of magnitude (from less than 1Mb to more than 1Gb), we have chosen our histogram buckets to be of constant width when the histogram is viewed on a logarithmic plot. To aid readability, we make sure to have a boundary at 1, 10, 100, and 1000 Mbit/s.
               </div>
             </details>
             <p>
               A gray color indicates that the number of samples within that
               bucket was close to the mean. A pink color tells you that there
               was a higher than average amount of samples in the bucket, and a
-              more green color tells you that there less than the average amount
-              of tests in that bucket.
+              more green color tells you that there less than the average amount of tests in that bucket.
             </p>
           </div>
           <div className="chart-placeholder">
-            Distribution of tests by bucket per day in {regionLabel}
+            Distribution of NDT tests per day in {regionLabel}
             <HeatmapChart
               currentHoverIndicatorDate={currentHoverIndicatorDate}
               data={heatMapData}
