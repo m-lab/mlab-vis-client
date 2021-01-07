@@ -507,7 +507,7 @@ class DashboardPage extends Component {
             <a>contribute to the global data set by taking an NDT test</a>.
           </div>
         </div>
-        <h2>NDT measurements from {regionLabel}</h1>
+        <h2>NDT measurements from {regionLabel}</h2>
         <div className="group">
           <div>
             {this.renderLineChartText()}
