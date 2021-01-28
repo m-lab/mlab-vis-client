@@ -482,8 +482,8 @@ class DashboardPage extends Component {
         <span className="dynamic-value">
           January 1{year === 2020 ? ", " : " and December 31,"}
           <select onChange={this.handleYearChange} value={year}>
+            <option>2021</option>
             <option>2020</option>
-            <option>2019</option>
           </select>
         </span>
         .
