@@ -1,0 +1,166 @@
+.dashboard-page {
+  font-size: 20px;
+  margin-bottom: 8rem;
+}
+
+a {
+  cursor: pointer;
+}
+
+.dashboard-controls {
+  margin: 3rem 0;
+  margin-bottom: 1rem;
+  padding-bottom: .45rem;
+  z-index: 10;
+}
+
+.sticky {
+  background-color: white;
+  padding-top: 1rem;
+  position: sticky;
+  top: 0rem;
+}
+
+.group {
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  margin: 3rem 0;
+  margin-bottom: 1rem;
+}
+
+.group.column-reverse {
+  flex-direction: column-reverse;
+}
+
+@media (min-width: 700px) {
+  .group {
+    flex-direction: row !important;
+  }
+}
+
+.group > * {
+  flex-grow: 1;
+  flex-shrink: 1;
+  flex-basis: 40%;
+}
+
+.chart-placeholder {
+  // background-color: #ebebeb;
+  // border: 1px solid black;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  min-height: 300px;
+  position: relative;
+  text-align: center;
+}
+
+.chart-placeholder + * {
+  margin-left: 1rem;
+}
+
+.dynamic-value,
+.audio-label,
+.video-label {
+  background-color: #ccc;
+  color: black;
+  // font-size: 20px;
+  font-weight: 900;
+  padding: .05em .3em;
+}
+
+.audio-label {
+  background-color: rgb(225, 138, 212);
+}
+
+.video-label {
+  background-color: rgb(155, 210, 199);
+}
+
+details {
+  margin-bottom: 1rem;
+}
+
+details div {
+  border-left: 1px solid #ebebeb;
+  border-bottom: 1px solid #ebebeb;
+  box-shadow: 2px 2px 2px #ebebeb;
+  // background-color: #ebebeb;
+  padding: 1rem;
+  width: 100%;
+}
+
+details summary {
+  background-color: white;
+  cursor: pointer;
+  font-style: italic;
+  padding: .2rem;
+}
+
+// details summary::before {
+//   content: '► ';
+//   display: inline-block;
+//   margin-right: .5rem;
+// }
+
+// details[open] summary::before {
+//   content: '▼ ';
+// }
+
+details[open] summary {
+  background-color: #ebebeb;
+}
+
+.tick {
+  font-size: 14px;
+}
+
+.is-fetching {
+  pointer-events: none;
+  opacity: .5;
+}
+
+.is-fetching::before {
+  align-items: center;
+  background-color: rgba(255, 255, 255, .7);
+  content: 'Loading';
+  display: flex;
+  height: 100%;
+  justify-content: center;
+  position: absolute;
+  top: 29px;
+  width: 100%;
+}
+
+table {
+  margin-bottom: 2.5rem;
+  width: 100%;
+}
+
+caption {
+  color: black;
+}
+
+caption > span {
+  display: flex;
+  justify-content: space-between;
+}
+
+caption h3 {
+  font-size: 24px;
+  margin-top: 0;
+  margin-bottom: 0;
+}
+
+caption a {
+  font-size: .8em;
+}
+
+thead {
+  border-bottom: 1px solid black;
+}
+
+tr:nth-child(even) {
+  background-color: #ebebeb;
+}

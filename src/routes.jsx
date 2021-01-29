@@ -1,12 +1,7 @@
 import React from 'react';
 import { IndexRoute, Route, Redirect } from 'react-router';
 import {
-    App,
-    HomePage,
-    LocationPage,
-    ComparePage,
-    DataPage,
-    AboutPage,
+    DashboardPage,
     NotFoundPage,
   } from './containers';
 
@@ -14,25 +9,14 @@ export default () => (
   /**
    * Please keep routes in alphabetical order
    */
-  <Route path="/" component={App}>
+  <Route path="/" component={DashboardPage}>
     { /* Home (main) route */ }
-    <IndexRoute component={HomePage} />
+    <IndexRoute component={DashboardPage} />
 
     { /* Routes */ }
     <Redirect from="location" to="/" />
-    <Route path="location" component={LocationPage}>
-      <Route path=":locationId" />
-    </Route>
 
-    {/* Default to location compare */}
-    <Redirect from="compare" to="compare/location" />
-    <Route path="compare" component={ComparePage}>
-      <Route path=":facetType" />
-    </Route>
-
-    <Route path="data" component={DataPage} />
-
-    <Route path="about" component={AboutPage} />
+    <Route path="dashboard" component={DashboardPage} />
 
     { /* Catch all route */ }
     <Route path="*" component={NotFoundPage} status={404} />
